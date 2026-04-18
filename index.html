@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Bradicoin DApp | BRD Token | Multi-Chain Cyberpunk Dashboard</title>
+  <title>Bradicoin DApp | BRD Token | Cyberpunk Dashboard</title>
   <!-- Google Fonts: Orbitron -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <!-- Font Awesome 6 & Chart.js -->
@@ -23,6 +23,125 @@
     ::-webkit-scrollbar-track { background: #0a0c1a; box-shadow: inset 0 0 2px #00ffff22; }
     ::-webkit-scrollbar-thumb { background: #00ffffaa; border-radius: 8px; }
     .app-container { max-width: 1500px; margin: 0 auto; }
+
+    /* ==================== SPLASH SCREEN / ONBOARDING ==================== */
+    .splash-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 30% 20%, #0a0f1e, #020408);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      backdrop-filter: blur(4px);
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    .splash-content {
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      padding: 2rem;
+      background: rgba(8, 12, 26, 0.85);
+      backdrop-filter: blur(16px);
+      border-radius: 2.5rem;
+      border: 2px solid #4d3effaa;
+      box-shadow: 0 0 50px #3a0ca3aa, inset 0 0 20px #7b2ff755;
+      animation: glowPulse 2s infinite;
+    }
+    @keyframes glowPulse {
+      0% { box-shadow: 0 0 20px #3a0ca3aa, inset 0 0 10px #7b2ff755; }
+      100% { box-shadow: 0 0 50px #a855f7aa, inset 0 0 25px #a855f7; }
+    }
+    .splash-logo {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #a855f7, #00f2ff);
+      border-radius: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem auto;
+      box-shadow: 0 0 30px #a855f7;
+    }
+    .splash-logo i {
+      font-size: 4rem;
+      color: #0a0f1e;
+    }
+    .splash-content h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #a855f7, #00f2ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    .splash-content p {
+      color: #99ccff;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+    }
+    .splash-buttons {
+      display: flex;
+      gap: 1.2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .splash-btn {
+      background: rgba(0, 0, 0, 0.6);
+      border: 1.5px solid #3b82f6;
+      color: #bbf0ff;
+      font-family: 'Orbitron', monospace;
+      font-weight: 600;
+      padding: 0.8rem 1.8rem;
+      border-radius: 3rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .splash-btn:hover {
+      background: #3b82f6cc;
+      border-color: #00ffff;
+      box-shadow: 0 0 20px #00a6ff;
+      transform: translateY(-3px);
+    }
+    .splash-btn.primary {
+      background: linear-gradient(95deg, #6a11cb, #2575fc);
+      border: none;
+    }
+    .import-input-group {
+      margin-top: 1.5rem;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .import-input-group .cyber-input {
+      background: #010518;
+      border: 1px solid #a855f7;
+      padding: 0.8rem;
+      border-radius: 2rem;
+      width: 100%;
+      color: white;
+      font-family: 'Orbitron', monospace;
+      text-align: center;
+    }
+    .import-input-group button {
+      margin-top: 0.8rem;
+      width: 100%;
+    }
+
+    /* ==================== MAIN DASHBOARD (inicialmente oculto) ==================== */
+    .main-dashboard {
+      display: none;
+    }
     .top-bar {
       display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
       gap: 1rem; margin-bottom: 2rem; padding: 1rem 1.8rem;
@@ -78,335 +197,136 @@
   </style>
 </head>
 <body>
-<div class="app-container">
-  <div class="top-bar">
-    <div class="logo-area"><div class="logo-placeholder"><i class="fas fa-coins"></i></div><h1 data-i18n="appTitle">BRADICOIN</h1></div>
-    <div class="wallet-actions">
-      <select id="chainSelector" class="chain-selector"><option value="bitcoin">₿ Bitcoin</option><option value="ethereum">⟠ Ethereum</option><option value="solana">◎ Solana</option><option value="binance">ⓑ Binance</option><option value="polygon">🟣 Polygon</option><option value="arbitrum">🟠 Arbitrum</option></select>
-      <button id="createWalletBtn" class="cyber-btn"><i class="fas fa-plus-circle"></i> <span data-i18n="createWallet">Create</span></button>
-      <button id="importWalletBtn" class="cyber-btn"><i class="fas fa-key"></i> <span data-i18n="importWallet">Import</span></button>
-      <button id="logoutBtn" class="cyber-btn"><i class="fas fa-sign-out-alt"></i> <span data-i18n="logout">Logout</span></button>
-      <div class="notification-badge" id="notificationBell"><i class="fas fa-bell"></i><span class="badge-count" id="notifCount">3</span></div>
-      <select id="languageSwitcher" class="lang-selector">
-        <option value="en">🇬🇧 English</option>
-        <option value="pt">🇧🇷 Português</option>
-        <option value="es">🇪🇸 Español</option>
-        <option value="ar">🇸🇦 العربية</option>
-      </select>
+
+<!-- SPLASH SCREEN / ONBOARDING -->
+<div id="splashScreen" class="splash-screen">
+  <div class="splash-content">
+    <div class="splash-logo">
+      <i class="fas fa-microchip"></i>
+    </div>
+    <h1>BRADICOIN</h1>
+    <p>Cyberpunk · Decentralized · The Future of Value</p>
+    <div class="splash-buttons">
+      <button id="splashCreateBtn" class="splash-btn primary"><i class="fas fa-plus-circle"></i> Create Wallet</button>
+      <button id="splashImportBtn" class="splash-btn"><i class="fas fa-key"></i> Import Wallet</button>
+    </div>
+    <div id="importKeyGroup" class="import-input-group">
+      <input type="text" id="importPrivateKey" class="cyber-input" placeholder="Enter your private key">
+      <button id="confirmImportBtn" class="cyber-btn primary">Confirm Import</button>
     </div>
   </div>
-  <div id="notificationPanel" class="notification-panel"><h4 data-i18n="notificationsTitle">🔔 Notifications</h4><div id="notifList"></div></div>
+</div>
 
-  <div class="dashboard-grid">
-    <!-- Price & Balance Card -->
-    <div class="neon-card">
-      <div class="card-title"><i class="fas fa-chart-line"></i> <span data-i18n="priceCardTitle">BRD Price & Balance</span></div>
-      <div class="price-ticker"><span class="price" id="brdPrice">$10.00</span> <span id="priceChange" style="font-size:0.8rem;" data-i18n="fixedPriceNote">(fixed: $10 USD)</span></div>
-      <div class="balance-box"><div class="balance-amount" id="bradicoinBalance">0.00</div><div class="balance-label" data-i18n="brdToken">BRD TOKEN</div></div>
-      <div class="input-group"><label data-i18n="walletAddressLabel">Wallet Address</label><div class="cyber-input" id="walletAddressDisplay">—</div></div>
-      <div class="flex-btns"><button id="copyAddressBtn" class="cyber-btn"><i class="far fa-copy"></i> <span data-i18n="copyBtn">Copy</span></button></div>
-      <div class="explorer-link" style="margin-top:0.8rem;"><a href="https://bradicoin-api.onrender.com" target="_blank"><i class="fas fa-server"></i> <span data-i18n="apiLink">Bradicoin API (beta)</span></a></div>
+<!-- MAIN DASHBOARD (inicialmente oculto) -->
+<div id="mainDashboard" class="main-dashboard">
+  <div class="app-container">
+    <div class="top-bar">
+      <div class="logo-area"><div class="logo-placeholder"><i class="fas fa-coins"></i></div><h1 data-i18n="appTitle">BRADICOIN</h1></div>
+      <div class="wallet-actions">
+        <select id="chainSelector" class="chain-selector"><option value="bitcoin">₿ Bitcoin</option><option value="ethereum">⟠ Ethereum</option><option value="solana">◎ Solana</option><option value="binance">ⓑ Binance</option><option value="polygon">🟣 Polygon</option><option value="arbitrum">🟠 Arbitrum</option></select>
+        <button id="logoutBtn" class="cyber-btn"><i class="fas fa-sign-out-alt"></i> <span data-i18n="logout">Logout</span></button>
+        <div class="notification-badge" id="notificationBell"><i class="fas fa-bell"></i><span class="badge-count" id="notifCount">3</span></div>
+        <select id="languageSwitcher" class="lang-selector">
+          <option value="en">🇬🇧 English</option><option value="pt">🇧🇷 Português</option>
+          <option value="es">🇪🇸 Español</option><option value="ar">🇸🇦 العربية</option>
+        </select>
+      </div>
     </div>
+    <div id="notificationPanel" class="notification-panel"><h4 data-i18n="notificationsTitle">🔔 Notifications</h4><div id="notifList"></div></div>
 
-    <!-- Multi-Pool Staking Card (including 17% APR) -->
-    <div class="neon-card">
-      <div class="card-title"><i class="fas fa-layer-group"></i> <span data-i18n="stakingTitle">Staking Pools</span></div>
-      <div id="stakingPoolsContainer"></div>
-      <div id="stakeStatus" class="status-msg"></div>
+    <div class="dashboard-grid">
+      <div class="neon-card"><div class="card-title"><i class="fas fa-chart-line"></i> <span data-i18n="priceCardTitle">BRD Price & Balance</span></div>
+        <div class="price-ticker"><span class="price" id="brdPrice">$10.00</span> <span style="font-size:0.8rem;" data-i18n="fixedPriceNote">(fixed: $10 USD)</span></div>
+        <div class="balance-box"><div class="balance-amount" id="bradicoinBalance">0.00</div><div class="balance-label" data-i18n="brdToken">BRD TOKEN</div></div>
+        <div class="input-group"><label data-i18n="walletAddressLabel">Wallet Address</label><div class="cyber-input" id="walletAddressDisplay">—</div></div>
+        <div class="flex-btns"><button id="copyAddressBtn" class="cyber-btn"><i class="far fa-copy"></i> <span data-i18n="copyBtn">Copy</span></button></div>
+        <div class="explorer-link" style="margin-top:0.8rem;"><a href="https://bradicoin-api.onrender.com" target="_blank"><i class="fas fa-server"></i> <span data-i18n="apiLink">Bradicoin API (beta)</span></a></div>
+      </div>
+      <div class="neon-card"><div class="card-title"><i class="fas fa-layer-group"></i> <span data-i18n="stakingTitle">Staking Pools</span></div><div id="stakingPoolsContainer"></div><div id="stakeStatus" class="status-msg"></div></div>
+      <div class="neon-card"><div class="card-title"><i class="fas fa-exchange-alt"></i> <span data-i18n="sendReceiveTitle">Send / Receive</span></div>
+        <input type="text" id="recipientAddr" class="cyber-input" placeholder="Recipient address"><input type="number" id="sendAmount" class="cyber-input" placeholder="Amount (BRD)" step="any">
+        <button id="sendBtn" class="cyber-btn primary"><i class="fas fa-paper-plane"></i> <span data-i18n="sendBtn">Send BRD</span></button><hr style="margin:0.8rem 0">
+        <div class="card-title"><i class="fas fa-user-plus"></i> <span data-i18n="referralTitle">Referral Program</span></div>
+        <div class="referral-code"><span data-i18n="yourCode">Your code:</span> <strong id="referralCode">LOADING</strong> <button id="copyReferralBtn" class="cyber-btn" style="padding:0.2rem 0.5rem;"><span data-i18n="copyCode">Copy</span></button></div>
+        <div class="input-group"><label data-i18n="friendCodeLabel">Friend's code</label><input type="text" id="friendCode" class="cyber-input" placeholder="Enter referral code"></div>
+        <button id="applyReferralBtn" class="cyber-btn"><span data-i18n="applyBtn">Apply & Earn 5%</span></button><div id="referralBonus" class="status-msg"></div>
+        <button id="claimAirdropBtn" class="cyber-btn primary" style="margin-top:1rem;"><i class="fas fa-gift"></i> <span data-i18n="claimAirdropBtn">Claim Airdrop (250 BRD)</span></button><div id="airdropStatus" class="status-msg"></div>
+      </div>
+      <div class="neon-card"><div class="card-title"><i class="fas fa-chart-simple"></i> <span data-i18n="performanceTitle">Performance (7d)</span></div><canvas id="priceChart" width="400" height="180"></canvas></div>
+      <div class="neon-card"><div class="card-title"><i class="fas fa-question-circle"></i> <span data-i18n="faqTitle">FAQ</span></div><div id="faqContainer"></div></div>
     </div>
-
-    <!-- Send/Receive & Referral -->
-    <div class="neon-card">
-      <div class="card-title"><i class="fas fa-exchange-alt"></i> <span data-i18n="sendReceiveTitle">Send / Receive</span></div>
-      <input type="text" id="recipientAddr" class="cyber-input" placeholder="Recipient address">
-      <input type="number" id="sendAmount" class="cyber-input" placeholder="Amount (BRD)" step="any">
-      <button id="sendBtn" class="cyber-btn primary"><i class="fas fa-paper-plane"></i> <span data-i18n="sendBtn">Send BRD</span></button>
-      <hr style="margin:0.8rem 0">
-      <div class="card-title"><i class="fas fa-user-plus"></i> <span data-i18n="referralTitle">Referral Program</span></div>
-      <div class="referral-code"><span data-i18n="yourCode">Your code:</span> <strong id="referralCode">LOADING</strong> <button id="copyReferralBtn" class="cyber-btn" style="padding:0.2rem 0.5rem;"><span data-i18n="copyCode">Copy</span></button></div>
-      <div class="input-group"><label data-i18n="friendCodeLabel">Friend's code</label><input type="text" id="friendCode" class="cyber-input" placeholder="Enter referral code"></div>
-      <button id="applyReferralBtn" class="cyber-btn"><span data-i18n="applyBtn">Apply & Earn 5%</span></button>
-      <div id="referralBonus" class="status-msg"></div>
-    </div>
-
-    <!-- Performance Chart & FAQ -->
-    <div class="neon-card">
-      <div class="card-title"><i class="fas fa-chart-simple"></i> <span data-i18n="performanceTitle">Performance (7d)</span></div>
-      <canvas id="priceChart" width="400" height="180"></canvas>
-    </div>
-    <div class="neon-card">
-      <div class="card-title"><i class="fas fa-question-circle"></i> <span data-i18n="faqTitle">FAQ</span></div>
-      <div id="faqContainer"></div>
-    </div>
+    <footer><span data-i18n="footer">BRADICOIN ● 1 BRD = $10 USD ● Multi-Chain ● Staking 17% / 22% / 25% APR ● Referral Rewards</span></footer>
   </div>
-  <footer><span data-i18n="footer">BRADICOIN ● 1 BRD = $10 USD ● Multi-Chain ● Staking 17% / 22% / 25% APR ● Referral Rewards</span></footer>
 </div>
 
 <script>
   // ==================== MULTI-LANGUAGE TRANSLATIONS ====================
   const translations = {
-    en: {
-      appTitle: "BRADICOIN", createWallet: "Create", importWallet: "Import", logout: "Logout",
-      notificationsTitle: "🔔 Notifications", priceCardTitle: "BRD Price & Balance",
-      fixedPriceNote: "(fixed: $10 USD)", brdToken: "BRD TOKEN", walletAddressLabel: "Wallet Address",
-      copyBtn: "Copy", apiLink: "Bradicoin API (beta)", stakingTitle: "Staking Pools",
-      sendReceiveTitle: "Send / Receive", sendBtn: "Send BRD", referralTitle: "Referral Program",
-      yourCode: "Your code:", copyCode: "Copy", friendCodeLabel: "Friend's code",
-      applyBtn: "Apply & Earn 5%", performanceTitle: "Performance (7d)", faqTitle: "FAQ",
-      footer: "BRADICOIN ● 1 BRD = $10 USD ● Multi-Chain ● Staking 17% / 22% / 25% APR ● Referral Rewards",
-      poolStandard: "Standard Pool", poolAdvanced: "Advanced Pool", poolElite: "Elite Pool",
-      stakeIn: "Stake in", lockDays: "Lock", minStake: "Min", unstakeBtn: "Unstake",
-      sendPlaceholder: "Recipient address", amountPlaceholder: "Amount (BRD)",
-      friendCodePlaceholder: "Enter referral code", noWallet: "—", copied: "Copied!",
-      invalidAmount: "Invalid amount or insufficient balance", minStakeError: "Minimum stake is",
-      stakeLocked: "Stake still locked!", unstakeSuccess: "Unstaked!", referralSelfError: "Cannot use your own code",
-      referralApplied: "Code applied! +50 BRD bonus", airdropClaimedMsg: "Airdrop already claimed",
-      airdropSuccess: "+250 BRD claimed!", sentMsg: "Sent", copiedMsg: "Copied!"
-    },
-    pt: {
-      appTitle: "BRADICOIN", createWallet: "Criar", importWallet: "Importar", logout: "Sair",
-      notificationsTitle: "🔔 Notificações", priceCardTitle: "Preço BRD e Saldo",
-      fixedPriceNote: "(fixo: $10 USD)", brdToken: "TOKEN BRD", walletAddressLabel: "Endereço da Carteira",
-      copyBtn: "Copiar", apiLink: "API Bradicoin (beta)", stakingTitle: "Pools de Staking",
-      sendReceiveTitle: "Enviar / Receber", sendBtn: "Enviar BRD", referralTitle: "Programa de Indicação",
-      yourCode: "Seu código:", copyCode: "Copiar", friendCodeLabel: "Código do amigo",
-      applyBtn: "Aplicar e Ganhar 5%", performanceTitle: "Desempenho (7d)", faqTitle: "FAQ",
-      footer: "BRADICOIN ● 1 BRD = $10 USD ● Multi-Chain ● Staking 17% / 22% / 25% APR ● Recompensas de Indicação",
-      poolStandard: "Pool Padrão", poolAdvanced: "Pool Avançado", poolElite: "Pool Elite",
-      stakeIn: "Fazer Stake em", lockDays: "Bloqueio", minStake: "Mínimo", unstakeBtn: "Retirar",
-      sendPlaceholder: "Endereço do destinatário", amountPlaceholder: "Quantidade (BRD)",
-      friendCodePlaceholder: "Digite o código de indicação", noWallet: "—", copied: "Copiado!",
-      invalidAmount: "Quantidade inválida ou saldo insuficiente", minStakeError: "O mínimo para stake é",
-      stakeLocked: "Stake ainda bloqueado!", unstakeSuccess: "Stake retirado!",
-      referralSelfError: "Não pode usar seu próprio código", referralApplied: "Código aplicado! +50 BRD de bônus",
-      airdropClaimedMsg: "Airdrop já reivindicado", airdropSuccess: "+250 BRD reivindicados!",
-      sentMsg: "Enviado", copiedMsg: "Copiado!"
-    },
-    es: {
-      appTitle: "BRADICOIN", createWallet: "Crear", importWallet: "Importar", logout: "Salir",
-      notificationsTitle: "🔔 Notificaciones", priceCardTitle: "Precio BRD y Saldo",
-      fixedPriceNote: "(fijo: $10 USD)", brdToken: "TOKEN BRD", walletAddressLabel: "Dirección de la Cartera",
-      copyBtn: "Copiar", apiLink: "API Bradicoin (beta)", stakingTitle: "Pools de Staking",
-      sendReceiveTitle: "Enviar / Recibir", sendBtn: "Enviar BRD", referralTitle: "Programa de Referidos",
-      yourCode: "Tu código:", copyCode: "Copiar", friendCodeLabel: "Código del amigo",
-      applyBtn: "Aplicar y Ganar 5%", performanceTitle: "Rendimiento (7d)", faqTitle: "FAQ",
-      footer: "BRADICOIN ● 1 BRD = $10 USD ● Multi-Cadena ● Staking 17% / 22% / 25% APR ● Recompensas por Referidos",
-      poolStandard: "Pool Estándar", poolAdvanced: "Pool Avanzado", poolElite: "Pool Élite",
-      stakeIn: "Apostar en", lockDays: "Bloqueo", minStake: "Mínimo", unstakeBtn: "Retirar",
-      sendPlaceholder: "Dirección del destinatario", amountPlaceholder: "Cantidad (BRD)",
-      friendCodePlaceholder: "Ingrese código de referido", noWallet: "—", copied: "¡Copiado!",
-      invalidAmount: "Cantidad inválida o saldo insuficiente", minStakeError: "El mínimo de apuesta es",
-      stakeLocked: "¡Apuesta aún bloqueada!", unstakeSuccess: "¡Apuesta retirada!",
-      referralSelfError: "No puedes usar tu propio código", referralApplied: "¡Código aplicado! +50 BRD de bonificación",
-      airdropClaimedMsg: "Airdrop ya reclamado", airdropSuccess: "¡+250 BRD reclamados!",
-      sentMsg: "Enviado", copiedMsg: "¡Copiado!"
-    },
-    ar: {
-      appTitle: "براديكوين", createWallet: "إنشاء", importWallet: "استيراد", logout: "تسجيل خروج",
-      notificationsTitle: "🔔 إشعارات", priceCardTitle: "سعر BRD والرصيد",
-      fixedPriceNote: "(ثابت: 10 دولار أمريكي)", brdToken: "رمز BRD", walletAddressLabel: "عنوان المحفظة",
-      copyBtn: "نسخ", apiLink: "واجهة برمجة تطبيقات براديكوين (بيتا)", stakingTitle: "مجموعات التوقيف",
-      sendReceiveTitle: "إرسال / استلام", sendBtn: "إرسال BRD", referralTitle: "برنامج الإحالة",
-      yourCode: "رمزك:", copyCode: "نسخ", friendCodeLabel: "رمز الصديق",
-      applyBtn: "تطبيق وكسب 5%", performanceTitle: "الأداء (7 أيام)", faqTitle: "الأسئلة الشائعة",
-      footer: "براديكوين ● 1 BRD = 10 دولار أمريكي ● متعدد السلاسل ● توقيف 17% / 22% / 25% APR ● مكافآت الإحالة",
-      poolStandard: "المجموعة القياسية", poolAdvanced: "المجموعة المتقدمة", poolElite: "المجموعة النخبة",
-      stakeIn: "توقيف في", lockDays: "قفل", minStake: "الحد الأدنى", unstakeBtn: "إلغاء التوقيف",
-      sendPlaceholder: "عنوان المستلم", amountPlaceholder: "الكمية (BRD)",
-      friendCodePlaceholder: "أدخل رمز الإحالة", noWallet: "—", copied: "تم النسخ!",
-      invalidAmount: "كمية غير صالحة أو رصيد غير كاف", minStakeError: "الحد الأدنى للتوقيف هو",
-      stakeLocked: "لا يزال التوقيف مقفلاً!", unstakeSuccess: "تم إلغاء التوقيف!",
-      referralSelfError: "لا يمكنك استخدام رمزك الخاص", referralApplied: "تم تطبيق الرمز! +50 BRD مكافأة",
-      airdropClaimedMsg: "تم المطالبة بالإسقاط الجوي بالفعل", airdropSuccess: "!+250 BRD تم المطالبة بها",
-      sentMsg: "تم الإرسال", copiedMsg: "تم النسخ!"
-    }
+    en: { appTitle:"BRADICOIN", logout:"Logout", notificationsTitle:"🔔 Notifications", priceCardTitle:"BRD Price & Balance", fixedPriceNote:"(fixed: $10 USD)", brdToken:"BRD TOKEN", walletAddressLabel:"Wallet Address", copyBtn:"Copy", apiLink:"Bradicoin API (beta)", stakingTitle:"Staking Pools", sendReceiveTitle:"Send / Receive", sendBtn:"Send BRD", referralTitle:"Referral Program", yourCode:"Your code:", copyCode:"Copy", friendCodeLabel:"Friend's code", applyBtn:"Apply & Earn 5%", claimAirdropBtn:"Claim Airdrop (250 BRD)", performanceTitle:"Performance (7d)", faqTitle:"FAQ", footer:"BRADICOIN ● 1 BRD = $10 USD ● Multi-Chain ● Staking 17% / 22% / 25% APR ● Referral Rewards", poolStandard:"Standard Pool", poolAdvanced:"Advanced Pool", poolElite:"Elite Pool", stakeIn:"Stake in", lockDays:"Lock", minStake:"Min", amountPlaceholder:"Amount (BRD)", invalidAmount:"Invalid amount or insufficient balance", minStakeError:"Minimum stake is", stakeLocked:"Stake still locked!", unstakeSuccess:"Unstaked!", copiedMsg:"Copied!", sentMsg:"Sent" },
+    pt: { appTitle:"BRADICOIN", logout:"Sair", notificationsTitle:"🔔 Notificações", priceCardTitle:"Preço BRD e Saldo", fixedPriceNote:"(fixo: $10 USD)", brdToken:"TOKEN BRD", walletAddressLabel:"Endereço", copyBtn:"Copiar", apiLink:"API Bradicoin (beta)", stakingTitle:"Pools de Staking", sendReceiveTitle:"Enviar / Receber", sendBtn:"Enviar BRD", referralTitle:"Programa de Indicação", yourCode:"Seu código:", copyCode:"Copiar", friendCodeLabel:"Código do amigo", applyBtn:"Aplicar e Ganhar 5%", claimAirdropBtn:"Resgatar Airdrop (250 BRD)", performanceTitle:"Desempenho (7d)", faqTitle:"FAQ", footer:"BRADICOIN ● 1 BRD = $10 USD ● Multi-Chain ● Staking 17% / 22% / 25% APR ● Recompensas", poolStandard:"Pool Padrão", poolAdvanced:"Pool Avançado", poolElite:"Pool Elite", stakeIn:"Fazer Stake em", lockDays:"Bloqueio", minStake:"Mínimo", amountPlaceholder:"Quantidade (BRD)", invalidAmount:"Quantidade inválida", minStakeError:"Mínimo é", stakeLocked:"Stake bloqueado!", unstakeSuccess:"Stake retirado!", copiedMsg:"Copiado!", sentMsg:"Enviado" },
+    es: { appTitle:"BRADICOIN", logout:"Salir", notificationsTitle:"🔔 Notificaciones", priceCardTitle:"Precio BRD y Saldo", fixedPriceNote:"(fijo: $10 USD)", brdToken:"TOKEN BRD", walletAddressLabel:"Dirección", copyBtn:"Copiar", apiLink:"API Bradicoin (beta)", stakingTitle:"Pools de Staking", sendReceiveTitle:"Enviar / Recibir", sendBtn:"Enviar BRD", referralTitle:"Programa de Referidos", yourCode:"Tu código:", copyCode:"Copiar", friendCodeLabel:"Código del amigo", applyBtn:"Aplicar y Ganar 5%", claimAirdropBtn:"Reclamar Airdrop (250 BRD)", performanceTitle:"Rendimiento (7d)", faqTitle:"FAQ", footer:"BRADICOIN ● 1 BRD = $10 USD ● Multi-Cadena ● Staking 17% / 22% / 25% APR ● Recompensas", poolStandard:"Pool Estándar", poolAdvanced:"Pool Avanzado", poolElite:"Pool Élite", stakeIn:"Apostar en", lockDays:"Bloqueo", minStake:"Mínimo", amountPlaceholder:"Cantidad (BRD)", invalidAmount:"Cantidad inválida", minStakeError:"Mínimo es", stakeLocked:"Apuesta bloqueada!", unstakeSuccess:"Apuesta retirada!", copiedMsg:"¡Copiado!", sentMsg:"Enviado" },
+    ar: { appTitle:"براديكوين", logout:"تسجيل خروج", notificationsTitle:"🔔 إشعارات", priceCardTitle:"سعر BRD والرصيد", fixedPriceNote:"(ثابت: 10 دولار)", brdToken:"رمز BRD", walletAddressLabel:"عنوان المحفظة", copyBtn:"نسخ", apiLink:"API براديكوين", stakingTitle:"مجموعات التوقيف", sendReceiveTitle:"إرسال / استلام", sendBtn:"إرسال BRD", referralTitle:"برنامج الإحالة", yourCode:"رمزك:", copyCode:"نسخ", friendCodeLabel:"رمز الصديق", applyBtn:"تطبيق وكسب 5%", claimAirdropBtn:"المطالبة (250 BRD)", performanceTitle:"الأداء (7 أيام)", faqTitle:"الأسئلة الشائعة", footer:"براديكوين ● 1 BRD = 10 دولار ● متعدد السلاسل ● توقيف 17% / 22% / 25% APR", poolStandard:"المجموعة القياسية", poolAdvanced:"المجموعة المتقدمة", poolElite:"المجموعة النخبة", stakeIn:"توقيف في", lockDays:"قفل", minStake:"الحد الأدنى", amountPlaceholder:"الكمية (BRD)", invalidAmount:"كمية غير صالحة", minStakeError:"الحد الأدنى هو", stakeLocked:"لا يزال مقفلاً!", unstakeSuccess:"تم الإلغاء!", copiedMsg:"تم النسخ!", sentMsg:"تم الإرسال" }
   };
 
   let currentLang = 'en';
-  
-  function updateUILanguage() {
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-      const key = el.getAttribute('data-i18n');
-      if (translations[currentLang][key]) {
-        el.innerText = translations[currentLang][key];
-      }
-    });
-    // Update placeholders
-    const recipientInput = document.getElementById('recipientAddr');
-    const sendAmountInput = document.getElementById('sendAmount');
-    const friendCodeInput = document.getElementById('friendCode');
-    if (recipientInput) recipientInput.placeholder = translations[currentLang].sendPlaceholder;
-    if (sendAmountInput) sendAmountInput.placeholder = translations[currentLang].amountPlaceholder;
-    if (friendCodeInput) friendCodeInput.placeholder = translations[currentLang].friendCodePlaceholder;
-    // Update pool buttons dynamically if they exist
-    document.querySelectorAll('.stake-pool-btn').forEach(btn => {
-      const poolName = btn.getAttribute('data-pool-name');
-      if (poolName) btn.innerHTML = `<i class="fas fa-lock"></i> ${translations[currentLang].stakeIn} ${poolName}`;
-    });
-  }
+  function updateUILanguage() { document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if(translations[currentLang][key]) el.innerText = translations[currentLang][key]; }); }
 
-  // ==================== APP STATE (unchanged structure) ====================
-  let wallet = { address: null, privateKey: null, balance: 1000.0 };
+  // ==================== APP STATE ====================
+  let wallet = { address: null, privateKey: null, balance: 1000 };
   let activeStakes = [];
   let airdropClaimed = false;
   let referralCode = "";
   let referredBy = null;
-  let referralBonusEarned = 0;
-  let notifications = [
-    { text: "✨ Welcome to Bradicoin! 1 BRD = $10 USD", read: false },
-    { text: "🔥 New 17% APR staking pool available!", read: false },
-    { text: "🎁 Invite friends and earn 5% bonus", read: false }
-  ];
+  let notifications = [{ text: "✨ Welcome to Bradicoin! 1 BRD = $10 USD", read: false }];
   
   const stakingPools = [
     { id: 0, nameEn: "Standard Pool", namePt: "Pool Padrão", nameEs: "Pool Estándar", nameAr: "المجموعة القياسية", apr: 17, lockDays: 30, minStake: 10, color: "#3b82f6" },
     { id: 1, nameEn: "Advanced Pool", namePt: "Pool Avançado", nameEs: "Pool Avanzado", nameAr: "المجموعة المتقدمة", apr: 22, lockDays: 60, minStake: 50, color: "#a855f7" },
     { id: 2, nameEn: "Elite Pool", namePt: "Pool Elite", nameEs: "Pool Élite", nameAr: "المجموعة النخبة", apr: 25, lockDays: 90, minStake: 200, color: "#00f2ff" }
   ];
-  
-  function getPoolName(pool) {
-    const names = { en: pool.nameEn, pt: pool.namePt, es: pool.nameEs, ar: pool.nameAr };
-    return names[currentLang] || pool.nameEn;
-  }
-  
+  function getPoolName(p) { return p[`name${currentLang.charAt(0).toUpperCase()+currentLang.slice(1)}`] || p.nameEn; }
   function generateAddress() { return "0x" + Array(40).fill(0).map(() => Math.floor(Math.random()*16).toString(16)).join(''); }
   function generateReferralCode() { return "BRD" + Math.random().toString(36).substring(2, 8).toUpperCase(); }
   
-  function saveToLocal() {
-    localStorage.setItem('bradicoin_wallet', JSON.stringify({ address: wallet.address, privateKey: wallet.privateKey, balance: wallet.balance }));
-    localStorage.setItem('bradicoin_stakes', JSON.stringify(activeStakes));
-    localStorage.setItem('bradicoin_airdrop', airdropClaimed);
-    localStorage.setItem('bradicoin_referral_code', referralCode);
-    localStorage.setItem('bradicoin_referred_by', referredBy);
-    localStorage.setItem('bradicoin_referral_bonus', referralBonusEarned);
-    localStorage.setItem('bradicoin_lang', currentLang);
-  }
+  function saveToLocal() { localStorage.setItem('bradicoin_wallet', JSON.stringify({ address: wallet.address, privateKey: wallet.privateKey, balance: wallet.balance })); localStorage.setItem('bradicoin_stakes', JSON.stringify(activeStakes)); localStorage.setItem('bradicoin_airdrop', airdropClaimed); localStorage.setItem('bradicoin_referral_code', referralCode); localStorage.setItem('bradicoin_lang', currentLang); }
+  function loadFromLocal() { const w = localStorage.getItem('bradicoin_wallet'); if(w) { try { const p = JSON.parse(w); wallet = p; } catch(e) {} } const s = localStorage.getItem('bradicoin_stakes'); if(s) { try { activeStakes = JSON.parse(s); } catch(e) {} } const a = localStorage.getItem('bradicoin_airdrop'); if(a) airdropClaimed = a === 'true'; const rc = localStorage.getItem('bradicoin_referral_code'); if(rc) referralCode = rc; const lang = localStorage.getItem('bradicoin_lang'); if(lang && translations[lang]) currentLang = lang; if(!wallet.address) { showSplash(); } else { hideSplashAndShowDashboard(); } if(!referralCode) referralCode = generateReferralCode(); document.getElementById('referralCode') && (document.getElementById('referralCode').innerText = referralCode); updateUILanguage(); updateUI(); }
   
-  function loadFromLocal() {
-    const w = localStorage.getItem('bradicoin_wallet'); if(w) { try { const p = JSON.parse(w); wallet = p; } catch(e) {} }
-    const s = localStorage.getItem('bradicoin_stakes'); if(s) { try { activeStakes = JSON.parse(s); } catch(e) {} }
-    const a = localStorage.getItem('bradicoin_airdrop'); if(a) airdropClaimed = a === 'true';
-    const rc = localStorage.getItem('bradicoin_referral_code'); if(rc) referralCode = rc;
-    const rb = localStorage.getItem('bradicoin_referred_by'); if(rb) referredBy = rb;
-    const rBonus = localStorage.getItem('bradicoin_referral_bonus'); if(rBonus) referralBonusEarned = parseFloat(rBonus);
-    const savedLang = localStorage.getItem('bradicoin_lang'); if(savedLang && translations[savedLang]) currentLang = savedLang;
-    if(!wallet.address) createNewWallet();
-    if(!referralCode) referralCode = generateReferralCode();
-    document.getElementById('referralCode').innerText = referralCode;
-    document.getElementById('languageSwitcher').value = currentLang;
-    updateUILanguage();
-    updateUI();
-  }
+  function createNewWallet() { wallet = { address: generateAddress(), privateKey: "priv_" + Math.random().toString(36), balance: 1000 }; activeStakes = []; airdropClaimed = false; referralCode = generateReferralCode(); saveToLocal(); hideSplashAndShowDashboard(); addNotification("✅ New wallet created! 1000 BRD"); updateUI(); }
+  function importWallet(key) { if(!key) return; let addr = "0x" + key.replace(/[^a-z0-9]/gi,'').substring(0,40); if(addr.length<10) addr = generateAddress(); wallet = { address: addr, privateKey: key, balance: 1250 }; activeStakes = []; airdropClaimed = false; referralCode = generateReferralCode(); saveToLocal(); hideSplashAndShowDashboard(); addNotification("🔐 Wallet imported!"); updateUI(); }
+  function logout() { localStorage.clear(); wallet = { address: null, privateKey: null, balance: 0 }; activeStakes = []; showSplash(); }
   
-  function createNewWallet() {
-    wallet = { address: generateAddress(), privateKey: "priv_" + Math.random().toString(36), balance: 1000 };
-    activeStakes = [];
-    airdropClaimed = false;
-    referralCode = generateReferralCode();
-    referredBy = null;
-    referralBonusEarned = 0;
-    saveToLocal();
-    addNotification(translations[currentLang].airdropSuccess || "🎉 New wallet created!");
-    updateUI();
-  }
+  function addNotification(text) { notifications.unshift({ text, read: false }); updateNotificationUI(); }
+  function updateNotificationUI() { const unread = notifications.filter(n => !n.read).length; document.getElementById('notifCount') && (document.getElementById('notifCount').innerText = unread); const container = document.getElementById('notifList'); if(container) container.innerHTML = notifications.map(n => `<div style="padding:0.5rem; border-bottom:1px solid #333; font-size:0.75rem;">${n.text}</div>`).join(''); }
+  function toggleNotifications() { const panel = document.getElementById('notificationPanel'); if(panel) panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex'; notifications.forEach(n=>n.read=true); updateNotificationUI(); }
   
-  function importWallet(key) { if(!key) return; let addr = "0x" + key.replace(/[^a-z0-9]/gi,'').substring(0,40); if(addr.length<10) addr = generateAddress(); wallet = { address: addr, privateKey: key, balance: 1250 }; activeStakes = []; airdropClaimed = false; referralCode = generateReferralCode(); saveToLocal(); addNotification("🔐 Wallet imported successfully!"); updateUI(); }
-  function logout() { localStorage.clear(); wallet = { address:null, privateKey:null, balance:0 }; activeStakes = []; airdropClaimed = false; referralCode = ""; updateUI(); addNotification("Logged out."); }
+  function renderStakingPools() { const container = document.getElementById('stakingPoolsContainer'); if(!container) return; container.innerHTML = stakingPools.map(pool => `<div class="staking-pool" style="border-left-color:${pool.color}"><div style="display:flex;justify-content:space-between;"><strong>${getPoolName(pool)}</strong><span style="color:#0cf;">${pool.apr}% APR</span></div><div style="font-size:0.7rem;">${translations[currentLang].lockDays}: ${pool.lockDays}d | ${translations[currentLang].minStake}: ${pool.minStake} BRD</div><div class="input-group" style="margin-top:0.5rem;"><input type="number" id="stakeAmount_${pool.id}" class="cyber-input" placeholder="${translations[currentLang].amountPlaceholder}" step="any"></div><button class="cyber-btn stake-pool-btn" data-id="${pool.id}" style="width:100%;"><i class="fas fa-lock"></i> ${translations[currentLang].stakeIn} ${getPoolName(pool)}</button></div>`).join(''); document.querySelectorAll('.stake-pool-btn').forEach(btn => { btn.addEventListener('click', () => { const poolId = parseInt(btn.dataset.id); const pool = stakingPools.find(p=>p.id===poolId); const amt = parseFloat(document.getElementById(`stakeAmount_${poolId}`).value); if(amt>0 && amt<=wallet.balance) { wallet.balance -= amt; activeStakes.push({ poolId, amount: amt, lockEndTime: Date.now() + (pool.lockDays*86400000), periodDays: pool.lockDays, apr: pool.apr }); saveToLocal(); updateUI(); addNotification(`🔒 Staked ${amt} BRD in ${getPoolName(pool)}`); } else alert(translations[currentLang].invalidAmount); }); }); }
+  function updateUI() { document.getElementById('bradicoinBalance') && (document.getElementById('bradicoinBalance').innerText = wallet.balance.toFixed(4)); document.getElementById('walletAddressDisplay') && (document.getElementById('walletAddressDisplay').innerText = wallet.address || "—"); renderStakingPools(); }
+  function copyAddress() { if(wallet.address) { navigator.clipboard.writeText(wallet.address); alert(translations[currentLang].copiedMsg); } }
+  function sendCoins(to, amt) { if(!to || amt<=0 || amt>wallet.balance) { alert(translations[currentLang].invalidAmount); return; } wallet.balance -= amt; saveToLocal(); updateUI(); addNotification(`💸 Sent ${amt} BRD`); }
+  function claimAirdrop() { if(airdropClaimed) { alert("Already claimed"); return; } wallet.balance += 250; airdropClaimed=true; saveToLocal(); updateUI(); addNotification("🎁 +250 BRD Airdrop claimed!"); }
+  function copyReferral() { navigator.clipboard.writeText(referralCode); alert(translations[currentLang].copiedMsg); }
+  function applyReferral(code) { if(referredBy) return; if(code === referralCode) return; referredBy = code; wallet.balance += 50; saveToLocal(); updateUI(); addNotification("🎉 Referral bonus +50 BRD!"); }
   
-  function calculateReward(amount, apr, lockDays) { return amount * (apr / 100) * (lockDays / 365); }
+  function showSplash() { document.getElementById('splashScreen').style.display = 'flex'; document.getElementById('mainDashboard').style.display = 'none'; }
+  function hideSplashAndShowDashboard() { document.getElementById('splashScreen').style.display = 'none'; document.getElementById('mainDashboard').style.display = 'block'; initChart(); initFAQ(); }
   
-  function stake(amount, pool) {
-    if (amount <= 0 || amount > wallet.balance) { showStatus(translations[currentLang].invalidAmount, 'stakeStatus'); return false; }
-    if (amount < pool.minStake) { showStatus(`${translations[currentLang].minStakeError} ${pool.minStake} BRD`, 'stakeStatus'); return false; }
-    const lockEnd = Date.now() + (pool.lockDays * 86400000);
-    activeStakes.push({ poolId: pool.id, amount: amount, lockEndTime: lockEnd, periodDays: pool.lockDays, apr: pool.apr });
-    wallet.balance -= amount;
-    saveToLocal();
-    addNotification(`🔒 Staked ${amount} BRD in ${getPoolName(pool)} (${pool.apr}% APR) for ${pool.lockDays} days`);
-    updateUI();
-    showStatus(`Staked ${amount} BRD in ${getPoolName(pool)} pool!`, 'stakeStatus');
-    return true;
-  }
-  
-  function unstake(index) {
-    const stake = activeStakes[index];
-    if (!stake) return;
-    if (Date.now() < stake.lockEndTime) { showStatus(translations[currentLang].stakeLocked, 'stakeStatus'); return; }
-    const reward = calculateReward(stake.amount, stake.apr, stake.periodDays);
-    wallet.balance += stake.amount + reward;
-    activeStakes.splice(index, 1);
-    saveToLocal();
-    addNotification(`✅ Unstaked ${stake.amount} BRD + ${reward.toFixed(4)} reward (${stake.apr}% APR)`);
-    updateUI();
-    showStatus(`${translations[currentLang].unstakeSuccess} +${reward.toFixed(4)} BRD`, 'stakeStatus');
-  }
-  
-  function sendCoins(to, amt) { if(!to || amt<=0 || amt>wallet.balance) { showStatus(translations[currentLang].invalidAmount,'txStatus'); return; } wallet.balance -= amt; saveToLocal(); updateUI(); addNotification(`💸 ${translations[currentLang].sentMsg} ${amt} BRD to ${to.substring(0,10)}...`); showStatus(`${translations[currentLang].sentMsg} ${amt} BRD`,'txStatus'); }
-  function claimAirdrop() { if(airdropClaimed) { showStatus(translations[currentLang].airdropClaimedMsg,'airdropStatus'); return; } wallet.balance += 250; airdropClaimed=true; saveToLocal(); updateUI(); addNotification(translations[currentLang].airdropSuccess); showStatus(translations[currentLang].airdropSuccess,'airdropStatus'); }
-  
-  function applyReferral(code) { if(referredBy) { showStatus("You already used a referral code!",'referralBonus'); return; } if(code === referralCode) { showStatus(translations[currentLang].referralSelfError,'referralBonus'); return; } referredBy = code; referralBonusEarned = 50; wallet.balance += 50; saveToLocal(); updateUI(); addNotification(translations[currentLang].referralApplied); showStatus(translations[currentLang].referralApplied,'referralBonus'); }
-  function copyReferral() { navigator.clipboard.writeText(referralCode); showStatus(translations[currentLang].copiedMsg,'referralBonus'); }
-  
-  function addNotification(text) { notifications.unshift({ text, read: false }); if(notifications.length > 10) notifications.pop(); updateNotificationUI(); }
-  function updateNotificationUI() { const unread = notifications.filter(n => !n.read).length; document.getElementById('notifCount').innerText = unread; const container = document.getElementById('notifList'); if(container) container.innerHTML = notifications.map(n => `<div style="padding:0.5rem; border-bottom:1px solid #333; font-size:0.75rem;">${n.text}</div>`).join(''); }
-  function toggleNotifications() { const panel = document.getElementById('notificationPanel'); panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex'; notifications.forEach(n=>n.read=true); updateNotificationUI(); }
-  
-  let priceChart;
-  function initChart() { const ctx = document.getElementById('priceChart').getContext('2d'); priceChart = new Chart(ctx, { type: 'line', data: { labels: ['Day1','Day2','Day3','Day4','Day5','Day6','Day7'], datasets: [{ label: 'BRD Price (USD)', data: [9.85, 9.92, 10.01, 9.98, 10.05, 10.02, 10.00], borderColor: '#0cf', backgroundColor: 'rgba(0,204,255,0.1)', fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: '#e0e5ff' } } } } }); }
-  
-  function initFAQ() { const faqData = [{ q:"What is Bradicoin?", a:"Bradicoin (BRD) is a cyberpunk-themed cryptocurrency. 1 BRD = $10 USD fixed value." },{ q:"How does staking work?", a:"Stake BRD in pools: 17% (30d), 22% (60d), or 25% (90d) APR. Rewards auto-calculated." },{ q:"Multi-chain support?", a:"Bridge BRD across Bitcoin, Ethereum, Solana, Binance, Polygon & Arbitrum." },{ q:"Referral program?", a:"Share your code. Friends get 5% bonus, you earn 5% of their stakes." }]; const container = document.getElementById('faqContainer'); container.innerHTML = faqData.map((f,i) => `<div class="faq-item"><div class="faq-question" data-idx="${i}">❓ ${f.q}</div><div class="faq-answer" id="faqAns${i}">${f.a}</div></div>`).join(''); document.querySelectorAll('.faq-question').forEach(el => { el.addEventListener('click', () => { const idx = el.dataset.idx; const ans = document.getElementById(`faqAns${idx}`); ans.style.display = ans.style.display === 'block' ? 'none' : 'block'; }); }); }
-  
-  function renderStakingPools() {
-    const container = document.getElementById('stakingPoolsContainer');
-    if(!container) return;
-    container.innerHTML = stakingPools.map(pool => `
-      <div class="staking-pool" style="border-left-color: ${pool.color}">
-        <div style="display:flex; justify-content:space-between;"><strong>${getPoolName(pool)}</strong><span style="color:#0cf;">${pool.apr}% APR</span></div>
-        <div style="font-size:0.7rem;">${translations[currentLang].lockDays}: ${pool.lockDays} days | ${translations[currentLang].minStake}: ${pool.minStake} BRD</div>
-        <div class="input-group" style="margin-top:0.5rem;"><input type="number" id="stakeAmount_${pool.id}" class="cyber-input" placeholder="${translations[currentLang].amountPlaceholder}" step="any"></div>
-        <button class="cyber-btn stake-pool-btn" data-id="${pool.id}" data-pool-name="${getPoolName(pool)}" style="width:100%; margin-top:0.5rem;"><i class="fas fa-lock"></i> ${translations[currentLang].stakeIn} ${getPoolName(pool)}</button>
-      </div>
-    `).join('');
-    document.querySelectorAll('.stake-pool-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => { const poolId = parseInt(btn.dataset.id); const pool = stakingPools.find(p => p.id === poolId); const amountInput = document.getElementById(`stakeAmount_${poolId}`); const amount = parseFloat(amountInput.value); if(!isNaN(amount) && amount>0) stake(amount, pool); else showStatus(translations[currentLang].invalidAmount,'stakeStatus'); });
-    });
-  }
-  
-  function renderActiveStakes() { /* keep existing functionality */ }
-  function updateUI() {
-    document.getElementById('bradicoinBalance').innerText = wallet.balance.toFixed(4);
-    document.getElementById('walletAddressDisplay').innerText = wallet.address || translations[currentLang].noWallet;
-    document.getElementById('brdPrice').innerHTML = `$${10.00}`;
-    renderStakingPools();
-    if(priceChart) { priceChart.data.datasets[0].data = [9.85,9.92,10.01,9.98,10.05,10.02,10.00]; priceChart.update(); }
-  }
-  function showStatus(msg, elId) { const el = document.getElementById(elId); if(el) { el.innerText = msg; setTimeout(()=>{ if(el.innerText===msg) el.innerText=""; },4000); } }
-  function copyAddress() { if(wallet.address) { navigator.clipboard.writeText(wallet.address); showStatus(translations[currentLang].copiedMsg,'txStatus'); } }
+  let priceChart; function initChart() { const ctx = document.getElementById('priceChart')?.getContext('2d'); if(ctx && !priceChart) priceChart = new Chart(ctx, { type: 'line', data: { labels: ['Day1','Day2','Day3','Day4','Day5','Day6','Day7'], datasets: [{ label: 'BRD Price (USD)', data: [9.85,9.92,10.01,9.98,10.05,10.02,10.00], borderColor: '#0cf', fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: '#e0e5ff' } } } } }); }
+  function initFAQ() { const faqData = [{ q:"What is Bradicoin?", a:"Bradicoin (BRD) is a cyberpunk cryptocurrency. 1 BRD = $10 USD." },{ q:"How does staking work?", a:"Stake BRD in pools: 17% (30d), 22% (60d), or 25% (90d) APR." },{ q:"Multi-chain support?", a:"Bridge BRD across Bitcoin, Ethereum, Solana, Binance, Polygon & Arbitrum." }]; const container = document.getElementById('faqContainer'); if(container) container.innerHTML = faqData.map((f,i) => `<div class="faq-item"><div class="faq-question" data-idx="${i}">❓ ${f.q}</div><div class="faq-answer" id="faqAns${i}">${f.a}</div></div>`).join(''); document.querySelectorAll('.faq-question').forEach(el => { el.addEventListener('click', () => { const ans = document.getElementById(`faqAns${el.dataset.idx}`); if(ans) ans.style.display = ans.style.display === 'block' ? 'none' : 'block'; }); }); }
   
   // Event Listeners
-  document.getElementById('createWalletBtn').onclick = createNewWallet;
-  document.getElementById('importWalletBtn').onclick = () => { const k = prompt("Enter private key:"); if(k) importWallet(k); };
-  document.getElementById('logoutBtn').onclick = logout;
-  document.getElementById('sendBtn').onclick = () => sendCoins(document.getElementById('recipientAddr').value, parseFloat(document.getElementById('sendAmount').value));
-  document.getElementById('copyAddressBtn').onclick = copyAddress;
-  document.getElementById('copyReferralBtn').onclick = copyReferral;
-  document.getElementById('applyReferralBtn').onclick = () => { const code = document.getElementById('friendCode').value; if(code) applyReferral(code); else showStatus("Enter a code",'referralBonus'); };
-  document.getElementById('notificationBell').onclick = toggleNotifications;
-  document.getElementById('languageSwitcher').onchange = (e) => { currentLang = e.target.value; updateUILanguage(); renderStakingPools(); saveToLocal(); };
-  document.getElementById('chainSelector').onchange = (e) => { addNotification(`🔄 Switched to ${e.target.value} network.`); };
+  document.getElementById('splashCreateBtn').onclick = () => createNewWallet();
+  document.getElementById('splashImportBtn').onclick = () => { const group = document.getElementById('importKeyGroup'); group.style.display = group.style.display === 'block' ? 'none' : 'block'; };
+  document.getElementById('confirmImportBtn').onclick = () => { const key = document.getElementById('importPrivateKey').value; if(key) importWallet(key); else alert("Enter a private key"); };
+  document.getElementById('logoutBtn') && (document.getElementById('logoutBtn').onclick = logout);
+  document.getElementById('sendBtn') && (document.getElementById('sendBtn').onclick = () => sendCoins(document.getElementById('recipientAddr').value, parseFloat(document.getElementById('sendAmount').value)));
+  document.getElementById('copyAddressBtn') && (document.getElementById('copyAddressBtn').onclick = copyAddress);
+  document.getElementById('copyReferralBtn') && (document.getElementById('copyReferralBtn').onclick = copyReferral);
+  document.getElementById('applyReferralBtn') && (document.getElementById('applyReferralBtn').onclick = () => applyReferral(document.getElementById('friendCode').value));
+  document.getElementById('claimAirdropBtn') && (document.getElementById('claimAirdropBtn').onclick = claimAirdrop);
+  document.getElementById('notificationBell') && (document.getElementById('notificationBell').onclick = toggleNotifications);
+  document.getElementById('languageSwitcher') && (document.getElementById('languageSwitcher').onchange = (e) => { currentLang = e.target.value; updateUILanguage(); renderStakingPools(); saveToLocal(); });
   
-  // Add airdrop button if missing
-  if(!document.getElementById('claimAirdropBtn')) {
-    const sendCard = document.querySelector('.neon-card:nth-child(3)');
-    if(sendCard) { const airdropDiv = document.createElement('div'); airdropDiv.innerHTML = `<button id="claimAirdropBtn" class="cyber-btn primary" style="margin-top:1rem;"><i class="fas fa-gift"></i> <span data-i18n="claimAirdropBtn">Claim Airdrop (250 BRD)</span></button><div id="airdropStatus" class="status-msg"></div>`; sendCard.appendChild(airdropDiv); document.getElementById('claimAirdropBtn').onclick = claimAirdrop; }
-  }
-  if(!document.getElementById('receiveAddrDisplay')) {
-    const sendCard = document.querySelector('.neon-card:nth-child(3)');
-    if(sendCard) { const receiveDiv = document.createElement('div'); receiveDiv.className = 'input-group'; receiveDiv.innerHTML = '<label data-i18n="receiveAddressLabel">Your receive address:</label><div class="cyber-input" id="receiveAddrDisplay">—</div><button id="receiveCopyBtn" class="cyber-btn"><i class="fas fa-qrcode"></i> <span data-i18n="copyReceiveBtn">Copy Address</span></button>'; sendCard.insertBefore(receiveDiv, sendCard.querySelector('hr')?.nextSibling || sendCard.lastChild); document.getElementById('receiveCopyBtn').onclick = copyAddress; }
-  }
-  
-  loadFromLocal(); initChart(); initFAQ(); updateUI();
-  setInterval(() => { updateUI(); saveToLocal(); }, 2000);
+  loadFromLocal();
 </script>
 </body>
 </html>
