@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Bradicoin DApp | BRD Token | Cyberpunk Dashboard</title>
+  <title>Bradicoin DApp | BRD Token | Limited Airdrop - 250 Users</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -22,7 +22,7 @@
     ::-webkit-scrollbar-thumb { background: #00ffffaa; border-radius: 8px; }
     .app-container { max-width: 1500px; margin: 0 auto; }
 
-    /* Splash Screen - Logo Centralizado */
+    /* Splash Screen */
     .splash-screen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: radial-gradient(circle at 30% 20%, #0a0f1e, #020408);
@@ -31,7 +31,7 @@
     }
     .splash-content {
       text-align: center;
-      max-width: 450px;
+      max-width: 500px;
       width: 90%;
       padding: 2rem 1.5rem;
       background: rgba(8, 12, 26, 0.85);
@@ -45,81 +45,21 @@
       0% { box-shadow: 0 0 20px #3a0ca3aa, inset 0 0 10px #7b2ff755; }
       100% { box-shadow: 0 0 50px #a855f7aa, inset 0 0 25px #a855f7; }
     }
-    .splash-logo {
-      width: 130px;
-      height: 130px;
-      margin: 0 auto 1.2rem auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 2rem;
-      overflow: hidden;
-    }
-    .splash-logo img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      image-rendering: crisp-edges;
-    }
-    .splash-content h1 {
-      font-size: 2.2rem;
-      background: linear-gradient(135deg, #a855f7, #00f2ff);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      margin-bottom: 0.5rem;
-    }
-    .splash-content p {
-      color: #99ccff;
-      margin-bottom: 2rem;
-      font-size: 0.85rem;
-    }
-    .splash-buttons {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 0.5rem;
-    }
+    .splash-logo { width: 130px; height: 130px; margin: 0 auto 1.2rem auto; display: flex; align-items: center; justify-content: center; border-radius: 2rem; overflow: hidden; background: linear-gradient(135deg, #a855f7, #00f2ff); }
+    .splash-logo i { font-size: 4rem; color: #0a0f1e; }
+    .splash-content h1 { font-size: 2.2rem; background: linear-gradient(135deg, #a855f7, #00f2ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .splash-content p { color: #99ccff; margin-bottom: 2rem; font-size: 0.85rem; }
+    .splash-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 0.5rem; }
     .splash-btn {
-      background: rgba(0,0,0,0.6);
-      border: 1.5px solid #3b82f6;
-      color: #bbf0ff;
-      font-family: 'Orbitron';
-      font-weight: 600;
-      padding: 0.8rem 1.5rem;
-      border-radius: 3rem;
-      cursor: pointer;
-      transition: 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.9rem;
+      background: rgba(0,0,0,0.6); border: 1.5px solid #3b82f6; color: #bbf0ff;
+      font-family: 'Orbitron'; font-weight: 600; padding: 0.8rem 1.5rem;
+      border-radius: 3rem; cursor: pointer; transition: 0.2s;
+      display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem;
     }
-    .splash-btn:hover {
-      background: #3b82f6cc;
-      border-color: #00ffff;
-      box-shadow: 0 0 20px #00a6ff;
-      transform: translateY(-3px);
-    }
-    .splash-btn.primary {
-      background: linear-gradient(95deg, #6a11cb, #2575fc);
-      border: none;
-    }
-    .import-input-group {
-      margin-top: 1.5rem;
-      display: none;
-    }
-    .cyber-input {
-      background: #010518;
-      border: 1px solid #a855f7;
-      padding: 0.8rem;
-      border-radius: 2rem;
-      width: 100%;
-      color: white;
-      font-family: monospace;
-      text-align: center;
-    }
+    .splash-btn:hover { background: #3b82f6cc; border-color: #00ffff; box-shadow: 0 0 20px #00a6ff; transform: translateY(-3px); }
+    .splash-btn.primary { background: linear-gradient(95deg, #6a11cb, #2575fc); border: none; }
+    .import-input-group { margin-top: 1.5rem; display: none; width: 100%; }
+    .cyber-input { background: #010518; border: 1px solid #a855f7; padding: 0.8rem; border-radius: 2rem; width: 100%; color: white; font-family: monospace; text-align: center; }
 
     /* Main Dashboard */
     .main-dashboard { display: none; }
@@ -130,20 +70,9 @@
       border-radius: 2rem; border: 1px solid #4d3effaa;
     }
     .logo-area { display: flex; align-items: center; gap: 0.8rem; }
-    .logo-placeholder {
-      width: 42px; height: 42px;
-      display: flex; align-items: center; justify-content: center;
-      border-radius: 0.8rem; overflow: hidden;
-      background: transparent;
-    }
-    .logo-placeholder img {
-      width: 100%; height: 100%; object-fit: contain;
-    }
-    .logo-area h1 {
-      font-size: 1.6rem;
-      background: linear-gradient(135deg, #a855f7, #00f2ff);
-      -webkit-background-clip: text; background-clip: text; color: transparent;
-    }
+    .logo-placeholder { width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 0.8rem; background: linear-gradient(135deg, #a855f7, #00f2ff); }
+    .logo-placeholder i { font-size: 1.5rem; color: #0a0f1e; }
+    .logo-area h1 { font-size: 1.6rem; background: linear-gradient(135deg, #a855f7, #00f2ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
     .wallet-actions { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; }
     .cyber-btn {
       background: rgba(0,0,0,0.6); border: 1.5px solid #3b82f6; color: #bbf0ff;
@@ -153,10 +82,7 @@
     }
     .cyber-btn:hover { background: #3b82f6cc; border-color: #00ffff; box-shadow: 0 0 12px #00a6ff; transform: translateY(-2px); }
     .cyber-btn.primary { background: linear-gradient(95deg, #6a11cb, #2575fc); border: none; }
-    .lang-selector, .chain-selector {
-      background: #0f1422dd; border: 1px solid #7e5eff; border-radius: 2rem;
-      padding: 0.5rem; font-family: 'Orbitron'; color: #caf0ff; cursor: pointer;
-    }
+    .lang-selector, .chain-selector { background: #0f1422dd; border: 1px solid #7e5eff; border-radius: 2rem; padding: 0.5rem; font-family: 'Orbitron'; color: #caf0ff; cursor: pointer; }
     .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
     .neon-card { background: rgba(8,12,26,0.75); backdrop-filter: blur(8px); border-radius: 1.8rem; border: 1px solid #3b4effaa; box-shadow: 0 8px 20px rgba(0,0,0,0.6); padding: 1.2rem; transition: 0.2s; }
     .neon-card:hover { border-color: #00e0ff; box-shadow: 0 0 20px #2a6eff66; }
@@ -180,6 +106,10 @@
     .toggle-switch.active { background: #6a11cb; }
     .toggle-switch::after { content: ""; width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 3px; transition: 0.2s; }
     .toggle-switch.active::after { left: 21px; }
+    .seed-phrase-display { background: #010518; padding: 0.8rem; border-radius: 1rem; margin-top: 0.5rem; word-break: break-all; font-size: 0.7rem; font-family: monospace; border: 1px solid #a855f7; }
+    .airdrop-banner { background: linear-gradient(95deg, #a855f7, #ff0055); padding: 0.5rem; border-radius: 1rem; text-align: center; margin-bottom: 1rem; font-weight: bold; }
+    .bradichain-link { display: inline-flex; align-items: center; gap: 0.5rem; background: #010518; padding: 0.5rem 1rem; border-radius: 2rem; margin-top: 0.5rem; text-decoration: none; color: #0cf; border: 1px solid #0cf; transition: 0.2s; }
+    .bradichain-link:hover { background: #0cf22; box-shadow: 0 0 10px #0cf; }
     footer { text-align: center; margin-top: 2rem; font-size: 0.7rem; opacity: 0.7; }
     .status-msg { font-size: 0.7rem; margin-top: 0.5rem; color: #bbf0ff; text-align: center; }
     @media (max-width: 700px) { body { padding: 1rem; } }
@@ -187,20 +117,21 @@
 </head>
 <body>
 
-<!-- SPLASH SCREEN - LOGO CENTRALIZADO COM BOTÕES ABAIXO -->
+<!-- SPLASH SCREEN -->
 <div id="splashScreen" class="splash-screen">
   <div class="splash-content">
-    <div class="splash-logo">
-      <img src="logo-bradicoin.png" alt="Bradicoin Logo">
-    </div>
+    <div class="splash-logo"><i class="fas fa-microchip"></i></div>
     <h1>BRADICOIN</h1>
     <p>Cyberpunk · Decentralized · The Future of Value</p>
+    <div id="airdropCounterDisplay" class="airdrop-banner" style="background: linear-gradient(95deg, #a855f7, #00f2ff); margin-bottom: 1rem;">
+      🔥 LIMITED AIRDROP: <span id="remainingAirdropSpots">250</span> spots remaining!
+    </div>
     <div class="splash-buttons">
       <button id="splashCreateBtn" class="splash-btn primary"><i class="fas fa-plus-circle"></i> Create Wallet</button>
       <button id="splashImportBtn" class="splash-btn"><i class="fas fa-key"></i> Import Wallet</button>
     </div>
     <div id="importKeyGroup" class="import-input-group">
-      <input type="text" id="importPrivateKey" class="cyber-input" placeholder="Enter your private key">
+      <input type="text" id="importPrivateKey" class="cyber-input" placeholder="Enter your Seed Phrase or Private Key">
       <button id="confirmImportBtn" class="cyber-btn primary" style="margin-top:0.8rem; width:100%;">Confirm Import</button>
     </div>
   </div>
@@ -210,12 +141,7 @@
 <div id="mainDashboard" class="main-dashboard">
   <div class="app-container">
     <div class="top-bar">
-      <div class="logo-area">
-        <div class="logo-placeholder">
-          <img src="logo-small.png" alt="Bradicoin">
-        </div>
-        <h1>BRADICOIN</h1>
-      </div>
+      <div class="logo-area"><div class="logo-placeholder"><i class="fas fa-coins"></i></div><h1>BRADICOIN</h1></div>
       <div class="wallet-actions">
         <select id="chainSelector" class="chain-selector"><option value="bitcoin">₿ Bitcoin</option><option value="ethereum">⟠ Ethereum</option><option value="solana">◎ Solana</option><option value="binance">ⓑ Binance</option><option value="polygon">🟣 Polygon</option><option value="arbitrum">🟠 Arbitrum</option></select>
         <button id="settingsBtn" class="cyber-btn"><i class="fas fa-shield-alt"></i> Security</button>
@@ -231,9 +157,13 @@
         <div class="card-title"><i class="fas fa-chart-line"></i> BRD Price & Balance</div>
         <div class="price-ticker"><span class="price" id="brdPrice">$10.00</span> <span style="font-size:0.8rem;">(fixed: $10 USD)</span></div>
         <div class="balance-box"><div class="balance-amount" id="bradicoinBalance">0.00</div><div class="balance-label">BRD TOKEN</div></div>
-        <div><label>Wallet Address</label><div class="cyber-input" id="walletAddressDisplay">—</div></div>
-        <div class="flex-btns"><button id="copyAddressBtn" class="cyber-btn"><i class="far fa-copy"></i> Copy</button></div>
-        <div style="margin-top:0.8rem;"><a href="https://bradicoin-api.onrender.com" target="_blank" style="color:#0cf;"><i class="fas fa-server"></i> Bradicoin API</a></div>
+        <div><label>Wallet Address (Br...)</label><div class="cyber-input" id="walletAddressDisplay">—</div></div>
+        <div class="flex-btns">
+          <button id="copyAddressBtn" class="cyber-btn"><i class="far fa-copy"></i> Copy Address</button>
+          <a id="bradichainLink" href="https://www.bradichain.com" target="_blank" class="bradichain-link"><i class="fas fa-globe"></i> View on Bradichain</a>
+        </div>
+        <div class="seed-phrase-display" id="seedPhraseDisplay">🔐 Seed phrase will appear here after wallet creation</div>
+        <div style="margin-top:0.5rem; font-size:0.7rem; text-align:center;" id="airdropStatusDashboard"></div>
       </div>
 
       <div class="neon-card">
@@ -245,7 +175,7 @@
 
       <div class="neon-card">
         <div class="card-title"><i class="fas fa-exchange-alt"></i> Send / Receive</div>
-        <input type="text" id="recipientAddr" class="cyber-input" placeholder="Recipient address">
+        <input type="text" id="recipientAddr" class="cyber-input" placeholder="Recipient address (Br...)">
         <input type="number" id="sendAmount" class="cyber-input" placeholder="Amount (BRD)" step="any" style="margin-top:0.5rem;">
         <button id="sendBtn" class="cyber-btn primary" style="width:100%; margin-top:0.5rem;"><i class="fas fa-paper-plane"></i> Send BRD</button>
         <hr style="margin:0.8rem 0">
@@ -253,14 +183,13 @@
         <div class="referral-code">Your code: <strong id="referralCode">LOADING</strong> <button id="copyReferralBtn" class="cyber-btn" style="padding:0.2rem 0.5rem;">Copy</button></div>
         <input type="text" id="friendCode" class="cyber-input" placeholder="Friend's referral code" style="margin-top:0.5rem;">
         <button id="applyReferralBtn" class="cyber-btn" style="width:100%; margin-top:0.5rem;">Apply & Earn 5%</button>
-        <button id="claimAirdropBtn" class="cyber-btn primary" style="width:100%; margin-top:1rem;"><i class="fas fa-gift"></i> Claim Airdrop (250 BRD)</button>
-        <div id="airdropStatus" class="status-msg"></div>
+        <div id="airdropMessage" class="status-msg"></div>
       </div>
 
       <div class="neon-card"><div class="card-title"><i class="fas fa-chart-simple"></i> Performance (7d)</div><canvas id="priceChart" height="150"></canvas></div>
       <div class="neon-card"><div class="card-title"><i class="fas fa-question-circle"></i> FAQ</div><div id="faqContainer"></div></div>
     </div>
-    <footer>BRADICOIN ● 1 BRD = $10 USD ● Multi-Chain ● Staking 17% APR (1D / 1W) ● Referral Rewards</footer>
+    <footer>BRADICOIN ● 1 BRD = $10 USD ● Multi-Chain ● Staking 17% APR (1D / 1W) ● Limited Airdrop: 250 Users Only</footer>
   </div>
 </div>
 
@@ -274,209 +203,192 @@
 </div>
 
 <script>
+  // ==================== BRADICOIN WALLET GENERATOR ====================
+  const wordList = [
+    "abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract", "absurd", "abuse",
+    "access", "accident", "account", "accuse", "achieve", "acid", "acoustic", "acquire", "across", "act",
+    "action", "actor", "actress", "actual", "adapt", "add", "addict", "address", "adjust", "admit",
+    "adult", "advance", "advice", "aerobic", "affair", "afford", "afraid", "africa", "after", "again"
+  ];
+  function generateSeedPhrase() { const words = []; for(let i=0;i<12;i++) words.push(wordList[Math.floor(Math.random()*wordList.length)]); return words.join(' '); }
+  function generateWalletAddressFromSeed(seed, index=0) { let hash=0; for(let i=0;i<seed.length;i++) hash=((hash<<5)-hash)+seed.charCodeAt(i); const hashHex=Math.abs(hash).toString(16).padStart(40,'0'); return `Br${hashHex.substring(0,36)}${(Date.now()+index).toString(36).substring(0,4)}`; }
+
+  // ==================== LIMITED AIRDROP SYSTEM (MAX 250 USERS) ====================
+  let airdropRecipients = []; // Stores addresses that already claimed
+  const MAX_AIRDROP_SPOTS = 250;
+  let currentAirdropReward = 500; // You can change this value later (500 BRD as example reward)
+
+  function loadAirdropData() {
+    const stored = localStorage.getItem('bradicoin_airdrop_recipients');
+    if(stored) { try { airdropRecipients = JSON.parse(stored); } catch(e) {} }
+    updateAirdropCounter();
+  }
+  function saveAirdropData() { localStorage.setItem('bradicoin_airdrop_recipients', JSON.stringify(airdropRecipients)); updateAirdropCounter(); }
+  function updateAirdropCounter() { 
+    const remaining = Math.max(0, MAX_AIRDROP_SPOTS - airdropRecipients.length);
+    const counterEl = document.getElementById('remainingAirdropSpots');
+    if(counterEl) counterEl.innerText = remaining;
+  }
+  function getRemainingSpots() { return Math.max(0, MAX_AIRDROP_SPOTS - airdropRecipients.length); }
+  function isAirdropAvailable() { return airdropRecipients.length < MAX_AIRDROP_SPOTS; }
+  function hasUserClaimedAirdrop(address) { return airdropRecipients.includes(address); }
+  
+  function claimAirdropReward(userAddress, userName) {
+    if(!isAirdropAvailable()) return { success: false, message: "Airdrop fully claimed! All 250 spots are taken." };
+    if(hasUserClaimedAirdrop(userAddress)) return { success: false, message: "You have already claimed the airdrop!" };
+    airdropRecipients.push(userAddress);
+    saveAirdropData();
+    return { success: true, reward: currentAirdropReward, remaining: getRemainingSpots(), message: `🎁 You received ${currentAirdropReward} BRD as a limited airdrop reward! Only ${getRemainingSpots()} spots left.` };
+  }
+
   // ==================== MULTI-LANGUAGE ====================
   const translations = {
-    en: { logout:"Logout", sendBtn:"Send BRD", copyCode:"Copy", applyBtn:"Apply & Earn 5%", claimBtn:"Claim Airdrop", invalidAmount:"Invalid amount", minStakeError:"Minimum stake", stakeLocked:"Still locked", unstakeSuccess:"Unstaked!", copied:"Copied!" },
-    pt: { logout:"Sair", sendBtn:"Enviar BRD", copyCode:"Copiar", applyBtn:"Aplicar e Ganhar 5%", claimBtn:"Resgatar Airdrop", invalidAmount:"Quantidade inválida", minStakeError:"Mínimo é", stakeLocked:"Ainda bloqueado", unstakeSuccess:"Retirado!", copied:"Copiado!" },
-    es: { logout:"Salir", sendBtn:"Enviar BRD", copyCode:"Copiar", applyBtn:"Aplicar y Ganar 5%", claimBtn:"Reclamar Airdrop", invalidAmount:"Cantidad inválida", minStakeError:"Mínimo es", stakeLocked:"Bloqueado", unstakeSuccess:"Retirado!", copied:"Copiado!" },
-    ar: { logout:"خروج", sendBtn:"إرسال", copyCode:"نسخ", applyBtn:"تطبيق وكسب 5%", claimBtn:"المطالبة", invalidAmount:"كمية غير صالحة", minStakeError:"الحد الأدنى", stakeLocked:"مقفل", unstakeSuccess:"تم!", copied:"تم النسخ!" }
+    en: { logout:"Logout", sendBtn:"Send BRD", copyCode:"Copy", applyBtn:"Apply & Earn 5%", invalidAmount:"Invalid amount", minStakeError:"Minimum stake", stakeLocked:"Still locked", unstakeSuccess:"Unstaked!", copied:"Copied!" },
+    pt: { logout:"Sair", sendBtn:"Enviar BRD", copyCode:"Copiar", applyBtn:"Aplicar e Ganhar 5%", invalidAmount:"Quantidade inválida", minStakeError:"Mínimo é", stakeLocked:"Ainda bloqueado", unstakeSuccess:"Retirado!", copied:"Copiado!" },
+    es: { logout:"Salir", sendBtn:"Enviar BRD", copyCode:"Copiar", applyBtn:"Aplicar y Ganar 5%", invalidAmount:"Cantidad inválida", minStakeError:"Mínimo es", stakeLocked:"Bloqueado", unstakeSuccess:"Retirado!", copied:"Copiado!" },
+    ar: { logout:"خروج", sendBtn:"إرسال", copyCode:"نسخ", applyBtn:"تطبيق وكسب 5%", invalidAmount:"كمية غير صالحة", minStakeError:"الحد الأدنى", stakeLocked:"مقفل", unstakeSuccess:"تم!", copied:"تم النسخ!" }
   };
   let currentLang = 'en';
 
   // ==================== APP STATE ====================
-  let wallet = { address: null, privateKey: null, balance: 1000 };
+  let wallet = { address: null, seedPhrase: null, privateKey: null, balance: 1000 };
   let activeStake = null;
-  let airdropClaimed = false;
   let referralCode = "";
   let referredBy = null;
   let securitySettings = {};
-  let notifications = [{ text: "✨ Welcome to Bradicoin! 1 BRD = $10 USD", read: false }];
-  
+  let notifications = [{ text: "✨ Welcome to Bradicoin! Limited Airdrop: 250 spots only!", read: false }];
   const securityFeatures = ["2FA Enabled", "Transaction Whitelist", "Anti-Phishing Mode", "Private Key Encryption", "Session Timeout (5min)", "Auto-Lock Wallet", "IP Masking", "Contract Blacklist"];
   
-  function generateAddress() { return "0x" + Array(40).fill(0).map(() => Math.floor(Math.random()*16).toString(16)).join(''); }
-  function generateReferralCode() { return "BRD" + Math.random().toString(36).substring(2, 8).toUpperCase(); }
-  
   function saveToLocal() {
-    localStorage.setItem('bradicoin_wallet', JSON.stringify({ address: wallet.address, privateKey: wallet.privateKey, balance: wallet.balance }));
+    localStorage.setItem('bradicoin_wallet', JSON.stringify({ address: wallet.address, seedPhrase: wallet.seedPhrase, privateKey: wallet.privateKey, balance: wallet.balance }));
     localStorage.setItem('bradicoin_stake', JSON.stringify(activeStake));
-    localStorage.setItem('bradicoin_airdrop', airdropClaimed);
     localStorage.setItem('bradicoin_referral_code', referralCode);
     localStorage.setItem('bradicoin_security', JSON.stringify(securitySettings));
     localStorage.setItem('bradicoin_lang', currentLang);
   }
   
   function loadFromLocal() {
+    loadAirdropData();
     const w = localStorage.getItem('bradicoin_wallet'); if(w) { try { const p = JSON.parse(w); wallet = p; } catch(e) {} }
     const s = localStorage.getItem('bradicoin_stake'); if(s) { try { activeStake = JSON.parse(s); } catch(e) {} }
-    const a = localStorage.getItem('bradicoin_airdrop'); if(a) airdropClaimed = a === 'true';
     const rc = localStorage.getItem('bradicoin_referral_code'); if(rc) referralCode = rc;
     const sec = localStorage.getItem('bradicoin_security'); if(sec) { try { securitySettings = JSON.parse(sec); } catch(e) {} }
     const lang = localStorage.getItem('bradicoin_lang'); if(lang && translations[lang]) currentLang = lang;
-    if(!wallet.address) { showSplash(); } else { hideSplashAndShowDashboard(); }
-    if(!referralCode) referralCode = generateReferralCode();
+    if(!wallet.address || !wallet.seedPhrase) { showSplash(); } else { hideSplashAndShowDashboard(); checkAndApplyAirdrop(); }
+    if(!referralCode) referralCode = "BRD" + Math.random().toString(36).substring(2, 8).toUpperCase();
     document.getElementById('referralCode') && (document.getElementById('referralCode').innerText = referralCode);
     updateUI();
   }
   
-  function createNewWallet() { wallet = { address: generateAddress(), privateKey: "priv_" + Math.random().toString(36), balance: 1000 }; activeStake = null; airdropClaimed = false; referralCode = generateReferralCode(); saveToLocal(); hideSplashAndShowDashboard(); addNotification("✅ New wallet created! 1000 BRD"); updateUI(); }
-  function importWallet(key) { if(!key) return; let addr = "0x" + key.replace(/[^a-z0-9]/gi,'').substring(0,40); if(addr.length<10) addr = generateAddress(); wallet = { address: addr, privateKey: key, balance: 1250 }; activeStake = null; airdropClaimed = false; referralCode = generateReferralCode(); saveToLocal(); hideSplashAndShowDashboard(); addNotification("🔐 Wallet imported!"); updateUI(); }
-  function logout() { localStorage.clear(); wallet = { address: null, privateKey: null, balance: 0 }; activeStake = null; showSplash(); }
+  function checkAndApplyAirdrop() {
+    if(wallet.address && !hasUserClaimedAirdrop(wallet.address) && isAirdropAvailable()) {
+      const result = claimAirdropReward(wallet.address, wallet.address);
+      if(result.success) {
+        wallet.balance += result.reward;
+        saveToLocal();
+        addNotification(result.message);
+        showStatus(result.message, 'airdropMessage');
+        updateUI();
+      }
+    }
+  }
+  
+  function createNewWallet() {
+    const newSeed = generateSeedPhrase();
+    const newAddress = generateWalletAddressFromSeed(newSeed, Date.now());
+    wallet = { address: newAddress, seedPhrase: newSeed, privateKey: "priv_" + newSeed.substring(0,20).replace(/\s/g,''), balance: 1000 };
+    activeStake = null;
+    referralCode = "BRD" + Math.random().toString(36).substring(2,8).toUpperCase();
+    saveToLocal();
+    hideSplashAndShowDashboard();
+    checkAndApplyAirdrop();
+    addNotification("✅ New wallet created! Save your seed phrase!");
+    updateUI();
+  }
+  
+  function importWallet(seedOrKey) {
+    if(!seedOrKey || seedOrKey.trim() === "") { alert("Please enter a valid seed phrase"); return false; }
+    const input = seedOrKey.trim();
+    const isSeed = input.split(' ').length >= 6;
+    let newAddress, newSeed, newPrivateKey;
+    if(isSeed) { newSeed = input; newAddress = generateWalletAddressFromSeed(newSeed, Date.now()); newPrivateKey = "priv_" + newSeed.substring(0,20).replace(/\s/g,''); }
+    else { newPrivateKey = input; newSeed = "imported_" + Date.now(); newAddress = generateWalletAddressFromSeed(newPrivateKey, Date.now()); }
+    wallet = { address: newAddress, seedPhrase: newSeed, privateKey: newPrivateKey, balance: 1250 };
+    activeStake = null;
+    referralCode = "BRD" + Math.random().toString(36).substring(2,8).toUpperCase();
+    saveToLocal();
+    hideSplashAndShowDashboard();
+    checkAndApplyAirdrop();
+    addNotification("🔐 Wallet imported successfully!");
+    updateUI();
+    return true;
+  }
+  
+  function logout() { localStorage.clear(); wallet = { address: null, seedPhrase: null, privateKey: null, balance: 0 }; activeStake = null; showSplash(); }
   
   const stakingOptions = [
     { name: "24 Hours", periodSeconds: 86400, periodDays: 1, apr: 17, minStake: 10 },
     { name: "1 Week", periodSeconds: 604800, periodDays: 7, apr: 17, minStake: 50 }
   ];
-  
   function calculateReward(amount, periodSeconds) { return amount * (0.17 * (periodSeconds / 31536000)); }
   
   function stake(amount, option) {
     if (amount <= 0 || amount > wallet.balance) { showStatus(translations[currentLang].invalidAmount, 'stakeStatus'); return; }
     if (amount < option.minStake) { showStatus(`${translations[currentLang].minStakeError} ${option.minStake} BRD`, 'stakeStatus'); return; }
     if (activeStake && activeStake.lockEndTime > Date.now()) { showStatus(translations[currentLang].stakeLocked, 'stakeStatus'); return; }
-    if (activeStake && activeStake.lockEndTime <= Date.now()) { 
-      const reward = calculateReward(activeStake.amount, activeStake.periodSeconds);
-      wallet.balance += activeStake.amount + reward;
-      addNotification(`🎉 Previous stake matured! +${reward.toFixed(4)} BRD reward`);
-    }
+    if (activeStake && activeStake.lockEndTime <= Date.now()) { const reward = calculateReward(activeStake.amount, activeStake.periodSeconds); wallet.balance += activeStake.amount + reward; addNotification(`🎉 Previous stake matured! +${reward.toFixed(4)} BRD reward`); }
     activeStake = { amount: amount, lockEndTime: Date.now() + (option.periodSeconds * 1000), periodSeconds: option.periodSeconds, apr: option.apr, optionName: option.name };
-    wallet.balance -= amount;
-    saveToLocal();
-    updateUI();
-    addNotification(`🔒 Staked ${amount} BRD for ${option.name} at 17% APR`);
-    showStatus(`Staked ${amount} BRD for ${option.name}!`, 'stakeStatus');
+    wallet.balance -= amount; saveToLocal(); updateUI(); addNotification(`🔒 Staked ${amount} BRD for ${option.name} at 17% APR`); showStatus(`Staked ${amount} BRD!`, 'stakeStatus');
   }
-  
   function unstake() {
     if (!activeStake) { showStatus("No active stake", 'stakeStatus'); return; }
     if (Date.now() < activeStake.lockEndTime) { showStatus(translations[currentLang].stakeLocked, 'stakeStatus'); return; }
     const reward = calculateReward(activeStake.amount, activeStake.periodSeconds);
     wallet.balance += activeStake.amount + reward;
-    addNotification(`✅ Unstaked ${activeStake.amount} BRD + ${reward.toFixed(4)} reward (17% APR)`);
-    activeStake = null;
-    saveToLocal();
-    updateUI();
-    showStatus(`${translations[currentLang].unstakeSuccess} +${reward.toFixed(4)} BRD`, 'stakeStatus');
+    addNotification(`✅ Unstaked ${activeStake.amount} BRD + ${reward.toFixed(4)} reward`);
+    activeStake = null; saveToLocal(); updateUI(); showStatus(`${translations[currentLang].unstakeSuccess} +${reward.toFixed(4)} BRD`, 'stakeStatus');
   }
-  
-  function getStakeProgress() {
-    if (!activeStake) return 0;
-    const now = Date.now();
-    if (now >= activeStake.lockEndTime) return 100;
-    const total = activeStake.periodSeconds * 1000;
-    const elapsed = now - (activeStake.lockEndTime - total);
-    return Math.min(100, (elapsed / total) * 100);
-  }
-  
+  function getStakeProgress() { if(!activeStake) return 0; const now=Date.now(); if(now>=activeStake.lockEndTime) return 100; const total=activeStake.periodSeconds*1000; const elapsed=now-(activeStake.lockEndTime-total); return Math.min(100,(elapsed/total)*100); }
   function updateStakingTimer() {
-    const container = document.getElementById('activeStakeInfo');
-    if (!container) return;
-    if (activeStake && activeStake.lockEndTime > Date.now()) {
-      const remaining = activeStake.lockEndTime - Date.now();
-      const hours = Math.floor(remaining / 3600000);
-      const mins = Math.floor((remaining % 3600000) / 60000);
-      const secs = Math.floor((remaining % 60000) / 1000);
-      const progress = getStakeProgress();
-      container.innerHTML = `<div class="progress-bar-container"><div class="progress-fill" style="width:${progress}%"></div></div>⏱️ ${activeStake.optionName} remaining: ${hours}h ${mins}m ${secs}s | Reward: ${calculateReward(activeStake.amount, activeStake.periodSeconds).toFixed(4)} BRD`;
-    } else if (activeStake && activeStake.lockEndTime <= Date.now()) {
-      container.innerHTML = `<div class="progress-bar-container"><div class="progress-fill" style="width:100%"></div></div>✅ STAKE MATURED! Click UNSTAKE to claim reward + principal.`;
-    } else {
-      container.innerHTML = `💎 No active stake. Choose a period below to start earning 17% APR.`;
-    }
+    const container = document.getElementById('activeStakeInfo'); if(!container) return;
+    if(activeStake && activeStake.lockEndTime>Date.now()) { const remaining=activeStake.lockEndTime-Date.now(); const hours=Math.floor(remaining/3600000), mins=Math.floor((remaining%3600000)/60000), secs=Math.floor((remaining%60000)/1000), progress=getStakeProgress(); container.innerHTML=`<div class="progress-bar-container"><div class="progress-fill" style="width:${progress}%"></div></div>⏱️ ${activeStake.optionName} remaining: ${hours}h ${mins}m ${secs}s | Reward: ${calculateReward(activeStake.amount,activeStake.periodSeconds).toFixed(4)} BRD`; }
+    else if(activeStake && activeStake.lockEndTime<=Date.now()) container.innerHTML=`<div class="progress-bar-container"><div class="progress-fill" style="width:100%"></div></div>✅ STAKE MATURED! Click UNSTAKE to claim.`;
+    else container.innerHTML=`💎 No active stake. Choose a period below to start earning 17% APR.`;
   }
-  
-  function renderStakingOptions() {
-    const container = document.getElementById('stakingPoolsContainer');
-    if (!container) return;
-    container.innerHTML = stakingOptions.map(opt => `
-      <div class="staking-pool">
-        <div style="display:flex; justify-content:space-between;"><strong>${opt.name}</strong><span style="color:#0cf;">${opt.apr}% APR</span></div>
-        <div style="font-size:0.7rem;">Lock: ${opt.periodDays} day(s) | Min: ${opt.minStake} BRD</div>
-        <input type="number" id="stakeAmount_${opt.name.replace(/\s/g,'')}" class="cyber-input" placeholder="Amount (BRD)" step="any" style="margin-top:0.5rem;">
-        <button class="cyber-btn stake-option-btn" data-period="${opt.periodSeconds}" data-name="${opt.name}" style="width:100%; margin-top:0.5rem;"><i class="fas fa-lock"></i> Stake for ${opt.name}</button>
-      </div>
-    `).join('');
-    document.querySelectorAll('.stake-option-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const periodSec = parseInt(btn.dataset.period);
-        const optName = btn.dataset.name;
-        const amountInput = document.getElementById(`stakeAmount_${optName.replace(/\s/g,'')}`);
-        const amount = parseFloat(amountInput.value);
-        const option = stakingOptions.find(o => o.periodSeconds === periodSec);
-        if (option && amount > 0) stake(amount, option);
-        else if (amount <= 0) showStatus(translations[currentLang].invalidAmount, 'stakeStatus');
-      });
-    });
-  }
-  
-  function sendCoins(to, amt) { if(!to || amt<=0 || amt>wallet.balance) { alert(translations[currentLang].invalidAmount); return; } wallet.balance -= amt; saveToLocal(); updateUI(); addNotification(`💸 Sent ${amt} BRD to ${to.substring(0,10)}...`); }
-  function claimAirdrop() { if(airdropClaimed) { alert("Airdrop already claimed"); return; } wallet.balance += 250; airdropClaimed=true; saveToLocal(); updateUI(); addNotification("🎁 +250 BRD Airdrop claimed!"); }
-  function applyReferral(code) { if(referredBy) return; if(code === referralCode) return; referredBy = code; wallet.balance += 50; saveToLocal(); updateUI(); addNotification("🎉 Referral bonus +50 BRD!"); }
-  function copyReferral() { navigator.clipboard.writeText(referralCode); alert(translations[currentLang].copied); }
-  function copyAddress() { if(wallet.address) { navigator.clipboard.writeText(wallet.address); alert(translations[currentLang].copied); } }
-  
-  function addNotification(text) { notifications.unshift({ text, read: false }); if(notifications.length > 10) notifications.pop(); updateNotificationUI(); }
-  function updateNotificationUI() { const unread = notifications.filter(n => !n.read).length; document.getElementById('notifCount') && (document.getElementById('notifCount').innerText = unread); const container = document.getElementById('notifList'); if(container) container.innerHTML = notifications.map(n => `<div style="padding:0.5rem; border-bottom:1px solid #333;">${n.text}</div>`).join(''); }
-  function toggleNotifications() { const panel = document.getElementById('notificationPanel'); if(panel) panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex'; notifications.forEach(n=>n.read=true); updateNotificationUI(); }
-  
-  function renderSecuritySettings() {
-    const grid = document.getElementById('securityGrid');
-    if(!grid) return;
-    grid.innerHTML = securityFeatures.map((feat, idx) => {
-      const isActive = securitySettings[feat] || false;
-      return `<div class="security-item"><span>${feat}</span><div class="toggle-switch ${isActive ? 'active' : ''}" data-feat="${feat}"></div></div>`;
-    }).join('');
-    document.querySelectorAll('.toggle-switch').forEach(toggle => {
-      toggle.addEventListener('click', () => {
-        toggle.classList.toggle('active');
-        const feature = toggle.dataset.feat;
-        securitySettings[feature] = toggle.classList.contains('active');
-        saveToLocal();
-      });
-    });
-  }
-  
-  function updateUI() {
-    document.getElementById('bradicoinBalance') && (document.getElementById('bradicoinBalance').innerText = wallet.balance.toFixed(4));
-    document.getElementById('walletAddressDisplay') && (document.getElementById('walletAddressDisplay').innerText = wallet.address || "—");
-    renderStakingOptions();
-    updateStakingTimer();
-  }
-  function showStatus(msg, elId) { const el = document.getElementById(elId); if(el) { el.innerText = msg; setTimeout(()=>{ if(el.innerText===msg) el.innerText=""; },4000); } }
-  
-  function showSplash() { document.getElementById('splashScreen').style.display = 'flex'; document.getElementById('mainDashboard').style.display = 'none'; }
-  function hideSplashAndShowDashboard() { document.getElementById('splashScreen').style.display = 'none'; document.getElementById('mainDashboard').style.display = 'block'; initChart(); initFAQ(); }
-  
-  let priceChart;
-  function initChart() { const ctx = document.getElementById('priceChart')?.getContext('2d'); if(ctx && !priceChart) priceChart = new Chart(ctx, { type: 'line', data: { labels: ['Day1','Day2','Day3','Day4','Day5','Day6','Day7'], datasets: [{ label: 'BRD Price (USD)', data: [9.85,9.92,10.01,9.98,10.05,10.02,10.00], borderColor: '#0cf', fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: '#e0e5ff' } } } } }); }
-  function initFAQ() { const faqData = [{ q:"What is Bradicoin?", a:"Bradicoin (BRD) is a cyberpunk cryptocurrency. 1 BRD = $10 USD." },{ q:"Staking periods?", a:"Stake for 1 day or 1 week at 17% APR." },{ q:"Multi-chain?", a:"Bridge BRD across Bitcoin, Ethereum, Solana, Binance, Polygon & Arbitrum." }]; const container = document.getElementById('faqContainer'); if(container) container.innerHTML = faqData.map((f,i) => `<div class="faq-item"><div class="faq-question" style="cursor:pointer; color:#0cf;" data-idx="${i}">❓ ${f.q}</div><div class="faq-answer" id="faqAns${i}" style="display:none; font-size:0.75rem; margin-top:0.3rem;">${f.a}</div></div>`).join(''); document.querySelectorAll('.faq-question').forEach(el => { el.addEventListener('click', () => { const ans = document.getElementById(`faqAns${el.dataset.idx}`); if(ans) ans.style.display = ans.style.display === 'block' ? 'none' : 'block'; }); }); }
+  function renderStakingOptions() { const container=document.getElementById('stakingPoolsContainer'); if(!container) return; container.innerHTML=stakingOptions.map(opt=>`<div class="staking-pool"><div><strong>${opt.name}</strong><span style="color:#0cf;">${opt.apr}% APR</span></div><div>Lock: ${opt.periodDays} day(s) | Min: ${opt.minStake} BRD</div><input type="number" id="stakeAmount_${opt.name.replace(/\s/g,'')}" class="cyber-input" placeholder="Amount (BRD)" step="any"><button class="cyber-btn stake-option-btn" data-period="${opt.periodSeconds}" data-name="${opt.name}" style="width:100%; margin-top:0.5rem;"><i class="fas fa-lock"></i> Stake for ${opt.name}</button></div>`).join('');
+    document.querySelectorAll('.stake-option-btn').forEach(btn=>{ btn.addEventListener('click',()=>{ const periodSec=parseInt(btn.dataset.period); const optName=btn.dataset.name; const amount=parseFloat(document.getElementById(`stakeAmount_${optName.replace(/\s/g,'')}`).value); const option=stakingOptions.find(o=>o.periodSeconds===periodSec); if(option && amount>0) stake(amount,option); else showStatus(translations[currentLang].invalidAmount,'stakeStatus'); }); }); }
+  function sendCoins(to,amt){ if(!to || amt<=0 || amt>wallet.balance){ alert(translations[currentLang].invalidAmount); return; } wallet.balance-=amt; saveToLocal(); updateUI(); addNotification(`💸 Sent ${amt} BRD to ${to.substring(0,15)}...`); }
+  function applyReferral(code){ if(referredBy) return; if(code===referralCode) return; referredBy=code; wallet.balance+=50; saveToLocal(); updateUI(); addNotification("🎉 Referral bonus +50 BRD!"); }
+  function copyReferral(){ navigator.clipboard.writeText(referralCode); alert(translations[currentLang].copied); }
+  function copyAddress(){ if(wallet.address){ navigator.clipboard.writeText(wallet.address); alert(translations[currentLang].copied); } }
+  function addNotification(text){ notifications.unshift({text,read:false}); if(notifications.length>10) notifications.pop(); updateNotificationUI(); }
+  function updateNotificationUI(){ const unread=notifications.filter(n=>!n.read).length; document.getElementById('notifCount')&&(document.getElementById('notifCount').innerText=unread); const container=document.getElementById('notifList'); if(container) container.innerHTML=notifications.map(n=>`<div style="padding:0.5rem; border-bottom:1px solid #333;">${n.text}</div>`).join(''); }
+  function toggleNotifications(){ const panel=document.getElementById('notificationPanel'); if(panel) panel.style.display=panel.style.display==='flex'?'none':'flex'; notifications.forEach(n=>n.read=true); updateNotificationUI(); }
+  function renderSecuritySettings(){ const grid=document.getElementById('securityGrid'); if(!grid) return; grid.innerHTML=securityFeatures.map((feat,idx)=>{ const isActive=securitySettings[feat]||false; return `<div class="security-item"><span>${feat}</span><div class="toggle-switch ${isActive?'active':''}" data-feat="${feat}"></div></div>`; }).join(''); document.querySelectorAll('.toggle-switch').forEach(toggle=>{ toggle.addEventListener('click',()=>{ toggle.classList.toggle('active'); const feature=toggle.dataset.feat; securitySettings[feature]=toggle.classList.contains('active'); saveToLocal(); }); }); }
+  function updateUI() { document.getElementById('bradicoinBalance')&&(document.getElementById('bradicoinBalance').innerText=wallet.balance.toFixed(4)); document.getElementById('walletAddressDisplay')&&(document.getElementById('walletAddressDisplay').innerText=wallet.address||"—"); document.getElementById('seedPhraseDisplay')&&(document.getElementById('seedPhraseDisplay').innerHTML=`🔐 <strong>Seed Phrase (SAVE IT!):</strong><br>${wallet.seedPhrase||'Not available'}`); renderStakingOptions(); updateStakingTimer(); const airdropStatusMsg = hasUserClaimedAirdrop(wallet.address) ? "✅ You already received the limited airdrop!" : (isAirdropAvailable() ? `🔥 Airdrop available! ${getRemainingSpots()} spots remaining` : "❌ Airdrop fully claimed (250 users)"); document.getElementById('airdropStatusDashboard')&&(document.getElementById('airdropStatusDashboard').innerHTML=airdropStatusMsg); const bradichainLink = document.getElementById('bradichainLink'); if(bradichainLink && wallet.address) bradichainLink.href = `https://www.bradichain.com/address/${wallet.address}`; }
+  function showStatus(msg,elId){ const el=document.getElementById(elId); if(el){ el.innerText=msg; setTimeout(()=>{ if(el.innerText===msg) el.innerText=""; },4000); } }
+  function showSplash(){ document.getElementById('splashScreen').style.display='flex'; document.getElementById('mainDashboard').style.display='none'; }
+  function hideSplashAndShowDashboard(){ document.getElementById('splashScreen').style.display='none'; document.getElementById('mainDashboard').style.display='block'; initChart(); initFAQ(); }
+  let priceChart; function initChart(){ const ctx=document.getElementById('priceChart')?.getContext('2d'); if(ctx && !priceChart) priceChart=new Chart(ctx,{type:'line',data:{labels:['Day1','Day2','Day3','Day4','Day5','Day6','Day7'],datasets:[{label:'BRD Price (USD)',data:[9.85,9.92,10.01,9.98,10.05,10.02,10.00],borderColor:'#0cf',fill:true,tension:0.3}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:'#e0e5ff'}}}}}); }
+  function initFAQ(){ const faqData=[{q:"What is Bradicoin?",a:"Bradicoin (BRD) is a cyberpunk cryptocurrency. 1 BRD = $10 USD."},{q:"Limited Airdrop?",a:`Only the first ${MAX_AIRDROP_SPOTS} wallets receive a special reward!`},{q:"How to check my wallet?",a:"Click the Bradichain link to view your address on the explorer."}]; const container=document.getElementById('faqContainer'); if(container) container.innerHTML=faqData.map((f,i)=>`<div class="faq-item"><div class="faq-question" style="cursor:pointer; color:#0cf;" data-idx="${i}">❓ ${f.q}</div><div class="faq-answer" id="faqAns${i}" style="display:none; font-size:0.75rem; margin-top:0.3rem;">${f.a}</div></div>`).join(''); document.querySelectorAll('.faq-question').forEach(el=>{ el.addEventListener('click',()=>{ const ans=document.getElementById(`faqAns${el.dataset.idx}`); if(ans) ans.style.display=ans.style.display==='block'?'none':'block'; }); }); }
   
   // Event Listeners
   document.getElementById('splashCreateBtn').onclick = createNewWallet;
   document.getElementById('splashImportBtn').onclick = () => { const group = document.getElementById('importKeyGroup'); group.style.display = group.style.display === 'block' ? 'none' : 'block'; };
-  document.getElementById('confirmImportBtn').onclick = () => { const key = document.getElementById('importPrivateKey').value; if(key) importWallet(key); else alert("Enter private key"); };
+  document.getElementById('confirmImportBtn').onclick = () => { const key = document.getElementById('importPrivateKey').value; if(key) importWallet(key); else alert("Enter your seed phrase"); };
   document.getElementById('logoutBtn') && (document.getElementById('logoutBtn').onclick = logout);
   document.getElementById('sendBtn') && (document.getElementById('sendBtn').onclick = () => sendCoins(document.getElementById('recipientAddr').value, parseFloat(document.getElementById('sendAmount').value)));
   document.getElementById('copyAddressBtn') && (document.getElementById('copyAddressBtn').onclick = copyAddress);
   document.getElementById('copyReferralBtn') && (document.getElementById('copyReferralBtn').onclick = copyReferral);
   document.getElementById('applyReferralBtn') && (document.getElementById('applyReferralBtn').onclick = () => applyReferral(document.getElementById('friendCode').value));
-  document.getElementById('claimAirdropBtn') && (document.getElementById('claimAirdropBtn').onclick = claimAirdrop);
   document.getElementById('notificationBell') && (document.getElementById('notificationBell').onclick = toggleNotifications);
   document.getElementById('settingsBtn') && (document.getElementById('settingsBtn').onclick = () => { renderSecuritySettings(); document.getElementById('settingsModal').style.display = 'flex'; });
   document.getElementById('closeSettingsBtn') && (document.getElementById('closeSettingsBtn').onclick = () => document.getElementById('settingsModal').style.display = 'none');
   document.getElementById('languageSwitcher') && (document.getElementById('languageSwitcher').onchange = (e) => { currentLang = e.target.value; saveToLocal(); updateUI(); });
   document.getElementById('chainSelector') && (document.getElementById('chainSelector').onchange = (e) => addNotification(`🔄 Switched to ${e.target.value} network`));
   
-  // Unstake button
-  const unstakeBtn = document.createElement('button');
-  unstakeBtn.className = 'cyber-btn';
-  unstakeBtn.innerHTML = '<i class="fas fa-unlock-alt"></i> Unstake Matured Position';
-  unstakeBtn.style.width = '100%';
-  unstakeBtn.style.marginTop = '0.5rem';
-  unstakeBtn.onclick = unstake;
-  const stakingContainer = document.getElementById('stakingPoolsContainer');
-  if(stakingContainer && stakingContainer.parentNode) stakingContainer.parentNode.appendChild(unstakeBtn);
-  
+  const unstakeBtn = document.createElement('button'); unstakeBtn.className = 'cyber-btn'; unstakeBtn.innerHTML = '<i class="fas fa-unlock-alt"></i> Unstake Matured Position'; unstakeBtn.style.width = '100%'; unstakeBtn.style.marginTop = '0.5rem'; unstakeBtn.onclick = unstake;
+  const stakingContainer = document.getElementById('stakingPoolsContainer'); if(stakingContainer && stakingContainer.parentNode) stakingContainer.parentNode.appendChild(unstakeBtn);
   setInterval(() => { updateStakingTimer(); }, 1000);
   loadFromLocal();
 </script>
