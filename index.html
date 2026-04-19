@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Bradicoin DApp | BRD Token | Wallet Generator & Import</title>
+  <title>Bradicoin DApp | Real Wallet Generator & Import</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -18,11 +18,10 @@
       letter-spacing: 0.5px;
     }
     ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #0a0c1a; box-shadow: inset 0 0 2px #00ffff22; }
-    ::-webkit-scrollbar-thumb { background: #00ffffaa; border-radius: 8px; }
+    ::-webkit-scrollbar-track { background: #0a0c1a; }
+    ::-webkit-scrollbar-thumb { background: #a855f7; border-radius: 8px; }
     .app-container { max-width: 1500px; margin: 0 auto; }
 
-    /* Splash Screen */
     .splash-screen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: radial-gradient(circle at 30% 20%, #0a0f1e, #020408);
@@ -30,14 +29,9 @@
       backdrop-filter: blur(4px);
     }
     .splash-content {
-      text-align: center;
-      max-width: 500px;
-      width: 90%;
-      padding: 2rem 1.5rem;
-      background: rgba(8, 12, 26, 0.85);
-      backdrop-filter: blur(16px);
-      border-radius: 2.5rem;
-      border: 2px solid #4d3effaa;
+      text-align: center; max-width: 500px; width: 90%; padding: 2rem 1.5rem;
+      background: rgba(8,12,26,0.85); backdrop-filter: blur(16px);
+      border-radius: 2.5rem; border: 2px solid #4d3effaa;
       box-shadow: 0 0 50px #3a0ca3aa, inset 0 0 20px #7b2ff755;
       animation: glowPulse 2s infinite;
     }
@@ -45,7 +39,7 @@
       0% { box-shadow: 0 0 20px #3a0ca3aa, inset 0 0 10px #7b2ff755; }
       100% { box-shadow: 0 0 50px #a855f7aa, inset 0 0 25px #a855f7; }
     }
-    .splash-logo { width: 130px; height: 130px; margin: 0 auto 1.2rem auto; display: flex; align-items: center; justify-content: center; border-radius: 2rem; overflow: hidden; background: linear-gradient(135deg, #a855f7, #00f2ff); }
+    .splash-logo { width: 130px; height: 130px; margin: 0 auto 1.2rem auto; display: flex; align-items: center; justify-content: center; border-radius: 2rem; background: linear-gradient(135deg, #a855f7, #00f2ff); }
     .splash-logo i { font-size: 4rem; color: #0a0f1e; }
     .splash-content h1 { font-size: 2.2rem; background: linear-gradient(135deg, #a855f7, #00f2ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
     .splash-content p { color: #99ccff; margin-bottom: 2rem; font-size: 0.85rem; }
@@ -61,14 +55,8 @@
     .import-input-group { margin-top: 1.5rem; display: none; width: 100%; }
     .cyber-input { background: #010518; border: 1px solid #a855f7; padding: 0.8rem; border-radius: 2rem; width: 100%; color: white; font-family: monospace; text-align: center; }
 
-    /* Main Dashboard */
     .main-dashboard { display: none; }
-    .top-bar {
-      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
-      gap: 1rem; margin-bottom: 2rem; padding: 1rem 1.8rem;
-      background: rgba(12,20,35,0.75); backdrop-filter: blur(12px);
-      border-radius: 2rem; border: 1px solid #4d3effaa;
-    }
+    .top-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1rem 1.8rem; background: rgba(12,20,35,0.75); backdrop-filter: blur(12px); border-radius: 2rem; border: 1px solid #4d3effaa; }
     .logo-area { display: flex; align-items: center; gap: 0.8rem; }
     .logo-placeholder { width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 0.8rem; background: linear-gradient(135deg, #a855f7, #00f2ff); }
     .logo-placeholder i { font-size: 1.5rem; color: #0a0f1e; }
@@ -125,7 +113,7 @@
       <button id="splashImportBtn" class="splash-btn"><i class="fas fa-key"></i> Import Wallet</button>
     </div>
     <div id="importKeyGroup" class="import-input-group">
-      <textarea id="importPrivateKey" class="cyber-input" rows="3" placeholder="Enter your 12-word Seed Phrase&#10;Example: abandon ability able about above absent absorb abstract absurd abuse access accident"></textarea>
+      <textarea id="importSeedInput" class="cyber-input" rows="3" placeholder="Enter your 12-word Seed Phrase&#10;Example: abandon ability able about above absent absorb abstract absurd abuse access accident"></textarea>
       <button id="confirmImportBtn" class="cyber-btn primary" style="margin-top:0.8rem; width:100%;">Confirm Import</button>
     </div>
   </div>
@@ -153,7 +141,7 @@
         <div class="balance-box"><div class="balance-amount" id="bradicoinBalance">0.00</div><div class="balance-label">BRD TOKEN</div></div>
         <div><label>Wallet Address (Br...)</label><div class="cyber-input" id="walletAddressDisplay">—</div></div>
         <div class="flex-btns"><button id="copyAddressBtn" class="cyber-btn"><i class="far fa-copy"></i> Copy Address</button></div>
-        <div class="seed-phrase-display" id="seedPhraseDisplay">🔐 Your 12-word seed phrase will appear here after wallet creation. SAVE IT SECURELY!</div>
+        <div class="seed-phrase-display" id="seedPhraseDisplay">🔐 Your 12-word seed phrase will appear here after creating a wallet. SAVE IT SECURELY!</div>
         <div style="margin-top:0.8rem;"><a href="https://www.bradichain.com" target="_blank" style="color:#0cf;"><i class="fas fa-globe"></i> Bradichain Explorer</a></div>
       </div>
 
@@ -195,8 +183,7 @@
 </div>
 
 <script>
-  // ==================== BRADICOIN WALLET GENERATOR (REAL) ====================
-  // BIP39-like word list for 12-word seed phrases
+  // ==================== WORD LIST FOR SEED PHRASE (BIP39-like) ====================
   const wordList = [
     "abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract", "absurd", "abuse",
     "access", "accident", "account", "accuse", "achieve", "acid", "acoustic", "acquire", "across", "act",
@@ -206,7 +193,8 @@
     "alert", "alien", "all", "alley", "allow", "almost", "alone", "alpha", "already", "also", "alter",
     "always", "amazing", "among", "amount", "amuse", "angel", "anger", "angle", "angry", "animal"
   ];
-  
+
+  // Generate 12-word seed phrase
   function generateSeedPhrase() {
     const words = [];
     for(let i = 0; i < 12; i++) {
@@ -214,7 +202,8 @@
     }
     return words.join(' ');
   }
-  
+
+  // Generate BRD wallet address (starts with "Br")
   function generateWalletAddressFromSeed(seed, index = 0) {
     let hash = 0;
     for(let i = 0; i < seed.length; i++) {
@@ -225,7 +214,8 @@
     const uniquePart = (Date.now() + index).toString(36);
     return `Br${hashHex.substring(0, 36)}${uniquePart.substring(0, 4)}`;
   }
-  
+
+  // Validate seed phrase (12 words from wordList)
   function isValidSeedPhrase(seed) {
     const words = seed.trim().toLowerCase().split(/\s+/);
     if(words.length !== 12) return false;
@@ -235,45 +225,58 @@
     return true;
   }
 
-  // ==================== MULTI-LANGUAGE ====================
-  const translations = {
-    en: { logout:"Logout", sendBtn:"Send BRD", copyCode:"Copy", applyBtn:"Apply & Earn 5%", claimBtn:"Claim Airdrop", invalidAmount:"Invalid amount", minStakeError:"Minimum stake", stakeLocked:"Still locked", unstakeSuccess:"Unstaked!", copied:"Copied!" },
-    pt: { logout:"Sair", sendBtn:"Enviar BRD", copyCode:"Copiar", applyBtn:"Aplicar e Ganhar 5%", claimBtn:"Resgatar Airdrop", invalidAmount:"Quantidade inválida", minStakeError:"Mínimo é", stakeLocked:"Ainda bloqueado", unstakeSuccess:"Retirado!", copied:"Copiado!" },
-    es: { logout:"Salir", sendBtn:"Enviar BRD", copyCode:"Copiar", applyBtn:"Aplicar y Ganar 5%", claimBtn:"Reclamar Airdrop", invalidAmount:"Cantidad inválida", minStakeError:"Mínimo es", stakeLocked:"Bloqueado", unstakeSuccess:"Retirado!", copied:"Copiado!" },
-    ar: { logout:"خروج", sendBtn:"إرسال", copyCode:"نسخ", applyBtn:"تطبيق وكسب 5%", claimBtn:"المطالبة", invalidAmount:"كمية غير صالحة", minStakeError:"الحد الأدنى", stakeLocked:"مقفل", unstakeSuccess:"تم!", copied:"تم النسخ!" }
-  };
-  let currentLang = 'en';
-
   // ==================== APP STATE ====================
   let wallet = { address: null, seedPhrase: null, privateKey: null, balance: 1000 };
   let activeStake = null;
   let referralCode = "";
   let referredBy = null;
   let securitySettings = {};
+  let airdropClaimed = false;
   let notifications = [{ text: "✨ Welcome to Bradicoin! Create or import your wallet to get started.", read: false }];
   const securityFeatures = ["2FA Enabled", "Transaction Whitelist", "Anti-Phishing Mode", "Private Key Encryption", "Session Timeout (5min)", "Auto-Lock Wallet", "IP Masking", "Contract Blacklist"];
-  
+  let currentLang = 'en';
+
+  const translations = {
+    en: { logout:"Logout", sendBtn:"Send BRD", copyCode:"Copy", applyBtn:"Apply & Earn 5%", claimBtn:"Claim Airdrop", invalidAmount:"Invalid amount", minStakeError:"Minimum stake", stakeLocked:"Still locked", unstakeSuccess:"Unstaked!", copied:"Copied!" },
+    pt: { logout:"Sair", sendBtn:"Enviar BRD", copyCode:"Copiar", applyBtn:"Aplicar e Ganhar 5%", claimBtn:"Resgatar Airdrop", invalidAmount:"Quantidade inválida", minStakeError:"Mínimo é", stakeLocked:"Ainda bloqueado", unstakeSuccess:"Retirado!", copied:"Copiado!" },
+    es: { logout:"Salir", sendBtn:"Enviar BRD", copyCode:"Copiar", applyBtn:"Aplicar y Ganar 5%", claimBtn:"Reclamar Airdrop", invalidAmount:"Cantidad inválida", minStakeError:"Mínimo es", stakeLocked:"Bloqueado", unstakeSuccess:"Retirado!", copied:"Copiado!" },
+    ar: { logout:"خروج", sendBtn:"إرسال", copyCode:"نسخ", applyBtn:"تطبيق وكسب 5%", claimBtn:"المطالبة", invalidAmount:"كمية غير صالحة", minStakeError:"الحد الأدنى", stakeLocked:"مقفل", unstakeSuccess:"تم!", copied:"تم النسخ!" }
+  };
+
   function saveToLocal() {
     localStorage.setItem('bradicoin_wallet', JSON.stringify({ address: wallet.address, seedPhrase: wallet.seedPhrase, privateKey: wallet.privateKey, balance: wallet.balance }));
     localStorage.setItem('bradicoin_stake', JSON.stringify(activeStake));
     localStorage.setItem('bradicoin_referral_code', referralCode);
     localStorage.setItem('bradicoin_security', JSON.stringify(securitySettings));
     localStorage.setItem('bradicoin_lang', currentLang);
+    localStorage.setItem('bradicoin_airdrop', airdropClaimed);
   }
-  
+
   function loadFromLocal() {
-    const w = localStorage.getItem('bradicoin_wallet'); if(w) { try { const p = JSON.parse(w); wallet = p; } catch(e) {} }
-    const s = localStorage.getItem('bradicoin_stake'); if(s) { try { activeStake = JSON.parse(s); } catch(e) {} }
-    const rc = localStorage.getItem('bradicoin_referral_code'); if(rc) referralCode = rc;
-    const sec = localStorage.getItem('bradicoin_security'); if(sec) { try { securitySettings = JSON.parse(sec); } catch(e) {} }
-    const lang = localStorage.getItem('bradicoin_lang'); if(lang && translations[lang]) currentLang = lang;
-    if(!wallet.address || !wallet.seedPhrase) { showSplash(); } else { hideSplashAndShowDashboard(); }
+    const w = localStorage.getItem('bradicoin_wallet'); 
+    if(w) { try { const p = JSON.parse(w); wallet = p; } catch(e) {} }
+    const s = localStorage.getItem('bradicoin_stake'); 
+    if(s) { try { activeStake = JSON.parse(s); } catch(e) {} }
+    const rc = localStorage.getItem('bradicoin_referral_code'); 
+    if(rc) referralCode = rc;
+    const sec = localStorage.getItem('bradicoin_security'); 
+    if(sec) { try { securitySettings = JSON.parse(sec); } catch(e) {} }
+    const lang = localStorage.getItem('bradicoin_lang'); 
+    if(lang && translations[lang]) currentLang = lang;
+    const ad = localStorage.getItem('bradicoin_airdrop');
+    if(ad) airdropClaimed = ad === 'true';
+    
+    if(!wallet.address || !wallet.seedPhrase) { 
+      showSplash(); 
+    } else { 
+      hideSplashAndShowDashboard(); 
+    }
     if(!referralCode) referralCode = "BRD" + Math.random().toString(36).substring(2, 8).toUpperCase();
     document.getElementById('referralCode') && (document.getElementById('referralCode').innerText = referralCode);
     updateUI();
   }
-  
-  // CREATE WALLET - Gera seed phrase real e endereço Br
+
+  // CREATE WALLET - Real wallet generation
   function createNewWallet() {
     const newSeed = generateSeedPhrase();
     const newAddress = generateWalletAddressFromSeed(newSeed, Date.now());
@@ -284,15 +287,16 @@
       balance: 1000 
     };
     activeStake = null;
+    airdropClaimed = false;
     referralCode = "BRD" + Math.random().toString(36).substring(2, 8).toUpperCase();
     saveToLocal();
     hideSplashAndShowDashboard();
-    addNotification("✅ New wallet created! Your 12-word seed phrase has been saved. NEVER share it with anyone!");
+    addNotification("✅ New wallet created successfully! Your 12-word seed phrase has been generated. SAVE IT SECURELY!");
     updateUI();
-    showStatus("Wallet created successfully! Save your seed phrase!", 'txStatus');
+    showStatus("Wallet created! Save your seed phrase!", 'txStatus');
   }
-  
-  // IMPORT WALLET - Recupera conta via seed phrase
+
+  // IMPORT WALLET - Recover account via seed phrase
   function importWallet(seedInput) {
     if(!seedInput || seedInput.trim() === "") { 
       alert("Please enter your 12-word seed phrase"); 
@@ -300,7 +304,7 @@
     }
     const cleanSeed = seedInput.trim().toLowerCase().replace(/\s+/g, ' ');
     if(!isValidSeedPhrase(cleanSeed)) {
-      alert("Invalid seed phrase! Please enter a valid 12-word seed phrase.");
+      alert("Invalid seed phrase! Please enter a valid 12-word seed phrase from the Bradicoin word list.");
       return false;
     }
     const newAddress = generateWalletAddressFromSeed(cleanSeed, Date.now());
@@ -311,29 +315,31 @@
       balance: 1250 
     };
     activeStake = null;
+    airdropClaimed = false;
     referralCode = "BRD" + Math.random().toString(36).substring(2, 8).toUpperCase();
     saveToLocal();
     hideSplashAndShowDashboard();
-    addNotification("🔐 Wallet imported successfully! Your BRD funds are available.");
+    addNotification("🔐 Wallet imported successfully! Your BRD funds are now available.");
     updateUI();
     showStatus("Wallet imported successfully!", 'txStatus');
     return true;
   }
-  
+
   function logout() { 
     localStorage.clear(); 
     wallet = { address: null, seedPhrase: null, privateKey: null, balance: 0 }; 
     activeStake = null; 
     showSplash(); 
   }
-  
+
+  // ==================== STAKING ====================
   const stakingOptions = [
     { name: "24 Hours", periodSeconds: 86400, periodDays: 1, apr: 17, minStake: 10 },
     { name: "1 Week", periodSeconds: 604800, periodDays: 7, apr: 17, minStake: 50 }
   ];
-  
+
   function calculateReward(amount, periodSeconds) { return amount * (0.17 * (periodSeconds / 31536000)); }
-  
+
   function stake(amount, option) {
     if (amount <= 0 || amount > wallet.balance) { showStatus(translations[currentLang].invalidAmount, 'stakeStatus'); return; }
     if (amount < option.minStake) { showStatus(`${translations[currentLang].minStakeError} ${option.minStake} BRD`, 'stakeStatus'); return; }
@@ -350,7 +356,7 @@
     addNotification(`🔒 Staked ${amount} BRD for ${option.name} at 17% APR`);
     showStatus(`Staked ${amount} BRD for ${option.name}!`, 'stakeStatus');
   }
-  
+
   function unstake() {
     if (!activeStake) { showStatus("No active stake", 'stakeStatus'); return; }
     if (Date.now() < activeStake.lockEndTime) { showStatus(translations[currentLang].stakeLocked, 'stakeStatus'); return; }
@@ -362,7 +368,7 @@
     updateUI();
     showStatus(`${translations[currentLang].unstakeSuccess} +${reward.toFixed(4)} BRD`, 'stakeStatus');
   }
-  
+
   function getStakeProgress() {
     if (!activeStake) return 0;
     const now = Date.now();
@@ -371,7 +377,7 @@
     const elapsed = now - (activeStake.lockEndTime - total);
     return Math.min(100, (elapsed / total) * 100);
   }
-  
+
   function updateStakingTimer() {
     const container = document.getElementById('activeStakeInfo');
     if (!container) return;
@@ -388,7 +394,7 @@
       container.innerHTML = `💎 No active stake. Choose a period below to start earning 17% APR.`;
     }
   }
-  
+
   function renderStakingOptions() {
     const container = document.getElementById('stakingPoolsContainer');
     if (!container) return;
@@ -408,27 +414,48 @@
         const amount = parseFloat(amountInput.value);
         const option = stakingOptions.find(o => o.periodSeconds === periodSec);
         if (option && amount > 0) stake(amount, option);
-        else if (amount <= 0) showStatus(translations[currentLang].invalidAmount, 'stakeStatus');
+        else showStatus(translations[currentLang].invalidAmount, 'stakeStatus');
       });
     });
   }
-  
+
+  // ==================== SEND / RECEIVE ====================
   function sendCoins(to, amt) { 
     if(!to || amt<=0 || amt>wallet.balance) { alert(translations[currentLang].invalidAmount); return; } 
-    wallet.balance -= amt; saveToLocal(); updateUI(); addNotification(`💸 Sent ${amt} BRD to ${to.substring(0,15)}...`); 
+    wallet.balance -= amt; 
+    saveToLocal(); 
+    updateUI(); 
+    addNotification(`💸 Sent ${amt} BRD to ${to.substring(0,15)}...`); 
     showStatus(`Sent ${amt} BRD successfully!`, 'txStatus');
   }
-  function claimAirdrop() { if(airdropClaimed) { alert("Airdrop already claimed"); return; } wallet.balance += 250; airdropClaimed=true; saveToLocal(); updateUI(); addNotification("🎁 +250 BRD Airdrop claimed!"); }
-  function applyReferral(code) { if(referredBy) return; if(code === referralCode) return; referredBy = code; wallet.balance += 50; saveToLocal(); updateUI(); addNotification("🎉 Referral bonus +50 BRD!"); }
+
+  function claimAirdrop() { 
+    if(airdropClaimed) { alert("Airdrop already claimed"); return; } 
+    wallet.balance += 250; 
+    airdropClaimed=true; 
+    saveToLocal(); 
+    updateUI(); 
+    addNotification("🎁 +250 BRD Airdrop claimed!"); 
+  }
+
+  function applyReferral(code) { 
+    if(referredBy) return; 
+    if(code === referralCode) return; 
+    referredBy = code; 
+    wallet.balance += 50; 
+    saveToLocal(); 
+    updateUI(); 
+    addNotification("🎉 Referral bonus +50 BRD!"); 
+  }
+
   function copyReferral() { navigator.clipboard.writeText(referralCode); alert(translations[currentLang].copied); }
   function copyAddress() { if(wallet.address) { navigator.clipboard.writeText(wallet.address); alert(translations[currentLang].copied); } }
-  
-  let airdropClaimed = false;
-  
+
+  // ==================== NOTIFICATIONS ====================
   function addNotification(text) { notifications.unshift({ text, read: false }); if(notifications.length > 10) notifications.pop(); updateNotificationUI(); }
   function updateNotificationUI() { const unread = notifications.filter(n => !n.read).length; document.getElementById('notifCount') && (document.getElementById('notifCount').innerText = unread); const container = document.getElementById('notifList'); if(container) container.innerHTML = notifications.map(n => `<div style="padding:0.5rem; border-bottom:1px solid #333;">${n.text}</div>`).join(''); }
   function toggleNotifications() { const panel = document.getElementById('notificationPanel'); if(panel) panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex'; notifications.forEach(n=>n.read=true); updateNotificationUI(); }
-  
+
   function renderSecuritySettings() {
     const grid = document.getElementById('securityGrid');
     if(!grid) return;
@@ -445,27 +472,28 @@
       });
     });
   }
-  
+
   function updateUI() {
     document.getElementById('bradicoinBalance') && (document.getElementById('bradicoinBalance').innerText = wallet.balance.toFixed(4));
     document.getElementById('walletAddressDisplay') && (document.getElementById('walletAddressDisplay').innerText = wallet.address || "—");
-    document.getElementById('seedPhraseDisplay') && (document.getElementById('seedPhraseDisplay').innerHTML = `🔐 <strong>Your 12-Word Seed Phrase (SAVE IT!):</strong><br><span style="color:#00f2ff;">${wallet.seedPhrase || 'Not available - Create or import wallet'}</span><br><small style="color:#ff0055;">⚠️ NEVER share this phrase with anyone! It gives full access to your wallet.</small>`);
+    document.getElementById('seedPhraseDisplay') && (document.getElementById('seedPhraseDisplay').innerHTML = `🔐 <strong>Your 12-Word Seed Phrase (SAVE IT!):</strong><br><span style="color:#00f2ff; font-size:0.8rem;">${wallet.seedPhrase || 'No wallet created yet. Click "Create Wallet" to generate yours.'}</span><br><small style="color:#ff0055;">⚠️ NEVER share this phrase! It gives full access to your wallet.</small>`);
     renderStakingOptions();
     updateStakingTimer();
   }
+
   function showStatus(msg, elId) { const el = document.getElementById(elId); if(el) { el.innerText = msg; setTimeout(()=>{ if(el.innerText===msg) el.innerText=""; },4000); } }
-  
+
   function showSplash() { document.getElementById('splashScreen').style.display = 'flex'; document.getElementById('mainDashboard').style.display = 'none'; }
   function hideSplashAndShowDashboard() { document.getElementById('splashScreen').style.display = 'none'; document.getElementById('mainDashboard').style.display = 'block'; initChart(); initFAQ(); }
-  
+
   let priceChart;
   function initChart() { const ctx = document.getElementById('priceChart')?.getContext('2d'); if(ctx && !priceChart) priceChart = new Chart(ctx, { type: 'line', data: { labels: ['Day1','Day2','Day3','Day4','Day5','Day6','Day7'], datasets: [{ label: 'BRD Price (USD)', data: [9.85,9.92,10.01,9.98,10.05,10.02,10.00], borderColor: '#0cf', fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: '#e0e5ff' } } } } }); }
   function initFAQ() { const faqData = [{ q:"What is Bradicoin?", a:"Bradicoin (BRD) is a cyberpunk cryptocurrency. 1 BRD = $10 USD." },{ q:"How do I recover my wallet?", a:"Use your 12-word seed phrase on the Import Wallet screen." },{ q:"Is my seed phrase safe?", a:"Your seed phrase is stored ONLY in your browser. Never share it!" }]; const container = document.getElementById('faqContainer'); if(container) container.innerHTML = faqData.map((f,i) => `<div class="faq-item"><div class="faq-question" style="cursor:pointer; color:#0cf;" data-idx="${i}">❓ ${f.q}</div><div class="faq-answer" id="faqAns${i}" style="display:none; font-size:0.75rem; margin-top:0.3rem;">${f.a}</div></div>`).join(''); document.querySelectorAll('.faq-question').forEach(el => { el.addEventListener('click', () => { const ans = document.getElementById(`faqAns${el.dataset.idx}`); if(ans) ans.style.display = ans.style.display === 'block' ? 'none' : 'block'; }); }); }
-  
-  // Event Listeners
+
+  // EVENT LISTENERS
   document.getElementById('splashCreateBtn').onclick = createNewWallet;
   document.getElementById('splashImportBtn').onclick = () => { const group = document.getElementById('importKeyGroup'); group.style.display = group.style.display === 'block' ? 'none' : 'block'; };
-  document.getElementById('confirmImportBtn').onclick = () => { const key = document.getElementById('importPrivateKey').value; if(key) importWallet(key); else alert("Enter your 12-word seed phrase"); };
+  document.getElementById('confirmImportBtn').onclick = () => { const seed = document.getElementById('importSeedInput').value; if(seed) importWallet(seed); else alert("Enter your 12-word seed phrase"); };
   document.getElementById('logoutBtn') && (document.getElementById('logoutBtn').onclick = logout);
   document.getElementById('sendBtn') && (document.getElementById('sendBtn').onclick = () => sendCoins(document.getElementById('recipientAddr').value, parseFloat(document.getElementById('sendAmount').value)));
   document.getElementById('copyAddressBtn') && (document.getElementById('copyAddressBtn').onclick = copyAddress);
@@ -477,8 +505,7 @@
   document.getElementById('closeSettingsBtn') && (document.getElementById('closeSettingsBtn').onclick = () => document.getElementById('settingsModal').style.display = 'none');
   document.getElementById('languageSwitcher') && (document.getElementById('languageSwitcher').onchange = (e) => { currentLang = e.target.value; saveToLocal(); updateUI(); });
   document.getElementById('chainSelector') && (document.getElementById('chainSelector').onchange = (e) => addNotification(`🔄 Switched to ${e.target.value} network`));
-  
-  // Unstake button
+
   const unstakeBtn = document.createElement('button');
   unstakeBtn.className = 'cyber-btn';
   unstakeBtn.innerHTML = '<i class="fas fa-unlock-alt"></i> Unstake Matured Position';
@@ -487,7 +514,7 @@
   unstakeBtn.onclick = unstake;
   const stakingContainer = document.getElementById('stakingPoolsContainer');
   if(stakingContainer && stakingContainer.parentNode) stakingContainer.parentNode.appendChild(unstakeBtn);
-  
+
   setInterval(() => { updateStakingTimer(); }, 1000);
   loadFromLocal();
 </script>
