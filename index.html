@@ -22,17 +22,22 @@
     ::-webkit-scrollbar-thumb { background: #00ffffaa; border-radius: 8px; }
     .app-container { max-width: 1500px; margin: 0 auto; }
 
-    /* Splash Screen */
+    /* Splash Screen - Logo Centralizado */
     .splash-screen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: radial-gradient(circle at 30% 20%, #0a0f1e, #020408);
       display: flex; justify-content: center; align-items: center; z-index: 2000;
-      backdrop-filter: blur(4px); transition: opacity 0.5s ease;
+      backdrop-filter: blur(4px);
     }
     .splash-content {
-      text-align: center; max-width: 500px; width: 90%; padding: 2rem;
-      background: rgba(8, 12, 26, 0.85); backdrop-filter: blur(16px);
-      border-radius: 2.5rem; border: 2px solid #4d3effaa;
+      text-align: center;
+      max-width: 450px;
+      width: 90%;
+      padding: 2rem 1.5rem;
+      background: rgba(8, 12, 26, 0.85);
+      backdrop-filter: blur(16px);
+      border-radius: 2.5rem;
+      border: 2px solid #4d3effaa;
       box-shadow: 0 0 50px #3a0ca3aa, inset 0 0 20px #7b2ff755;
       animation: glowPulse 2s infinite;
     }
@@ -41,53 +46,117 @@
       100% { box-shadow: 0 0 50px #a855f7aa, inset 0 0 25px #a855f7; }
     }
     .splash-logo {
-      width: 140px;
-      height: 140px;
-      margin: 0 auto 1.5rem auto;
+      width: 130px;
+      height: 130px;
+      margin: 0 auto 1.2rem auto;
       display: flex;
       align-items: center;
       justify-content: center;
+      border-radius: 2rem;
+      overflow: hidden;
     }
     .splash-logo img {
       width: 100%;
       height: 100%;
       object-fit: contain;
-      border-radius: 2rem;
+      image-rendering: crisp-edges;
     }
-    .splash-content h1 { font-size: 2.5rem; background: linear-gradient(135deg, #a855f7, #00f2ff); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 0.5rem; }
-    .splash-content p { color: #99ccff; margin-bottom: 2rem; font-size: 0.9rem; }
-    .splash-buttons { display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap; margin-top: 0.5rem; }
-    .splash-btn { background: rgba(0,0,0,0.6); border: 1.5px solid #3b82f6; color: #bbf0ff; font-family: 'Orbitron'; font-weight: 600; padding: 0.8rem 1.8rem; border-radius: 3rem; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 10px; }
-    .splash-btn:hover { background: #3b82f6cc; border-color: #00ffff; box-shadow: 0 0 20px #00a6ff; transform: translateY(-3px); }
-    .splash-btn.primary { background: linear-gradient(95deg, #6a11cb, #2575fc); border: none; }
-    .import-input-group { margin-top: 1.5rem; display: none; }
-    .cyber-input { background: #010518; border: 1px solid #a855f7; padding: 0.8rem; border-radius: 2rem; width: 100%; color: white; font-family: monospace; }
+    .splash-content h1 {
+      font-size: 2.2rem;
+      background: linear-gradient(135deg, #a855f7, #00f2ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    .splash-content p {
+      color: #99ccff;
+      margin-bottom: 2rem;
+      font-size: 0.85rem;
+    }
+    .splash-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+    .splash-btn {
+      background: rgba(0,0,0,0.6);
+      border: 1.5px solid #3b82f6;
+      color: #bbf0ff;
+      font-family: 'Orbitron';
+      font-weight: 600;
+      padding: 0.8rem 1.5rem;
+      border-radius: 3rem;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+    .splash-btn:hover {
+      background: #3b82f6cc;
+      border-color: #00ffff;
+      box-shadow: 0 0 20px #00a6ff;
+      transform: translateY(-3px);
+    }
+    .splash-btn.primary {
+      background: linear-gradient(95deg, #6a11cb, #2575fc);
+      border: none;
+    }
+    .import-input-group {
+      margin-top: 1.5rem;
+      display: none;
+    }
+    .cyber-input {
+      background: #010518;
+      border: 1px solid #a855f7;
+      padding: 0.8rem;
+      border-radius: 2rem;
+      width: 100%;
+      color: white;
+      font-family: monospace;
+      text-align: center;
+    }
 
     /* Main Dashboard */
     .main-dashboard { display: none; }
-    .top-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1rem 1.8rem; background: rgba(12,20,35,0.75); backdrop-filter: blur(12px); border-radius: 2rem; border: 1px solid #4d3effaa; }
-    .logo-area { display: flex; align-items: center; gap: 1rem; }
+    .top-bar {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+      gap: 1rem; margin-bottom: 2rem; padding: 1rem 1.8rem;
+      background: rgba(12,20,35,0.75); backdrop-filter: blur(12px);
+      border-radius: 2rem; border: 1px solid #4d3effaa;
+    }
+    .logo-area { display: flex; align-items: center; gap: 0.8rem; }
     .logo-placeholder {
-      width: 48px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 1rem;
-      overflow: hidden;
+      width: 42px; height: 42px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 0.8rem; overflow: hidden;
+      background: transparent;
     }
     .logo-placeholder img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      border-radius: 0.8rem;
+      width: 100%; height: 100%; object-fit: contain;
     }
-    .logo-area h1 { font-size: 1.8rem; background: linear-gradient(135deg, #a855f7, #00f2ff); -webkit-background-clip: text; background-clip: text; color: transparent; margin-left: 0.5rem; }
+    .logo-area h1 {
+      font-size: 1.6rem;
+      background: linear-gradient(135deg, #a855f7, #00f2ff);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
     .wallet-actions { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; }
-    .cyber-btn { background: rgba(0,0,0,0.6); border: 1.5px solid #3b82f6; color: #bbf0ff; font-family: 'Orbitron'; font-weight: 600; padding: 0.5rem 1rem; border-radius: 2rem; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; }
+    .cyber-btn {
+      background: rgba(0,0,0,0.6); border: 1.5px solid #3b82f6; color: #bbf0ff;
+      font-family: 'Orbitron'; font-weight: 600; padding: 0.5rem 1rem;
+      border-radius: 2rem; cursor: pointer; transition: 0.2s;
+      display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem;
+    }
     .cyber-btn:hover { background: #3b82f6cc; border-color: #00ffff; box-shadow: 0 0 12px #00a6ff; transform: translateY(-2px); }
     .cyber-btn.primary { background: linear-gradient(95deg, #6a11cb, #2575fc); border: none; }
-    .lang-selector, .chain-selector { background: #0f1422dd; border: 1px solid #7e5eff; border-radius: 2rem; padding: 0.5rem; font-family: 'Orbitron'; color: #caf0ff; cursor: pointer; }
+    .lang-selector, .chain-selector {
+      background: #0f1422dd; border: 1px solid #7e5eff; border-radius: 2rem;
+      padding: 0.5rem; font-family: 'Orbitron'; color: #caf0ff; cursor: pointer;
+    }
     .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
     .neon-card { background: rgba(8,12,26,0.75); backdrop-filter: blur(8px); border-radius: 1.8rem; border: 1px solid #3b4effaa; box-shadow: 0 8px 20px rgba(0,0,0,0.6); padding: 1.2rem; transition: 0.2s; }
     .neon-card:hover { border-color: #00e0ff; box-shadow: 0 0 20px #2a6eff66; }
@@ -118,7 +187,7 @@
 </head>
 <body>
 
-<!-- SPLASH SCREEN -->
+<!-- SPLASH SCREEN - LOGO CENTRALIZADO COM BOTÕES ABAIXO -->
 <div id="splashScreen" class="splash-screen">
   <div class="splash-content">
     <div class="splash-logo">
@@ -132,7 +201,7 @@
     </div>
     <div id="importKeyGroup" class="import-input-group">
       <input type="text" id="importPrivateKey" class="cyber-input" placeholder="Enter your private key">
-      <button id="confirmImportBtn" class="cyber-btn primary" style="margin-top:0.8rem;">Confirm Import</button>
+      <button id="confirmImportBtn" class="cyber-btn primary" style="margin-top:0.8rem; width:100%;">Confirm Import</button>
     </div>
   </div>
 </div>
@@ -158,7 +227,6 @@
     <div id="notificationPanel" class="notification-panel"><h4>🔔 Notifications</h4><div id="notifList"></div></div>
 
     <div class="dashboard-grid">
-      <!-- Balance Card -->
       <div class="neon-card">
         <div class="card-title"><i class="fas fa-chart-line"></i> BRD Price & Balance</div>
         <div class="price-ticker"><span class="price" id="brdPrice">$10.00</span> <span style="font-size:0.8rem;">(fixed: $10 USD)</span></div>
@@ -168,7 +236,6 @@
         <div style="margin-top:0.8rem;"><a href="https://bradicoin-api.onrender.com" target="_blank" style="color:#0cf;"><i class="fas fa-server"></i> Bradicoin API</a></div>
       </div>
 
-      <!-- Staking Card with 1 Day / 1 Week periods -->
       <div class="neon-card">
         <div class="card-title"><i class="fas fa-layer-group"></i> Staking Pools (17% APR)</div>
         <div id="stakingPoolsContainer"></div>
@@ -176,7 +243,6 @@
         <div id="stakeStatus" class="status-msg"></div>
       </div>
 
-      <!-- Send/Receive & Referral -->
       <div class="neon-card">
         <div class="card-title"><i class="fas fa-exchange-alt"></i> Send / Receive</div>
         <input type="text" id="recipientAddr" class="cyber-input" placeholder="Recipient address">
@@ -191,7 +257,6 @@
         <div id="airdropStatus" class="status-msg"></div>
       </div>
 
-      <!-- Chart & FAQ -->
       <div class="neon-card"><div class="card-title"><i class="fas fa-chart-simple"></i> Performance (7d)</div><canvas id="priceChart" height="150"></canvas></div>
       <div class="neon-card"><div class="card-title"><i class="fas fa-question-circle"></i> FAQ</div><div id="faqContainer"></div></div>
     </div>
@@ -199,7 +264,7 @@
   </div>
 </div>
 
-<!-- Security Settings Modal (8 functions) -->
+<!-- Security Settings Modal -->
 <div id="settingsModal" class="modal">
   <div class="modal-content">
     <h3><i class="fas fa-shield-alt"></i> Security & Privacy</h3>
@@ -384,7 +449,7 @@
   
   let priceChart;
   function initChart() { const ctx = document.getElementById('priceChart')?.getContext('2d'); if(ctx && !priceChart) priceChart = new Chart(ctx, { type: 'line', data: { labels: ['Day1','Day2','Day3','Day4','Day5','Day6','Day7'], datasets: [{ label: 'BRD Price (USD)', data: [9.85,9.92,10.01,9.98,10.05,10.02,10.00], borderColor: '#0cf', fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: '#e0e5ff' } } } } }); }
-  function initFAQ() { const faqData = [{ q:"What is Bradicoin?", a:"Bradicoin (BRD) is a cyberpunk cryptocurrency. 1 BRD = $10 USD." },{ q:"Staking periods?", a:"Stake for 1 day or 1 week at 17% APR. Rewards auto-calculated." },{ q:"Multi-chain?", a:"Bridge BRD across Bitcoin, Ethereum, Solana, Binance, Polygon & Arbitrum." }]; const container = document.getElementById('faqContainer'); if(container) container.innerHTML = faqData.map((f,i) => `<div class="faq-item"><div class="faq-question" style="cursor:pointer; color:#0cf;" data-idx="${i}">❓ ${f.q}</div><div class="faq-answer" id="faqAns${i}" style="display:none; font-size:0.75rem; margin-top:0.3rem;">${f.a}</div></div>`).join(''); document.querySelectorAll('.faq-question').forEach(el => { el.addEventListener('click', () => { const ans = document.getElementById(`faqAns${el.dataset.idx}`); if(ans) ans.style.display = ans.style.display === 'block' ? 'none' : 'block'; }); }); }
+  function initFAQ() { const faqData = [{ q:"What is Bradicoin?", a:"Bradicoin (BRD) is a cyberpunk cryptocurrency. 1 BRD = $10 USD." },{ q:"Staking periods?", a:"Stake for 1 day or 1 week at 17% APR." },{ q:"Multi-chain?", a:"Bridge BRD across Bitcoin, Ethereum, Solana, Binance, Polygon & Arbitrum." }]; const container = document.getElementById('faqContainer'); if(container) container.innerHTML = faqData.map((f,i) => `<div class="faq-item"><div class="faq-question" style="cursor:pointer; color:#0cf;" data-idx="${i}">❓ ${f.q}</div><div class="faq-answer" id="faqAns${i}" style="display:none; font-size:0.75rem; margin-top:0.3rem;">${f.a}</div></div>`).join(''); document.querySelectorAll('.faq-question').forEach(el => { el.addEventListener('click', () => { const ans = document.getElementById(`faqAns${el.dataset.idx}`); if(ans) ans.style.display = ans.style.display === 'block' ? 'none' : 'block'; }); }); }
   
   // Event Listeners
   document.getElementById('splashCreateBtn').onclick = createNewWallet;
