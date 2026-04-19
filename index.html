@@ -40,10 +40,23 @@
       0% { box-shadow: 0 0 20px #3a0ca3aa, inset 0 0 10px #7b2ff755; }
       100% { box-shadow: 0 0 50px #a855f7aa, inset 0 0 25px #a855f7; }
     }
-    .splash-logo { width: 100px; height: 100px; background: linear-gradient(135deg, #a855f7, #00f2ff); border-radius: 2rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; box-shadow: 0 0 30px #a855f7; }
-    .splash-logo i { font-size: 4rem; color: #0a0f1e; }
-    .splash-content h1 { font-size: 2.5rem; background: linear-gradient(135deg, #a855f7, #00f2ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .splash-buttons { display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }
+    .splash-logo {
+      width: 140px;
+      height: 140px;
+      margin: 0 auto 1.5rem auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .splash-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 2rem;
+    }
+    .splash-content h1 { font-size: 2.5rem; background: linear-gradient(135deg, #a855f7, #00f2ff); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 0.5rem; }
+    .splash-content p { color: #99ccff; margin-bottom: 2rem; font-size: 0.9rem; }
+    .splash-buttons { display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap; margin-top: 0.5rem; }
     .splash-btn { background: rgba(0,0,0,0.6); border: 1.5px solid #3b82f6; color: #bbf0ff; font-family: 'Orbitron'; font-weight: 600; padding: 0.8rem 1.8rem; border-radius: 3rem; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 10px; }
     .splash-btn:hover { background: #3b82f6cc; border-color: #00ffff; box-shadow: 0 0 20px #00a6ff; transform: translateY(-3px); }
     .splash-btn.primary { background: linear-gradient(95deg, #6a11cb, #2575fc); border: none; }
@@ -54,8 +67,22 @@
     .main-dashboard { display: none; }
     .top-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1rem 1.8rem; background: rgba(12,20,35,0.75); backdrop-filter: blur(12px); border-radius: 2rem; border: 1px solid #4d3effaa; }
     .logo-area { display: flex; align-items: center; gap: 1rem; }
-    .logo-placeholder { width: 48px; height: 48px; background: linear-gradient(135deg, #a855f7, #00f2ff); border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #0a0f1e; }
-    .logo-area h1 { font-size: 1.8rem; background: linear-gradient(135deg, #a855f7, #00f2ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .logo-placeholder {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+    .logo-placeholder img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 0.8rem;
+    }
+    .logo-area h1 { font-size: 1.8rem; background: linear-gradient(135deg, #a855f7, #00f2ff); -webkit-background-clip: text; background-clip: text; color: transparent; margin-left: 0.5rem; }
     .wallet-actions { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; }
     .cyber-btn { background: rgba(0,0,0,0.6); border: 1.5px solid #3b82f6; color: #bbf0ff; font-family: 'Orbitron'; font-weight: 600; padding: 0.5rem 1rem; border-radius: 2rem; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; }
     .cyber-btn:hover { background: #3b82f6cc; border-color: #00ffff; box-shadow: 0 0 12px #00a6ff; transform: translateY(-2px); }
@@ -75,6 +102,8 @@
     .notification-badge { position: relative; cursor: pointer; }
     .badge-count { position: absolute; top: -8px; right: -8px; background: #ff0055; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; }
     .notification-panel { position: fixed; top: 80px; right: 20px; width: 320px; background: #0a0f1e; border: 1px solid #a855f7; border-radius: 1rem; padding: 1rem; z-index: 1000; display: none; backdrop-filter: blur(12px); max-height: 400px; overflow-y: auto; }
+    .referral-code { background: #010518; padding: 0.5rem; border-radius: 1rem; text-align: center; margin-top: 0.5rem; }
+    .flex-btns { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(12px); z-index: 1500; justify-content: center; align-items: center; }
     .modal-content { background: #0a0f1e; border: 2px solid #7e5eff; border-radius: 2rem; padding: 1.5rem; max-width: 500px; width: 90%; max-height: 85vh; overflow-y: auto; }
     .security-item { display: flex; justify-content: space-between; align-items: center; background: #010518aa; padding: 0.8rem; border-radius: 1rem; margin-bottom: 0.5rem; border: 1px solid #4d3eff; }
@@ -83,6 +112,7 @@
     .toggle-switch::after { content: ""; width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 3px; transition: 0.2s; }
     .toggle-switch.active::after { left: 21px; }
     footer { text-align: center; margin-top: 2rem; font-size: 0.7rem; opacity: 0.7; }
+    .status-msg { font-size: 0.7rem; margin-top: 0.5rem; color: #bbf0ff; text-align: center; }
     @media (max-width: 700px) { body { padding: 1rem; } }
   </style>
 </head>
@@ -91,8 +121,9 @@
 <!-- SPLASH SCREEN -->
 <div id="splashScreen" class="splash-screen">
   <div class="splash-content">
-    <img src="logo-bradicoin.png" alt="Bradicoin Logo" style="width:100%; height:100%; object-fit:contain; border-radius:2rem;">
-</div>
+    <div class="splash-logo">
+      <img src="logo-bradicoin.png" alt="Bradicoin Logo">
+    </div>
     <h1>BRADICOIN</h1>
     <p>Cyberpunk · Decentralized · The Future of Value</p>
     <div class="splash-buttons">
@@ -110,9 +141,12 @@
 <div id="mainDashboard" class="main-dashboard">
   <div class="app-container">
     <div class="top-bar">
-      <div class="logo-placeholder">
-    <img src="logo-small.png" alt="Bradicoin" style="width:40px; height:40px; border-radius:0.8rem;">
-</div>
+      <div class="logo-area">
+        <div class="logo-placeholder">
+          <img src="logo-small.png" alt="Bradicoin">
+        </div>
+        <h1>BRADICOIN</h1>
+      </div>
       <div class="wallet-actions">
         <select id="chainSelector" class="chain-selector"><option value="bitcoin">₿ Bitcoin</option><option value="ethereum">⟠ Ethereum</option><option value="solana">◎ Solana</option><option value="binance">ⓑ Binance</option><option value="polygon">🟣 Polygon</option><option value="arbitrum">🟠 Arbitrum</option></select>
         <button id="settingsBtn" class="cyber-btn"><i class="fas fa-shield-alt"></i> Security</button>
@@ -130,7 +164,7 @@
         <div class="price-ticker"><span class="price" id="brdPrice">$10.00</span> <span style="font-size:0.8rem;">(fixed: $10 USD)</span></div>
         <div class="balance-box"><div class="balance-amount" id="bradicoinBalance">0.00</div><div class="balance-label">BRD TOKEN</div></div>
         <div><label>Wallet Address</label><div class="cyber-input" id="walletAddressDisplay">—</div></div>
-        <div class="flex-btns" style="display:flex; gap:0.5rem; margin-top:0.5rem;"><button id="copyAddressBtn" class="cyber-btn"><i class="far fa-copy"></i> Copy</button></div>
+        <div class="flex-btns"><button id="copyAddressBtn" class="cyber-btn"><i class="far fa-copy"></i> Copy</button></div>
         <div style="margin-top:0.8rem;"><a href="https://bradicoin-api.onrender.com" target="_blank" style="color:#0cf;"><i class="fas fa-server"></i> Bradicoin API</a></div>
       </div>
 
@@ -150,7 +184,7 @@
         <button id="sendBtn" class="cyber-btn primary" style="width:100%; margin-top:0.5rem;"><i class="fas fa-paper-plane"></i> Send BRD</button>
         <hr style="margin:0.8rem 0">
         <div class="card-title"><i class="fas fa-user-plus"></i> Referral Program</div>
-        <div class="referral-code" style="background:#010518; padding:0.5rem; border-radius:1rem; text-align:center;">Your code: <strong id="referralCode">LOADING</strong> <button id="copyReferralBtn" class="cyber-btn" style="padding:0.2rem 0.5rem;">Copy</button></div>
+        <div class="referral-code">Your code: <strong id="referralCode">LOADING</strong> <button id="copyReferralBtn" class="cyber-btn" style="padding:0.2rem 0.5rem;">Copy</button></div>
         <input type="text" id="friendCode" class="cyber-input" placeholder="Friend's referral code" style="margin-top:0.5rem;">
         <button id="applyReferralBtn" class="cyber-btn" style="width:100%; margin-top:0.5rem;">Apply & Earn 5%</button>
         <button id="claimAirdropBtn" class="cyber-btn primary" style="width:100%; margin-top:1rem;"><i class="fas fa-gift"></i> Claim Airdrop (250 BRD)</button>
@@ -186,7 +220,7 @@
 
   // ==================== APP STATE ====================
   let wallet = { address: null, privateKey: null, balance: 1000 };
-  let activeStake = null; // { amount, lockEndTime, periodSeconds, apr }
+  let activeStake = null;
   let airdropClaimed = false;
   let referralCode = "";
   let referredBy = null;
@@ -224,7 +258,6 @@
   function importWallet(key) { if(!key) return; let addr = "0x" + key.replace(/[^a-z0-9]/gi,'').substring(0,40); if(addr.length<10) addr = generateAddress(); wallet = { address: addr, privateKey: key, balance: 1250 }; activeStake = null; airdropClaimed = false; referralCode = generateReferralCode(); saveToLocal(); hideSplashAndShowDashboard(); addNotification("🔐 Wallet imported!"); updateUI(); }
   function logout() { localStorage.clear(); wallet = { address: null, privateKey: null, balance: 0 }; activeStake = null; showSplash(); }
   
-  // Staking with 1 day (86400s) and 1 week (604800s) at 17% APR
   const stakingOptions = [
     { name: "24 Hours", periodSeconds: 86400, periodDays: 1, apr: 17, minStake: 10 },
     { name: "1 Week", periodSeconds: 604800, periodDays: 7, apr: 17, minStake: 50 }
@@ -295,18 +328,18 @@
         <div style="display:flex; justify-content:space-between;"><strong>${opt.name}</strong><span style="color:#0cf;">${opt.apr}% APR</span></div>
         <div style="font-size:0.7rem;">Lock: ${opt.periodDays} day(s) | Min: ${opt.minStake} BRD</div>
         <input type="number" id="stakeAmount_${opt.name.replace(/\s/g,'')}" class="cyber-input" placeholder="Amount (BRD)" step="any" style="margin-top:0.5rem;">
-        <button class="cyber-btn stake-option-btn" data-period="${opt.periodSeconds}" data-name="${opt.name}" data-min="${opt.minStake}" style="width:100%; margin-top:0.5rem;"><i class="fas fa-lock"></i> Stake for ${opt.name}</button>
+        <button class="cyber-btn stake-option-btn" data-period="${opt.periodSeconds}" data-name="${opt.name}" style="width:100%; margin-top:0.5rem;"><i class="fas fa-lock"></i> Stake for ${opt.name}</button>
       </div>
     `).join('');
     document.querySelectorAll('.stake-option-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const periodSec = parseInt(btn.dataset.period);
         const optName = btn.dataset.name;
-        const minStake = parseInt(btn.dataset.min);
         const amountInput = document.getElementById(`stakeAmount_${optName.replace(/\s/g,'')}`);
         const amount = parseFloat(amountInput.value);
         const option = stakingOptions.find(o => o.periodSeconds === periodSec);
-        if (option) stake(amount, option);
+        if (option && amount > 0) stake(amount, option);
+        else if (amount <= 0) showStatus(translations[currentLang].invalidAmount, 'stakeStatus');
       });
     });
   }
@@ -369,14 +402,15 @@
   document.getElementById('languageSwitcher') && (document.getElementById('languageSwitcher').onchange = (e) => { currentLang = e.target.value; saveToLocal(); updateUI(); });
   document.getElementById('chainSelector') && (document.getElementById('chainSelector').onchange = (e) => addNotification(`🔄 Switched to ${e.target.value} network`));
   
-  // Unstake button addition
+  // Unstake button
   const unstakeBtn = document.createElement('button');
   unstakeBtn.className = 'cyber-btn';
   unstakeBtn.innerHTML = '<i class="fas fa-unlock-alt"></i> Unstake Matured Position';
   unstakeBtn.style.width = '100%';
   unstakeBtn.style.marginTop = '0.5rem';
   unstakeBtn.onclick = unstake;
-  document.getElementById('stakingPoolsContainer')?.after(unstakeBtn);
+  const stakingContainer = document.getElementById('stakingPoolsContainer');
+  if(stakingContainer && stakingContainer.parentNode) stakingContainer.parentNode.appendChild(unstakeBtn);
   
   setInterval(() => { updateStakingTimer(); }, 1000);
   loadFromLocal();
