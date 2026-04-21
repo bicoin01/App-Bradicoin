@@ -1,0 +1,21 @@
+{
+  "name": "Bradicoin Wallet",
+  "short_name": "Bradicoin",
+  "description": "Bradicoin Cryptocurrency Wallet",
+  "start_url": "/App-Bradicoin/",
+  "display": "standalone",
+  "theme_color": "#00ffff",
+  "background_color": "#001233",
+  "icons": [
+    {
+      "src": "logo-small.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo-bradicoin.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
