@@ -3,9 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Bradicoin DApp | Real Wallet Generator</title>
+  <title>BradiCoin | Real Crypto Wallet DApp</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- REAL CRYPTO LIBRARIES - BIP39/BIP32/BitcoinJS -->
+  <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.5/dist/bitcoinjs-lib.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bip39@3.1.0/dist/bip39.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bip32@2.0.6/dist/bip32.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -44,6 +49,8 @@
     }
     .cyber-btn:hover { background: #a855f7; border-color: #00f2ff; box-shadow: 0 0 15px #a855f7; transform: translateY(-2px); }
     .cyber-btn.primary { background: linear-gradient(95deg, #a855f7, #3b82f6); border: none; }
+    .cyber-btn.danger { border-color: #ff0055; }
+    .cyber-btn.danger:hover { background: #ff0055; }
     .cyber-input {
       background: #010518;
       border: 1px solid #a855f7;
@@ -54,16 +61,17 @@
       width: 100%;
       outline: none;
     }
+    textarea.cyber-input { resize: vertical; min-height: 100px; }
 
-    /* Splash Screen */
-    .splash-screen {
+    /* Login Screen */
+    .login-screen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: radial-gradient(circle at 30% 20%, #0a0f1e, #020408);
       display: flex; justify-content: center; align-items: center; z-index: 2000;
     }
-    .splash-content {
+    .login-content {
       text-align: center; max-width: 500px; width: 90%; padding: 2rem;
-      background: rgba(8,12,26,0.85); backdrop-filter: blur(16px);
+      background: rgba(8,12,26,0.95); backdrop-filter: blur(16px);
       border-radius: 2.5rem; border: 2px solid #4d3effaa;
       animation: glowPulse 2s infinite;
     }
@@ -71,25 +79,24 @@
       0% { box-shadow: 0 0 20px #3a0ca3aa; }
       100% { box-shadow: 0 0 50px #a855f7aa; }
     }
-    .splash-logo { width: 120px; height: 120px; margin: 0 auto 1.2rem; background: linear-gradient(135deg, #a855f7, #00f2ff); border-radius: 2rem; display: flex; align-items: center; justify-content: center; }
-    .splash-logo i { font-size: 3.5rem; color: #0a0f1e; }
-    .splash-buttons { display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; }
-    .import-input-group { margin-top: 1.5rem; display: none; }
-
-    /* Modal para mostrar Seed Phrase */
-    .seed-modal {
+    .login-logo { width: 100px; height: 100px; margin: 0 auto 1.2rem; background: linear-gradient(135deg, #a855f7, #00f2ff); border-radius: 2rem; display: flex; align-items: center; justify-content: center; }
+    .login-logo i { font-size: 3rem; color: #0a0f1e; }
+    .login-buttons { display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap; }
+    
+    /* Modals */
+    .seed-modal, .send-modal {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); z-index: 3000;
       justify-content: center; align-items: center;
     }
-    .seed-modal-content {
+    .seed-modal-content, .send-modal-content {
       background: #0a0f1e; border: 2px solid #a855f7; border-radius: 2rem;
       padding: 2rem; max-width: 550px; width: 90%; text-align: center;
       box-shadow: 0 0 50px #a855f7;
     }
     .seed-phrase-box {
       background: #010518; padding: 1rem; border-radius: 1rem;
-      font-family: monospace; font-size: 1rem; word-break: break-all;
+      font-family: monospace; font-size: 0.9rem; word-break: break-all;
       border: 1px solid #00f2ff; margin: 1rem 0;
     }
     .warning-text { color: #ff0055; font-size: 0.8rem; margin-top: 0.5rem; }
@@ -97,50 +104,88 @@
     /* Dashboard */
     .main-dashboard { display: none; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; padding: 1rem; background: rgba(12,20,35,0.7); border-radius: 2rem; border: 1px solid #a855f7; }
-    .logo-area { display: flex; align-items: center; gap: 0.8rem; }
+    .logo-area { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
     .logo-placeholder { width: 42px; height: 42px; background: linear-gradient(135deg, #a855f7, #00f2ff); border-radius: 0.8rem; display: flex; align-items: center; justify-content: center; }
     .logo-placeholder i { font-size: 1.5rem; color: #0a0f1e; }
     .wallet-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; }
     .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
-    .balance-amount { font-size: 2rem; font-weight: 800; color: #00f2ff; text-shadow: 0 0 10px #00f2ff; }
-    .staking-pool { background: #0a0e1f; border-radius: 1rem; padding: 0.8rem; margin-bottom: 0.8rem; border-left: 3px solid #a855f7; }
+    .balance-amount { font-size: 2.5rem; font-weight: 800; color: #00f2ff; text-shadow: 0 0 10px #00f2ff; }
+    .staking-pool { background: #0a0e1f; border-radius: 1rem; padding: 1rem; margin-bottom: 1rem; border-left: 3px solid #a855f7; }
     .progress-bar { background: #1a1f30; border-radius: 1rem; height: 8px; margin: 0.5rem 0; overflow: hidden; }
     .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #a855f7, #00f2ff); transition: width 0.3s; }
-    .staking-timer { font-size: 0.7rem; color: #00f2ff; text-align: center; margin-top: 0.5rem; }
-    .seed-display { background: #010518; padding: 0.8rem; border-radius: 1rem; margin-top: 0.5rem; font-size: 0.7rem; word-break: break-all; border: 1px solid #a855f7; }
+    .staking-timer { font-size: 0.75rem; color: #00f2ff; text-align: center; margin-top: 0.5rem; }
+    .seed-display { background: #010518; padding: 0.8rem; border-radius: 1rem; margin-top: 0.8rem; font-size: 0.7rem; word-break: break-all; border: 1px solid #a855f7; }
+    .transaction-list { max-height: 200px; overflow-y: auto; margin-top: 1rem; font-size: 0.7rem; }
+    .tx-item { padding: 0.5rem; border-bottom: 1px solid #a855f733; }
+    .tx-in { color: #00ff88; }
+    .tx-out { color: #ff4466; }
     footer { text-align: center; margin-top: 2rem; font-size: 0.7rem; opacity: 0.7; }
     .status-msg { font-size: 0.7rem; margin-top: 0.5rem; color: #00f2ff; text-align: center; }
+    .api-status { font-size: 0.6rem; padding: 0.2rem 0.6rem; border-radius: 1rem; display: inline-block; margin-left: 0.5rem; }
+    .api-online { background: #00ff8833; color: #00ff88; border: 1px solid #00ff88; }
+    .api-offline { background: #ff005533; color: #ff0055; border: 1px solid #ff0055; }
+    .faq-section { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #a855f733; }
+    .faq-item { margin: 0.5rem 0; font-size: 0.7rem; }
+    .faq-question { color: #a855f7; cursor: pointer; }
+    .faq-answer { display: none; margin-top: 0.3rem; padding-left: 0.5rem; border-left: 2px solid #a855f7; }
+    
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateY(20px); }
+      15% { opacity: 1; transform: translateY(0); }
+      85% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-20px); }
+    }
   </style>
 </head>
 <body>
 
-<!-- SPLASH SCREEN -->
-<div id="splashScreen" class="splash-screen">
-  <div class="splash-content">
-    <div class="splash-logo"><i class="fas fa-microchip"></i></div>
-    <h1>BRADICOIN</h1>
-    <p>Cyberpunk · Decentralized · The Future of Value</p>
-    <div class="splash-buttons">
-      <button id="splashCreateBtn" class="cyber-btn primary"><i class="fas fa-plus-circle"></i> Create Wallet</button>
-      <button id="splashImportBtn" class="cyber-btn"><i class="fas fa-key"></i> Import Wallet</button>
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-content">
+    <div class="login-logo"><i class="fas fa-microchip"></i></div>
+    <h1 style="font-size: 2rem;">BRADICOIN</h1>
+    <p style="margin: 0.5rem 0;">Decentralized Crypto Wallet</p>
+    <p style="font-size: 0.7rem; opacity: 0.7;">Secure · Anonymous · Non-Custodial</p>
+    <div class="login-buttons">
+      <button id="loginCreateBtn" class="cyber-btn primary"><i class="fas fa-plus-circle"></i> Create Wallet</button>
+      <button id="loginImportBtn" class="cyber-btn"><i class="fas fa-key"></i> Import Wallet</button>
     </div>
-    <div id="importKeyGroup" class="import-input-group">
-      <textarea id="importSeedInput" class="cyber-input" rows="3" placeholder="Enter your 12-word Seed Phrase"></textarea>
-      <button id="confirmImportBtn" class="cyber-btn primary" style="margin-top:0.8rem; width:100%;">Confirm Import</button>
+    <div id="loginImportGroup" style="display:none; margin-top:1.5rem;">
+      <textarea id="loginSeedInput" class="cyber-input" rows="3" placeholder="Enter your 12-word seed phrase"></textarea>
+      <input type="password" id="loginPasswordInput" class="cyber-input" placeholder="Create wallet password" style="margin-top:0.5rem;">
+      <button id="loginConfirmImportBtn" class="cyber-btn primary" style="margin-top:0.8rem; width:100%;"><i class="fas fa-check"></i> Import & Login</button>
+    </div>
+    <div id="loginExistingGroup" style="display:none; margin-top:1.5rem;">
+      <input type="password" id="existingPasswordInput" class="cyber-input" placeholder="Enter your wallet password">
+      <button id="loginExistingBtn" class="cyber-btn primary" style="margin-top:0.8rem; width:100%;"><i class="fas fa-unlock-alt"></i> Unlock Wallet</button>
+      <p style="font-size:0.7rem; margin-top:1rem; opacity:0.6;">🔐 Your keys, your crypto. BradiCoin never stores your seed.</p>
     </div>
   </div>
 </div>
 
-<!-- MODAL PARA EXIBIR SEED PHRASE -->
+<!-- SEED PHRASE MODAL (First time creation) -->
 <div id="seedModal" class="seed-modal">
   <div class="seed-modal-content">
     <i class="fas fa-shield-alt" style="font-size: 3rem; color: #00f2ff;"></i>
     <h2 style="margin: 1rem 0;">⚠️ SAVE YOUR SEED PHRASE</h2>
-    <p style="color: #ff0055; font-size: 0.8rem;">This is the ONLY way to recover your wallet!</p>
+    <p style="color: #ff0055; font-size: 0.85rem;">This is the ONLY way to recover your wallet!</p>
     <div class="seed-phrase-box" id="modalSeedPhrase">---</div>
+    <input type="password" id="seedPasswordInput" class="cyber-input" placeholder="Create a strong password" style="margin:1rem 0;">
     <button id="copySeedBtn" class="cyber-btn" style="width:100%; margin-bottom: 0.5rem;"><i class="fas fa-copy"></i> Copy Seed Phrase</button>
     <button id="confirmSeedBtn" class="cyber-btn primary" style="width:100%;"><i class="fas fa-check-circle"></i> I Have Saved My Seed Phrase</button>
-    <p class="warning-text">⚠️ Never share your seed phrase with anyone!<br>Bradicoin will NEVER ask for it.</p>
+    <p class="warning-text">⚠️ Never share your seed phrase! BradiCoin will NEVER ask for it.</p>
+  </div>
+</div>
+
+<!-- SEND TRANSACTION MODAL -->
+<div id="sendModal" class="send-modal">
+  <div class="send-modal-content">
+    <h2><i class="fas fa-paper-plane"></i> Send BRD</h2>
+    <input type="text" id="sendToAddress" class="cyber-input" placeholder="Recipient Address (Br... or 1...)" style="margin:1rem 0;">
+    <input type="number" id="sendAmountValue" class="cyber-input" placeholder="Amount (BRD)" step="any">
+    <input type="password" id="txPassword" class="cyber-input" placeholder="Wallet Password" style="margin:1rem 0;">
+    <button id="confirmSendBtn" class="cyber-btn primary" style="width:100%;"><i class="fas fa-paper-plane"></i> Confirm Transaction</button>
+    <button id="cancelSendBtn" class="cyber-btn" style="width:100%; margin-top:0.5rem;"><i class="fas fa-times"></i> Cancel</button>
   </div>
 </div>
 
@@ -148,327 +193,655 @@
 <div id="mainDashboard" class="main-dashboard">
   <div class="container">
     <div class="top-bar">
-      <div class="logo-area"><div class="logo-placeholder"><i class="fas fa-coins"></i></div><h1>BRADICOIN</h1></div>
+      <div class="logo-area">
+        <div class="logo-placeholder"><i class="fas fa-microchip"></i></div>
+        <h1>BRADICOIN</h1>
+        <span id="apiStatusBadge" class="api-status api-offline">● Local Mode</span>
+      </div>
       <div class="wallet-actions">
-        <button id="logoutBtn" class="cyber-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        <select id="languageSwitcher" class="cyber-btn" style="padding:0.5rem;"><option value="en">🇬🇧 EN</option><option value="pt">🇧🇷 PT</option></select>
+        <button id="refreshBalanceBtn" class="cyber-btn"><i class="fas fa-sync-alt"></i> Sync</button>
+        <button id="logoutBtn" class="cyber-btn danger"><i class="fas fa-lock"></i> Lock</button>
       </div>
     </div>
 
     <div class="dashboard-grid">
+      <!-- Balance Card -->
       <div class="neon-card">
-        <div class="card-title" style="font-size:1.3rem; margin-bottom:1rem;"><i class="fas fa-chart-line"></i> BRD Balance</div>
+        <div class="card-title" style="font-size:1.3rem; margin-bottom:1rem;">
+          <i class="fas fa-chart-line"></i> BRD Balance
+        </div>
         <div class="balance-amount" id="bradicoinBalance">0.00</div>
-        <div style="margin-bottom:1rem;">BRD TOKEN (1 BRD = $10 USD)</div>
-        <div><label>Wallet Address</label><div class="cyber-input" id="walletAddressDisplay">—</div></div>
-        <button id="copyAddressBtn" class="cyber-btn" style="margin-top:0.5rem; width:100%;"><i class="far fa-copy"></i> Copy Address</button>
-        <div class="seed-display" id="seedPhraseDisplay">🔐 Seed phrase will appear here</div>
-        <div style="margin-top:0.8rem;"><a href="https://www.bradichain.com" target="_blank" style="color:#00f2ff;"><i class="fas fa-globe"></i> Bradichain Explorer</a> | <a href="https://bradicoin-api.onrender.com" target="_blank" style="color:#00f2ff;"><i class="fas fa-server"></i> API</a></div>
+        <div style="margin-bottom:1rem; font-size:0.8rem;">1 BRD = $10 USD</div>
+        <div><label style="font-size:0.7rem;">Wallet Address</label></div>
+        <div class="cyber-input" id="walletAddressDisplay" style="font-size:0.7rem; word-break:break-all;">—</div>
+        <button id="copyAddressBtn" class="cyber-btn" style="margin-top:0.8rem; width:100%;"><i class="far fa-copy"></i> Copy Address</button>
+        <div class="seed-display" id="seedPhraseDisplay">
+          🔐 Wallet encrypted<br>
+          <small>Your seed is never stored in plain text</small>
+        </div>
+        <div style="margin-top:0.8rem; text-align:center;">
+          <a href="#" id="viewExplorerLink" style="color:#00f2ff; font-size:0.7rem;" target="_blank">
+            <i class="fas fa-globe"></i> View on Blockchain Explorer
+          </a>
+        </div>
       </div>
 
+      <!-- Staking Card - 18% APR for 24 Hours -->
       <div class="neon-card">
-        <div class="card-title" style="font-size:1.3rem; margin-bottom:1rem;"><i class="fas fa-layer-group"></i> Staking (50% APR)</div>
-        <div class="staking-pool">
-          <div style="display:flex; justify-content:space-between;"><strong>1 HOUR</strong><span style="color:#00f2ff;">50% APR</span></div>
-          <div style="font-size:0.7rem;">Lock: 1 hour | Min: 10 BRD</div>
-          <input type="number" id="stakeAmount1h" class="cyber-input" placeholder="Amount" step="any" style="margin-top:0.5rem;">
-          <button id="stake1hBtn" class="cyber-btn" style="width:100%; margin-top:0.5rem;"><i class="fas fa-lock"></i> Stake for 1 Hour</button>
+        <div class="card-title" style="font-size:1.3rem; margin-bottom:1rem;">
+          <i class="fas fa-layer-group"></i> Staking Pool
         </div>
         <div class="staking-pool">
-          <div style="display:flex; justify-content:space-between;"><strong>1 DAY</strong><span style="color:#00f2ff;">50% APR</span></div>
-          <div style="font-size:0.7rem;">Lock: 1 day | Min: 50 BRD</div>
-          <input type="number" id="stakeAmount1d" class="cyber-input" placeholder="Amount" step="any" style="margin-top:0.5rem;">
-          <button id="stake1dBtn" class="cyber-btn" style="width:100%; margin-top:0.5rem;"><i class="fas fa-lock"></i> Stake for 1 Day</button>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+            <strong><i class="fas fa-clock"></i> 24 HOURS LOCK</strong>
+            <span style="color:#00ff88; font-weight:bold;">18% APR</span>
+          </div>
+          <div style="font-size:0.7rem; margin-bottom:0.5rem;">
+            ⚡ Minimum stake: 50 BRD<br>
+            📈 Reward formula: Amount × 18% × (days/365)
+          </div>
+          <input type="number" id="stakeAmount" class="cyber-input" placeholder="Amount to stake (min 50 BRD)" step="any">
+          <button id="stakeBtn" class="cyber-btn primary" style="width:100%; margin-top:0.8rem;">
+            <i class="fas fa-lock"></i> Stake for 24 Hours
+          </button>
         </div>
         <div id="activeStakeInfo" class="staking-timer">💎 No active stake</div>
-        <button id="unstakeBtn" class="cyber-btn" style="width:100%; margin-top:0.5rem;"><i class="fas fa-unlock-alt"></i> Unstake Matured</button>
+        <button id="unstakeBtn" class="cyber-btn" style="width:100%; margin-top:0.5rem;">
+          <i class="fas fa-unlock-alt"></i> Unstake & Claim Rewards
+        </button>
         <div id="stakeStatus" class="status-msg"></div>
+        
+        <!-- FAQ Section within Staking Card -->
+        <div class="faq-section">
+          <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(1)">❓ How does 18% APR work?</div>
+            <div id="faq1" class="faq-answer">24-hour staking at 18% APR means you earn 18% annualized return. For 1 day, reward = (amount × 0.18) ÷ 365.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(2)">❓ Can I unstake early?</div>
+            <div id="faq2" class="faq-answer">No, funds are locked for 24 hours. After maturity, claim your original stake + rewards!</div>
+          </div>
+        </div>
       </div>
 
+      <!-- Send & Receive Card -->
       <div class="neon-card">
-        <div class="card-title" style="font-size:1.3rem; margin-bottom:1rem;"><i class="fas fa-exchange-alt"></i> Send / Receive</div>
-        <input type="text" id="recipientAddr" class="cyber-input" placeholder="Recipient address (Br...)">
-        <input type="number" id="sendAmount" class="cyber-input" placeholder="Amount (BRD)" step="any" style="margin-top:0.5rem;">
-        <button id="sendBtn" class="cyber-btn primary" style="width:100%; margin-top:0.5rem;"><i class="fas fa-paper-plane"></i> Send BRD</button>
+        <div class="card-title" style="font-size:1.3rem; margin-bottom:1rem;">
+          <i class="fas fa-exchange-alt"></i> Transfer
+        </div>
+        <button id="openSendModalBtn" class="cyber-btn primary" style="width:100%; margin-bottom:1rem;">
+          <i class="fas fa-paper-plane"></i> Send BRD
+        </button>
         <div id="txStatus" class="status-msg"></div>
+        
         <hr style="margin:1rem 0; border-color:#a855f7;">
-        <div class="card-title" style="font-size:1rem; margin-bottom:0.5rem;"><i class="fas fa-gift"></i> Airdrop</div>
-        <button id="claimAirdropBtn" class="cyber-btn" style="width:100%;"><i class="fas fa-cloud-download-alt"></i> Claim 250 BRD Airdrop</button>
+        
+        <div class="card-title" style="font-size:1rem; margin-bottom:0.8rem;">
+          <i class="fas fa-gift"></i> Welcome Bonus
+        </div>
+        <button id="claimAirdropBtn" class="cyber-btn" style="width:100%;">
+          <i class="fas fa-cloud-download-alt"></i> Claim 250 Free BRD
+        </button>
         <div id="airdropStatus" class="status-msg"></div>
+        
+        <hr style="margin:1rem 0; border-color:#a855f7;">
+        
+        <div class="card-title" style="font-size:1rem; margin-bottom:0.5rem;">
+          <i class="fas fa-history"></i> Recent Activity
+        </div>
+        <div id="transactionList" class="transaction-list">
+          <div style="text-align:center; opacity:0.5;">No transactions yet</div>
+        </div>
       </div>
     </div>
-    <footer>BRADICOIN ● 1 BRD = $10 USD ● Staking 50% APR ● Real Wallet System</footer>
+    
+    <footer>
+      <i class="fas fa-shield-alt"></i> Non-Custodial Wallet · 
+      <i class="fas fa-chart-line"></i> 18% APR Staking · 
+      <i class="fas fa-microchip"></i> BradiCoin Ecosystem
+    </footer>
   </div>
 </div>
 
 <script>
-  // ==================== WORD LIST FOR SEED PHRASE ====================
-  const wordList = [
-    "abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract", "absurd", "abuse",
-    "access", "accident", "account", "accuse", "achieve", "acid", "acoustic", "acquire", "across", "act",
-    "action", "actor", "actress", "actual", "adapt", "add", "addict", "address", "adjust", "admit",
-    "adult", "advance", "advice", "aerobic", "affair", "afford", "afraid", "africa", "after", "again"
-  ];
-
-  function generateSeedPhrase() {
-    const words = [];
-    for(let i = 0; i < 12; i++) {
-      words.push(wordList[Math.floor(Math.random() * wordList.length)]);
+  // ==================== API INTEGRATION ====================
+  const API_BASE_URL = 'https://bradicoin-api.onrender.com';
+  let apiOnline = false;
+  
+  async function checkAPIStatus() {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const response = await fetch(`${API_BASE_URL}/health`, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      apiOnline = response.ok;
+    } catch (error) {
+      apiOnline = false;
     }
-    return words.join(' ');
-  }
-
-  function generateWalletAddressFromSeed(seed) {
-    let hash = 0;
-    for(let i = 0; i < seed.length; i++) {
-      hash = ((hash << 5) - hash) + seed.charCodeAt(i);
-      hash |= 0;
+    
+    const badge = document.getElementById('apiStatusBadge');
+    if (badge) {
+      badge.textContent = apiOnline ? '● API Online' : '● Local Mode';
+      badge.className = `api-status ${apiOnline ? 'api-online' : 'api-offline'}`;
     }
-    const hashHex = Math.abs(hash).toString(16).padStart(40, '0');
-    const uniquePart = Date.now().toString(36);
-    return `Br${hashHex.substring(0, 36)}${uniquePart.substring(0, 4)}`;
+    return apiOnline;
   }
-
-  function isValidSeedPhrase(seed) {
-    const words = seed.trim().toLowerCase().split(/\s+/);
-    if(words.length !== 12) return false;
-    for(const word of words) {
-      if(!wordList.includes(word)) return false;
-    }
-    return true;
+  
+  async function apiGetBalance(address) {
+    if (!apiOnline || !address) return null;
+    try {
+      const response = await fetch(`${API_BASE_URL}/balance/${address}`);
+      if (response.ok) {
+        const data = await response.json();
+        return data.balance;
+      }
+    } catch (error) { console.log('API balance fetch failed'); }
+    return null;
   }
-
-  // ==================== APP STATE ====================
-  let wallet = { address: null, seedPhrase: null, balance: 1000 };
+  
+  async function apiSendTransaction(from, to, amount, signature) {
+    if (!apiOnline) return null;
+    try {
+      const response = await fetch(`${API_BASE_URL}/transaction`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from, to, amount, signature, timestamp: Date.now() })
+      });
+      if (response.ok) return await response.json();
+    } catch (error) { console.log('API transaction failed'); }
+    return null;
+  }
+  
+  // ==================== REAL WALLET SYSTEM ====================
+  let wallet = {
+    encryptedSeed: null,
+    address: null,
+    balance: 1000,
+    transactions: [],
+    publicKey: null
+  };
+  
   let activeStake = null;
   let airdropClaimed = false;
-  let pendingSeed = null;
-  let currentLang = 'en';
-
-  const translations = {
-    en: { logout:"Logout", sendBtn:"Send BRD", invalidAmount:"Invalid amount", minStakeError:"Minimum stake", stakeLocked:"Still locked", unstakeSuccess:"Unstaked!", copied:"Copied!" },
-    pt: { logout:"Sair", sendBtn:"Enviar BRD", invalidAmount:"Quantidade inválida", minStakeError:"Mínimo é", stakeLocked:"Ainda bloqueado", unstakeSuccess:"Retirado!", copied:"Copiado!" }
-  };
-
-  function t(key) { return translations[currentLang][key] || key; }
-
-  function saveToLocal() {
-    localStorage.setItem('bradicoin_wallet', JSON.stringify({ address: wallet.address, seedPhrase: wallet.seedPhrase, balance: wallet.balance }));
-    localStorage.setItem('bradicoin_stake', JSON.stringify(activeStake));
-    localStorage.setItem('bradicoin_airdrop', airdropClaimed);
-    localStorage.setItem('bradicoin_lang', currentLang);
+  let tempSeedForCreation = null;
+  
+  function encryptData(data, password) {
+    return CryptoJS.AES.encrypt(data, password).toString();
   }
-
-  function loadFromLocal() {
-    const w = localStorage.getItem('bradicoin_wallet');
-    if(w) { try { const p = JSON.parse(w); wallet = p; } catch(e) {} }
-    const s = localStorage.getItem('bradicoin_stake');
-    if(s) { try { activeStake = JSON.parse(s); } catch(e) {} }
-    const a = localStorage.getItem('bradicoin_airdrop');
-    if(a) airdropClaimed = a === 'true';
-    const lang = localStorage.getItem('bradicoin_lang');
-    if(lang) currentLang = lang;
-    
-    if(wallet.address && wallet.seedPhrase) {
-      hideSplashAndShowDashboard();
-    } else {
-      showSplash();
+  
+  function decryptData(encryptedData, password) {
+    try {
+      const bytes = CryptoJS.AES.decrypt(encryptedData, password);
+      const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+      return decrypted || null;
+    } catch (error) { return null; }
+  }
+  
+  // Generate REAL Bitcoin wallet using BIP39/BIP32
+  async function generateRealWallet() {
+    const mnemonic = bip39.generateMnemonic(128);
+    const seed = await bip39.mnemonicToSeed(mnemonic);
+    const root = bip32.fromSeed(seed, bitcoin.networks.bitcoin);
+    const path = "m/44'/0'/0'/0/0";
+    const child = root.derivePath(path);
+    const { address } = bitcoin.payments.p2pkh({
+      pubkey: child.publicKey,
+      network: bitcoin.networks.bitcoin
+    });
+    return {
+      mnemonic: mnemonic,
+      address: address,
+      publicKey: child.publicKey.toString('hex')
+    };
+  }
+  
+  async function importRealWallet(mnemonic, password) {
+    if (!bip39.validateMnemonic(mnemonic)) throw new Error("Invalid seed phrase");
+    const seed = await bip39.mnemonicToSeed(mnemonic);
+    const root = bip32.fromSeed(seed, bitcoin.networks.bitcoin);
+    const path = "m/44'/0'/0'/0/0";
+    const child = root.derivePath(path);
+    const { address } = bitcoin.payments.p2pkh({
+      pubkey: child.publicKey,
+      network: bitcoin.networks.bitcoin
+    });
+    const encryptedSeed = encryptData(mnemonic, password);
+    return { encryptedSeed, address, publicKey: child.publicKey.toString('hex') };
+  }
+  
+  async function recoverWallet(encryptedSeed, password) {
+    const mnemonic = decryptData(encryptedSeed, password);
+    if (!mnemonic) throw new Error("Wrong password");
+    if (!bip39.validateMnemonic(mnemonic)) throw new Error("Invalid seed");
+    const seed = await bip39.mnemonicToSeed(mnemonic);
+    const root = bip32.fromSeed(seed, bitcoin.networks.bitcoin);
+    const path = "m/44'/0'/0'/0/0";
+    const child = root.derivePath(path);
+    const { address } = bitcoin.payments.p2pkh({
+      pubkey: child.publicKey,
+      network: bitcoin.networks.bitcoin
+    });
+    return { mnemonic, address };
+  }
+  
+  async function createWallet(password) {
+    if (!password || password.length < 4) {
+      showToast("Password must be at least 4 characters", "error");
+      return false;
     }
-    updateUI();
-  }
-
-  // CREATE WALLET - Mostra modal com seed phrase
-  function initiateCreateWallet() {
-    const newSeed = generateSeedPhrase();
-    const newAddress = generateWalletAddressFromSeed(newSeed);
-    pendingSeed = { seed: newSeed, address: newAddress };
-    
-    // Mostrar modal com a seed phrase
-    document.getElementById('modalSeedPhrase').innerText = newSeed;
-    document.getElementById('seedModal').style.display = 'flex';
-  }
-
-  function confirmCreateWallet() {
-    if(pendingSeed) {
+    try {
+      const { mnemonic, address, publicKey } = await generateRealWallet();
+      const encryptedSeed = encryptData(mnemonic, password);
+      
       wallet = {
-        address: pendingSeed.address,
-        seedPhrase: pendingSeed.seed,
-        balance: 1000
+        encryptedSeed: encryptedSeed,
+        address: address,
+        balance: 1000,
+        transactions: [],
+        publicKey: publicKey
       };
       activeStake = null;
       airdropClaimed = false;
+      
       saveToLocal();
-      pendingSeed = null;
-      document.getElementById('seedModal').style.display = 'none';
-      hideSplashAndShowDashboard();
-      updateUI();
-      showToast("✅ Wallet created successfully!");
-    }
-  }
-
-  function cancelCreateWallet() {
-    pendingSeed = null;
-    document.getElementById('seedModal').style.display = 'none';
-  }
-
-  // IMPORT WALLET
-  function importWallet(seedInput) {
-    if(!seedInput || seedInput.trim() === "") { alert("Please enter your seed phrase"); return false; }
-    const cleanSeed = seedInput.trim().toLowerCase().replace(/\s+/g, ' ');
-    if(!isValidSeedPhrase(cleanSeed)) {
-      alert("Invalid seed phrase! Please enter a valid 12-word seed phrase.");
+      showToast("✅ Wallet created successfully!", "success");
+      tempSeedForCreation = mnemonic;
+      document.getElementById('seedModal').style.display = 'flex';
+      document.getElementById('modalSeedPhrase').innerText = mnemonic;
+      return true;
+    } catch (error) {
+      showToast("Error: " + error.message, "error");
       return false;
     }
-    const newAddress = generateWalletAddressFromSeed(cleanSeed);
-    wallet = {
-      address: newAddress,
-      seedPhrase: cleanSeed,
-      balance: 1250
-    };
-    activeStake = null;
-    airdropClaimed = false;
-    saveToLocal();
-    hideSplashAndShowDashboard();
-    updateUI();
-    showToast("🔐 Wallet imported successfully!");
-    return true;
   }
-
-  function logout() {
-    localStorage.clear();
-    wallet = { address: null, seedPhrase: null, balance: 0 };
-    activeStake = null;
-    showSplash();
+  
+  async function importWallet(mnemonic, password) {
+    if (!password || password.length < 4) {
+      showToast("Password must be at least 4 characters", "error");
+      return false;
+    }
+    try {
+      const { encryptedSeed, address, publicKey } = await importRealWallet(mnemonic, password);
+      wallet = {
+        encryptedSeed: encryptedSeed,
+        address: address,
+        balance: 1250,
+        transactions: [],
+        publicKey: publicKey
+      };
+      activeStake = null;
+      airdropClaimed = false;
+      
+      saveToLocal();
+      showToast("✅ Wallet imported successfully!", "success");
+      return true;
+    } catch (error) {
+      showToast("Error: " + error.message, "error");
+      return false;
+    }
   }
-
-  // ==================== STAKING ====================
-  function calculateReward(amount, periodSeconds) { return amount * (0.50 * (periodSeconds / 31536000)); }
-
-  function stake(amount, periodSeconds, optionName, minStake) {
-    if(amount <= 0 || amount > wallet.balance) { showStatus(t('invalidAmount'), 'stakeStatus'); return; }
-    if(amount < minStake) { showStatus(`${t('minStakeError')} ${minStake} BRD`, 'stakeStatus'); return; }
-    if(activeStake && activeStake.lockEndTime > Date.now()) { showStatus(t('stakeLocked'), 'stakeStatus'); return; }
-    if(activeStake && activeStake.lockEndTime <= Date.now()) {
+  
+  async function loginWithPassword(password) {
+    if (!wallet.encryptedSeed) {
+      showToast("No wallet found. Create or import first.", "error");
+      return false;
+    }
+    try {
+      await recoverWallet(wallet.encryptedSeed, password);
+      showToast("🔓 Wallet unlocked!", "success");
+      hideLoginAndShowDashboard();
+      await syncWithAPI();
+      updateUI();
+      return true;
+    } catch (error) {
+      showToast("Wrong password!", "error");
+      return false;
+    }
+  }
+  
+  async function syncWithAPI() {
+    await checkAPIStatus();
+    if (apiOnline && wallet.address) {
+      const apiBalance = await apiGetBalance(wallet.address);
+      if (apiBalance !== null) wallet.balance = apiBalance;
+      saveToLocal();
+      updateUI();
+    }
+  }
+  
+  async function sendTransaction(to, amount, password) {
+    if (!to || to.trim() === "") {
+      showToast("Please enter recipient address", "error");
+      return false;
+    }
+    if (amount <= 0 || amount > wallet.balance) {
+      showToast("Invalid amount or insufficient balance", "error");
+      return false;
+    }
+    
+    try {
+      await recoverWallet(wallet.encryptedSeed, password);
+      
+      const signature = CryptoJS.SHA256(`${wallet.address}${to}${amount}${Date.now()}`).toString();
+      
+      if (apiOnline) {
+        await apiSendTransaction(wallet.address, to, amount, signature);
+      }
+      
+      wallet.balance -= amount;
+      const transaction = {
+        id: Date.now().toString(),
+        type: 'sent',
+        to: to,
+        amount: amount,
+        timestamp: new Date().toISOString(),
+        status: 'confirmed'
+      };
+      wallet.transactions.unshift(transaction);
+      if (wallet.transactions.length > 20) wallet.transactions.pop();
+      
+      saveToLocal();
+      updateUI();
+      showToast(`✅ Sent ${amount} BRD to ${to.substring(0, 15)}...`, "success");
+      return true;
+    } catch (error) {
+      showToast("Transaction failed: " + error.message, "error");
+      return false;
+    }
+  }
+  
+  // Staking: 18% APR for 24 hours (86400 seconds)
+  function calculateReward(amount, periodSeconds) {
+    const years = periodSeconds / 31536000;
+    return amount * (0.18 * years);
+  }
+  
+  function stake(amount) {
+    const minStake = 50;
+    const periodSeconds = 86400;
+    
+    if (amount <= 0 || amount > wallet.balance) {
+      showToast("Invalid amount", 'stakeStatus');
+      return;
+    }
+    if (amount < minStake) {
+      showToast(`Minimum stake is ${minStake} BRD`, 'stakeStatus');
+      return;
+    }
+    if (activeStake && activeStake.lockEndTime > Date.now()) {
+      showToast("You have an active stake. Unstake first!", 'stakeStatus');
+      return;
+    }
+    if (activeStake && activeStake.lockEndTime <= Date.now()) {
       const reward = calculateReward(activeStake.amount, activeStake.periodSeconds);
       wallet.balance += activeStake.amount + reward;
-      showToast(`Previous stake matured! +${reward.toFixed(4)} BRD`);
+      showToast(`Previous stake matured! +${reward.toFixed(4)} BRD`, "success");
     }
+    
     activeStake = {
       amount: amount,
       lockEndTime: Date.now() + (periodSeconds * 1000),
       periodSeconds: periodSeconds,
-      optionName: optionName
+      startTime: Date.now()
     };
     wallet.balance -= amount;
     saveToLocal();
     updateUI();
-    showToast(`🔒 Staked ${amount} BRD for ${optionName} at 50% APR`);
-    showStatus(`Staked ${amount} BRD!`, 'stakeStatus');
+    showToast(`🔒 Staked ${amount} BRD for 24 Hours at 18% APR`, "success");
   }
-
+  
   function unstake() {
-    if(!activeStake) { showStatus("No active stake", 'stakeStatus'); return; }
-    if(Date.now() < activeStake.lockEndTime) { showStatus(t('stakeLocked'), 'stakeStatus'); return; }
+    if (!activeStake) {
+      showToast("No active stake", 'stakeStatus');
+      return;
+    }
+    if (Date.now() < activeStake.lockEndTime) {
+      const remaining = activeStake.lockEndTime - Date.now();
+      const hoursLeft = Math.floor(remaining / 3600000);
+      showToast(`Stake locked for ${hoursLeft} more hours`, 'stakeStatus');
+      return;
+    }
     const reward = calculateReward(activeStake.amount, activeStake.periodSeconds);
     wallet.balance += activeStake.amount + reward;
-    showToast(`✅ Unstaked ${activeStake.amount} BRD + ${reward.toFixed(4)} reward`);
+    showToast(`✅ Unstaked ${activeStake.amount} BRD + ${reward.toFixed(4)} reward (18% APR)`, "success");
     activeStake = null;
     saveToLocal();
     updateUI();
-    showStatus(`${t('unstakeSuccess')} +${reward.toFixed(4)} BRD`, 'stakeStatus');
   }
-
-  function getStakeProgress() {
-    if(!activeStake) return 0;
-    const now = Date.now();
-    if(now >= activeStake.lockEndTime) return 100;
-    const total = activeStake.periodSeconds * 1000;
-    const elapsed = now - (activeStake.lockEndTime - total);
-    return Math.min(100, (elapsed / total) * 100);
-  }
-
-  function updateStakingTimer() {
-    const container = document.getElementById('activeStakeInfo');
-    if(!container) return;
-    if(activeStake && activeStake.lockEndTime > Date.now()) {
-      const remaining = activeStake.lockEndTime - Date.now();
-      const hours = Math.floor(remaining / 3600000);
-      const mins = Math.floor((remaining % 3600000) / 60000);
-      const secs = Math.floor((remaining % 60000) / 1000);
-      const progress = getStakeProgress();
-      const reward = calculateReward(activeStake.amount, activeStake.periodSeconds);
-      container.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>⏱️ ${activeStake.optionName} remaining: ${hours}h ${mins}m ${secs}s | Reward: ${reward.toFixed(4)} BRD`;
-    } else if(activeStake && activeStake.lockEndTime <= Date.now()) {
-      container.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>✅ STAKE MATURED! Click UNSTAKE to claim.`;
-    } else {
-      container.innerHTML = `💎 No active stake. Choose a period below to start earning 50% APR.`;
-    }
-  }
-
-  // ==================== TRANSACTIONS ====================
-  function sendCoins(to, amount) {
-    if(!to || amount <= 0 || amount > wallet.balance) { alert(t('invalidAmount')); return; }
-    wallet.balance -= amount;
-    saveToLocal();
-    updateUI();
-    showToast(`💸 Sent ${amount} BRD to ${to.substring(0,15)}...`);
-    showStatus(`Sent ${amount} BRD successfully!`, 'txStatus');
-  }
-
+  
   function claimAirdrop() {
-    if(airdropClaimed) { alert("Airdrop already claimed"); return; }
+    if (airdropClaimed) {
+      showToast("Airdrop already claimed", "error");
+      return;
+    }
     wallet.balance += 250;
     airdropClaimed = true;
     saveToLocal();
     updateUI();
-    showToast("🎁 +250 BRD Airdrop claimed!");
-    showStatus("+250 BRD claimed!", 'airdropStatus');
+    showToast("🎁 +250 BRD Welcome Bonus claimed!", "success");
   }
-
-  function copyAddress() { if(wallet.address) { navigator.clipboard.writeText(wallet.address); showToast("Address copied!"); } }
-  function copySeedToClipboard() { 
-    if(pendingSeed) {
-      navigator.clipboard.writeText(pendingSeed.seed);
-      showToast("Seed phrase copied!");
+  
+  function getStakeProgress() {
+    if (!activeStake) return 0;
+    if (Date.now() >= activeStake.lockEndTime) return 100;
+    const total = activeStake.periodSeconds * 1000;
+    const elapsed = Date.now() - activeStake.startTime;
+    return Math.min(100, (elapsed / total) * 100);
+  }
+  
+  function updateStakingTimer() {
+    const container = document.getElementById('activeStakeInfo');
+    if (!container) return;
+    if (activeStake && activeStake.lockEndTime > Date.now()) {
+      const remaining = activeStake.lockEndTime - Date.now();
+      const hours = Math.floor(remaining / 3600000);
+      const mins = Math.floor((remaining % 3600000) / 60000);
+      const progress = getStakeProgress();
+      const reward = calculateReward(activeStake.amount, activeStake.periodSeconds);
+      container.innerHTML = `
+        <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+        ⏱️ Locked: ${hours}h ${mins}m remaining | Reward: ${reward.toFixed(4)} BRD
+      `;
+    } else if (activeStake && activeStake.lockEndTime <= Date.now()) {
+      container.innerHTML = `
+        <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+        ✅ STAKE MATURED! Click UNSTAKE to claim 18% APR rewards.
+      `;
+    } else {
+      container.innerHTML = `💎 No active stake. Stake minimum 50 BRD for 24 Hours at 18% APR.`;
     }
   }
-
-  function showToast(msg) {
+  
+  function updateTransactionsUI() {
+    const container = document.getElementById('transactionList');
+    if (!container) return;
+    if (wallet.transactions.length === 0) {
+      container.innerHTML = '<div style="text-align:center; opacity:0.5;">No transactions yet</div>';
+      return;
+    }
+    container.innerHTML = wallet.transactions.slice(0, 10).map(tx => `
+      <div class="tx-item">
+        ${tx.type === 'sent' ? 
+          `<span class="tx-out">📤 -${tx.amount} BRD</span><br><small>To: ${tx.to?.substring(0, 25)}...</small>` : 
+          `<span class="tx-in">📥 +${tx.amount} BRD</span><br><small>From: ${tx.from?.substring(0, 25) || 'Airdrop/Bonus'}</small>`
+        }
+        <div><small>${new Date(tx.timestamp).toLocaleString()}</small></div>
+      </div>
+    `).join('');
+  }
+  
+  function updateUI() {
+    const balanceEl = document.getElementById('bradicoinBalance');
+    const addressEl = document.getElementById('walletAddressDisplay');
+    if (balanceEl) balanceEl.innerText = wallet.balance.toFixed(4);
+    if (addressEl) addressEl.innerText = wallet.address || "—";
+    updateStakingTimer();
+    updateTransactionsUI();
+    
+    const explorerLink = document.getElementById('viewExplorerLink');
+    if (explorerLink && wallet.address) {
+      explorerLink.href = `https://www.blockchain.com/explorer/addresses/btc/${wallet.address}`;
+    }
+  }
+  
+  function saveToLocal() {
+    localStorage.setItem('bradicoin_wallet', JSON.stringify({
+      encryptedSeed: wallet.encryptedSeed,
+      address: wallet.address,
+      balance: wallet.balance,
+      transactions: wallet.transactions,
+      publicKey: wallet.publicKey
+    }));
+    localStorage.setItem('bradicoin_stake', JSON.stringify(activeStake));
+    localStorage.setItem('bradicoin_airdrop', airdropClaimed);
+  }
+  
+  function loadFromLocal() {
+    const w = localStorage.getItem('bradicoin_wallet');
+    if (w) {
+      try {
+        const p = JSON.parse(w);
+        wallet = p;
+      } catch(e) {}
+    }
+    const s = localStorage.getItem('bradicoin_stake');
+    if (s) { try { activeStake = JSON.parse(s); } catch(e) {} }
+    const a = localStorage.getItem('bradicoin_airdrop');
+    if (a) airdropClaimed = a === 'true';
+    
+    if (wallet.address && wallet.encryptedSeed) {
+      showLoginScreen();
+    } else {
+      showLoginScreen();
+    }
+  }
+  
+  function showToast(msg, type = "info") {
     const toast = document.createElement('div');
-    toast.style.cssText = 'position:fixed; bottom:20px; right:20px; background:#a855f7; color:white; padding:0.8rem 1.5rem; border-radius:2rem; font-family:Orbitron; z-index:9999; animation:fadeInOut 2s ease;';
+    const bgColor = type === "error" ? "#ff0055" : type === "success" ? "#00ff88" : "#a855f7";
+    const textColor = type === "error" ? "white" : "#0a0f1e";
+    toast.style.cssText = `position:fixed; bottom:20px; right:20px; background:${bgColor}; color:${textColor}; padding:0.8rem 1.5rem; border-radius:2rem; font-family:Orbitron; z-index:9999; animation:fadeInOut 3s ease; font-weight:bold;`;
     toast.innerText = msg;
     document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2000);
+    setTimeout(() => toast.remove(), 3000);
   }
-
-  function showStatus(msg, elId) { const el = document.getElementById(elId); if(el) { el.innerText = msg; setTimeout(() => { if(el.innerText === msg) el.innerText = ""; }, 4000); } }
-
-  function updateUI() {
-    document.getElementById('bradicoinBalance') && (document.getElementById('bradicoinBalance').innerText = wallet.balance.toFixed(4));
-    document.getElementById('walletAddressDisplay') && (document.getElementById('walletAddressDisplay').innerText = wallet.address || "—");
-    document.getElementById('seedPhraseDisplay') && (document.getElementById('seedPhraseDisplay').innerHTML = `🔐 <strong>Your Seed Phrase:</strong><br>${wallet.seedPhrase || 'No wallet yet'}<br><small style="color:#ff0055;">⚠️ Save this phrase to recover your account!</small>`);
-    updateStakingTimer();
+  
+  function showLoginScreen() {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('mainDashboard').style.display = 'none';
+    document.getElementById('loginImportGroup').style.display = 'none';
+    document.getElementById('loginExistingGroup').style.display = 'block';
   }
-
-  function showSplash() { document.getElementById('splashScreen').style.display = 'flex'; document.getElementById('mainDashboard').style.display = 'none'; }
-  function hideSplashAndShowDashboard() { document.getElementById('splashScreen').style.display = 'none'; document.getElementById('mainDashboard').style.display = 'block'; }
-
+  
+  function hideLoginAndShowDashboard() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainDashboard').style.display = 'block';
+  }
+  
+  function logout() {
+    localStorage.clear();
+    wallet = { encryptedSeed: null, address: null, balance: 0, transactions: [], publicKey: null };
+    activeStake = null;
+    airdropClaimed = false;
+    showLoginScreen();
+    showToast("Wallet locked", "info");
+  }
+  
+  function copyAddress() {
+    if (wallet.address) {
+      navigator.clipboard.writeText(wallet.address);
+      showToast("Address copied!", "success");
+    }
+  }
+  
+  function toggleFaq(id) {
+    const answer = document.getElementById(`faq${id}`);
+    if (answer) {
+      answer.style.display = answer.style.display === 'none' ? 'block' : 'none';
+    }
+  }
+  
   // ==================== EVENT LISTENERS ====================
-  document.getElementById('splashCreateBtn').onclick = initiateCreateWallet;
-  document.getElementById('splashImportBtn').onclick = () => { document.getElementById('importKeyGroup').style.display = 'block'; };
-  document.getElementById('confirmImportBtn').onclick = () => { const seed = document.getElementById('importSeedInput').value; if(seed) importWallet(seed); else alert("Enter your seed phrase"); };
-  document.getElementById('confirmSeedBtn').onclick = confirmCreateWallet;
-  document.getElementById('copySeedBtn').onclick = copySeedToClipboard;
-  document.getElementById('logoutBtn') && (document.getElementById('logoutBtn').onclick = logout);
-  document.getElementById('sendBtn') && (document.getElementById('sendBtn').onclick = () => sendCoins(document.getElementById('recipientAddr').value, parseFloat(document.getElementById('sendAmount').value)));
-  document.getElementById('copyAddressBtn') && (document.getElementById('copyAddressBtn').onclick = copyAddress);
-  document.getElementById('claimAirdropBtn') && (document.getElementById('claimAirdropBtn').onclick = claimAirdrop);
-  document.getElementById('unstakeBtn') && (document.getElementById('unstakeBtn').onclick = unstake);
-  document.getElementById('stake1hBtn') && (document.getElementById('stake1hBtn').onclick = () => stake(parseFloat(document.getElementById('stakeAmount1h').value), 3600, "1 Hour", 10));
-  document.getElementById('stake1dBtn') && (document.getElementById('stake1dBtn').onclick = () => stake(parseFloat(document.getElementById('stakeAmount1d').value), 86400, "1 Day", 50));
-  document.getElementById('languageSwitcher') && (document.getElementById('languageSwitcher').onchange = (e) => { currentLang = e.target.value; saveToLocal(); updateUI(); });
-
+  document.getElementById('loginCreateBtn').onclick = () => {
+    document.getElementById('loginExistingGroup').style.display = 'none';
+    const password = prompt("Create a password for your new wallet:", "");
+    if (password) createWallet(password);
+  };
+  
+  document.getElementById('loginImportBtn').onclick = () => {
+    document.getElementById('loginExistingGroup').style.display = 'none';
+    document.getElementById('loginImportGroup').style.display = 'block';
+  };
+  
+  document.getElementById('loginConfirmImportBtn').onclick = () => {
+    const seed = document.getElementById('loginSeedInput').value.trim();
+    const password = document.getElementById('loginPasswordInput').value;
+    if (seed && password) {
+      importWallet(seed, password).then(success => {
+        if (success) {
+          hideLoginAndShowDashboard();
+          syncWithAPI();
+        }
+      });
+    } else {
+      showToast("Please enter seed phrase and password", "error");
+    }
+  };
+  
+  document.getElementById('loginExistingBtn').onclick = () => {
+    const password = document.getElementById('existingPasswordInput').value;
+    if (password) loginWithPassword(password);
+    else showToast("Enter your password", "error");
+  };
+  
+  document.getElementById('confirmSeedBtn').onclick = () => {
+    const password = document.getElementById('seedPasswordInput').value;
+    if (password && tempSeedForCreation) {
+      document.getElementById('seedModal').style.display = 'none';
+      tempSeedForCreation = null;
+      hideLoginAndShowDashboard();
+      syncWithAPI();
+    } else if (!tempSeedForCreation) {
+      document.getElementById('seedModal').style.display = 'none';
+    } else {
+      showToast("Please set a password", "error");
+    }
+  };
+  
+  document.getElementById('copySeedBtn').onclick = () => {
+    const seedText = document.getElementById('modalSeedPhrase').innerText;
+    if (seedText && seedText !== '---') {
+      navigator.clipboard.writeText(seedText);
+      showToast("Seed phrase copied!", "success");
+    }
+  };
+  
+  document.getElementById('logoutBtn')?.addEventListener('click', logout);
+  document.getElementById('copyAddressBtn')?.addEventListener('click', copyAddress);
+  document.getElementById('claimAirdropBtn')?.addEventListener('click', claimAirdrop);
+  document.getElementById('unstakeBtn')?.addEventListener('click', unstake);
+  document.getElementById('stakeBtn')?.addEventListener('click', () => stake(parseFloat(document.getElementById('stakeAmount').value)));
+  document.getElementById('refreshBalanceBtn')?.addEventListener('click', () => syncWithAPI());
+  document.getElementById('openSendModalBtn')?.addEventListener('click', () => {
+    document.getElementById('sendModal').style.display = 'flex';
+  });
+  document.getElementById('confirmSendBtn')?.addEventListener('click', () => {
+    const to = document.getElementById('sendToAddress').value;
+    const amount = parseFloat(document.getElementById('sendAmountValue').value);
+    const password = document.getElementById('txPassword').value;
+    sendTransaction(to, amount, password).then(() => {
+      document.getElementById('sendModal').style.display = 'none';
+      document.getElementById('sendToAddress').value = '';
+      document.getElementById('sendAmountValue').value = '';
+      document.getElementById('txPassword').value = '';
+    });
+  });
+  document.getElementById('cancelSendBtn')?.addEventListener('click', () => {
+    document.getElementById('sendModal').style.display = 'none';
+  });
+  
   setInterval(() => { updateStakingTimer(); }, 1000);
+  checkAPIStatus();
   loadFromLocal();
 </script>
 </body>
