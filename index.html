@@ -165,38 +165,38 @@
 <div id="loginScreen" class="login-screen">
   <div class="login-content">
     <div class="login-logo"><i class="fas fa-microchip"></i></div>
-    <h1 id="mainTitle" style="font-size: 2rem;">BRADICOIN</h1>
-    <p id="subtitle" style="margin: 0.5rem 0;">Secure Crypto Wallet Platform</p>
-    <p id="desc" style="font-size: 0.7rem; opacity: 0.7;">Create · Import · Stake · Earn</p>
+    <h1 id="mainTitle">BRADICOIN</h1>
+    <p id="subtitle">Secure Crypto Wallet Platform</p>
+    <p id="desc">Create · Import · Stake · Earn</p>
     <div class="login-buttons">
-      <button id="createWalletBtn" class="cyber-btn primary"><i class="fas fa-plus-circle"></i> <span id="createBtnText">Create Wallet</span></button>
-      <button id="importWalletBtn" class="cyber-btn"><i class="fas fa-key"></i> <span id="importBtnText">Import Wallet</span></button>
+      <button id="createWalletBtn" class="cyber-btn primary"><i class="fas fa-plus-circle"></i> Create Wallet</button>
+      <button id="importWalletBtn" class="cyber-btn"><i class="fas fa-key"></i> Import Wallet</button>
     </div>
     <div id="importGroup" style="display:none; margin-top:1.5rem;">
       <textarea id="importSeedInput" class="cyber-input" rows="3" placeholder="Enter your 12-word seed phrase"></textarea>
       <input type="password" id="importPasswordInput" class="cyber-input" placeholder="Create a password" style="margin-top:0.5rem;">
-      <button id="confirmImportBtn" class="cyber-btn primary" style="margin-top:0.8rem; width:100%;"><i class="fas fa-check"></i> <span id="importConfirmText">Import Wallet</span></button>
+      <button id="confirmImportBtn" class="cyber-btn primary" style="margin-top:0.8rem; width:100%;"><i class="fas fa-check"></i> Import Wallet</button>
     </div>
     <div id="unlockGroup" style="display:none; margin-top:1.5rem;">
       <input type="password" id="unlockPasswordInput" class="cyber-input" placeholder="Enter your wallet password">
-      <button id="unlockWalletBtn" class="cyber-btn primary" style="margin-top:0.8rem; width:100%;"><i class="fas fa-unlock-alt"></i> <span id="unlockBtnText">Unlock Wallet</span></button>
-      <p id="securityNote" style="font-size:0.65rem; margin-top:1rem; opacity:0.6;">🔐 Your keys, your crypto.</p>
+      <button id="unlockWalletBtn" class="cyber-btn primary" style="margin-top:0.8rem; width:100%;"><i class="fas fa-unlock-alt"></i> Unlock Wallet</button>
+      <p style="font-size:0.65rem; margin-top:1rem; opacity:0.6;">🔐 Your keys, your crypto.</p>
     </div>
   </div>
 </div>
 
-<!-- SEED PHRASE MODAL (aparece APÓS criar wallet) -->
+<!-- SEED PHRASE MODAL -->
 <div id="seedModal" class="modal-overlay">
   <div class="modal-content">
     <i class="fas fa-shield-alt" style="font-size: 3rem; color: #00f2ff;"></i>
-    <h2 id="seedModalTitle" style="margin: 1rem 0;">⚠️ SAVE YOUR SEED PHRASE</h2>
+    <h2 id="seedModalTitle">⚠️ SAVE YOUR SEED PHRASE</h2>
     <p id="seedModalWarning" style="color: #ff0055; font-size: 0.8rem;">This is the ONLY way to recover your wallet!</p>
     <div class="seed-phrase-box" id="modalSeedPhrase">---</div>
-    <p id="walletInfoText" style="font-size:0.7rem; margin:0.5rem 0;">Your wallet address will be generated automatically</p>
+    <p id="walletInfoText">Your wallet address will be generated automatically</p>
     <input type="password" id="walletPasswordInput" class="cyber-input" placeholder="Create a password for your wallet" style="margin:0.5rem 0;">
-    <button id="copySeedBtn" class="cyber-btn" style="width:100%; margin-bottom: 0.5rem;"><i class="fas fa-copy"></i> <span id="copySeedText">Copy Seed Phrase</span></button>
-    <button id="confirmSeedBtn" class="cyber-btn primary" style="width:100%;"><i class="fas fa-check-circle"></i> <span id="saveSeedText">I Have Saved My Seed Phrase</span></button>
-    <p id="neverShareText" class="warning-text">⚠️ Never share your seed phrase!</p>
+    <button id="copySeedBtn" class="cyber-btn" style="width:100%; margin-bottom: 0.5rem;"><i class="fas fa-copy"></i> Copy Seed Phrase</button>
+    <button id="confirmSeedBtn" class="cyber-btn primary" style="width:100%;"><i class="fas fa-check-circle"></i> I Have Saved My Seed Phrase</button>
+    <p class="warning-text">⚠️ Never share your seed phrase!</p>
   </div>
 </div>
 
@@ -207,8 +207,8 @@
     <input type="text" id="sendTo" class="cyber-input" placeholder="Recipient Address" style="margin:0.5rem 0;">
     <input type="number" id="sendAmount" class="cyber-input" placeholder="Amount" step="any">
     <input type="password" id="sendPassword" class="cyber-input" placeholder="Wallet Password" style="margin:0.5rem 0;">
-    <button id="confirmSendBtn" class="cyber-btn primary" style="width:100%;"><span id="confirmSendText">Confirm Send</span></button>
-    <button id="cancelSendBtn" class="cyber-btn" style="width:100%; margin-top:0.5rem;"><span id="cancelText">Cancel</span></button>
+    <button id="confirmSendBtn" class="cyber-btn primary" style="width:100%;">Confirm Send</button>
+    <button id="cancelSendBtn" class="cyber-btn" style="width:100%; margin-top:0.5rem;">Cancel</button>
   </div>
 </div>
 
@@ -221,60 +221,60 @@
         <h1 id="dashboardTitle">BRADICOIN</h1>
       </div>
       <div class="wallet-actions">
-        <button id="refreshBtn" class="cyber-btn"><i class="fas fa-sync-alt"></i> <span id="syncText">Sync</span></button>
-        <button id="logoutBtn" class="cyber-btn danger"><i class="fas fa-sign-out-alt"></i> <span id="logoutText">Logout</span></button>
+        <button id="refreshBtn" class="cyber-btn"><i class="fas fa-sync-alt"></i> Sync</button>
+        <button id="logoutBtn" class="cyber-btn danger"><i class="fas fa-sign-out-alt"></i> Logout</button>
       </div>
     </div>
 
     <div class="dashboard-grid">
       <!-- Balance Card -->
       <div class="neon-card">
-        <h3><i class="fas fa-chart-line"></i> <span id="balanceTitle">BRD Balance</span></h3>
+        <h3><i class="fas fa-chart-line"></i> BRD Balance</h3>
         <div class="balance-amount" id="balance">0.00</div>
-        <div id="brdValue" style="margin:0.5rem 0;">1 BRD = $10 USD</div>
-        <label id="addressLabel">Your Wallet Address</label>
+        <div style="margin:0.5rem 0;">1 BRD = $10 USD</div>
+        <label>Your Wallet Address</label>
         <div class="cyber-input" id="addressDisplay" style="font-size:0.7rem;">—</div>
-        <button id="copyAddressBtn" class="cyber-btn" style="margin-top:0.8rem; width:100%;"><i class="far fa-copy"></i> <span id="copyAddressText">Copy Address</span></button>
-        <a href="https://www.bradichain.com" target="_blank" class="bradichain-link"><i class="fas fa-globe"></i> <span id="explorerText">View on BradiChain Explorer</span></a>
+        <button id="copyAddressBtn" class="cyber-btn" style="margin-top:0.8rem; width:100%;"><i class="far fa-copy"></i> Copy Address</button>
+        <a href="https://www.bradichain.com" target="_blank" class="bradichain-link"><i class="fas fa-globe"></i> View on BradiChain Explorer</a>
         <div style="background:#010518; padding:0.6rem; border-radius:1rem; margin-top:0.8rem; font-size:0.6rem;">
-          🔐 <span id="encryptedText">Wallet encrypted with your password</span>
+          🔐 Wallet encrypted with your password
         </div>
       </div>
 
       <!-- Staking Card -->
       <div class="neon-card">
-        <h3><i class="fas fa-layer-group"></i> <span id="stakingTitle">Staking Pool</span></h3>
+        <h3><i class="fas fa-layer-group"></i> Staking Pool</h3>
         <div class="staking-pool">
           <div style="display:flex; justify-content:space-between;">
-            <strong><span id="lockPeriodText">24 HOURS LOCK</span></strong>
-            <span style="color:#00ff88;"><span id="aprText">18% APR</span></span>
+            <strong>24 HOURS LOCK</strong>
+            <span style="color:#00ff88;">18% APR</span>
           </div>
           <div style="font-size:0.7rem; margin:0.5rem 0;">
-            <span id="minStakeText">⚡ Minimum: 50 BRD</span> | <span id="rewardText">📈 18% annual reward</span>
+            ⚡ Minimum: 50 BRD | 📈 18% annual reward
           </div>
           <input type="number" id="stakeAmount" class="cyber-input" placeholder="Amount to stake" step="any">
-          <button id="stakeBtn" class="cyber-btn primary" style="width:100%; margin-top:0.5rem;"><i class="fas fa-lock"></i> <span id="stakeBtnText">Stake for 24 Hours</span></button>
+          <button id="stakeBtn" class="cyber-btn primary" style="width:100%; margin-top:0.5rem;"><i class="fas fa-lock"></i> Stake for 24 Hours</button>
         </div>
         <div id="stakeInfo" class="staking-timer">💎 No active stake</div>
-        <button id="unstakeBtn" class="cyber-btn" style="width:100%;"><i class="fas fa-unlock-alt"></i> <span id="unstakeBtnText">Unstake & Claim</span></button>
+        <button id="unstakeBtn" class="cyber-btn" style="width:100%;"><i class="fas fa-unlock-alt"></i> Unstake & Claim</button>
         <div id="stakeStatus" class="status-msg"></div>
       </div>
 
       <!-- Actions Card -->
       <div class="neon-card">
-        <h3><i class="fas fa-exchange-alt"></i> <span id="actionsTitle">Actions</span></h3>
-        <button id="sendBtn" class="cyber-btn primary" style="width:100%; margin-bottom:1rem;"><i class="fas fa-paper-plane"></i> <span id="sendBrdText">Send BRD</span></button>
+        <h3><i class="fas fa-exchange-alt"></i> Actions</h3>
+        <button id="sendBtn" class="cyber-btn primary" style="width:100%; margin-bottom:1rem;"><i class="fas fa-paper-plane"></i> Send BRD</button>
         <hr style="margin:0.5rem 0; border-color:#a855f7;">
-        <button id="claimAirdropBtn" class="cyber-btn" style="width:100%; margin:0.5rem 0;"><i class="fas fa-gift"></i> <span id="claimBonusText">Claim 250 Free BRD</span></button>
+        <button id="claimAirdropBtn" class="cyber-btn" style="width:100%; margin:0.5rem 0;"><i class="fas fa-gift"></i> Claim 250 Free BRD</button>
         <div id="txStatus" class="status-msg"></div>
         <div id="airdropStatus" class="status-msg"></div>
         <hr style="margin:0.5rem 0; border-color:#a855f7;">
-        <h4><i class="fas fa-history"></i> <span id="recentTitle">Recent Activity</span></h4>
+        <h4><i class="fas fa-history"></i> Recent Activity</h4>
         <div id="transactionsList" class="transaction-list">No transactions yet</div>
       </div>
     </div>
     
-    <footer><span id="footerText1">Non-Custodial Wallet</span> · <span id="footerText2">18% APR Staking</span> · <span id="footerText3">BradiCoin Ecosystem</span></footer>
+    <footer>Non-Custodial Wallet · 18% APR Staking · BradiCoin Ecosystem</footer>
   </div>
 </div>
 
@@ -287,22 +287,20 @@
     "adult", "advance", "advice", "aerobic", "affair", "afford", "afraid", "africa", "after", "again"
   ];
 
-  // ==================== TRANSLATIONS COMPLETAS ====================
+  // ==================== TRANSLATIONS ====================
   const translations = {
     en: {
       mainTitle: "BRADICOIN", subtitle: "Secure Crypto Wallet Platform", desc: "Create · Import · Stake · Earn",
       createBtn: "Create Wallet", importBtn: "Import Wallet", importConfirm: "Import Wallet", unlockBtn: "Unlock Wallet",
       dashboardTitle: "BRADICOIN", sync: "Sync", logout: "Logout", balanceTitle: "BRD Balance",
-      brdValue: "1 BRD = $10 USD", addressLabel: "Your Wallet Address", copyAddress: "Copy Address",
-      explorerText: "View on BradiChain Explorer", encryptedText: "Wallet encrypted with your password",
-      stakingTitle: "Staking Pool", lockPeriod: "24 HOURS LOCK", apr: "18% APR",
-      minStake: "⚡ Minimum: 50 BRD", reward: "📈 18% annual reward", stakeBtn: "Stake for 24 Hours",
-      unstakeBtn: "Unstake & Claim", actionsTitle: "Actions", sendBrd: "Send BRD",
-      claimBonus: "Claim 250 Free BRD", recentTitle: "Recent Activity", sendModalTitle: "Send BRD",
-      confirmSend: "Confirm Send", cancel: "Cancel", copySeed: "Copy Seed Phrase", saveSeed: "I Have Saved My Seed Phrase",
-      neverShare: "⚠️ Never share your seed phrase!", seedModalTitle: "⚠️ SAVE YOUR SEED PHRASE",
-      seedModalWarning: "This is the ONLY way to recover your wallet!", walletInfo: "Your wallet address will be generated automatically",
-      footer1: "Non-Custodial Wallet", footer2: "18% APR Staking", footer3: "BradiCoin Ecosystem",
+      copyAddress: "Copy Address", explorerText: "View on BradiChain Explorer", stakingTitle: "Staking Pool",
+      lockPeriod: "24 HOURS LOCK", apr: "18% APR", minStake: "⚡ Minimum: 50 BRD",
+      reward: "📈 18% annual reward", stakeBtn: "Stake for 24 Hours", unstakeBtn: "Unstake & Claim",
+      sendBrd: "Send BRD", claimBonus: "Claim 250 Free BRD", recentTitle: "Recent Activity",
+      sendModalTitle: "Send BRD", confirmSend: "Confirm Send", cancel: "Cancel",
+      copySeed: "Copy Seed Phrase", saveSeed: "I Have Saved My Seed Phrase",
+      seedModalTitle: "⚠️ SAVE YOUR SEED PHRASE", seedModalWarning: "This is the ONLY way to recover your wallet!",
+      walletInfo: "Your wallet address will be generated automatically", 
       unlockPlaceholder: "Enter your wallet password", importPlaceholder: "Enter your 12-word seed phrase",
       importPasswordPlaceholder: "Create a password", walletPasswordPlaceholder: "Create a password for your wallet"
     },
@@ -310,16 +308,14 @@
       mainTitle: "BRADICOIN", subtitle: "Plataforma de Carteira Cripto Segura", desc: "Criar · Importar · Stake · Ganhar",
       createBtn: "Criar Carteira", importBtn: "Importar Carteira", importConfirm: "Importar Carteira", unlockBtn: "Desbloquear Carteira",
       dashboardTitle: "BRADICOIN", sync: "Sincronizar", logout: "Sair", balanceTitle: "Saldo BRD",
-      brdValue: "1 BRD = $10 USD", addressLabel: "Seu Endereço", copyAddress: "Copiar Endereço",
-      explorerText: "Ver no BradiChain Explorer", encryptedText: "Carteira criptografada com sua senha",
-      stakingTitle: "Pool de Staking", lockPeriod: "BLOQUEIO 24 HORAS", apr: "18% APR",
-      minStake: "⚡ Mínimo: 50 BRD", reward: "📈 18% ao ano", stakeBtn: "Fazer Stake por 24h",
-      unstakeBtn: "Retirar & Resgatar", actionsTitle: "Ações", sendBrd: "Enviar BRD",
-      claimBonus: "Resgatar 250 BRD Grátis", recentTitle: "Atividade Recente", sendModalTitle: "Enviar BRD",
-      confirmSend: "Confirmar Envio", cancel: "Cancelar", copySeed: "Copiar Frase Seed", saveSeed: "Já Salvei Minha Frase Seed",
-      neverShare: "⚠️ Nunca compartilhe sua frase seed!", seedModalTitle: "⚠️ SALVE SUA FRASE SEED",
-      seedModalWarning: "Esta é a ÚNICA maneira de recuperar sua carteira!", walletInfo: "Seu endereço será gerado automaticamente",
-      footer1: "Carteira Não-Custodial", footer2: "Staking 18% APR", footer3: "Ecossistema BradiCoin",
+      copyAddress: "Copiar Endereço", explorerText: "Ver no BradiChain Explorer", stakingTitle: "Pool de Staking",
+      lockPeriod: "BLOQUEIO 24 HORAS", apr: "18% APR", minStake: "⚡ Mínimo: 50 BRD",
+      reward: "📈 18% ao ano", stakeBtn: "Fazer Stake por 24h", unstakeBtn: "Retirar & Resgatar",
+      sendBrd: "Enviar BRD", claimBonus: "Resgatar 250 BRD Grátis", recentTitle: "Atividade Recente",
+      sendModalTitle: "Enviar BRD", confirmSend: "Confirmar Envio", cancel: "Cancelar",
+      copySeed: "Copiar Frase Seed", saveSeed: "Já Salvei Minha Frase Seed",
+      seedModalTitle: "⚠️ SALVE SUA FRASE SEED", seedModalWarning: "Esta é a ÚNICA maneira de recuperar sua carteira!",
+      walletInfo: "Seu endereço será gerado automaticamente",
       unlockPlaceholder: "Digite sua senha", importPlaceholder: "Digite sua frase seed de 12 palavras",
       importPasswordPlaceholder: "Crie uma senha", walletPasswordPlaceholder: "Crie uma senha para sua carteira"
     },
@@ -327,16 +323,14 @@
       mainTitle: "BRADICOIN", subtitle: "Plataforma de Billetera Cripto Segura", desc: "Crear · Importar · Stake · Ganar",
       createBtn: "Crear Billetera", importBtn: "Importar Billetera", importConfirm: "Importar Billetera", unlockBtn: "Desbloquear Billetera",
       dashboardTitle: "BRADICOIN", sync: "Sincronizar", logout: "Salir", balanceTitle: "Saldo BRD",
-      brdValue: "1 BRD = $10 USD", addressLabel: "Tu Dirección", copyAddress: "Copiar Dirección",
-      explorerText: "Ver en BradiChain Explorer", encryptedText: "Billetera encriptada con tu contraseña",
-      stakingTitle: "Pool de Staking", lockPeriod: "BLOQUEO 24 HORAS", apr: "18% APR",
-      minStake: "⚡ Mínimo: 50 BRD", reward: "📈 18% anual", stakeBtn: "Hacer Stake por 24h",
-      unstakeBtn: "Retirar & Reclamar", actionsTitle: "Acciones", sendBrd: "Enviar BRD",
-      claimBonus: "Reclamar 250 BRD Gratis", recentTitle: "Actividad Reciente", sendModalTitle: "Enviar BRD",
-      confirmSend: "Confirmar Envío", cancel: "Cancelar", copySeed: "Copiar Frase Semilla", saveSeed: "Ya Guardé Mi Frase Semilla",
-      neverShare: "⚠️ ¡Nunca compartas tu frase semilla!", seedModalTitle: "⚠️ GUARDA TU FRASE SEMILLA",
-      seedModalWarning: "¡Esta es la ÚNICA forma de recuperar tu billetera!", walletInfo: "Tu dirección será generada automáticamente",
-      footer1: "Billetera No Custodial", footer2: "Staking 18% APR", footer3: "Ecosistema BradiCoin",
+      copyAddress: "Copiar Dirección", explorerText: "Ver en BradiChain Explorer", stakingTitle: "Pool de Staking",
+      lockPeriod: "BLOQUEO 24 HORAS", apr: "18% APR", minStake: "⚡ Mínimo: 50 BRD",
+      reward: "📈 18% anual", stakeBtn: "Hacer Stake por 24h", unstakeBtn: "Retirar & Reclamar",
+      sendBrd: "Enviar BRD", claimBonus: "Reclamar 250 BRD Gratis", recentTitle: "Actividad Reciente",
+      sendModalTitle: "Enviar BRD", confirmSend: "Confirmar Envío", cancel: "Cancelar",
+      copySeed: "Copiar Frase Semilla", saveSeed: "Ya Guardé Mi Frase Semilla",
+      seedModalTitle: "⚠️ GUARDA TU FRASE SEMILLA", seedModalWarning: "¡Esta es la ÚNICA forma de recuperar tu billetera!",
+      walletInfo: "Tu dirección será generada automáticamente",
       unlockPlaceholder: "Ingresa tu contraseña", importPlaceholder: "Ingresa tu frase semilla de 12 palabras",
       importPasswordPlaceholder: "Crea una contraseña", walletPasswordPlaceholder: "Crea una contraseña para tu billetera"
     },
@@ -344,16 +338,14 @@
       mainTitle: "برادي كوين", subtitle: "منصة محفظة عملات رقمية آمنة", desc: "إنشاء · استيراد · حصة · ربح",
       createBtn: "إنشاء محفظة", importBtn: "استيراد محفظة", importConfirm: "استيراد محفظة", unlockBtn: "فتح المحفظة",
       dashboardTitle: "برادي كوين", sync: "مزامنة", logout: "خروج", balanceTitle: "رصيد BRD",
-      brdValue: "1 BRD = 10 دولار", addressLabel: "عنوان محفظتك", copyAddress: "نسخ العنوان",
-      explorerText: "عرض على BradiChain Explorer", encryptedText: "المحفظة مشفرة بكلمة المرور الخاصة بك",
-      stakingTitle: "مجمع الحصة", lockPeriod: "قفل 24 ساعة", apr: "18% APR",
-      minStake: "⚡ الحد الأدنى: 50 BRD", reward: "📈 18% سنوياً", stakeBtn: "حصة لمدة 24 ساعة",
-      unstakeBtn: "سحب واستلام المكافآت", actionsTitle: "إجراءات", sendBrd: "إرسال BRD",
-      claimBonus: "استلام 250 BRD مجاناً", recentTitle: "النشاط الأخير", sendModalTitle: "إرسال BRD",
-      confirmSend: "تأكيد الإرسال", cancel: "إلغاء", copySeed: "نسخ العبارة الأولية", saveSeed: "لقد حفظت العبارة الأولية",
-      neverShare: "⚠️ لا تشارك العبارة الأولية أبداً!", seedModalTitle: "⚠️ احفظ العبارة الأولية",
-      seedModalWarning: "هذه هي الطريقة الوحيدة لاستعادة محفظتك!", walletInfo: "سيتم إنشاء عنوان محفظتك تلقائياً",
-      footer1: "محفظة غير استحواذية", footer2: "حصة 18% APR", footer3: "نظام برادي كوين البيئي",
+      copyAddress: "نسخ العنوان", explorerText: "عرض على BradiChain Explorer", stakingTitle: "مجمع الحصة",
+      lockPeriod: "قفل 24 ساعة", apr: "18% APR", minStake: "⚡ الحد الأدنى: 50 BRD",
+      reward: "📈 18% سنوياً", stakeBtn: "حصة لمدة 24 ساعة", unstakeBtn: "سحب واستلام المكافآت",
+      sendBrd: "إرسال BRD", claimBonus: "استلام 250 BRD مجاناً", recentTitle: "النشاط الأخير",
+      sendModalTitle: "إرسال BRD", confirmSend: "تأكيد الإرسال", cancel: "إلغاء",
+      copySeed: "نسخ العبارة الأولية", saveSeed: "لقد حفظت العبارة الأولية",
+      seedModalTitle: "⚠️ احفظ العبارة الأولية", seedModalWarning: "هذه هي الطريقة الوحيدة لاستعادة محفظتك!",
+      walletInfo: "سيتم إنشاء عنوان محفظتك تلقائياً",
       unlockPlaceholder: "أدخل كلمة مرور محفظتك", importPlaceholder: "أدخل عبارتك الأولية المكونة من 12 كلمة",
       importPasswordPlaceholder: "إنشاء كلمة مرور", walletPasswordPlaceholder: "إنشاء كلمة مرور لمحفظتك"
     }
@@ -365,73 +357,52 @@
     const t = translations[currentLang];
     if (!t) return;
     
-    // Update all translatable elements
-    document.getElementById('mainTitle') && (document.getElementById('mainTitle').innerText = t.mainTitle);
-    document.getElementById('subtitle') && (document.getElementById('subtitle').innerText = t.subtitle);
-    document.getElementById('desc') && (document.getElementById('desc').innerText = t.desc);
-    document.getElementById('createBtnText') && (document.getElementById('createBtnText').innerText = t.createBtn);
-    document.getElementById('importBtnText') && (document.getElementById('importBtnText').innerText = t.importBtn);
-    document.getElementById('importConfirmText') && (document.getElementById('importConfirmText').innerText = t.importConfirm);
-    document.getElementById('unlockBtnText') && (document.getElementById('unlockBtnText').innerText = t.unlockBtn);
-    document.getElementById('dashboardTitle') && (document.getElementById('dashboardTitle').innerText = t.dashboardTitle);
-    document.getElementById('syncText') && (document.getElementById('syncText').innerText = t.sync);
-    document.getElementById('logoutText') && (document.getElementById('logoutText').innerText = t.logout);
-    document.getElementById('balanceTitle') && (document.getElementById('balanceTitle').innerText = t.balanceTitle);
-    document.getElementById('brdValue') && (document.getElementById('brdValue').innerText = t.brdValue);
-    document.getElementById('addressLabel') && (document.getElementById('addressLabel').innerText = t.addressLabel);
-    document.getElementById('copyAddressText') && (document.getElementById('copyAddressText').innerText = t.copyAddress);
-    document.getElementById('explorerText') && (document.getElementById('explorerText').innerText = t.explorerText);
-    document.getElementById('encryptedText') && (document.getElementById('encryptedText').innerText = t.encryptedText);
-    document.getElementById('stakingTitle') && (document.getElementById('stakingTitle').innerText = t.stakingTitle);
-    document.getElementById('lockPeriodText') && (document.getElementById('lockPeriodText').innerText = t.lockPeriod);
-    document.getElementById('aprText') && (document.getElementById('aprText').innerText = t.apr);
-    document.getElementById('minStakeText') && (document.getElementById('minStakeText').innerHTML = t.minStake);
-    document.getElementById('rewardText') && (document.getElementById('rewardText').innerHTML = t.reward);
-    document.getElementById('stakeBtnText') && (document.getElementById('stakeBtnText').innerText = t.stakeBtn);
-    document.getElementById('unstakeBtnText') && (document.getElementById('unstakeBtnText').innerText = t.unstakeBtn);
-    document.getElementById('actionsTitle') && (document.getElementById('actionsTitle').innerText = t.actionsTitle);
-    document.getElementById('sendBrdText') && (document.getElementById('sendBrdText').innerText = t.sendBrd);
-    document.getElementById('claimBonusText') && (document.getElementById('claimBonusText').innerText = t.claimBonus);
-    document.getElementById('recentTitle') && (document.getElementById('recentTitle').innerText = t.recentTitle);
-    document.getElementById('sendModalTitle') && (document.getElementById('sendModalTitle').innerText = t.sendModalTitle);
-    document.getElementById('confirmSendText') && (document.getElementById('confirmSendText').innerText = t.confirmSend);
-    document.getElementById('cancelText') && (document.getElementById('cancelText').innerText = t.cancel);
-    document.getElementById('copySeedText') && (document.getElementById('copySeedText').innerText = t.copySeed);
-    document.getElementById('saveSeedText') && (document.getElementById('saveSeedText').innerText = t.saveSeed);
-    document.getElementById('neverShareText') && (document.getElementById('neverShareText').innerHTML = t.neverShare);
-    document.getElementById('seedModalTitle') && (document.getElementById('seedModalTitle').innerHTML = t.seedModalTitle);
-    document.getElementById('seedModalWarning') && (document.getElementById('seedModalWarning').innerText = t.seedModalWarning);
-    document.getElementById('walletInfoText') && (document.getElementById('walletInfoText').innerText = t.walletInfo);
-    document.getElementById('footerText1') && (document.getElementById('footerText1').innerText = t.footer1);
-    document.getElementById('footerText2') && (document.getElementById('footerText2').innerText = t.footer2);
-    document.getElementById('footerText3') && (document.getElementById('footerText3').innerText = t.footer3);
-    
-    // Update placeholders
-    const unlockInput = document.getElementById('unlockPasswordInput');
-    const importSeed = document.getElementById('importSeedInput');
-    const importPass = document.getElementById('importPasswordInput');
-    const walletPass = document.getElementById('walletPasswordInput');
-    
-    if (unlockInput) unlockInput.placeholder = t.unlockPlaceholder;
-    if (importSeed) importSeed.placeholder = t.importPlaceholder;
-    if (importPass) importPass.placeholder = t.importPasswordPlaceholder;
-    if (walletPass) walletPass.placeholder = t.walletPasswordPlaceholder;
-    
-    // RTL for Arabic
-    if (currentLang === 'ar') {
-      document.body.classList.add('rtl');
-    } else {
-      document.body.classList.remove('rtl');
-    }
-    
-    // Update active language button
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-      if (btn.dataset.lang === currentLang) {
-        btn.classList.add('active');
+    // Update all text elements
+      document.getElementById('mainTitle').innerText = t.mainTitle;
+      document.getElementById('subtitle').innerText = t.subtitle;
+      document.getElementById('desc').innerText = t.desc;
+      document.getElementById('createWalletBtn').innerHTML = `<i class="fas fa-plus-circle"></i> ${t.createBtn}`;
+      document.getElementById('importWalletBtn').innerHTML = `<i class="fas fa-key"></i> ${t.importBtn}`;
+      document.getElementById('confirmImportBtn').innerHTML = `<i class="fas fa-check"></i> ${t.importConfirm}`;
+      document.getElementById('unlockWalletBtn').innerHTML = `<i class="fas fa-unlock-alt"></i> ${t.unlockBtn}`;
+      document.getElementById('dashboardTitle').innerText = t.dashboardTitle;
+      document.getElementById('refreshBtn').innerHTML = `<i class="fas fa-sync-alt"></i> ${t.sync}`;
+      document.getElementById('logoutBtn').innerHTML = `<i class="fas fa-sign-out-alt"></i> ${t.logout}`;
+      document.getElementById('copyAddressBtn').innerHTML = `<i class="far fa-copy"></i> ${t.copyAddress}`;
+      document.getElementById('stakeBtn').innerHTML = `<i class="fas fa-lock"></i> ${t.stakeBtn}`;
+      document.getElementById('unstakeBtn').innerHTML = `<i class="fas fa-unlock-alt"></i> ${t.unstakeBtn}`;
+      document.getElementById('sendBtn').innerHTML = `<i class="fas fa-paper-plane"></i> ${t.sendBrd}`;
+      document.getElementById('claimAirdropBtn').innerHTML = `<i class="fas fa-gift"></i> ${t.claimBonus}`;
+      document.getElementById('sendModalTitle').innerText = t.sendModalTitle;
+      document.getElementById('confirmSendBtn').innerText = t.confirmSend;
+      document.getElementById('cancelSendBtn').innerText = t.cancel;
+      document.getElementById('copySeedBtn').innerHTML = `<i class="fas fa-copy"></i> ${t.copySeed}`;
+      document.getElementById('confirmSeedBtn').innerHTML = `<i class="fas fa-check-circle"></i> ${t.saveSeed}`;
+      document.getElementById('seedModalTitle').innerHTML = t.seedModalTitle;
+      document.getElementById('seedModalWarning').innerText = t.seedModalWarning;
+      document.getElementById('walletInfoText').innerText = t.walletInfo;
+      
+      // Placeholders
+      document.getElementById('unlockPasswordInput').placeholder = t.unlockPlaceholder;
+      document.getElementById('importSeedInput').placeholder = t.importPlaceholder;
+      document.getElementById('importPasswordInput').placeholder = t.importPasswordPlaceholder;
+      document.getElementById('walletPasswordInput').placeholder = t.walletPasswordPlaceholder;
+      
+      // RTL for Arabic
+      if (currentLang === 'ar') {
+        document.body.classList.add('rtl');
       } else {
-        btn.classList.remove('active');
+        document.body.classList.remove('rtl');
       }
-    });
+      
+      // Update active button
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        if (btn.dataset.lang === currentLang) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
   }
   
   function setLanguage(lang) {
@@ -507,25 +478,29 @@
     updateUI();
   }
 
-  // ==================== CREATE WALLET - FLUXO CORRETO ====================
-  // Passo 1: Clique em Create Wallet -> Gera seed e address
+  // ==================== CREATE WALLET ====================
   function createWalletFlow() {
+    // Gerar seed phrase
     const seedPhrase = generateSeedPhrase();
+    // Gerar address
     const address = generateAddress(seedPhrase);
     
+    // Salvar temporariamente
     tempSeedForCreation = seedPhrase;
     wallet.address = address;
     wallet.balance = 1000;
     wallet.transactions = [];
     
-    // Mostrar modal com seed phrase
+    // Mostrar modal com seed
     document.getElementById('modalSeedPhrase').innerText = seedPhrase;
     document.getElementById('seedModal').style.display = 'flex';
+    
+    console.log("Seed gerada:", seedPhrase);
+    console.log("Address gerado:", address);
     
     showToast("✅ Seed phrase generated! Save it securely.", "success");
   }
 
-  // Passo 2: Usuario salva seed e cria senha -> Finaliza criação
   function finalizeWalletCreation(password) {
     if (!password || password.length < 4) {
       showToast("Password must be at least 4 characters", "error");
@@ -537,6 +512,7 @@
       return false;
     }
     
+    // Criptografar e salvar
     const encryptedSeed = encrypt(tempSeedForCreation, password);
     wallet.encryptedSeed = encryptedSeed;
     
@@ -756,15 +732,23 @@
   document.getElementById('confirmImportBtn').onclick = () => {
     const seed = document.getElementById('importSeedInput').value;
     const password = document.getElementById('importPasswordInput').value;
-    if (seed && password && importWallet(seed, password)) {
-      hideLoginAndShowDashboard();
-      updateUI();
+    if (seed && password) {
+      if (importWallet(seed, password)) {
+        hideLoginAndShowDashboard();
+        updateUI();
+      }
+    } else {
+      showToast("Please enter seed phrase and password", "error");
     }
   };
 
   document.getElementById('unlockWalletBtn').onclick = () => {
     const password = document.getElementById('unlockPasswordInput').value;
-    if (password) unlockWallet(password);
+    if (password) {
+      unlockWallet(password);
+    } else {
+      showToast("Enter your password", "error");
+    }
   };
 
   document.getElementById('confirmSeedBtn').onclick = () => {
@@ -778,8 +762,10 @@
 
   document.getElementById('copySeedBtn').onclick = () => {
     const seed = document.getElementById('modalSeedPhrase').innerText;
-    navigator.clipboard.writeText(seed);
-    showToast("Seed phrase copied! Save it securely.", "success");
+    if (seed && seed !== '---') {
+      navigator.clipboard.writeText(seed);
+      showToast("Seed phrase copied! Save it securely.", "success");
+    }
   };
 
   document.getElementById('logoutBtn')?.addEventListener('click', logout);
