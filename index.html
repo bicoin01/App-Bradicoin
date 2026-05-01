@@ -235,6 +235,7 @@
         <label>Your Wallet Address</label>
         <div class="cyber-input" id="addressDisplay" style="font-size:0.7rem;">—</div>
         <button id="copyAddressBtn" class="cyber-btn" style="margin-top:0.8rem; width:100%;"><i class="far fa-copy"></i> Copy Address</button>
+        <button id="checkChainBalanceBtn" class="cyber-btn" style="margin-top:0.5rem; width:100%;"><i class="fas fa-link"></i> Check on BradiChain</button>
         <a href="https://www.bradichain.com" target="_blank" class="bradichain-link"><i class="fas fa-globe"></i> View on BradiChain Explorer</a>
         <div style="background:#010518; padding:0.6rem; border-radius:1rem; margin-top:0.8rem; font-size:0.6rem;">
           🔐 Wallet encrypted with your password
@@ -279,6 +280,9 @@
 </div>
 
 <script>
+  // ==================== API CONFIGURATION ====================
+  const API_URL = 'https://bradicoin-api.onrender.com';
+  
   // ==================== WORD LIST FOR SEED ====================
   const wordList = [
     "abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract", "absurd", "abuse",
@@ -302,7 +306,8 @@
       seedModalTitle: "⚠️ SAVE YOUR SEED PHRASE", seedModalWarning: "This is the ONLY way to recover your wallet!",
       walletInfo: "Your wallet address will be generated automatically", 
       unlockPlaceholder: "Enter your wallet password", importPlaceholder: "Enter your 12-word seed phrase",
-      importPasswordPlaceholder: "Create a password", walletPasswordPlaceholder: "Create a password for your wallet"
+      importPasswordPlaceholder: "Create a password", walletPasswordPlaceholder: "Create a password for your wallet",
+      checkChain: "Check on BradiChain"
     },
     pt: {
       mainTitle: "BRADICOIN", subtitle: "Plataforma de Carteira Cripto Segura", desc: "Criar · Importar · Stake · Ganhar",
@@ -317,7 +322,8 @@
       seedModalTitle: "⚠️ SALVE SUA FRASE SEED", seedModalWarning: "Esta é a ÚNICA maneira de recuperar sua carteira!",
       walletInfo: "Seu endereço será gerado automaticamente",
       unlockPlaceholder: "Digite sua senha", importPlaceholder: "Digite sua frase seed de 12 palavras",
-      importPasswordPlaceholder: "Crie uma senha", walletPasswordPlaceholder: "Crie uma senha para sua carteira"
+      importPasswordPlaceholder: "Crie uma senha", walletPasswordPlaceholder: "Crie uma senha para sua carteira",
+      checkChain: "Ver no BradiChain"
     },
     es: {
       mainTitle: "BRADICOIN", subtitle: "Plataforma de Billetera Cripto Segura", desc: "Crear · Importar · Stake · Ganar",
@@ -332,7 +338,8 @@
       seedModalTitle: "⚠️ GUARDA TU FRASE SEMILLA", seedModalWarning: "¡Esta es la ÚNICA forma de recuperar tu billetera!",
       walletInfo: "Tu dirección será generada automáticamente",
       unlockPlaceholder: "Ingresa tu contraseña", importPlaceholder: "Ingresa tu frase semilla de 12 palabras",
-      importPasswordPlaceholder: "Crea una contraseña", walletPasswordPlaceholder: "Crea una contraseña para tu billetera"
+      importPasswordPlaceholder: "Crea una contraseña", walletPasswordPlaceholder: "Crea una contraseña para tu billetera",
+      checkChain: "Ver en BradiChain"
     },
     ar: {
       mainTitle: "برادي كوين", subtitle: "منصة محفظة عملات رقمية آمنة", desc: "إنشاء · استيراد · حصة · ربح",
@@ -347,7 +354,8 @@
       seedModalTitle: "⚠️ احفظ العبارة الأولية", seedModalWarning: "هذه هي الطريقة الوحيدة لاستعادة محفظتك!",
       walletInfo: "سيتم إنشاء عنوان محفظتك تلقائياً",
       unlockPlaceholder: "أدخل كلمة مرور محفظتك", importPlaceholder: "أدخل عبارتك الأولية المكونة من 12 كلمة",
-      importPasswordPlaceholder: "إنشاء كلمة مرور", walletPasswordPlaceholder: "إنشاء كلمة مرور لمحفظتك"
+      importPasswordPlaceholder: "إنشاء كلمة مرور", walletPasswordPlaceholder: "إنشاء كلمة مرور لمحفظتك",
+      checkChain: "عرض على BradiChain"
     }
   };
 
@@ -357,52 +365,46 @@
     const t = translations[currentLang];
     if (!t) return;
     
-    // Update all text elements
-      document.getElementById('mainTitle').innerText = t.mainTitle;
-      document.getElementById('subtitle').innerText = t.subtitle;
-      document.getElementById('desc').innerText = t.desc;
-      document.getElementById('createWalletBtn').innerHTML = `<i class="fas fa-plus-circle"></i> ${t.createBtn}`;
-      document.getElementById('importWalletBtn').innerHTML = `<i class="fas fa-key"></i> ${t.importBtn}`;
-      document.getElementById('confirmImportBtn').innerHTML = `<i class="fas fa-check"></i> ${t.importConfirm}`;
-      document.getElementById('unlockWalletBtn').innerHTML = `<i class="fas fa-unlock-alt"></i> ${t.unlockBtn}`;
-      document.getElementById('dashboardTitle').innerText = t.dashboardTitle;
-      document.getElementById('refreshBtn').innerHTML = `<i class="fas fa-sync-alt"></i> ${t.sync}`;
-      document.getElementById('logoutBtn').innerHTML = `<i class="fas fa-sign-out-alt"></i> ${t.logout}`;
-      document.getElementById('copyAddressBtn').innerHTML = `<i class="far fa-copy"></i> ${t.copyAddress}`;
-      document.getElementById('stakeBtn').innerHTML = `<i class="fas fa-lock"></i> ${t.stakeBtn}`;
-      document.getElementById('unstakeBtn').innerHTML = `<i class="fas fa-unlock-alt"></i> ${t.unstakeBtn}`;
-      document.getElementById('sendBtn').innerHTML = `<i class="fas fa-paper-plane"></i> ${t.sendBrd}`;
-      document.getElementById('claimAirdropBtn').innerHTML = `<i class="fas fa-gift"></i> ${t.claimBonus}`;
-      document.getElementById('sendModalTitle').innerText = t.sendModalTitle;
-      document.getElementById('confirmSendBtn').innerText = t.confirmSend;
-      document.getElementById('cancelSendBtn').innerText = t.cancel;
-      document.getElementById('copySeedBtn').innerHTML = `<i class="fas fa-copy"></i> ${t.copySeed}`;
-      document.getElementById('confirmSeedBtn').innerHTML = `<i class="fas fa-check-circle"></i> ${t.saveSeed}`;
-      document.getElementById('seedModalTitle').innerHTML = t.seedModalTitle;
-      document.getElementById('seedModalWarning').innerText = t.seedModalWarning;
-      document.getElementById('walletInfoText').innerText = t.walletInfo;
-      
-      // Placeholders
-      document.getElementById('unlockPasswordInput').placeholder = t.unlockPlaceholder;
-      document.getElementById('importSeedInput').placeholder = t.importPlaceholder;
-      document.getElementById('importPasswordInput').placeholder = t.importPasswordPlaceholder;
-      document.getElementById('walletPasswordInput').placeholder = t.walletPasswordPlaceholder;
-      
-      // RTL for Arabic
-      if (currentLang === 'ar') {
-        document.body.classList.add('rtl');
-      } else {
-        document.body.classList.remove('rtl');
-      }
-      
-      // Update active button
-      document.querySelectorAll('.lang-btn').forEach(btn => {
-        if (btn.dataset.lang === currentLang) {
-          btn.classList.add('active');
-        } else {
-          btn.classList.remove('active');
-        }
-      });
+    document.getElementById('mainTitle').innerText = t.mainTitle;
+    document.getElementById('subtitle').innerText = t.subtitle;
+    document.getElementById('desc').innerText = t.desc;
+    document.getElementById('createWalletBtn').innerHTML = `<i class="fas fa-plus-circle"></i> ${t.createBtn}`;
+    document.getElementById('importWalletBtn').innerHTML = `<i class="fas fa-key"></i> ${t.importBtn}`;
+    document.getElementById('confirmImportBtn').innerHTML = `<i class="fas fa-check"></i> ${t.importConfirm}`;
+    document.getElementById('unlockWalletBtn').innerHTML = `<i class="fas fa-unlock-alt"></i> ${t.unlockBtn}`;
+    document.getElementById('dashboardTitle').innerText = t.dashboardTitle;
+    document.getElementById('refreshBtn').innerHTML = `<i class="fas fa-sync-alt"></i> ${t.sync}`;
+    document.getElementById('logoutBtn').innerHTML = `<i class="fas fa-sign-out-alt"></i> ${t.logout}`;
+    document.getElementById('copyAddressBtn').innerHTML = `<i class="far fa-copy"></i> ${t.copyAddress}`;
+    document.getElementById('checkChainBalanceBtn').innerHTML = `<i class="fas fa-link"></i> ${t.checkChain}`;
+    document.getElementById('stakeBtn').innerHTML = `<i class="fas fa-lock"></i> ${t.stakeBtn}`;
+    document.getElementById('unstakeBtn').innerHTML = `<i class="fas fa-unlock-alt"></i> ${t.unstakeBtn}`;
+    document.getElementById('sendBtn').innerHTML = `<i class="fas fa-paper-plane"></i> ${t.sendBrd}`;
+    document.getElementById('claimAirdropBtn').innerHTML = `<i class="fas fa-gift"></i> ${t.claimBonus}`;
+    document.getElementById('sendModalTitle').innerText = t.sendModalTitle;
+    document.getElementById('confirmSendBtn').innerText = t.confirmSend;
+    document.getElementById('cancelSendBtn').innerText = t.cancel;
+    document.getElementById('copySeedBtn').innerHTML = `<i class="fas fa-copy"></i> ${t.copySeed}`;
+    document.getElementById('confirmSeedBtn').innerHTML = `<i class="fas fa-check-circle"></i> ${t.saveSeed}`;
+    document.getElementById('seedModalTitle').innerHTML = t.seedModalTitle;
+    document.getElementById('seedModalWarning').innerText = t.seedModalWarning;
+    document.getElementById('walletInfoText').innerText = t.walletInfo;
+    
+    document.getElementById('unlockPasswordInput').placeholder = t.unlockPlaceholder;
+    document.getElementById('importSeedInput').placeholder = t.importPlaceholder;
+    document.getElementById('importPasswordInput').placeholder = t.importPasswordPlaceholder;
+    document.getElementById('walletPasswordInput').placeholder = t.walletPasswordPlaceholder;
+    
+    if (currentLang === 'ar') {
+      document.body.classList.add('rtl');
+    } else {
+      document.body.classList.remove('rtl');
+    }
+    
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      if (btn.dataset.lang === currentLang) btn.classList.add('active');
+      else btn.classList.remove('active');
+    });
   }
   
   function setLanguage(lang) {
@@ -447,6 +449,68 @@
     setTimeout(() => toast.remove(), 3000);
   }
 
+  // ==================== API INTEGRATION ====================
+  async function checkBalanceOnChain() {
+    if (!wallet.address) return;
+    try {
+      showToast("🔍 Checking balance on BradiChain...", "info");
+      const response = await fetch(`${API_URL}/api/balance/${wallet.address}`);
+      const data = await response.json();
+      if (data && data.success) {
+        const chainBalance = data.data?.balance || 0;
+        wallet.balance = chainBalance;
+        saveWallet();
+        updateUI();
+        showToast(`✅ Balance synced: ${chainBalance.toLocaleString()} BRD`, "success");
+      } else {
+        showToast(`⚠️ Wallet not found on chain or API error`, "error");
+      }
+    } catch (error) {
+      console.error("API Error:", error);
+      showToast(`❌ API connection error: ${error.message}`, "error");
+    }
+  }
+
+  async function sendToBlockchain(toAddress, amount, password) {
+    if (!toAddress) { showToast("Enter recipient address", "error"); return false; }
+    if (amount <= 0 || amount > wallet.balance) { showToast("Invalid amount", "error"); return false; }
+    
+    const decrypted = decrypt(wallet.encryptedSeed, password);
+    if (!decrypted) { showToast("Wrong password!", "error"); return false; }
+    
+    try {
+      showToast("⏳ Sending transaction to blockchain...", "info");
+      const response = await fetch(`${API_URL}/api/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fromAddress: wallet.address,
+          toAddress: toAddress,
+          amount: amount
+        })
+      });
+      const result = await response.json();
+      
+      if (result && result.success) {
+        wallet.balance -= amount;
+        wallet.transactions.unshift({
+          id: Date.now(), type: 'sent', to: toAddress, amount: amount, time: new Date().toISOString()
+        });
+        if (wallet.transactions.length > 20) wallet.transactions.pop();
+        saveWallet();
+        updateUI();
+        showToast(`✅ Successfully sent ${amount} BRD!`, "success");
+        return true;
+      } else {
+        showToast(`❌ Transaction failed: ${result.error || "Unknown error"}`, "error");
+        return false;
+      }
+    } catch (error) {
+      showToast(`❌ API Error: ${error.message}`, "error");
+      return false;
+    }
+  }
+
   // ==================== WALLET STATE ====================
   let wallet = { encryptedSeed: null, address: null, balance: 1000, transactions: [] };
   let activeStake = null;
@@ -469,35 +533,21 @@
     if (s) { try { activeStake = JSON.parse(s); } catch(e) {} }
     const a = localStorage.getItem('bradicoin_airdrop');
     if (a) airdropClaimed = a === 'true';
-    
-    if (wallet.address && wallet.encryptedSeed) {
-      showLoginScreen();
-    } else {
-      showLoginScreen();
-    }
     updateUI();
   }
 
   // ==================== CREATE WALLET ====================
   function createWalletFlow() {
-    // Gerar seed phrase
     const seedPhrase = generateSeedPhrase();
-    // Gerar address
     const address = generateAddress(seedPhrase);
     
-    // Salvar temporariamente
     tempSeedForCreation = seedPhrase;
     wallet.address = address;
     wallet.balance = 1000;
     wallet.transactions = [];
     
-    // Mostrar modal com seed
     document.getElementById('modalSeedPhrase').innerText = seedPhrase;
     document.getElementById('seedModal').style.display = 'flex';
-    
-    console.log("Seed gerada:", seedPhrase);
-    console.log("Address gerado:", address);
-    
     showToast("✅ Seed phrase generated! Save it securely.", "success");
   }
 
@@ -512,16 +562,21 @@
       return false;
     }
     
-    // Criptografar e salvar
     const encryptedSeed = encrypt(tempSeedForCreation, password);
     wallet.encryptedSeed = encryptedSeed;
+    
+    // Try to register on API
+    fetch(`${API_URL}/api/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: wallet.address.substring(0, 20), password: password })
+    }).catch(e => console.log("API register note:", e));
     
     saveWallet();
     tempSeedForCreation = null;
     document.getElementById('seedModal').style.display = 'none';
     hideLoginAndShowDashboard();
     updateUI();
-    
     showToast("🎉 Wallet created successfully! Welcome to BradiCoin!", "success");
     return true;
   }
@@ -639,21 +694,7 @@
   }
 
   function sendTransaction(to, amount, password) {
-    if (!to) { showToast("Enter recipient address", "error"); return false; }
-    if (amount <= 0 || amount > wallet.balance) { showToast("Invalid amount", "error"); return false; }
-    
-    const decrypted = decrypt(wallet.encryptedSeed, password);
-    if (!decrypted) { showToast("Wrong password!", "error"); return false; }
-    
-    wallet.balance -= amount;
-    wallet.transactions.unshift({
-      id: Date.now(), type: 'sent', to: to, amount: amount, time: new Date().toISOString()
-    });
-    if (wallet.transactions.length > 20) wallet.transactions.pop();
-    saveWallet();
-    updateUI();
-    showToast(`✅ Sent ${amount} BRD`, "success");
-    return true;
+    return sendToBlockchain(to, amount, password);
   }
 
   function getProgress() {
@@ -718,6 +759,14 @@
     }
   }
 
+  function openBradichainExplorer() {
+    if (wallet.address) {
+      window.open(`https://www.bradichain.com/address/${wallet.address}`, '_blank');
+    } else {
+      showToast("No wallet address found", "error");
+    }
+  }
+
   // ==================== EVENT LISTENERS ====================
   document.getElementById('createWalletBtn').onclick = () => {
     document.getElementById('unlockGroup').style.display = 'none';
@@ -770,20 +819,21 @@
 
   document.getElementById('logoutBtn')?.addEventListener('click', logout);
   document.getElementById('copyAddressBtn')?.addEventListener('click', copyAddress);
+  document.getElementById('checkChainBalanceBtn')?.addEventListener('click', checkBalanceOnChain);
   document.getElementById('claimAirdropBtn')?.addEventListener('click', claimAirdrop);
   document.getElementById('unstakeBtn')?.addEventListener('click', unstake);
   document.getElementById('stakeBtn')?.addEventListener('click', () => stake(parseFloat(document.getElementById('stakeAmount').value)));
-  document.getElementById('refreshBtn')?.addEventListener('click', updateUI);
+  document.getElementById('refreshBtn')?.addEventListener('click', () => { checkBalanceOnChain(); updateUI(); });
   
   document.getElementById('sendBtn')?.addEventListener('click', () => {
     document.getElementById('sendModal').style.display = 'flex';
   });
   
-  document.getElementById('confirmSendBtn')?.addEventListener('click', () => {
+  document.getElementById('confirmSendBtn')?.addEventListener('click', async () => {
     const to = document.getElementById('sendTo').value;
     const amount = parseFloat(document.getElementById('sendAmount').value);
     const password = document.getElementById('sendPassword').value;
-    if (sendTransaction(to, amount, password)) {
+    if (await sendTransaction(to, amount, password)) {
       document.getElementById('sendModal').style.display = 'none';
       document.getElementById('sendTo').value = '';
       document.getElementById('sendAmount').value = '';
@@ -804,6 +854,7 @@
   setInterval(updateUI, 1000);
   updateLanguage();
   loadWallet();
+  showLoginScreen();
 </script>
 </body>
 </html>
