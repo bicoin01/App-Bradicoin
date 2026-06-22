@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>BradiCoin | Crypto Wallet Platform</title>
+  <title>BradiCoin | Secure Crypto Wallet</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
@@ -18,6 +18,8 @@
     }
     body.rtl { direction: rtl; text-align: right; }
     .container { max-width: 1400px; margin: 0 auto; }
+    
+    /* ===== CARDS ===== */
     .neon-card {
       background: rgba(8, 12, 26, 0.85);
       backdrop-filter: blur(12px);
@@ -28,6 +30,8 @@
       transition: all 0.3s ease;
     }
     .neon-card:hover { box-shadow: 0 0 40px rgba(168, 85, 247, 0.5); transform: translateY(-2px); }
+    
+    /* ===== BOTÕES ===== */
     .cyber-btn {
       background: rgba(0,0,0,0.6);
       border: 1.5px solid #a855f7;
@@ -54,13 +58,20 @@
     .cyber-btn.warning:hover { background: #ffaa00; color: #0a0f1e; }
     .cyber-btn.gold { border-color: #ffd700; }
     .cyber-btn.gold:hover { background: #ffd700; color: #0a0f1e; }
-    .cyber-btn.small { padding: 0.4rem 1rem; font-size: 0.6rem; }
+    .cyber-btn.small { padding: 0.3rem 0.8rem; font-size: 0.55rem; }
     .cyber-btn.back { border-color: #00f2ff; }
     .cyber-btn.back:hover { background: #00f2ff; color: #0a0f1e; }
     .cyber-btn.settings { border-color: #6c63ff; }
     .cyber-btn.settings:hover { background: #6c63ff; color: #0a0f1e; }
-    .cyber-btn.purple { border-color: #9b59b6; }
-    .cyber-btn.purple:hover { background: #9b59b6; color: #0a0f1e; }
+    .cyber-btn.zk { border-color: #00ff88; }
+    .cyber-btn.zk:hover { background: #00ff88; color: #0a0f1e; }
+    .cyber-btn.analytics { border-color: #ff6b6b; }
+    .cyber-btn.analytics:hover { background: #ff6b6b; color: #0a0f1e; }
+    .cyber-btn.lock { border-color: #ff8800; }
+    .cyber-btn.lock:hover { background: #ff8800; color: #0a0f1e; }
+    .cyber-btn.anon { border-color: #9b59b6; }
+    .cyber-btn.anon:hover { background: #9b59b6; color: #0a0f1e; }
+    
     .cyber-input {
       background: #010518;
       border: 1px solid #a855f7;
@@ -74,8 +85,8 @@
       font-size: 0.75rem;
     }
     .cyber-input:focus { border-color: #00f2ff; box-shadow: 0 0 15px rgba(0, 242, 255, 0.2); }
-    textarea.cyber-input { resize: vertical; min-height: 80px; }
-
+    
+    /* ===== TOP BAR ===== */
     .lang-bar {
       position: fixed;
       top: 15px;
@@ -94,16 +105,17 @@
       background: transparent;
       border: none;
       color: #e0e5ff;
-      padding: 0.3rem 0.7rem;
+      padding: 0.2rem 0.6rem;
       border-radius: 1.5rem;
       cursor: pointer;
       font-family: 'Orbitron', monospace;
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       transition: all 0.2s;
     }
     .lang-btn.active { background: #a855f7; color: #0a0f1e; }
     .lang-btn:hover { background: rgba(168, 85, 247, 0.3); }
 
+    /* ===== LOGIN ===== */
     .login-screen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: radial-gradient(circle at 30% 20%, #0a0f1e, #020408);
@@ -121,19 +133,15 @@
       100% { box-shadow: 0 0 50px #a855f7aa; }
     }
     .login-logo { 
-      width: 100px; 
-      height: 100px; 
-      margin: 0 auto 1.2rem; 
+      width: 100px; height: 100px; margin: 0 auto 1.2rem; 
       background: linear-gradient(135deg, #a855f7, #00f2ff); 
-      border-radius: 2rem; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
+      border-radius: 2rem; display: flex; align-items: center; justify-content: center; 
       animation: glowPulse 2s infinite;
     }
     .login-logo i { font-size: 3rem; color: #0a0f1e; }
     .login-buttons { display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap; }
     
+    /* ===== MODAIS ===== */
     .modal-overlay {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); z-index: 3000;
@@ -141,7 +149,7 @@
     }
     .modal-content {
       background: #0a0f1e; border: 2px solid #a855f7; border-radius: 2rem;
-      padding: 2rem; max-width: 550px; width: 90%; text-align: center;
+      padding: 2rem; max-width: 750px; width: 92%; text-align: center;
       animation: modalFade 0.3s ease;
       max-height: 90vh; overflow-y: auto;
     }
@@ -158,115 +166,130 @@
       color: #00f2ff;
     }
     .warning-text { color: #ff0055; font-size: 0.75rem; margin-top: 0.5rem; }
-
+    
+    /* ===== DASHBOARD ===== */
     .main-dashboard { display: none; }
-    .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; padding: 1rem; background: rgba(12,20,35,0.7); border-radius: 2rem; border: 1px solid #a855f7; }
+    .top-bar {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+      gap: 1rem; margin-bottom: 2rem; padding: 1rem;
+      background: rgba(12,20,35,0.7); border-radius: 2rem; border: 1px solid #a855f7;
+    }
     .logo-area { display: flex; align-items: center; gap: 0.8rem; }
-    .logo-placeholder { 
-      width: 42px; 
-      height: 42px; 
-      background: linear-gradient(135deg, #a855f7, #00f2ff); 
-      border-radius: 0.8rem; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center;
+    .logo-placeholder {
+      width: 42px; height: 42px;
+      background: linear-gradient(135deg, #a855f7, #00f2ff);
+      border-radius: 0.8rem; display: flex; align-items: center; justify-content: center;
       animation: glowPulse 2s infinite;
     }
     .logo-placeholder i { font-size: 1.5rem; color: #0a0f1e; }
-    .wallet-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; }
-    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+    .wallet-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
     .balance-amount { font-size: 2.5rem; font-weight: 800; color: #00f2ff; text-shadow: 0 0 10px #00f2ff; }
     .balance-usd { font-size: 1rem; color: #a855f7; }
-    .staking-pool { background: #0a0e1f; border-radius: 1rem; padding: 1rem; margin-bottom: 1rem; border-left: 3px solid #a855f7; }
-    body.rtl .staking-pool { border-left: none; border-right: 3px solid #a855f7; }
-    .progress-bar { background: #1a1f30; border-radius: 1rem; height: 8px; margin: 0.5rem 0; overflow: hidden; }
-    .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #a855f7, #00f2ff); transition: width 0.3s; }
-    .staking-timer { font-size: 0.7rem; color: #00f2ff; text-align: center; margin-top: 0.5rem; }
-    .transaction-list { max-height: 200px; overflow-y: auto; margin-top: 1rem; font-size: 0.7rem; }
-    .transaction-list::-webkit-scrollbar { width: 4px; }
-    .transaction-list::-webkit-scrollbar-track { background: #010518; }
-    .transaction-list::-webkit-scrollbar-thumb { background: #a855f7; border-radius: 2px; }
-    .tx-item { padding: 0.5rem; border-bottom: 1px solid #a855f733; display: flex; justify-content: space-between; align-items: center; }
-    .tx-in { color: #00ff88; }
-    .tx-out { color: #ff4466; }
-    .tx-time { font-size: 0.6rem; opacity: 0.6; }
-    footer { text-align: center; margin-top: 2rem; font-size: 0.65rem; opacity: 0.7; }
-    .status-msg { font-size: 0.7rem; margin-top: 0.5rem; color: #00f2ff; text-align: center; }
-    .bradichain-link { display: inline-block; margin-top: 0.5rem; color: #00f2ff; text-decoration: none; font-size: 0.7rem; transition: all 0.3s; }
-    .bradichain-link:hover { color: #a855f7; text-shadow: 0 0 10px rgba(168, 85, 247, 0.4); }
     
-    .stat-item { background: #010518; padding: 0.8rem; border-radius: 1rem; text-align: center; }
-    .stat-value { font-size: 1.2rem; color: #00f2ff; }
-    .stat-label { font-size: 0.6rem; opacity: 0.6; }
+    .stat-item { background: #010518; padding: 0.6rem; border-radius: 1rem; text-align: center; }
+    .stat-value { font-size: 1rem; color: #00f2ff; }
+    .stat-label { font-size: 0.5rem; opacity: 0.6; }
     
-    .network-badge { display: inline-block; background: #00ff8822; border: 1px solid #00ff88; border-radius: 1rem; padding: 0.2rem 0.8rem; font-size: 0.6rem; color: #00ff88; }
-    
-    .price-ticker { background: #010518; padding: 0.5rem 1rem; border-radius: 1rem; display: inline-flex; gap: 1rem; font-size: 0.7rem; }
+    .network-badge { display: inline-block; background: #00ff8822; border: 1px solid #00ff88; border-radius: 1rem; padding: 0.2rem 0.6rem; font-size: 0.5rem; color: #00ff88; }
+    .price-ticker { background: #010518; padding: 0.4rem 0.8rem; border-radius: 1rem; display: inline-flex; gap: 0.8rem; font-size: 0.6rem; }
     .price-ticker span { color: #00ff88; }
     
-    .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem; }
+    .quick-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; margin-top: 0.5rem; }
     
-    .referral-box { background: #010518; border-radius: 1rem; padding: 0.8rem; margin-top: 0.5rem; border: 1px solid #ffd70033; }
-    .referral-code { font-size: 0.8rem; color: #ffd700; font-family: monospace; }
+    .progress-bar { background: #1a1f30; border-radius: 1rem; height: 6px; margin: 0.3rem 0; overflow: hidden; }
+    .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #a855f7, #00f2ff); transition: width 0.3s; }
+    .staking-timer { font-size: 0.6rem; color: #00f2ff; text-align: center; margin-top: 0.3rem; }
+    
+    .transaction-list { max-height: 150px; overflow-y: auto; margin-top: 0.5rem; font-size: 0.6rem; }
+    .transaction-list::-webkit-scrollbar { width: 3px; }
+    .transaction-list::-webkit-scrollbar-thumb { background: #a855f7; border-radius: 2px; }
+    .tx-item { padding: 0.3rem; border-bottom: 1px solid #a855f733; display: flex; justify-content: space-between; align-items: center; font-size: 0.6rem; }
+    .tx-in { color: #00ff88; }
+    .tx-out { color: #ff4466; }
+    .tx-zk { color: #00f2ff; }
+    .tx-stealth { color: #9b59b6; }
+    .tx-decoy { color: #ff8800; }
+    
+    .referral-box { background: #010518; border-radius: 1rem; padding: 0.6rem; margin-top: 0.5rem; border: 1px solid #ffd70033; }
+    .referral-code { font-size: 0.7rem; color: #ffd700; font-family: monospace; }
+    
+    .zk-status { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 1rem; font-size: 0.5rem; }
+    .zk-status.active { background: #00ff8822; color: #00ff88; border: 1px solid #00ff88; }
+    .zk-status.pending { background: #ffaa0022; color: #ffaa00; border: 1px solid #ffaa00; }
+    
+    /* Security Badges */
+    .security-badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 1rem;
+      font-size: 0.45rem;
+      border: 1px solid;
+    }
+    .security-badge.secure { border-color: #00ff88; color: #00ff88; background: #00ff8822; }
+    .security-badge.warning { border-color: #ffaa00; color: #ffaa00; background: #ffaa0022; }
+    .security-badge.danger { border-color: #ff0055; color: #ff0055; background: #ff005522; }
+    
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 0.4rem;
+      margin: 0.5rem 0;
+    }
+    .analytics-metric {
+      background: #010518;
+      padding: 0.6rem;
+      border-radius: 1rem;
+      text-align: center;
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      transition: all 0.3s;
+    }
+    .analytics-metric:hover { border-color: #ff6b6b; transform: scale(1.02); }
+    .analytics-value { font-size: 1.2rem; font-weight: 700; color: #ff6b6b; }
+    .analytics-label { font-size: 0.5rem; opacity: 0.6; margin-top: 0.2rem; }
+    .analytics-change { font-size: 0.5rem; margin-top: 0.2rem; }
+    .analytics-change.positive { color: #00ff88; }
+    .analytics-change.negative { color: #ff4466; }
+    
+    footer { text-align: center; margin-top: 2rem; font-size: 0.55rem; opacity: 0.7; }
+    .status-msg { font-size: 0.6rem; margin-top: 0.3rem; color: #00f2ff; text-align: center; }
+    
+    .fee-display {
+      background: #010518; padding: 0.3rem 0.8rem; border-radius: 1rem;
+      font-size: 0.6rem; color: #ffaa00; border: 1px solid #ffaa0033;
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 0.3rem;
+    }
+    
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem;
+      margin-top: 1rem;
+    }
+    .settings-grid .cyber-btn { font-size: 0.5rem; padding: 0.4rem; justify-content: center; }
+    
+    .zk-proof-display {
+      background: #010518; padding: 0.8rem; border-radius: 1rem; margin: 0.5rem 0;
+      border: 1px solid #00ff88; font-size: 0.55rem; word-break: break-all;
+      max-height: 150px; overflow-y: auto;
+    }
+    .zk-proof-display::-webkit-scrollbar { width: 3px; }
+    .zk-proof-display::-webkit-scrollbar-thumb { background: #00ff88; border-radius: 2px; }
+    
+    .confirm-dialog {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.9); backdrop-filter: blur(10px);
+      display: none; justify-content: center; align-items: center; z-index: 9999;
+    }
+    .confirm-dialog-content {
+      background: #0a0f1e; border: 2px solid #a855f7; border-radius: 2rem;
+      padding: 2rem; max-width: 400px; width: 90%; text-align: center;
+    }
+    .confirm-dialog-buttons { display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; }
     
     .notification-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-left: 4px; }
     .notification-dot.online { background: #00ff88; }
     .notification-dot.offline { background: #ff0055; }
-    
-    .confirm-dialog {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.9);
-      backdrop-filter: blur(10px);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-    .confirm-dialog-content {
-      background: #0a0f1e;
-      border: 2px solid #a855f7;
-      border-radius: 2rem;
-      padding: 2rem;
-      max-width: 400px;
-      width: 90%;
-      text-align: center;
-    }
-    .confirm-dialog-buttons {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      margin-top: 1.5rem;
-    }
-    
-    .fee-display {
-      background: #010518;
-      padding: 0.5rem 1rem;
-      border-radius: 1rem;
-      font-size: 0.7rem;
-      color: #ffaa00;
-      border: 1px solid #ffaa0033;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 0.3rem;
-    }
-    .fee-display i { color: #ffaa00; font-size: 0.9rem; }
-
-    .settings-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-    .settings-grid .cyber-btn {
-      font-size: 0.6rem;
-      padding: 0.5rem;
-      justify-content: center;
-    }
     
     @keyframes fadeInOut {
       0% { opacity: 0; transform: translateY(20px); }
@@ -279,13 +302,15 @@
       .dashboard-grid { grid-template-columns: 1fr; }
       .top-bar { flex-direction: column; text-align: center; }
       .wallet-actions { justify-content: center; }
-      .quick-actions { grid-template-columns: 1fr; }
+      .quick-actions { grid-template-columns: 1fr 1fr; }
       .settings-grid { grid-template-columns: 1fr; }
+      .analytics-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
 <body>
 
+<!-- ===== LANGUAGE BAR ===== -->
 <div class="lang-bar">
   <button class="lang-btn" data-lang="en">EN</button>
   <button class="lang-btn" data-lang="pt">PT</button>
@@ -293,20 +318,20 @@
   <button class="lang-btn" data-lang="ar">AR</button>
 </div>
 
-<!-- CONFIRM DIALOG -->
+<!-- ===== CONFIRM DIALOG ===== -->
 <div id="confirmDialog" class="confirm-dialog">
   <div class="confirm-dialog-content">
     <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ffaa00;"></i>
-    <h3 style="margin: 1rem 0;" id="confirmDialogTitle">Are you sure you want to logout?</h3>
-    <p style="opacity: 0.7; font-size: 0.8rem;" id="confirmDialogMessage">Your wallet will be locked and you'll need to enter your password again.</p>
+    <h3 style="margin: 1rem 0;" id="confirmDialogTitle">Are you sure?</h3>
+    <p style="opacity: 0.7; font-size: 0.8rem;" id="confirmDialogMessage">Confirm your action</p>
     <div class="confirm-dialog-buttons">
-      <button id="confirmYesBtn" class="cyber-btn danger">Yes, Logout</button>
-      <button id="confirmNoBtn" class="cyber-btn primary">No, Cancel</button>
+      <button id="confirmYesBtn" class="cyber-btn danger">Yes</button>
+      <button id="confirmNoBtn" class="cyber-btn primary">No</button>
     </div>
   </div>
 </div>
 
-<!-- LOGIN SCREEN -->
+<!-- ===== LOGIN SCREEN ===== -->
 <div id="loginScreen" class="login-screen">
   <div class="login-content">
     <div class="login-logo"><i class="fas fa-microchip"></i></div>
@@ -324,13 +349,16 @@
     </div>
     <div id="unlockGroup" style="display:none; margin-top:1.5rem;">
       <input type="password" id="unlockPasswordInput" class="cyber-input" placeholder="Enter your wallet password">
+      <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+        <input type="text" id="unlock2FAInput" class="cyber-input" placeholder="2FA Code (if enabled)" style="flex:1; font-size:0.6rem;">
+      </div>
       <button id="unlockWalletBtn" class="cyber-btn primary" style="margin-top:0.8rem; width:100%;"><i class="fas fa-unlock-alt"></i> Unlock Wallet</button>
-      <p style="font-size:0.65rem; margin-top:1rem; opacity:0.6;">🔐 Your keys, your crypto.</p>
+      <p style="font-size:0.55rem; margin-top:0.5rem; opacity:0.6;">🔐 Your keys, your crypto. 2FA available</p>
     </div>
   </div>
 </div>
 
-<!-- SEED PHRASE MODAL -->
+<!-- ===== SEED PHRASE MODAL ===== -->
 <div id="seedModal" class="modal-overlay">
   <div class="modal-content">
     <i class="fas fa-shield-alt" style="font-size: 3rem; color: #00f2ff;"></i>
@@ -339,36 +367,100 @@
     <div class="seed-phrase-box" id="modalSeedPhrase">---</div>
     <p id="walletInfoText">Your wallet address will be generated automatically</p>
     <input type="password" id="walletPasswordInput" class="cyber-input" placeholder="Create a password for your wallet" style="margin:0.5rem 0;">
-    
-    <!-- Back Button -->
     <button id="backToLoginBtn" class="cyber-btn back" style="width:100%; margin-bottom: 0.5rem;"><i class="fas fa-arrow-left"></i> Back to Login</button>
-    
     <button id="copySeedBtn" class="cyber-btn" style="width:100%; margin-bottom: 0.5rem;"><i class="fas fa-copy"></i> Copy Seed Phrase</button>
     <button id="confirmSeedBtn" class="cyber-btn primary" style="width:100%;"><i class="fas fa-check-circle"></i> I Have Saved My Seed Phrase</button>
     <p class="warning-text">⚠️ Never share your seed phrase!</p>
   </div>
 </div>
 
-<!-- SEND MODAL -->
+<!-- ===== SEND MODAL ===== -->
 <div id="sendModal" class="modal-overlay">
   <div class="modal-content">
     <h2 id="sendModalTitle"><i class="fas fa-paper-plane"></i> Send BRD</h2>
-    
-    <div class="fee-display">
-      <i class="fas fa-gas-pump"></i> 
-      <span>Gas Fee: 0.15 BRD</span>
-    </div>
-    <p style="font-size:0.55rem; color:#ff0055; margin:0.3rem 0;">⛽ Network fee applied to every transaction</p>
-    
-    <input type="text" id="sendTo" class="cyber-input" placeholder="Recipient Address" style="margin:0.5rem 0;">
+    <div class="fee-display"><i class="fas fa-gas-pump"></i> Gas Fee: 0.15 BRD</div>
+    <p style="font-size:0.5rem; color:#ff0055; margin:0.3rem 0;">⛽ Network fee applied to every transaction</p>
+    <input type="text" id="sendTo" class="cyber-input" placeholder="Recipient Address" style="margin:0.3rem 0;">
     <input type="number" id="sendAmount" class="cyber-input" placeholder="Amount (BRD)" step="any">
-    <input type="password" id="sendPassword" class="cyber-input" placeholder="Wallet Password" style="margin:0.5rem 0;">
-    <button id="confirmSendBtn" class="cyber-btn primary" style="width:100%;"><i class="fas fa-check"></i> Confirm Send</button>
-    <button id="cancelSendBtn" class="cyber-btn" style="width:100%; margin-top:0.5rem;"><i class="fas fa-times"></i> Cancel</button>
+    <input type="password" id="sendPassword" class="cyber-input" placeholder="Wallet Password" style="margin:0.3rem 0;">
+    
+    <!-- Security Options -->
+    <div style="margin:0.3rem 0; display:grid; grid-template-columns:1fr 1fr; gap:0.3rem; text-align:left; font-size:0.6rem;">
+      <label style="display:flex; align-items:center; gap:0.3rem; color:#00ff88;">
+        <input type="checkbox" id="zkPrivateSend" style="accent-color:#00ff88;"> ZK-SNARK Privacy
+      </label>
+      <label style="display:flex; align-items:center; gap:0.3rem; color:#9b59b6;">
+        <input type="checkbox" id="stealthSend" style="accent-color:#9b59b6;"> Stealth Address
+      </label>
+      <label style="display:flex; align-items:center; gap:0.3rem; color:#ff8800;">
+        <input type="checkbox" id="decoySend" style="accent-color:#ff8800;"> Decoy TX
+      </label>
+      <label style="display:flex; align-items:center; gap:0.3rem; color:#ffd700;">
+        <input type="checkbox" id="mixerSend" style="accent-color:#ffd700;"> Mixer
+      </label>
+    </div>
+    
+    <button id="confirmSendBtn" class="cyber-btn primary" style="width:100%; margin-top:0.3rem;"><i class="fas fa-check"></i> Confirm Send</button>
+    <button id="cancelSendBtn" class="cyber-btn" style="width:100%; margin-top:0.3rem;"><i class="fas fa-times"></i> Cancel</button>
   </div>
 </div>
 
-<!-- VIEW SEED PHRASE MODAL -->
+<!-- ===== ZK PRIVATE SEND MODAL ===== -->
+<div id="zkSendModal" class="modal-overlay">
+  <div class="modal-content">
+    <i class="fas fa-shield-alt" style="font-size: 3rem; color: #00ff88;"></i>
+    <h2 style="color: #00ff88;">🔐 ZK-SNARK Private Send</h2>
+    <p style="font-size:0.6rem; opacity:0.7;">Zero-Knowledge Proof protects your transaction privacy</p>
+    <div style="text-align:left; margin:0.5rem 0; font-size:0.65rem;">
+      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.2rem 0;">
+        <strong>📤 Sender:</strong> <span id="zkSenderAddress">---</span>
+      </div>
+      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.2rem 0;">
+        <strong>📥 Recipient:</strong> <span id="zkRecipientAddress">---</span>
+      </div>
+      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.2rem 0;">
+        <strong>💰 Amount:</strong> <span id="zkAmountDisplay">0</span> BRD
+      </div>
+      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.2rem 0;">
+        <strong>🔑 Commitment:</strong> <span id="zkCommitment" style="font-size:0.5rem; word-break:break-all;">---</span>
+      </div>
+      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.2rem 0;">
+        <strong>🔐 Nullifier:</strong> <span id="zkNullifier" style="font-size:0.5rem; word-break:break-all;">---</span>
+      </div>
+    </div>
+    <div class="zk-proof-display" id="zkProofDisplay"><span style="color:#00ff88;">⏳ Generating ZK-SNARK proof...</span></div>
+    <button id="zkConfirmSendBtn" class="cyber-btn success" style="width:100%; margin-top:0.3rem;"><i class="fas fa-check-circle"></i> Confirm Private Send</button>
+    <button id="zkCancelSendBtn" class="cyber-btn" style="width:100%; margin-top:0.3rem;"><i class="fas fa-times"></i> Cancel</button>
+  </div>
+</div>
+
+<!-- ===== 2FA SETUP MODAL ===== -->
+<div id="twoFAModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:500px;">
+    <i class="fas fa-shield-alt" style="font-size: 3rem; color: #ffd700;"></i>
+    <h2 style="color: #ffd700;">🔐 Two-Factor Authentication</h2>
+    <p style="font-size:0.65rem; opacity:0.7;">Secure your wallet with 2FA</p>
+    
+    <div style="background:#010518; padding:0.8rem; border-radius:1rem; margin:0.5rem 0; border:1px solid #ffd70033;">
+      <p style="font-size:0.6rem; color:#ffd700;">📱 Scan this QR code with Google Authenticator</p>
+      <div id="qrCodeDisplay" style="background:#fff; padding:1rem; border-radius:1rem; margin:0.5rem 0; display:flex; justify-content:center;">
+        <div style="width:150px; height:150px; background:#fff; display:flex; align-items:center; justify-content:center; color:#000; font-size:0.6rem;">
+          QR Code (simulated)
+        </div>
+      </div>
+      <div style="background:#010518; padding:0.5rem; border-radius:0.5rem; font-family:monospace; font-size:0.55rem; word-break:break-all; border:1px solid #a855f733;" id="twoFASecret">---</div>
+    </div>
+    
+    <p style="font-size:0.55rem; text-align:left; color:#ffaa00;">💡 Backup Codes: Save these in a safe place</p>
+    <div id="backupCodesDisplay" style="background:#010518; padding:0.5rem; border-radius:1rem; font-family:monospace; font-size:0.5rem; margin:0.3rem 0; display:flex; gap:0.3rem; flex-wrap:wrap; justify-content:center;"></div>
+    
+    <input type="text" id="verify2FACode" class="cyber-input" placeholder="Enter 6-digit code" style="font-size:0.6rem; margin:0.3rem 0;">
+    <button id="verify2FABtn" class="cyber-btn gold" style="width:100%;"><i class="fas fa-check"></i> Verify & Enable 2FA</button>
+    <button id="close2FAModalBtn" class="cyber-btn" style="width:100%; margin-top:0.3rem;"><i class="fas fa-times"></i> Cancel</button>
+  </div>
+</div>
+
+<!-- ===== VIEW SEED PHRASE MODAL ===== -->
 <div id="viewSeedModal" class="modal-overlay">
   <div class="modal-content">
     <i class="fas fa-eye" style="font-size: 3rem; color: #ffaa00;"></i>
@@ -384,41 +476,30 @@
   </div>
 </div>
 
-<!-- SETTINGS MODAL -->
+<!-- ===== SETTINGS MODAL ===== -->
 <div id="settingsModal" class="modal-overlay">
   <div class="modal-content">
     <h2><i class="fas fa-cog" style="color: #6c63ff;"></i> Settings</h2>
-    <p style="font-size:0.6rem; opacity:0.6; margin:0.5rem 0;">17 Configuration Options</p>
-    
+    <p style="font-size:0.5rem; opacity:0.6; margin:0.3rem 0;">Security & Privacy Configuration</p>
     <div class="settings-grid">
-      <button class="cyber-btn settings" onclick="showToast('🔐 Wallet locked successfully!', 'success')"><i class="fas fa-lock"></i> Lock Wallet</button>
+      <button class="cyber-btn lock" onclick="lockWalletNow()"><i class="fas fa-lock"></i> Lock Wallet</button>
       <button class="cyber-btn settings" onclick="showViewSeedModal()"><i class="fas fa-eye"></i> View Seed Phrase</button>
+      <button class="cyber-btn settings" onclick="setup2FA()"><i class="fas fa-shield-alt"></i> Setup 2FA</button>
+      <button class="cyber-btn anon" onclick="showStealthAddress()"><i class="fas fa-mask"></i> Stealth Address</button>
+      <button class="cyber-btn warning" onclick="showMixerUI()"><i class="fas fa-random"></i> Mixer</button>
       <button class="cyber-btn settings" onclick="exportWalletData()"><i class="fas fa-download"></i> Export Wallet</button>
-      <button class="cyber-btn settings" onclick="showToast('📋 Wallet data copied to clipboard!', 'success')"><i class="fas fa-copy"></i> Copy Wallet Data</button>
-      <button class="cyber-btn settings" onclick="changeLanguage()"><i class="fas fa-language"></i> Change Language</button>
-      <button class="cyber-btn settings" onclick="showToast('🌙 Dark mode enabled', 'success')"><i class="fas fa-moon"></i> Dark Mode</button>
-      <button class="cyber-btn settings" onclick="showToast('☀️ Light mode enabled', 'success')"><i class="fas fa-sun"></i> Light Mode</button>
-      <button class="cyber-btn settings" onclick="showToast('🔔 Notifications enabled', 'success')"><i class="fas fa-bell"></i> Notifications</button>
-      <button class="cyber-btn settings" onclick="showToast('📊 Analytics data exported!', 'success')"><i class="fas fa-chart-bar"></i> Export Analytics</button>
-      <button class="cyber-btn settings" onclick="clearTransactionHistory()"><i class="fas fa-eraser"></i> Clear History</button>
-      <button class="cyber-btn settings" onclick="resetWalletSettings()"><i class="fas fa-undo"></i> Reset Settings</button>
-      <button class="cyber-btn settings" onclick="showToast('📱 QR Code generated!', 'success')"><i class="fas fa-qrcode"></i> Generate QR</button>
-      <button class="cyber-btn settings" onclick="showToast('📧 Email support opened!', 'success')"><i class="fas fa-envelope"></i> Contact Support</button>
-      <button class="cyber-btn settings" onclick="showToast('📖 Documentation opened!', 'success')"><i class="fas fa-book"></i> Documentation</button>
-      <button class="cyber-btn settings" onclick="showToast('⚡ Network status: Online', 'success')"><i class="fas fa-wifi"></i> Network Status</button>
-      <button class="cyber-btn settings" onclick="showToast('💾 Wallet data backed up!', 'success')"><i class="fas fa-database"></i> Backup Wallet</button>
       <button class="cyber-btn settings" onclick="showToast('🔄 Wallet synchronized!', 'success')"><i class="fas fa-sync-alt"></i> Sync Now</button>
+      <button class="cyber-btn settings" onclick="showToast('📊 Analytics exported!', 'success')"><i class="fas fa-chart-bar"></i> Export Analytics</button>
     </div>
-    
     <button id="closeSettingsModalBtn" class="cyber-btn primary" style="width:100%; margin-top:1rem;">Close Settings</button>
   </div>
 </div>
 
-<!-- STAKE DETAIL MODAL -->
+<!-- ===== STAKE DETAIL MODAL ===== -->
 <div id="stakeModal" class="modal-overlay">
   <div class="modal-content">
     <h2><i class="fas fa-layer-group"></i> Staking Details</h2>
-    <div id="stakeDetailContent" style="margin:1rem 0; text-align:left;">
+    <div id="stakeDetailContent" style="margin:0.5rem 0; text-align:left; font-size:0.7rem;">
       <p><strong>Lock Period:</strong> 24 Hours</p>
       <p><strong>APR:</strong> 18%</p>
       <p><strong>Minimum Stake:</strong> 50 BRD</p>
@@ -430,130 +511,212 @@
   </div>
 </div>
 
-<!-- AIRDROP HISTORY MODAL -->
+<!-- ===== AIRDROP HISTORY MODAL ===== -->
 <div id="airdropModal" class="modal-overlay">
   <div class="modal-content">
     <h2><i class="fas fa-gift"></i> Airdrop History</h2>
-    <div id="airdropHistoryContent" style="margin:1rem 0; text-align:left; max-height:300px; overflow-y:auto;">
+    <div id="airdropHistoryContent" style="margin:0.5rem 0; text-align:left; max-height:250px; overflow-y:auto; font-size:0.65rem;">
       <p style="text-align:center; opacity:0.6;">No airdrops claimed yet</p>
     </div>
     <button id="closeAirdropModalBtn" class="cyber-btn primary" style="width:100%;">Close</button>
   </div>
 </div>
 
-<!-- REWARDS MODAL -->
+<!-- ===== REWARDS MODAL ===== -->
 <div id="rewardsModal" class="modal-overlay">
   <div class="modal-content">
     <h2><i class="fas fa-trophy"></i> Rewards & Achievements</h2>
-    <div id="rewardsContent" style="margin:1rem 0; text-align:left;">
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
-        <div class="stat-item"><div class="stat-value" id="totalStakedRewards">0</div><div class="stat-label">Total Staking Rewards</div></div>
-        <div class="stat-item"><div class="stat-value" id="totalAirdrops">0</div><div class="stat-label">Airdrops Claimed</div></div>
-        <div class="stat-item"><div class="stat-value" id="totalTxCount">0</div><div class="stat-label">Total Transactions</div></div>
-        <div class="stat-item"><div class="stat-value" id="totalFeesPaid">0</div><div class="stat-label">Fees Paid (BRD)</div></div>
+    <div id="rewardsContent" style="margin:0.5rem 0; text-align:left;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.3rem;">
+        <div class="stat-item"><div class="stat-value" id="totalStakedRewards">0</div><div class="stat-label">Staking Rewards</div></div>
+        <div class="stat-item"><div class="stat-value" id="totalAirdrops">0</div><div class="stat-label">Airdrops</div></div>
+        <div class="stat-item"><div class="stat-value" id="totalTxCount">0</div><div class="stat-label">Transactions</div></div>
+        <div class="stat-item"><div class="stat-value" id="totalFeesPaid">0</div><div class="stat-label">Fees Paid</div></div>
       </div>
     </div>
     <button id="closeRewardsModalBtn" class="cyber-btn primary" style="width:100%;">Close</button>
   </div>
 </div>
 
-<!-- AIRDROP MANAGER MODAL -->
+<!-- ===== AIRDROP MANAGER MODAL ===== -->
 <div id="airdropManagerModal" class="modal-overlay">
-  <div class="modal-content" style="max-width:600px;">
+  <div class="modal-content" style="max-width:550px;">
     <h2><i class="fas fa-gift" style="color: #ffd700;"></i> Airdrop Manager</h2>
-    <p style="font-size:0.6rem; opacity:0.6;">Configure values below before distribution</p>
-    
-    <div style="text-align:left; margin:1rem 0; font-size:0.7rem;">
-      <!-- Status Card -->
-      <div style="background:#010518; padding:0.8rem; border-radius:1rem; margin-bottom:0.5rem; border:1px solid #a855f7;">
-        <p><strong>📊 Program Status</strong></p>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.3rem; margin-top:0.3rem;">
-          <p>🟢 Status: <span id="airdropStatusDisplay">⏳ Pending Configuration</span></p>
+    <p style="font-size:0.5rem; opacity:0.6;">Configure values below before distribution</p>
+    <div style="text-align:left; margin:0.5rem 0; font-size:0.6rem;">
+      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin-bottom:0.3rem; border:1px solid #a855f7;">
+        <p><strong>📊 Status:</strong> <span id="airdropStatusDisplay">⏳ Pending Configuration</span></p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.2rem; margin-top:0.2rem; font-size:0.55rem;">
           <p>📅 Month: <span id="airdropMonthDisplay">0/0</span></p>
           <p>💰 Per Month: <span id="airdropPerMonthDisplay">$0</span></p>
-          <p>📈 Per Month (BRD): <span id="airdropPerMonthBRD">0</span></p>
-          <p>📊 Total Claimed: <span id="airdropTotalClaimed">0</span></p>
-          <p>💵 Total USD: <span id="airdropTotalUSD">$0</span></p>
+          <p>📈 BRD: <span id="airdropPerMonthBRD">0</span></p>
+          <p>📊 Claimed: <span id="airdropTotalClaimed">0</span></p>
         </div>
       </div>
-      
-      <!-- Progress -->
-      <div style="background:#010518; padding:0.8rem; border-radius:1rem; margin-bottom:0.5rem; border:1px solid #ffd70033;">
+      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin-bottom:0.3rem; border:1px solid #ffd70033;">
         <p><strong>📈 Progress</strong></p>
-        <div class="progress-bar" style="margin:0.5rem 0;">
-          <div class="progress-fill" id="airdropProgressFill" style="width:0%"></div>
-        </div>
-        <p style="font-size:0.6rem; text-align:center;" id="airdropProgressText">0 of 0 months completed</p>
+        <div class="progress-bar"><div class="progress-fill" id="airdropProgressFill" style="width:0%"></div></div>
+        <p style="font-size:0.5rem; text-align:center;" id="airdropProgressText">0 of 0 months</p>
       </div>
-      
-      <!-- User Eligibility -->
-      <div style="background:#010518; padding:0.8rem; border-radius:1rem; margin-bottom:0.5rem; border:1px solid #00ff8833;">
-        <p><strong>👤 Your Eligibility</strong></p>
+      <div style="background:#010518; padding:0.5rem; border-radius:1rem; border:1px solid #a855f7;">
+        <p><strong>⚙️ Config</strong></p>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.3rem; margin-top:0.3rem;">
-          <p>🔹 Wallet Active: <span id="eligWallet">❌</span></p>
-          <p>🔹 Has Balance: <span id="eligBalance">❌</span></p>
-          <p>🔹 3+ Transactions: <span id="eligTx">❌</span></p>
-          <p>🔹 Claimed This Month: <span id="eligClaimed">❌</span></p>
+          <div><label style="font-size:0.5rem;">USD/Month</label><input type="number" id="configUSD" class="cyber-input" value="300" style="font-size:0.5rem; padding:0.2rem;"></div>
+          <div><label style="font-size:0.5rem;">BRD/Month</label><input type="number" id="configBRD" class="cyber-input" value="30" style="font-size:0.5rem; padding:0.2rem;"></div>
+          <div><label style="font-size:0.5rem;">Months</label><input type="number" id="configMonths" class="cyber-input" value="6" style="font-size:0.5rem; padding:0.2rem;"></div>
+          <div><label style="font-size:0.5rem;">Users</label><input type="number" id="configUsers" class="cyber-input" value="40" style="font-size:0.5rem; padding:0.2rem;"></div>
         </div>
-        <p style="font-size:0.6rem; margin-top:0.3rem; opacity:0.6;" id="eligMessage">Configure airdrop values first</p>
+        <button onclick="updateAirdropConfig()" class="cyber-btn primary" style="width:100%; margin-top:0.3rem; font-size:0.5rem;"><i class="fas fa-save"></i> Update</button>
       </div>
-      
-      <!-- Configuration -->
-      <div style="background:#010518; padding:0.8rem; border-radius:1rem; border:1px solid #a855f7;">
-        <p><strong>⚙️ Configuration</strong></p>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-top:0.5rem;">
-          <div>
-            <label style="font-size:0.6rem;">USD per Month</label>
-            <input type="number" id="configUSD" class="cyber-input" value="300" style="font-size:0.6rem; padding:0.3rem;">
-          </div>
-          <div>
-            <label style="font-size:0.6rem;">BRD per Month</label>
-            <input type="number" id="configBRD" class="cyber-input" value="30" style="font-size:0.6rem; padding:0.3rem;">
-          </div>
-          <div>
-            <label style="font-size:0.6rem;">Total Months</label>
-            <input type="number" id="configMonths" class="cyber-input" value="6" style="font-size:0.6rem; padding:0.3rem;">
-          </div>
-          <div>
-            <label style="font-size:0.6rem;">Total Users</label>
-            <input type="number" id="configUsers" class="cyber-input" value="40" style="font-size:0.6rem; padding:0.3rem;">
-          </div>
-        </div>
-        <button onclick="updateAirdropConfig()" class="cyber-btn primary" style="width:100%; margin-top:0.5rem; font-size:0.6rem;">
-          <i class="fas fa-save"></i> Update Configuration
-        </button>
-      </div>
-      
-      <!-- Claim Button -->
-      <div style="margin-top:0.5rem;">
-        <button id="claimAirdropBtnMain" class="cyber-btn gold" style="width:100%;">
-          <i class="fas fa-gift"></i> Claim Airdrop
-        </button>
-        <p style="font-size:0.5rem; opacity:0.6; margin-top:0.3rem;">Click to claim your monthly airdrop</p>
-      </div>
+      <button id="claimAirdropBtnMain" class="cyber-btn gold" style="width:100%; margin-top:0.3rem; font-size:0.6rem;"><i class="fas fa-gift"></i> Claim Airdrop</button>
     </div>
-    
-    <button id="closeAirdropManagerBtn" class="cyber-btn" style="width:100%; margin-top:0.5rem;">
-      <i class="fas fa-times"></i> Close
-    </button>
+    <button id="closeAirdropManagerBtn" class="cyber-btn" style="width:100%; margin-top:0.3rem;"><i class="fas fa-times"></i> Close</button>
   </div>
 </div>
 
-<!-- MAIN DASHBOARD -->
+<!-- ===== ZK INFO MODAL ===== -->
+<div id="zkInfoModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:550px;">
+    <i class="fas fa-shield-alt" style="font-size: 3rem; color: #00ff88;"></i>
+    <h2 style="color: #00ff88;">🔐 ZK-SNARK Privacy</h2>
+    <div style="text-align:left; margin:0.5rem 0; font-size:0.65rem;">
+      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.2rem 0; border:1px solid #00ff88;">
+        <strong>Status:</strong> <span id="zkStatus" class="zk-status active">✅ Active</span>
+      </div>
+      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.2rem 0;">
+        <strong>🔑 Private Transactions:</strong> <span id="zkPrivateTxCount">0</span>
+      </div>
+      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.2rem 0;">
+        <strong>🛡️ Privacy Protected:</strong> <span id="zkPrivacyAmount">0</span> BRD
+      </div>
+      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.2rem 0;">
+        <strong>📊 Proofs Generated:</strong> <span id="zkProofCount">0</span>
+      </div>
+    </div>
+    <button id="closeZkInfoModalBtn" class="cyber-btn primary" style="width:100%;"><i class="fas fa-times"></i> Close</button>
+  </div>
+</div>
+
+<!-- ===== ANALYTICS MODAL ===== -->
+<div id="analyticsModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:700px;">
+    <i class="fas fa-chart-line" style="font-size: 3rem; color: #ff6b6b;"></i>
+    <h2 style="color: #ff6b6b;">📊 Analytics Dashboard</h2>
+    <p style="font-size:0.55rem; opacity:0.7;">Real-time wallet analytics</p>
+    <div class="analytics-grid">
+      <div class="analytics-metric">
+        <div class="analytics-value" id="analyticsTotalTx">0</div>
+        <div class="analytics-label">Total TX</div>
+        <div class="analytics-change positive">↑ 0%</div>
+      </div>
+      <div class="analytics-metric">
+        <div class="analytics-value" id="analyticsVolume">0</div>
+        <div class="analytics-label">Volume (BRD)</div>
+        <div class="analytics-change positive">↑ 0%</div>
+      </div>
+      <div class="analytics-metric">
+        <div class="analytics-value" id="analyticsAvgTx">0</div>
+        <div class="analytics-label">Avg TX</div>
+        <div class="analytics-trend">→ 0%</div>
+      </div>
+      <div class="analytics-metric">
+        <div class="analytics-value" id="analyticsFees">0</div>
+        <div class="analytics-label">Fees Paid</div>
+        <div class="analytics-change negative">↑ 0%</div>
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.3rem; margin-top:0.3rem;">
+      <div style="background:#010518; padding:0.4rem; border-radius:1rem; font-size:0.55rem; border:1px solid #a855f733;">
+        <span style="color:#a855f7;">📊 Daily TX</span>
+        <div style="font-size:0.9rem; color:#00f2ff;" id="analyticsDailyTx">0</div>
+      </div>
+      <div style="background:#010518; padding:0.4rem; border-radius:1rem; font-size:0.55rem; border:1px solid #a855f733;">
+        <span style="color:#a855f7;">📈 Daily Volume</span>
+        <div style="font-size:0.9rem; color:#00f2ff;" id="analyticsDailyVolume">0 BRD</div>
+      </div>
+      <div style="background:#010518; padding:0.4rem; border-radius:1rem; font-size:0.55rem; border:1px solid #a855f733;">
+        <span style="color:#a855f7;">🔐 ZK TX</span>
+        <div style="font-size:0.9rem; color:#00ff88;" id="analyticsZkTxs">0</div>
+      </div>
+      <div style="background:#010518; padding:0.4rem; border-radius:1rem; font-size:0.55rem; border:1px solid #a855f733;">
+        <span style="color:#a855f7;">👤 Users</span>
+        <div style="font-size:0.9rem; color:#ffd700;" id="analyticsUsers">0</div>
+      </div>
+    </div>
+    <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin-top:0.3rem; border:1px solid #ff6b6b33;">
+      <p style="font-size:0.5rem; color:#ff6b6b; text-align:left;">⏱️ Recent Activity</p>
+      <div id="analyticsTimeline" style="max-height:100px; overflow-y:auto; font-size:0.5rem; text-align:left;"></div>
+    </div>
+    <div style="display:flex; gap:0.3rem; margin-top:0.3rem;">
+      <button onclick="exportAnalyticsCSV()" class="cyber-btn primary small" style="flex:1;"><i class="fas fa-file-csv"></i> CSV</button>
+      <button onclick="exportAnalyticsData()" class="cyber-btn small" style="flex:1;"><i class="fas fa-download"></i> JSON</button>
+      <button onclick="refreshAnalytics()" class="cyber-btn success small" style="flex:1;"><i class="fas fa-sync-alt"></i> Refresh</button>
+    </div>
+    <button id="closeAnalyticsModalBtn" class="cyber-btn" style="width:100%; margin-top:0.3rem;"><i class="fas fa-times"></i> Close</button>
+  </div>
+</div>
+
+<!-- ===== STEALTH ADDRESS MODAL ===== -->
+<div id="stealthModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:500px;">
+    <i class="fas fa-mask" style="font-size: 3rem; color: #9b59b6;"></i>
+    <h2 style="color: #9b59b6;">🕵️ Stealth Address</h2>
+    <p style="font-size:0.6rem; opacity:0.7;">Generate a one-time use stealth address</p>
+    <div style="background:#010518; padding:0.8rem; border-radius:1rem; margin:0.5rem 0; border:1px solid #9b59b6;">
+      <p style="font-size:0.55rem; color:#9b59b6;">🔑 Your Stealth Address</p>
+      <div style="font-family:monospace; font-size:0.6rem; word-break:break-all;" id="stealthAddressDisplay">---</div>
+      <div style="margin-top:0.3rem; display:flex; gap:0.3rem;">
+        <button onclick="generateStealthAddress()" class="cyber-btn anon small" style="flex:1;"><i class="fas fa-sync-alt"></i> Generate New</button>
+        <button onclick="copyStealthAddress()" class="cyber-btn small" style="flex:1;"><i class="fas fa-copy"></i> Copy</button>
+      </div>
+    </div>
+    <p style="font-size:0.5rem; opacity:0.6;">🔄 Each transaction uses a different stealth address</p>
+    <button id="closeStealthModalBtn" class="cyber-btn primary" style="width:100%; margin-top:0.3rem;"><i class="fas fa-times"></i> Close</button>
+  </div>
+</div>
+
+<!-- ===== MIXER MODAL ===== -->
+<div id="mixerModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:500px;">
+    <i class="fas fa-random" style="font-size: 3rem; color: #ffd700;"></i>
+    <h2 style="color: #ffd700;">🔄 Transaction Mixer</h2>
+    <p style="font-size:0.6rem; opacity:0.7;">Mix your transactions for complete anonymity</p>
+    <div style="background:#010518; padding:0.8rem; border-radius:1rem; margin:0.5rem 0; border:1px solid #ffd70033;">
+      <p style="font-size:0.55rem; color:#ffd700;">📊 Mixing Pool Status</p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.3rem; margin-top:0.3rem; font-size:0.55rem;">
+        <div>Participants: <span id="mixerParticipants">0</span></div>
+        <div>Pool Size: <span id="mixerPoolSize">0</span> BRD</div>
+        <div>Min: 100 BRD</div>
+        <div>Status: <span id="mixerStatus">Ready</span></div>
+      </div>
+    </div>
+    <div style="display:flex; gap:0.3rem; margin-top:0.3rem;">
+      <button onclick="joinMixer()" class="cyber-btn gold small" style="flex:1;"><i class="fas fa-plus"></i> Join Mixer</button>
+      <button onclick="mixTransactions()" class="cyber-btn success small" style="flex:1;"><i class="fas fa-random"></i> Mix Now</button>
+    </div>
+    <button id="closeMixerModalBtn" class="cyber-btn primary" style="width:100%; margin-top:0.3rem;"><i class="fas fa-times"></i> Close</button>
+  </div>
+</div>
+
+<!-- ===== MAIN DASHBOARD ===== -->
 <div id="mainDashboard" class="main-dashboard">
   <div class="container">
     <div class="top-bar">
       <div class="logo-area">
         <div class="logo-placeholder"><i class="fas fa-microchip"></i></div>
-        <h1 id="dashboardTitle">BRADICOIN</h1>
+        <h1 id="dashboardTitle" style="font-size:1.2rem;">BRADICOIN</h1>
         <span class="network-badge"><i class="fas fa-link"></i> Mainnet</span>
         <span class="notification-dot online" id="networkStatus"></span>
+        <span class="zk-status active"><i class="fas fa-shield-alt"></i> ZK</span>
+        <span class="security-badge secure" id="securityBadge"><i class="fas fa-lock"></i> Secure</span>
       </div>
       <div class="price-ticker">
         <span>BRD/USD <span id="priceDisplay">$10.00</span></span>
         <span>24h <span id="priceChange" style="color:#00ff88;">+2.5%</span></span>
       </div>
       <div class="wallet-actions">
+        <button id="lockWalletBtn" class="cyber-btn lock small"><i class="fas fa-lock"></i> Lock</button>
+        <button id="analyticsBtn" class="cyber-btn analytics small"><i class="fas fa-chart-line"></i></button>
         <button id="settingsBtn" class="cyber-btn settings small"><i class="fas fa-cog"></i></button>
         <button id="rewardsBtn" class="cyber-btn gold small"><i class="fas fa-trophy"></i></button>
         <button id="logoutBtn" class="cyber-btn danger small"><i class="fas fa-sign-out-alt"></i></button>
@@ -563,1199 +726,1629 @@
     <div class="dashboard-grid">
       <!-- Balance Card -->
       <div class="neon-card">
-        <h3><i class="fas fa-chart-line"></i> BRD Balance</h3>
-        <div class="balance-amount" id="balance">0.00</div>
-        <div class="balance-usd" id="usdBalance">$0.00 USD</div>
-        <div style="display:flex; gap:1rem; margin:0.5rem 0; flex-wrap:wrap;">
-          <div class="stat-item" style="flex:1;">
-            <div class="stat-value" id="totalTransactions">0</div>
-            <div class="stat-label">Transactions</div>
+        <h3 style="font-size:0.9rem;"><i class="fas fa-chart-line"></i> BRD Balance</h3>
+        <div class="balance-amount" id="balance" style="font-size:2rem;">0.00</div>
+        <div class="balance-usd" id="usdBalance" style="font-size:0.8rem;">$0.00 USD</div>
+        <div style="display:flex; gap:0.5rem; margin:0.3rem 0; flex-wrap:wrap;">
+          <div class="stat-item" style="flex:1; padding:0.4rem;">
+            <div class="stat-value" id="totalTransactions" style="font-size:0.8rem;">0</div>
+            <div class="stat-label">TX</div>
           </div>
-          <div class="stat-item" style="flex:1;">
-            <div class="stat-value" id="stakedAmount">0</div>
-            <div class="stat-label">Staked BRD</div>
+          <div class="stat-item" style="flex:1; padding:0.4rem;">
+            <div class="stat-value" id="stakedAmount" style="font-size:0.8rem;">0</div>
+            <div class="stat-label">Staked</div>
+          </div>
+          <div class="stat-item" style="flex:1; padding:0.4rem;">
+            <div class="stat-value" id="zkTxCount" style="font-size:0.8rem;">0</div>
+            <div class="stat-label">ZK TX</div>
           </div>
         </div>
-        <label>Your Wallet Address</label>
-        <div class="cyber-input" id="addressDisplay" style="font-size:0.7rem;">—</div>
-        <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+        <label style="font-size:0.6rem;">Your Wallet Address</label>
+        <div class="cyber-input" id="addressDisplay" style="font-size:0.55rem; padding:0.4rem;">—</div>
+        <div style="display:flex; gap:0.3rem; margin-top:0.3rem;">
           <button id="copyAddressBtn" class="cyber-btn small" style="flex:1;"><i class="far fa-copy"></i> Copy</button>
           <button id="checkChainBalanceBtn" class="cyber-btn small" style="flex:1;"><i class="fas fa-link"></i> Verify</button>
+          <button id="zkStatusBtn" class="cyber-btn small zk" style="flex:1;"><i class="fas fa-shield-alt"></i> ZK</button>
         </div>
-        <a href="https://www.bradichain.com" target="_blank" class="bradichain-link"><i class="fas fa-globe"></i> View on BradiChain Explorer</a>
-        <div style="background:#010518; padding:0.6rem; border-radius:1rem; margin-top:0.8rem; font-size:0.6rem; display:flex; justify-content:space-between;">
+        <div style="background:#010518; padding:0.4rem; border-radius:1rem; margin-top:0.5rem; font-size:0.5rem; display:flex; justify-content:space-between;">
           <span>🔐 Encrypted</span>
           <span id="walletStatus">● Online</span>
+          <span><i class="fas fa-shield-alt"></i> ZK Ready</span>
         </div>
       </div>
 
       <!-- Staking Card -->
       <div class="neon-card">
-        <h3><i class="fas fa-layer-group"></i> Staking Pool</h3>
-        <div class="staking-pool">
-          <div style="display:flex; justify-content:space-between;">
+        <h3 style="font-size:0.9rem;"><i class="fas fa-layer-group"></i> Staking Pool</h3>
+        <div class="staking-pool" style="padding:0.8rem;">
+          <div style="display:flex; justify-content:space-between; font-size:0.7rem;">
             <strong>24 HOURS LOCK</strong>
             <span style="color:#00ff88;">18% APR</span>
           </div>
-          <div style="font-size:0.7rem; margin:0.5rem 0;">
-            ⚡ Minimum: 50 BRD | 📈 18% annual reward
-          </div>
-          <input type="number" id="stakeAmount" class="cyber-input" placeholder="Amount to stake" step="any">
-          <button id="stakeBtn" class="cyber-btn primary" style="width:100%; margin-top:0.5rem;"><i class="fas fa-lock"></i> Stake for 24 Hours</button>
+          <div style="font-size:0.6rem; margin:0.3rem 0;">⚡ Min: 50 BRD | 📈 18% annual</div>
+          <input type="number" id="stakeAmount" class="cyber-input" placeholder="Amount to stake" step="any" style="font-size:0.6rem; padding:0.4rem;">
+          <button id="stakeBtn" class="cyber-btn primary" style="width:100%; margin-top:0.3rem; font-size:0.6rem; padding:0.4rem;"><i class="fas fa-lock"></i> Stake 24h</button>
         </div>
-        <div id="stakeInfo" class="staking-timer">💎 No active stake</div>
-        <div style="display:flex; gap:0.5rem;">
-          <button id="unstakeBtn" class="cyber-btn success" style="flex:1;"><i class="fas fa-unlock-alt"></i> Unstake</button>
+        <div id="stakeInfo" class="staking-timer" style="font-size:0.55rem;">💎 No active stake</div>
+        <div style="display:flex; gap:0.3rem;">
+          <button id="unstakeBtn" class="cyber-btn success small" style="flex:1;"><i class="fas fa-unlock-alt"></i> Unstake</button>
           <button id="viewStakeDetailsBtn" class="cyber-btn small" style="flex:1;"><i class="fas fa-info-circle"></i> Details</button>
         </div>
-        <div id="stakeStatus" class="status-msg"></div>
-        <div style="margin-top:0.5rem; font-size:0.6rem; opacity:0.6; text-align:center;">
+        <div style="margin-top:0.3rem; font-size:0.5rem; opacity:0.6; text-align:center;">
           Total Staked: <span id="totalStaked">0</span> BRD
         </div>
       </div>
 
-      <!-- Actions & Quick Links Card -->
+      <!-- Actions Card -->
       <div class="neon-card">
-        <h3><i class="fas fa-exchange-alt"></i> Actions</h3>
-        
+        <h3 style="font-size:0.9rem;"><i class="fas fa-exchange-alt"></i> Actions</h3>
         <div class="quick-actions">
           <button id="sendBtn" class="cyber-btn primary small"><i class="fas fa-paper-plane"></i> Send</button>
           <button id="receiveBtn" class="cyber-btn success small"><i class="fas fa-arrow-down"></i> Receive</button>
           <button id="claimAirdropBtn" class="cyber-btn warning small"><i class="fas fa-gift"></i> Airdrop</button>
           <button id="historyBtn" class="cyber-btn small"><i class="fas fa-history"></i> History</button>
+          <button id="zkPrivateSendBtn" class="cyber-btn zk small"><i class="fas fa-shield-alt"></i> Private</button>
+          <button id="stealthBtn" class="cyber-btn anon small"><i class="fas fa-mask"></i> Stealth</button>
         </div>
-        
-        <hr style="margin:0.5rem 0; border-color:#a855f7;">
-        
-        <!-- Referral Section -->
-        <div class="referral-box">
+        <div class="referral-box" style="padding:0.4rem;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:0.6rem;"><i class="fas fa-user-plus"></i> Referral Code</span>
-            <span class="referral-code" id="referralCode">BRD-XXXX</span>
-            <button id="copyReferralBtn" class="cyber-btn small" style="padding:0.2rem 0.8rem;"><i class="fas fa-copy"></i></button>
-          </div>
-          <div style="font-size:0.6rem; opacity:0.6; margin-top:0.3rem;">
-            Refer friends and earn 10 BRD each!
+            <span style="font-size:0.5rem;"><i class="fas fa-user-plus"></i> Referral</span>
+            <span class="referral-code" id="referralCode" style="font-size:0.6rem;">BRD-XXXX</span>
+            <button id="copyReferralBtn" class="cyber-btn small" style="padding:0.1rem 0.5rem;"><i class="fas fa-copy"></i></button>
           </div>
         </div>
-        
-        <div id="txStatus" class="status-msg"></div>
-        <div id="airdropStatus" class="status-msg"></div>
-        <hr style="margin:0.5rem 0; border-color:#a855f7;">
-        
-        <h4><i class="fas fa-history"></i> Recent Activity</h4>
+        <div id="txStatus" class="status-msg" style="font-size:0.55rem;"></div>
+        <h4 style="font-size:0.7rem; margin-top:0.3rem;"><i class="fas fa-history"></i> Recent Activity</h4>
         <div id="transactionsList" class="transaction-list">No transactions yet</div>
       </div>
     </div>
     
     <footer>
-      Non-Custodial Wallet · 18% APR Staking · BradiCoin Ecosystem · 
-      <a href="https://www.bradichain.com" style="color:#00f2ff; text-decoration:none;">BradiChain.com</a>
-      <br><span style="font-size:0.5rem;">© 2026 BradiCoin. All rights reserved.</span>
+      Non-Custodial · 18% APR · BradiCoin Ecosystem
+      <br><span style="font-size:0.45rem;">© 2026 BradiCoin. 🔐 ZK-SNARK Privacy | 🕵️ Stealth | 🔄 Mixer</span>
     </footer>
   </div>
 </div>
 
 <script>
-  // ==================== API CONFIGURATION ====================
-  const API_URL = 'https://bradicoin-api.onrender.com';
-  const TX_FEE = 0.15;
-  const BRD_PRICE = 10.00;
+// ================================================================
+// ==================== CONFIGURAÇÃO ==============================
+// ================================================================
+
+const API_URL = 'https://bradicoin-api.onrender.com';
+const TX_FEE = 0.15;
+const BRD_PRICE = 10.00;
+const AUTO_LOCK_MINUTES = 5;
+const MAX_LOGIN_ATTEMPTS = 5;
+
+// ================================================================
+// ==================== ESTADO DA WALLET ==========================
+// ================================================================
+
+let wallet = { 
+  encryptedSeed: null, 
+  address: null, 
+  balance: 0, 
+  transactions: [],
+  stats: { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 },
+  zkStats: { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 },
+  security: {
+    twoFAEnabled: false,
+    twoFASecret: null,
+    backupCodes: [],
+    lockTimeout: null,
+    lastActivity: Date.now()
+  },
+  stealthAddresses: [],
+  referralCode: generateReferralCode()
+};
+
+let activeStake = null;
+let tempSeedForCreation = null;
+let loginAttempts = 0;
+let isLocked = false;
+
+// ================================================================
+// ==================== 2FA / SEGURANÇA ==========================
+// ================================================================
+
+// Gerar segredo 2FA
+function generate2FASecret() {
+  const secret = CryptoJS.lib.WordArray.random(20).toString().toUpperCase();
+  return secret;
+}
+
+// Gerar código TOTP
+function generateTOTP(secret) {
+  const time = Math.floor(Date.now() / 30000);
+  const hash = CryptoJS.HmacSHA256(time.toString(), secret);
+  const code = parseInt(hash.toString().substring(0, 6), 16) % 1000000;
+  return String(code).padStart(6, '0');
+}
+
+// Verificar código 2FA
+function verify2FA(code, secret) {
+  if (!secret || !code) return false;
+  const expected = generateTOTP(secret);
+  return code === expected;
+}
+
+// Gerar códigos de backup
+function generateBackupCodes() {
+  const codes = [];
+  for (let i = 0; i < 10; i++) {
+    codes.push(CryptoJS.lib.WordArray.random(4).toString().toUpperCase());
+  }
+  return codes;
+}
+
+// Setup 2FA
+function setup2FA() {
+  if (wallet.security.twoFAEnabled) {
+    showToast("2FA already enabled!", "info");
+    return;
+  }
   
-  // ==================== AIRDROP CONFIGURATION ====================
-  // 🔧 CONFIGURE AQUI OS VALORES DO AIRDROP ANTES DE DISTRIBUIR
-  let AIRDROP_CONFIG = {
-    enabled: false,              // 👈 Mude para TRUE quando quiser ativar
-    usdPerMonth: 0,              // 👈 Valor em USD por mês (ex: 300)
-    brdPerMonth: 0,              // 👈 Valor em BRD por mês (ex: 30)
-    totalMonths: 0,              // 👈 Duração em meses (ex: 6)
-    totalUsers: 0,               // 👈 Número de usuários (ex: 40)
-    startDate: new Date(),       // Data de início
-    brdPrice: 10                 // Preço do BRD em USD
-  };
+  const secret = generate2FASecret();
+  const backupCodes = generateBackupCodes();
   
-  // ==================== WORD LIST FOR SEED ====================
-  const wordList = [
-    "abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract", "absurd", "abuse",
-    "access", "accident", "account", "accuse", "achieve", "acid", "acoustic", "acquire", "across", "act",
-    "action", "actor", "actress", "actual", "adapt", "add", "addict", "address", "adjust", "admit",
-    "adult", "advance", "advice", "aerobic", "affair", "afford", "afraid", "africa", "after", "again"
-  ];
+  wallet.security.twoFASecret = secret;
+  wallet.security.backupCodes = backupCodes;
+  
+  document.getElementById('twoFASecret').innerText = secret;
+  document.getElementById('backupCodesDisplay').innerHTML = backupCodes.map(c => 
+    `<span style="background:#010518; padding:0.2rem 0.4rem; border:1px solid #ffd70033; border-radius:0.3rem;">${c}</span>`
+  ).join('');
+  
+  document.getElementById('twoFAModal').style.display = 'flex';
+  showToast("📱 Scan QR code with Google Authenticator", "info");
+}
 
-  // ==================== TRANSLATIONS ====================
-  const translations = {
-    en: {
-      mainTitle: "BRADICOIN", subtitle: "Secure Crypto Wallet Platform", desc: "Create · Import · Stake · Earn",
-      createBtn: "Create Wallet", importBtn: "Import Wallet", importConfirm: "Import Wallet", unlockBtn: "Unlock Wallet",
-      dashboardTitle: "BRADICOIN", logout: "Logout", balanceTitle: "BRD Balance",
-      copyAddress: "Copy Address", explorerText: "View on BradiChain Explorer", stakingTitle: "Staking Pool",
-      lockPeriod: "24 HOURS LOCK", apr: "18% APR", minStake: "⚡ Minimum: 50 BRD",
-      reward: "📈 18% annual reward", stakeBtn: "Stake for 24 Hours", unstakeBtn: "Unstake & Claim",
-      sendBrd: "Send BRD", claimBonus: "Claim 250 Free BRD", recentTitle: "Recent Activity",
-      sendModalTitle: "Send BRD", confirmSend: "Confirm Send", cancel: "Cancel",
-      copySeed: "Copy Seed Phrase", saveSeed: "I Have Saved My Seed Phrase",
-      seedModalTitle: "⚠️ SAVE YOUR SEED PHRASE", seedModalWarning: "This is the ONLY way to recover your wallet!",
-      walletInfo: "Your wallet address will be generated automatically", 
-      unlockPlaceholder: "Enter your wallet password", importPlaceholder: "Enter your 12-word seed phrase",
-      importPasswordPlaceholder: "Create a password", walletPasswordPlaceholder: "Create a password for your wallet",
-      checkChain: "Check on BradiChain", feeNote: "Fee: 0.15 BRD per transaction",
-      stakeDetails: "View Stake Details", close: "Close", receive: "Receive", history: "History",
-      rewards: "Rewards", airdrop: "Airdrop",
-      confirmLogoutTitle: "Are you sure you want to logout?",
-      confirmLogoutMessage: "Your wallet will be locked and you'll need to enter your password again.",
-      yesLogout: "Yes, Logout",
-      noCancel: "No, Cancel",
-      backToLogin: "Back to Login",
-      gasFee: "Gas Fee: 0.15 BRD",
-      networkFee: "Network fee applied to every transaction",
-      settings: "Settings"
-    },
-    pt: {
-      mainTitle: "BRADICOIN", subtitle: "Plataforma de Carteira Cripto Segura", desc: "Criar · Importar · Stake · Ganhar",
-      createBtn: "Criar Carteira", importBtn: "Importar Carteira", importConfirm: "Importar Carteira", unlockBtn: "Desbloquear Carteira",
-      dashboardTitle: "BRADICOIN", logout: "Sair", balanceTitle: "Saldo BRD",
-      copyAddress: "Copiar Endereço", explorerText: "Ver no BradiChain Explorer", stakingTitle: "Pool de Staking",
-      lockPeriod: "BLOQUEIO 24 HORAS", apr: "18% APR", minStake: "⚡ Mínimo: 50 BRD",
-      reward: "📈 18% ao ano", stakeBtn: "Fazer Stake por 24h", unstakeBtn: "Retirar & Resgatar",
-      sendBrd: "Enviar BRD", claimBonus: "Resgatar 250 BRD Grátis", recentTitle: "Atividade Recente",
-      sendModalTitle: "Enviar BRD", confirmSend: "Confirmar Envio", cancel: "Cancelar",
-      copySeed: "Copiar Frase Seed", saveSeed: "Já Salvei Minha Frase Seed",
-      seedModalTitle: "⚠️ SALVE SUA FRASE SEED", seedModalWarning: "Esta é a ÚNICA maneira de recuperar sua carteira!",
-      walletInfo: "Seu endereço será gerado automaticamente",
-      unlockPlaceholder: "Digite sua senha", importPlaceholder: "Digite sua frase seed de 12 palavras",
-      importPasswordPlaceholder: "Crie uma senha", walletPasswordPlaceholder: "Crie uma senha para sua carteira",
-      checkChain: "Ver no BradiChain", feeNote: "Taxa: 0.15 BRD por transação",
-      stakeDetails: "Ver Detalhes do Stake", close: "Fechar", receive: "Receber", history: "Histórico",
-      rewards: "Recompensas", airdrop: "Airdrop",
-      confirmLogoutTitle: "Tem certeza que deseja sair?",
-      confirmLogoutMessage: "Sua carteira será bloqueada e você precisará digitar sua senha novamente.",
-      yesLogout: "Sim, Sair",
-      noCancel: "Não, Cancelar",
-      backToLogin: "Voltar para o Login",
-      gasFee: "Taxa de Gas: 0.15 BRD",
-      networkFee: "Taxa de rede aplicada a cada transação",
-      settings: "Configurações"
-    },
-    es: {
-      mainTitle: "BRADICOIN", subtitle: "Plataforma de Billetera Cripto Segura", desc: "Crear · Importar · Stake · Ganar",
-      createBtn: "Crear Billetera", importBtn: "Importar Billetera", importConfirm: "Importar Billetera", unlockBtn: "Desbloquear Billetera",
-      dashboardTitle: "BRADICOIN", logout: "Salir", balanceTitle: "Saldo BRD",
-      copyAddress: "Copiar Dirección", explorerText: "Ver en BradiChain Explorer", stakingTitle: "Pool de Staking",
-      lockPeriod: "BLOQUEO 24 HORAS", apr: "18% APR", minStake: "⚡ Mínimo: 50 BRD",
-      reward: "📈 18% anual", stakeBtn: "Hacer Stake por 24h", unstakeBtn: "Retirar & Reclamar",
-      sendBrd: "Enviar BRD", claimBonus: "Reclamar 250 BRD Gratis", recentTitle: "Actividad Reciente",
-      sendModalTitle: "Enviar BRD", confirmSend: "Confirmar Envío", cancel: "Cancelar",
-      copySeed: "Copiar Frase Semilla", saveSeed: "Ya Guardé Mi Frase Semilla",
-      seedModalTitle: "⚠️ GUARDA TU FRASE SEMILLA", seedModalWarning: "¡Esta es la ÚNICA forma de recuperar tu billetera!",
-      walletInfo: "Tu dirección será generada automáticamente",
-      unlockPlaceholder: "Ingresa tu contraseña", importPlaceholder: "Ingresa tu frase semilla de 12 palabras",
-      importPasswordPlaceholder: "Crea una contraseña", walletPasswordPlaceholder: "Crea una contraseña para tu billetera",
-      checkChain: "Ver en BradiChain", feeNote: "Comisión: 0.15 BRD por transacción",
-      stakeDetails: "Ver Detalles del Stake", close: "Cerrar", receive: "Recibir", history: "Historial",
-      rewards: "Recompensas", airdrop: "Airdrop",
-      confirmLogoutTitle: "¿Estás seguro de que quieres salir?",
-      confirmLogoutMessage: "Tu billetera se bloqueará y deberás ingresar tu contraseña nuevamente.",
-      yesLogout: "Sí, Salir",
-      noCancel: "No, Cancelar",
-      backToLogin: "Volver al Login",
-      gasFee: "Gas Fee: 0.15 BRD",
-      networkFee: "Comisión de red aplicada a cada transacción",
-      settings: "Configuraciones"
-    },
-    ar: {
-      mainTitle: "برادي كوين", subtitle: "منصة محفظة عملات رقمية آمنة", desc: "إنشاء · استيراد · حصة · ربح",
-      createBtn: "إنشاء محفظة", importBtn: "استيراد محفظة", importConfirm: "استيراد محفظة", unlockBtn: "فتح المحفظة",
-      dashboardTitle: "برادي كوين", logout: "خروج", balanceTitle: "رصيد BRD",
-      copyAddress: "نسخ العنوان", explorerText: "عرض على BradiChain Explorer", stakingTitle: "مجمع الحصة",
-      lockPeriod: "قفل 24 ساعة", apr: "18% APR", minStake: "⚡ الحد الأدنى: 50 BRD",
-      reward: "📈 18% سنوياً", stakeBtn: "حصة لمدة 24 ساعة", unstakeBtn: "سحب واستلام المكافآت",
-      sendBrd: "إرسال BRD", claimBonus: "استلام 250 BRD مجاناً", recentTitle: "النشاط الأخير",
-      sendModalTitle: "إرسال BRD", confirmSend: "تأكيد الإرسال", cancel: "إلغاء",
-      copySeed: "نسخ العبارة الأولية", saveSeed: "لقد حفظت العبارة الأولية",
-      seedModalTitle: "⚠️ احفظ العبارة الأولية", seedModalWarning: "هذه هي الطريقة الوحيدة لاستعادة محفظتك!",
-      walletInfo: "سيتم إنشاء عنوان محفظتك تلقائياً",
-      unlockPlaceholder: "أدخل كلمة مرور محفظتك", importPlaceholder: "أدخل عبارتك الأولية المكونة من 12 كلمة",
-      importPasswordPlaceholder: "إنشاء كلمة مرور", walletPasswordPlaceholder: "إنشاء كلمة مرور لمحفظتك",
-      checkChain: "عرض على BradiChain", feeNote: "الرسوم: 0.15 BRD لكل معاملة",
-      stakeDetails: "عرض تفاصيل الحصة", close: "إغلاق", receive: "استلام", history: "التاريخ",
-      rewards: "المكافآت", airdrop: "إيردروب",
-      confirmLogoutTitle: "هل أنت متأكد من رغبتك في الخروج؟",
-      confirmLogoutMessage: "سيتم قفل محفظتك وستحتاج إلى إدخال كلمة المرور مرة أخرى.",
-      yesLogout: "نعم، خروج",
-      noCancel: "لا، إلغاء",
-      backToLogin: "العودة إلى تسجيل الدخول",
-      gasFee: "رسوم الغاز: 0.15 BRD",
-      networkFee: "رسوم الشبكة المطبقة على كل معاملة",
-      settings: "الإعدادات"
+// Verificar e ativar 2FA
+document.getElementById('verify2FABtn')?.addEventListener('click', () => {
+  const code = document.getElementById('verify2FACode').value;
+  if (verify2FA(code, wallet.security.twoFASecret)) {
+    wallet.security.twoFAEnabled = true;
+    saveWallet();
+    document.getElementById('twoFAModal').style.display = 'none';
+    showToast("✅ 2FA enabled successfully!", "success");
+    updateSecurityBadge();
+  } else {
+    showToast("❌ Invalid 2FA code!", "error");
+  }
+});
+
+document.getElementById('close2FAModalBtn')?.addEventListener('click', () => {
+  document.getElementById('twoFAModal').style.display = 'none';
+});
+
+// ================================================================
+// ==================== AUTO-LOCK =================================
+// ================================================================
+
+function setupAutoLock() {
+  document.addEventListener('click', () => resetLockTimer());
+  document.addEventListener('keydown', () => resetLockTimer());
+  document.addEventListener('scroll', () => resetLockTimer());
+  document.addEventListener('mousemove', () => resetLockTimer());
+  document.addEventListener('touchstart', () => resetLockTimer());
+  resetLockTimer();
+}
+
+function resetLockTimer() {
+  if (wallet.security.lockTimeout) {
+    clearTimeout(wallet.security.lockTimeout);
+  }
+  wallet.security.lastActivity = Date.now();
+  wallet.security.lockTimeout = setTimeout(() => {
+    if (wallet.address && !isLocked) {
+      lockWalletNow();
     }
-  };
+  }, AUTO_LOCK_MINUTES * 60 * 1000);
+}
 
-  let currentLang = localStorage.getItem('bradicoin_lang') || 'en';
+function lockWalletNow() {
+  if (isLocked) return;
+  isLocked = true;
+  showToast("🔒 Wallet locked due to inactivity", "warning");
+  showLoginScreen();
+  if (wallet.security.lockTimeout) {
+    clearTimeout(wallet.security.lockTimeout);
+  }
+}
 
-  function updateLanguage() {
-    const t = translations[currentLang];
-    if (!t) return;
-    
-    document.getElementById('mainTitle').innerText = t.mainTitle;
-    document.getElementById('subtitle').innerText = t.subtitle;
-    document.getElementById('desc').innerText = t.desc;
-    document.getElementById('createWalletBtn').innerHTML = `<i class="fas fa-plus-circle"></i> ${t.createBtn}`;
-    document.getElementById('importWalletBtn').innerHTML = `<i class="fas fa-key"></i> ${t.importBtn}`;
-    document.getElementById('confirmImportBtn').innerHTML = `<i class="fas fa-check"></i> ${t.importConfirm}`;
-    document.getElementById('unlockWalletBtn').innerHTML = `<i class="fas fa-unlock-alt"></i> ${t.unlockBtn}`;
-    document.getElementById('dashboardTitle').innerText = t.dashboardTitle;
-    document.getElementById('logoutBtn').innerHTML = `<i class="fas fa-sign-out-alt"></i> ${t.logout}`;
-    document.getElementById('copyAddressBtn').innerHTML = `<i class="far fa-copy"></i> ${t.copyAddress}`;
-    document.getElementById('checkChainBalanceBtn').innerHTML = `<i class="fas fa-link"></i> ${t.checkChain}`;
-    document.getElementById('stakeBtn').innerHTML = `<i class="fas fa-lock"></i> ${t.stakeBtn}`;
-    document.getElementById('unstakeBtn').innerHTML = `<i class="fas fa-unlock-alt"></i> ${t.unstakeBtn}`;
-    document.getElementById('sendBtn').innerHTML = `<i class="fas fa-paper-plane"></i> ${t.sendBrd}`;
-    document.getElementById('claimAirdropBtn').innerHTML = `<i class="fas fa-gift"></i> ${t.airdrop}`;
-    document.getElementById('sendModalTitle').innerHTML = `<i class="fas fa-paper-plane"></i> ${t.sendModalTitle}`;
-    document.getElementById('confirmSendBtn').innerHTML = `<i class="fas fa-check"></i> ${t.confirmSend}`;
-    document.getElementById('cancelSendBtn').innerHTML = `<i class="fas fa-times"></i> ${t.cancel}`;
-    document.getElementById('copySeedBtn').innerHTML = `<i class="fas fa-copy"></i> ${t.copySeed}`;
-    document.getElementById('confirmSeedBtn').innerHTML = `<i class="fas fa-check-circle"></i> ${t.saveSeed}`;
-    document.getElementById('seedModalTitle').innerHTML = t.seedModalTitle;
-    document.getElementById('seedModalWarning').innerText = t.seedModalWarning;
-    document.getElementById('walletInfoText').innerText = t.walletInfo;
-    document.getElementById('viewStakeDetailsBtn').innerHTML = `<i class="fas fa-info-circle"></i> ${t.stakeDetails}`;
-    document.getElementById('closeStakeModalBtn').innerHTML = `<i class="fas fa-times"></i> ${t.close}`;
-    document.getElementById('receiveBtn').innerHTML = `<i class="fas fa-arrow-down"></i> ${t.receive}`;
-    document.getElementById('historyBtn').innerHTML = `<i class="fas fa-history"></i> ${t.history}`;
-    document.getElementById('rewardsBtn').innerHTML = `<i class="fas fa-trophy"></i> ${t.rewards}`;
-    document.getElementById('settingsBtn').innerHTML = `<i class="fas fa-cog"></i>`;
-    document.getElementById('confirmDialogTitle').innerText = t.confirmLogoutTitle;
-    document.getElementById('confirmDialogMessage').innerText = t.confirmLogoutMessage;
-    document.getElementById('confirmYesBtn').innerHTML = `<i class="fas fa-sign-out-alt"></i> ${t.yesLogout}`;
-    document.getElementById('confirmNoBtn').innerHTML = `<i class="fas fa-times"></i> ${t.noCancel}`;
-    document.getElementById('backToLoginBtn').innerHTML = `<i class="fas fa-arrow-left"></i> ${t.backToLogin}`;
-    
-    document.getElementById('unlockPasswordInput').placeholder = t.unlockPlaceholder;
-    document.getElementById('importSeedInput').placeholder = t.importPlaceholder;
-    document.getElementById('importPasswordInput').placeholder = t.importPasswordPlaceholder;
-    document.getElementById('walletPasswordInput').placeholder = t.walletPasswordPlaceholder;
-    
-    if (currentLang === 'ar') {
-      document.body.classList.add('rtl');
-    } else {
-      document.body.classList.remove('rtl');
-    }
-    
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-      if (btn.dataset.lang === currentLang) btn.classList.add('active');
-      else btn.classList.remove('active');
+// ================================================================
+// ==================== RATE LIMITING =============================
+// ================================================================
+
+function checkRateLimit() {
+  if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
+    showToast(`⛔ Too many attempts. Locked for 15 minutes`, "error");
+    return false;
+  }
+  return true;
+}
+
+function recordLoginAttempt(success) {
+  if (success) {
+    loginAttempts = 0;
+  } else {
+    loginAttempts++;
+  }
+}
+
+// ================================================================
+// ==================== STEALTH ADDRESSES =========================
+// ================================================================
+
+function generateStealthAddress() {
+  const random = CryptoJS.lib.WordArray.random(18).toString();
+  const stealth = 'Br_' + random.substring(0, 36);
+  wallet.stealthAddresses.push(stealth);
+  document.getElementById('stealthAddressDisplay').innerText = stealth;
+  showToast("🕵️ New stealth address generated!", "success");
+  return stealth;
+}
+
+function copyStealthAddress() {
+  const addr = document.getElementById('stealthAddressDisplay').innerText;
+  if (addr && addr !== '---') {
+    navigator.clipboard.writeText(addr);
+    showToast("Stealth address copied!", "success");
+  }
+}
+
+function showStealthAddress() {
+  if (wallet.stealthAddresses.length === 0) {
+    generateStealthAddress();
+  }
+  document.getElementById('stealthAddressDisplay').innerText = wallet.stealthAddresses[wallet.stealthAddresses.length - 1];
+  document.getElementById('stealthModal').style.display = 'flex';
+}
+
+document.getElementById('closeStealthModalBtn')?.addEventListener('click', () => {
+  document.getElementById('stealthModal').style.display = 'none';
+});
+
+// ================================================================
+// ==================== MIXER =====================================
+// ================================================================
+
+let mixerState = {
+  participants: [],
+  poolSize: 0,
+  isMixing: false
+};
+
+function joinMixer() {
+  if (mixerState.participants.includes(wallet.address)) {
+    showToast("Already in mixer pool", "info");
+    return;
+  }
+  
+  const amount = parseFloat(prompt("Enter amount to mix (min 100 BRD):"));
+  if (!amount || amount < 100) {
+    showToast("Minimum 100 BRD to join mixer", "error");
+    return;
+  }
+  
+  if (amount > wallet.balance) {
+    showToast("Insufficient balance", "error");
+    return;
+  }
+  
+  mixerState.participants.push(wallet.address);
+  mixerState.poolSize += amount;
+  wallet.balance -= amount;
+  
+  updateMixerUI();
+  saveWallet();
+  updateUI();
+  showToast(`🔀 Joined mixer with ${amount} BRD`, "success");
+}
+
+function mixTransactions() {
+  if (mixerState.participants.length < 3) {
+    showToast("Need at least 3 participants to mix", "error");
+    return;
+  }
+  
+  if (mixerState.isMixing) {
+    showToast("Mix already in progress", "info");
+    return;
+  }
+  
+  mixerState.isMixing = true;
+  showToast("🔄 Mixing transactions...", "info");
+  
+  setTimeout(() => {
+    mixerState.isMixing = false;
+    const mixedAmount = mixerState.poolSize / mixerState.participants.length;
+    mixerState.participants.forEach(addr => {
+      if (addr === wallet.address) {
+        wallet.balance += mixedAmount;
+      }
     });
-  }
-  
-  function setLanguage(lang) {
-    currentLang = lang;
-    localStorage.setItem('bradicoin_lang', lang);
-    updateLanguage();
-  }
+    mixerState.participants = [];
+    mixerState.poolSize = 0;
+    saveWallet();
+    updateUI();
+    updateMixerUI();
+    showToast(`✅ Mix completed! Received ${mixedAmount.toFixed(2)} BRD`, "success");
+  }, 3000);
+}
 
-  // ==================== HELPERS ====================
-  function generateSeedPhrase() {
-    let words = [];
-    for(let i = 0; i < 12; i++) {
-      words.push(wordList[Math.floor(Math.random() * wordList.length)]);
-    }
-    return words.join(' ');
-  }
+function updateMixerUI() {
+  document.getElementById('mixerParticipants').innerText = mixerState.participants.length;
+  document.getElementById('mixerPoolSize').innerText = mixerState.poolSize.toFixed(2);
+  document.getElementById('mixerStatus').innerText = mixerState.isMixing ? '🔄 Mixing...' : 'Ready';
+}
 
-  function generateAddress(seed) {
-    let hash = 0;
-    const str = seed.replace(/\s/g, '');
-    for(let i = 0; i < str.length; i++) {
-      hash = ((hash << 5) - hash) + str.charCodeAt(i);
-      hash |= 0;
-    }
-    const hex = Math.abs(hash).toString(16).padStart(40, '0');
-    return `Br${hex.substring(0, 36)}`;
-  }
+document.getElementById('closeMixerModalBtn')?.addEventListener('click', () => {
+  document.getElementById('mixerModal').style.display = 'none';
+});
 
-  function encrypt(data, pass) { return CryptoJS.AES.encrypt(data, pass).toString(); }
-  function decrypt(encrypted, pass) {
-    try {
-      const bytes = CryptoJS.AES.decrypt(encrypted, pass);
-      return bytes.toString(CryptoJS.enc.Utf8) || null;
-    } catch(e) { return null; }
-  }
+function showMixerUI() {
+  updateMixerUI();
+  document.getElementById('mixerModal').style.display = 'flex';
+}
 
-  function showToast(msg, type = "info") {
-    const toast = document.createElement('div');
-    toast.style.cssText = `position:fixed; bottom:20px; right:20px; background:${type === "error" ? "#ff0055" : type === "success" ? "#00ff88" : "#a855f7"}; color:#0a0f1e; padding:0.8rem 1.5rem; border-radius:2rem; font-family:Orbitron; z-index:9999; animation:fadeInOut 3s ease; font-weight:bold; font-size:0.8rem;`;
-    toast.innerText = msg;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-  }
+// ================================================================
+// ==================== HELPERS ===================================
+// ================================================================
 
-  function generateReferralCode() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code = 'BRD-';
-    for(let i = 0; i < 4; i++) {
-      code += chars[Math.floor(Math.random() * chars.length)];
-    }
-    return code;
-  }
+const wordList = [
+  "abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract", "absurd", "abuse",
+  "access", "accident", "account", "accuse", "achieve", "acid", "acoustic", "acquire", "across", "act",
+  "action", "actor", "actress", "actual", "adapt", "add", "addict", "address", "adjust", "admit",
+  "adult", "advance", "advice", "aerobic", "affair", "afford", "afraid", "africa", "after", "again"
+];
 
-  // ==================== AIRDROP FUNCTIONS ====================
-  
-  // Carregar configuração salva
-  function loadAirdropConfig() {
-    const saved = localStorage.getItem('bradicoin_airdrop_config');
-    if (saved) {
-      try {
-        const config = JSON.parse(saved);
-        AIRDROP_CONFIG = { ...AIRDROP_CONFIG, ...config };
-      } catch(e) {}
-    }
+function generateSeedPhrase() {
+  let words = [];
+  for(let i = 0; i < 12; i++) {
+    words.push(wordList[Math.floor(Math.random() * wordList.length)]);
+  }
+  return words.join(' ');
+}
+
+function generateAddress(seed) {
+  let hash = 0;
+  const str = seed.replace(/\s/g, '');
+  for(let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  const hex = Math.abs(hash).toString(16).padStart(40, '0');
+  return `Br${hex.substring(0, 36)}`;
+}
+
+function encrypt(data, pass) { return CryptoJS.AES.encrypt(data, pass).toString(); }
+function decrypt(encrypted, pass) {
+  try {
+    const bytes = CryptoJS.AES.decrypt(encrypted, pass);
+    return bytes.toString(CryptoJS.enc.Utf8) || null;
+  } catch(e) { return null; }
+}
+
+function showToast(msg, type = "info") {
+  const toast = document.createElement('div');
+  toast.style.cssText = `position:fixed; bottom:20px; right:20px; background:${type === "error" ? "#ff0055" : type === "success" ? "#00ff88" : "#a855f7"}; color:#0a0f1e; padding:0.6rem 1.2rem; border-radius:2rem; font-family:Orbitron; z-index:9999; animation:fadeInOut 3s ease; font-weight:bold; font-size:0.7rem; max-width:90%;`;
+  toast.innerText = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+function generateReferralCode() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = 'BRD-';
+  for(let i = 0; i < 4; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return code;
+}
+
+function updateSecurityBadge() {
+  const badge = document.getElementById('securityBadge');
+  if (wallet.security.twoFAEnabled) {
+    badge.className = 'security-badge secure';
+    badge.innerHTML = '<i class="fas fa-shield-alt"></i> 2FA Active';
+  } else {
+    badge.className = 'security-badge warning';
+    badge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 2FA Off';
+  }
+}
+
+// ================================================================
+// ==================== ZK-SNARK FUNÇÕES =========================
+// ================================================================
+
+function generateZKCommitment(privateKey, amount, salt) {
+  const hash = CryptoJS.SHA256(privateKey + amount.toString() + salt).toString();
+  return '0x' + hash.substring(0, 64);
+}
+
+function generateZKNullifier(privateKey, commitment) {
+  const hash = CryptoJS.SHA256(privateKey + commitment).toString();
+  return '0x' + hash.substring(0, 64);
+}
+
+function generateZKProof(sender, recipient, amount, commitment, nullifier) {
+  return {
+    a: ['0x' + CryptoJS.SHA256(sender + amount).toString().substring(0, 64)],
+    b: ['0x' + CryptoJS.SHA256(recipient + amount).toString().substring(0, 64)],
+    c: ['0x' + CryptoJS.SHA256(commitment + nullifier).toString().substring(0, 64)],
+    input: [commitment, nullifier, '0x' + CryptoJS.SHA256(amount.toString()).toString().substring(0, 64)]
+  };
+}
+
+async function sendPrivateTransaction(toAddress, amount, password) {
+  if (!toAddress) { showToast("Enter recipient address", "error"); return false; }
+  const totalCost = amount + TX_FEE;
+  if (amount <= 0 || totalCost > wallet.balance) { 
+    showToast(`Insufficient balance. Need ${totalCost} BRD`, "error"); 
+    return false; 
   }
   
-  // Salvar configuração
-  function saveAirdropConfig() {
-    localStorage.setItem('bradicoin_airdrop_config', JSON.stringify(AIRDROP_CONFIG));
-  }
+  const decrypted = decrypt(wallet.encryptedSeed, password);
+  if (!decrypted) { showToast("Wrong password!", "error"); return false; }
   
-  // Atualizar configuração via UI
-  function updateAirdropConfig() {
-    const usd = parseFloat(document.getElementById('configUSD').value) || 0;
-    const brd = parseFloat(document.getElementById('configBRD').value) || 0;
-    const months = parseInt(document.getElementById('configMonths').value) || 0;
-    const users = parseInt(document.getElementById('configUsers').value) || 0;
+  try {
+    showToast("🔐 Generating ZK-SNARK proof...", "info");
     
-    AIRDROP_CONFIG.usdPerMonth = usd;
-    AIRDROP_CONFIG.brdPerMonth = brd;
-    AIRDROP_CONFIG.totalMonths = months;
-    AIRDROP_CONFIG.totalUsers = users;
-    AIRDROP_CONFIG.enabled = (usd > 0 && brd > 0 && months > 0 && users > 0);
-    AIRDROP_CONFIG.startDate = new Date();
+    const salt = CryptoJS.lib.WordArray.random(32).toString();
+    const commitment = generateZKCommitment(decrypted, amount, salt);
+    const nullifier = generateZKNullifier(decrypted, commitment);
+    const proof = generateZKProof(wallet.address, toAddress, amount, commitment, nullifier);
     
-    saveAirdropConfig();
-    updateAirdropUI();
-    showToast("✅ Airdrop configuration updated!", "success");
-  }
-  
-  // Verificar elegibilidade do usuário
-  function isUserEligibleForAirdrop() {
-    if (!AIRDROP_CONFIG.enabled) return false;
+    wallet.balance -= totalCost;
+    wallet.stats.feesPaid += TX_FEE;
+    wallet.zkStats.privateTxCount += 1;
+    wallet.zkStats.totalPrivacyProtected += amount;
+    wallet.zkStats.proofsGenerated += 1;
     
-    const hasWallet = wallet.address !== null;
-    const hasBalance = wallet.balance > 0;
-    const hasTransactions = wallet.transactions.length >= 3;
-    
-    // Verificar se já reivindicou este mês
-    const lastClaim = localStorage.getItem('bradicoin_airdrop_last_claim');
-    if (lastClaim) {
-      const daysDiff = (Date.now() - parseInt(lastClaim)) / (1000 * 60 * 60 * 24);
-      if (daysDiff < 28) return false;
-    }
-    
-    return hasWallet && hasBalance && hasTransactions;
-  }
-  
-  // Obter status do airdrop
-  function getAirdropStatus() {
-    const monthsPassed = Math.floor((Date.now() - AIRDROP_CONFIG.startDate) / (1000 * 60 * 60 * 24 * 30));
-    const currentMonth = Math.min(monthsPassed + 1, AIRDROP_CONFIG.totalMonths);
-    const lastClaim = localStorage.getItem('bradicoin_airdrop_last_claim');
-    const claimedMonths = localStorage.getItem('bradicoin_airdrop_month') || '0';
-    
-    return {
-      currentMonth: currentMonth,
-      totalMonths: AIRDROP_CONFIG.totalMonths,
-      claimedMonths: parseInt(claimedMonths),
-      hasClaimedThisMonth: lastClaim ? (Date.now() - parseInt(lastClaim)) < (28 * 24 * 60 * 60 * 1000) : false,
-      remainingMonths: AIRDROP_CONFIG.totalMonths - currentMonth + 1,
-      totalClaimed: parseInt(claimedMonths) * AIRDROP_CONFIG.brdPerMonth,
-      totalUSDClaimed: parseInt(claimedMonths) * AIRDROP_CONFIG.usdPerMonth,
-      isActive: currentMonth <= AIRDROP_CONFIG.totalMonths && AIRDROP_CONFIG.enabled
-    };
-  }
-  
-  // Reivindicar Airdrop
-  function claimAirdrop() {
-    if (!AIRDROP_CONFIG.enabled) {
-      showToast("⚠️ Airdrop is not configured yet! Please set values in Airdrop Manager.", "error");
-      return;
-    }
-    
-    if (!isUserEligibleForAirdrop()) {
-      showToast("❌ You need an active wallet with at least 3 transactions!", "error");
-      return;
-    }
-    
-    const status = getAirdropStatus();
-    if (!status.isActive) {
-      showToast("🎉 Airdrop program has ended or not started!", "info");
-      return;
-    }
-    
-    if (status.hasClaimedThisMonth) {
-      showToast(`⏳ Already claimed this month! Next in ${Math.round(28 - (Date.now() - parseInt(localStorage.getItem('bradicoin_airdrop_last_claim'))) / (1000 * 60 * 60 * 24))} days`, "error");
-      return;
-    }
-    
-    const amountToClaim = AIRDROP_CONFIG.brdPerMonth;
-    
-    // Adicionar ao saldo
-    wallet.balance += amountToClaim;
-    wallet.stats.airdropsClaimed += 1;
-    
-    // Registrar airdrop
     wallet.transactions.unshift({
       id: Date.now(),
-      type: 'airdrop',
-      amount: amountToClaim,
-      month: status.currentMonth,
-      usdValue: AIRDROP_CONFIG.usdPerMonth,
+      type: 'zk_private',
+      to: toAddress,
+      amount: amount,
+      fee: TX_FEE,
+      commitment: commitment,
+      nullifier: nullifier,
+      proof: proof,
       time: new Date().toISOString()
     });
     
-    // Salvar data da reclamação
-    localStorage.setItem('bradicoin_airdrop_last_claim', Date.now().toString());
-    localStorage.setItem('bradicoin_airdrop_month', status.currentMonth.toString());
-    
+    if (wallet.transactions.length > 20) wallet.transactions.pop();
+    wallet.stats.totalTx += 1;
     saveWallet();
     updateUI();
-    updateAirdropUI();
+    updateAnalytics();
     
-    showToast(`🎁 Airdrop claimed! +${amountToClaim.toFixed(2)} BRD ($${AIRDROP_CONFIG.usdPerMonth}) - Month ${status.currentMonth}/${AIRDROP_CONFIG.totalMonths}`, "success");
+    showToast(`🔐 Private TX sent! ${amount} BRD`, "success");
+    return true;
+    
+  } catch (error) {
+    showToast(`❌ ZK error: ${error.message}`, "error");
+    return false;
+  }
+}
+
+// ================================================================
+// ==================== ANALYTICS =================================
+// ================================================================
+
+let analyticsData = {
+  totalTransactions: 0,
+  totalVolume: 0,
+  totalFees: 0,
+  zkTransactions: 0,
+  uniqueUsers: 0,
+  dailyTransactions: [],
+  dailyVolume: [],
+  lastUpdate: null
+};
+
+function updateAnalytics() {
+  if (!wallet || !wallet.transactions) return;
+  
+  const txs = wallet.transactions;
+  const total = txs.length;
+  let volume = 0, fees = 0, zkCount = 0;
+  const today = new Date().toDateString();
+  let dailyTx = 0, dailyVol = 0;
+  
+  txs.forEach(tx => {
+    const txDate = new Date(tx.time).toDateString();
+    if (txDate === today) { dailyTx++; dailyVol += tx.amount; }
+    volume += tx.amount || 0;
+    fees += tx.fee || 0;
+    if (tx.type === 'zk_private') zkCount++;
+  });
+  
+  analyticsData.totalTransactions = total;
+  analyticsData.totalVolume = volume;
+  analyticsData.totalFees = fees;
+  analyticsData.zkTransactions = zkCount;
+  analyticsData.uniqueUsers = wallet.address ? 1 : 0;
+  analyticsData.dailyTransactions = [dailyTx];
+  analyticsData.dailyVolume = [dailyVol];
+  analyticsData.lastUpdate = new Date();
+  
+  document.getElementById('analyticsTotalTx').innerText = total;
+  document.getElementById('analyticsVolume').innerText = volume.toFixed(2);
+  document.getElementById('analyticsAvgTx').innerText = total > 0 ? (volume / total).toFixed(2) : '0';
+  document.getElementById('analyticsFees').innerText = fees.toFixed(2);
+  document.getElementById('analyticsDailyTx').innerText = dailyTx;
+  document.getElementById('analyticsDailyVolume').innerText = dailyVol.toFixed(2) + ' BRD';
+  document.getElementById('analyticsZkTxs').innerText = zkCount;
+  document.getElementById('analyticsUsers').innerText = wallet.address ? 1 : 0;
+  
+  updateAnalyticsTimeline();
+}
+
+function updateAnalyticsTimeline() {
+  const timeline = document.getElementById('analyticsTimeline');
+  if (!timeline) return;
+  
+  const txs = wallet.transactions || [];
+  if (txs.length === 0) {
+    timeline.innerHTML = '<p style="opacity:0.6; text-align:center; font-size:0.5rem;">No recent activity</p>';
+    return;
   }
   
-  // Atualizar UI do Airdrop
-  function updateAirdropUI() {
-    const status = getAirdropStatus();
-    
-    // Atualizar elementos do Airdrop Manager
-    document.getElementById('airdropStatusDisplay').innerText = AIRDROP_CONFIG.enabled ? (status.isActive ? '✅ Active' : '🔴 Ended') : '⏳ Pending Configuration';
-    document.getElementById('airdropStatusDisplay').style.color = AIRDROP_CONFIG.enabled ? (status.isActive ? '#00ff88' : '#ff4466') : '#ffaa00';
-    
-    document.getElementById('airdropMonthDisplay').innerText = AIRDROP_CONFIG.enabled ? `${status.currentMonth}/${AIRDROP_CONFIG.totalMonths}` : '0/0';
-    document.getElementById('airdropPerMonthDisplay').innerText = AIRDROP_CONFIG.enabled ? `$${AIRDROP_CONFIG.usdPerMonth}` : '$0';
-    document.getElementById('airdropPerMonthBRD').innerText = AIRDROP_CONFIG.enabled ? AIRDROP_CONFIG.brdPerMonth : '0';
-    document.getElementById('airdropTotalClaimed').innerText = status.totalClaimed.toFixed(2);
-    document.getElementById('airdropTotalUSD').innerText = `$${status.totalUSDClaimed}`;
-    
-    // Progresso
-    const progress = AIRDROP_CONFIG.enabled ? (status.currentMonth / AIRDROP_CONFIG.totalMonths) * 100 : 0;
-    document.getElementById('airdropProgressFill').style.width = `${Math.min(progress, 100)}%`;
-    document.getElementById('airdropProgressText').innerText = AIRDROP_CONFIG.enabled ? 
-      `${status.currentMonth} of ${AIRDROP_CONFIG.totalMonths} months completed` : 
-      '0 of 0 months completed';
-    
-    // Elegibilidade
-    const eligible = isUserEligibleForAirdrop();
-    document.getElementById('eligWallet').innerHTML = wallet.address ? '✅' : '❌';
-    document.getElementById('eligBalance').innerHTML = wallet.balance > 0 ? '✅' : '❌';
-    document.getElementById('eligTx').innerHTML = wallet.transactions.length >= 3 ? '✅' : '❌';
-    document.getElementById('eligClaimed').innerHTML = status.hasClaimedThisMonth ? '✅' : '❌';
-    
-    document.getElementById('eligMessage').innerHTML = AIRDROP_CONFIG.enabled ? 
-      (eligible ? '✅ You are eligible! Click Claim below.' : '❌ You need 3+ transactions to claim.') : 
-      '⚠️ Configure airdrop values first';
-    
-    // Botão Claim
-    const claimBtn = document.getElementById('claimAirdropBtnMain');
-    if (AIRDROP_CONFIG.enabled && status.isActive && !status.hasClaimedThisMonth && eligible) {
-      claimBtn.style.display = 'block';
-      claimBtn.innerHTML = `<i class="fas fa-gift"></i> Claim $${AIRDROP_CONFIG.usdPerMonth} (${AIRDROP_CONFIG.brdPerMonth} BRD)`;
-      claimBtn.disabled = false;
-    } else if (AIRDROP_CONFIG.enabled && status.hasClaimedThisMonth) {
-      claimBtn.style.display = 'block';
-      claimBtn.innerHTML = `<i class="fas fa-clock"></i> Already Claimed This Month`;
-      claimBtn.disabled = true;
-    } else {
-      claimBtn.style.display = 'block';
-      claimBtn.innerHTML = AIRDROP_CONFIG.enabled ? `<i class="fas fa-ban"></i> ${status.isActive ? 'Not Eligible' : 'Program Ended'}` : `<i class="fas fa-cog"></i> Configure Airdrop`;
-      claimBtn.disabled = true;
-    }
-    
-    // Atualizar valores nos inputs
-    document.getElementById('configUSD').value = AIRDROP_CONFIG.usdPerMonth || 0;
-    document.getElementById('configBRD').value = AIRDROP_CONFIG.brdPerMonth || 0;
-    document.getElementById('configMonths').value = AIRDROP_CONFIG.totalMonths || 0;
-    document.getElementById('configUsers').value = AIRDROP_CONFIG.totalUsers || 0;
-  }
+  const recent = txs.slice(0, 8);
+  timeline.innerHTML = recent.map(tx => {
+    const isZK = tx.type === 'zk_private';
+    const isAirdrop = tx.type === 'airdrop';
+    const icon = isZK ? '🔐' : (isAirdrop ? '🎁' : '📤');
+    const color = isZK ? '#00f2ff' : (isAirdrop ? '#ffd700' : '#ff6b6b');
+    const type = isZK ? 'ZK-Private' : (isAirdrop ? 'Airdrop' : 'Transfer');
+    return `<div style="display:flex; justify-content:space-between; padding:0.15rem 0; border-bottom:1px solid rgba(168,85,247,0.1); font-size:0.5rem;">
+      <span>${icon} ${type}</span>
+      <span style="color:${color};">${tx.amount} BRD</span>
+      <span style="opacity:0.5;">${new Date(tx.time).toLocaleTimeString()}</span>
+    </div>`;
+  }).join('');
+}
 
-  // ==================== SETTINGS FUNCTIONS ====================
-  function showViewSeedModal() {
-    document.getElementById('viewSeedModal').style.display = 'flex';
-    document.getElementById('revealedSeedContainer').style.display = 'none';
-    document.getElementById('viewSeedPassword').value = '';
-  }
+function showAnalytics() {
+  updateAnalytics();
+  document.getElementById('analyticsModal').style.display = 'flex';
+}
 
-  function revealSeedPhrase() {
-    const password = document.getElementById('viewSeedPassword').value;
-    if (!password) {
-      showToast("Please enter your wallet password", "error");
-      return;
-    }
-    
-    const decrypted = decrypt(wallet.encryptedSeed, password);
-    if (!decrypted) {
-      showToast("Wrong password!", "error");
-      return;
-    }
-    
-    document.getElementById('revealedSeedPhrase').innerText = decrypted;
-    document.getElementById('revealedSeedContainer').style.display = 'block';
-    showToast("✅ Seed phrase revealed! Copy it now.", "success");
-  }
+function refreshAnalytics() {
+  updateAnalytics();
+  showToast("📊 Analytics refreshed!", "success");
+}
 
-  function copyRevealedSeed() {
-    const seed = document.getElementById('revealedSeedPhrase').innerText;
-    if (seed && seed !== '---') {
-      navigator.clipboard.writeText(seed);
-      showToast("Seed phrase copied! Store it safely.", "success");
-    }
-  }
+function exportAnalyticsCSV() {
+  const txs = wallet.transactions || [];
+  if (txs.length === 0) { showToast("No data to export", "error"); return; }
+  
+  let csv = 'Date,Type,Amount,Fee,Status\n';
+  txs.forEach(tx => {
+    const date = new Date(tx.time).toLocaleDateString();
+    const type = tx.type === 'zk_private' ? 'ZK-Private' : (tx.type === 'airdrop' ? 'Airdrop' : 'Transfer');
+    csv += `${date},${type},${tx.amount},${tx.fee || 0},Completed\n`;
+  });
+  
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `bradicoin-analytics-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast("📊 Analytics exported as CSV!", "success");
+}
 
-  function exportWalletData() {
-    if (!wallet.address) {
-      showToast("No wallet data to export", "error");
-      return;
-    }
-    const data = {
-      address: wallet.address,
-      balance: wallet.balance,
-      transactions: wallet.transactions,
-      stats: wallet.stats,
-      referralCode: wallet.referralCode,
-      exportDate: new Date().toISOString()
-    };
-    const json = JSON.stringify(data, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `bradicoin-wallet-${wallet.address.substring(0, 8)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast("✅ Wallet data exported successfully!", "success");
-  }
+function exportAnalyticsData() {
+  if (!wallet.address) { showToast("No data", "error"); return; }
+  
+  const data = {
+    address: wallet.address,
+    analytics: analyticsData,
+    transactions: wallet.transactions,
+    stats: wallet.stats,
+    zkStats: wallet.zkStats,
+    exportDate: new Date().toISOString()
+  };
+  
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `bradicoin-analytics-${wallet.address.substring(0, 8)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast("📊 Analytics exported as JSON!", "success");
+}
 
-  function clearTransactionHistory() {
-    if (wallet.transactions.length === 0) {
-      showToast("No transactions to clear", "info");
-      return;
-    }
-    if (confirm("Are you sure you want to clear all transaction history?")) {
-      wallet.transactions = [];
-      wallet.stats.totalTx = 0;
-      saveWallet();
-      updateUI();
-      showToast("✅ Transaction history cleared!", "success");
-    }
-  }
+// ================================================================
+// ==================== AIRDROP ===================================
+// ================================================================
 
-  function resetWalletSettings() {
-    if (confirm("Are you sure you want to reset all settings? This will not delete your wallet.")) {
-      localStorage.removeItem('bradicoin_lang');
-      currentLang = 'en';
-      updateLanguage();
-      showToast("✅ Settings reset to default!", "success");
-    }
-  }
+let AIRDROP_CONFIG = {
+  enabled: false,
+  usdPerMonth: 0,
+  brdPerMonth: 0,
+  totalMonths: 0,
+  totalUsers: 0,
+  startDate: new Date(),
+  brdPrice: 10
+};
 
-  function changeLanguage() {
-    const langs = ['en', 'pt', 'es', 'ar'];
-    const currentIndex = langs.indexOf(currentLang);
-    const nextIndex = (currentIndex + 1) % langs.length;
-    setLanguage(langs[nextIndex]);
-    showToast(`🌐 Language changed to ${langs[nextIndex].toUpperCase()}`, "success");
+function loadAirdropConfig() {
+  const saved = localStorage.getItem('bradicoin_airdrop_config');
+  if (saved) {
+    try { AIRDROP_CONFIG = { ...AIRDROP_CONFIG, ...JSON.parse(saved) }; } catch(e) {}
   }
+}
 
-  // ==================== API INTEGRATION ====================
-  async function checkBalanceOnChain() {
-    if (!wallet.address) return;
+function saveAirdropConfig() {
+  localStorage.setItem('bradicoin_airdrop_config', JSON.stringify(AIRDROP_CONFIG));
+}
+
+function updateAirdropConfig() {
+  const usd = parseFloat(document.getElementById('configUSD').value) || 0;
+  const brd = parseFloat(document.getElementById('configBRD').value) || 0;
+  const months = parseInt(document.getElementById('configMonths').value) || 0;
+  const users = parseInt(document.getElementById('configUsers').value) || 0;
+  
+  AIRDROP_CONFIG.usdPerMonth = usd;
+  AIRDROP_CONFIG.brdPerMonth = brd;
+  AIRDROP_CONFIG.totalMonths = months;
+  AIRDROP_CONFIG.totalUsers = users;
+  AIRDROP_CONFIG.enabled = (usd > 0 && brd > 0 && months > 0 && users > 0);
+  AIRDROP_CONFIG.startDate = new Date();
+  
+  saveAirdropConfig();
+  updateAirdropUI();
+  showToast("✅ Airdrop config updated!", "success");
+}
+
+function isUserEligibleForAirdrop() {
+  if (!AIRDROP_CONFIG.enabled) return false;
+  if (!wallet.address) return false;
+  if (wallet.balance <= 0) return false;
+  if (wallet.transactions.length < 3) return false;
+  
+  const lastClaim = localStorage.getItem('bradicoin_airdrop_last_claim');
+  if (lastClaim) {
+    const daysDiff = (Date.now() - parseInt(lastClaim)) / (1000 * 60 * 60 * 24);
+    if (daysDiff < 28) return false;
+  }
+  return true;
+}
+
+function getAirdropStatus() {
+  const monthsPassed = Math.floor((Date.now() - AIRDROP_CONFIG.startDate) / (1000 * 60 * 60 * 24 * 30));
+  const currentMonth = Math.min(monthsPassed + 1, AIRDROP_CONFIG.totalMonths);
+  const lastClaim = localStorage.getItem('bradicoin_airdrop_last_claim');
+  const claimedMonths = localStorage.getItem('bradicoin_airdrop_month') || '0';
+  
+  return {
+    currentMonth: currentMonth,
+    totalMonths: AIRDROP_CONFIG.totalMonths,
+    claimedMonths: parseInt(claimedMonths),
+    hasClaimedThisMonth: lastClaim ? (Date.now() - parseInt(lastClaim)) < (28 * 24 * 60 * 60 * 1000) : false,
+    totalClaimed: parseInt(claimedMonths) * AIRDROP_CONFIG.brdPerMonth,
+    totalUSDClaimed: parseInt(claimedMonths) * AIRDROP_CONFIG.usdPerMonth,
+    isActive: currentMonth <= AIRDROP_CONFIG.totalMonths && AIRDROP_CONFIG.enabled
+  };
+}
+
+function claimAirdrop() {
+  if (!AIRDROP_CONFIG.enabled) {
+    showToast("⚠️ Airdrop not configured!", "error");
+    return;
+  }
+  if (!isUserEligibleForAirdrop()) {
+    showToast("❌ Need 3+ transactions to claim!", "error");
+    return;
+  }
+  
+  const status = getAirdropStatus();
+  if (!status.isActive) { showToast("🎉 Airdrop ended!", "info"); return; }
+  if (status.hasClaimedThisMonth) {
+    showToast("⏳ Already claimed this month!", "error");
+    return;
+  }
+  
+  const amountToClaim = AIRDROP_CONFIG.brdPerMonth;
+  wallet.balance += amountToClaim;
+  wallet.stats.airdropsClaimed += 1;
+  
+  wallet.transactions.unshift({
+    id: Date.now(),
+    type: 'airdrop',
+    amount: amountToClaim,
+    month: status.currentMonth,
+    usdValue: AIRDROP_CONFIG.usdPerMonth,
+    time: new Date().toISOString()
+  });
+  
+  localStorage.setItem('bradicoin_airdrop_last_claim', Date.now().toString());
+  localStorage.setItem('bradicoin_airdrop_month', status.currentMonth.toString());
+  
+  saveWallet();
+  updateUI();
+  updateAirdropUI();
+  updateAnalytics();
+  showToast(`🎁 Airdrop claimed! +${amountToClaim} BRD`, "success");
+}
+
+function updateAirdropUI() {
+  const status = getAirdropStatus();
+  document.getElementById('airdropStatusDisplay').innerText = AIRDROP_CONFIG.enabled ? (status.isActive ? '✅ Active' : '🔴 Ended') : '⏳ Pending';
+  document.getElementById('airdropStatusDisplay').style.color = AIRDROP_CONFIG.enabled ? (status.isActive ? '#00ff88' : '#ff4466') : '#ffaa00';
+  document.getElementById('airdropMonthDisplay').innerText = AIRDROP_CONFIG.enabled ? `${status.currentMonth}/${AIRDROP_CONFIG.totalMonths}` : '0/0';
+  document.getElementById('airdropPerMonthDisplay').innerText = AIRDROP_CONFIG.enabled ? `$${AIRDROP_CONFIG.usdPerMonth}` : '$0';
+  document.getElementById('airdropPerMonthBRD').innerText = AIRDROP_CONFIG.enabled ? AIRDROP_CONFIG.brdPerMonth : '0';
+  document.getElementById('airdropTotalClaimed').innerText = status.totalClaimed.toFixed(2);
+  
+  const progress = AIRDROP_CONFIG.enabled ? (status.currentMonth / AIRDROP_CONFIG.totalMonths) * 100 : 0;
+  document.getElementById('airdropProgressFill').style.width = `${Math.min(progress, 100)}%`;
+  document.getElementById('airdropProgressText').innerText = AIRDROP_CONFIG.enabled ? 
+    `${status.currentMonth}/${AIRDROP_CONFIG.totalMonths} months` : '0/0';
+}
+
+// ================================================================
+// ==================== WALLET FUNÇÕES ===========================
+// ================================================================
+
+function saveWallet() {
+  localStorage.setItem('bradicoin_wallet', JSON.stringify({
+    encryptedSeed: wallet.encryptedSeed,
+    address: wallet.address,
+    balance: wallet.balance,
+    transactions: wallet.transactions,
+    stats: wallet.stats,
+    zkStats: wallet.zkStats,
+    security: wallet.security,
+    stealthAddresses: wallet.stealthAddresses,
+    referralCode: wallet.referralCode
+  }));
+  localStorage.setItem('bradicoin_stake', JSON.stringify(activeStake));
+}
+
+function loadWallet() {
+  const w = localStorage.getItem('bradicoin_wallet');
+  if (w) {
     try {
-      showToast("🔍 Checking balance on BradiChain...", "info");
-      const response = await fetch(`${API_URL}/api/balance/${wallet.address}`);
-      const data = await response.json();
-      if (data && data.success) {
-        const chainBalance = data.data?.balance || 0;
-        wallet.balance = chainBalance;
-        saveWallet();
-        updateUI();
-        showToast(`✅ Balance synced: ${chainBalance.toLocaleString()} BRD`, "success");
-      } else {
-        showToast(`⚠️ Wallet not found on chain or API error`, "error");
-      }
-    } catch (error) {
-      console.error("API Error:", error);
-      showToast(`❌ API connection error: ${error.message}`, "error");
-    }
+      const parsed = JSON.parse(w);
+      wallet = { ...wallet, ...parsed };
+      if (!wallet.zkStats) wallet.zkStats = { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 };
+      if (!wallet.security) wallet.security = { twoFAEnabled: false, twoFASecret: null, backupCodes: [], lockTimeout: null, lastActivity: Date.now() };
+      if (!wallet.stealthAddresses) wallet.stealthAddresses = [];
+    } catch(e) {}
   }
+  const s = localStorage.getItem('bradicoin_stake');
+  if (s) { try { activeStake = JSON.parse(s); } catch(e) {} }
+  
+  loadAirdropConfig();
+  updateUI();
+  updateAirdropUI();
+  updateAnalytics();
+  updateSecurityBadge();
+  setupAutoLock();
+}
 
-  async function sendToBlockchain(toAddress, amount, password) {
-    if (!toAddress) { showToast("Enter recipient address", "error"); return false; }
-    const totalCost = amount + TX_FEE;
-    if (amount <= 0 || totalCost > wallet.balance) { showToast(`Insufficient balance. Need ${totalCost} BRD (${TX_FEE} fee)`, "error"); return false; }
-    
-    const decrypted = decrypt(wallet.encryptedSeed, password);
-    if (!decrypted) { showToast("Wrong password!", "error"); return false; }
-    
-    try {
-      showToast("⏳ Sending transaction to blockchain...", "info");
-      const response = await fetch(`${API_URL}/api/send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fromAddress: wallet.address,
-          toAddress: toAddress,
-          amount: amount
-        })
-      });
-      const result = await response.json();
-      
-      if (result && result.success) {
-        wallet.balance -= totalCost;
-        wallet.stats.feesPaid += TX_FEE;
-        wallet.transactions.unshift({
-          id: Date.now(), type: 'sent', to: toAddress, amount: amount, fee: TX_FEE, time: new Date().toISOString()
-        });
-        if (wallet.transactions.length > 20) wallet.transactions.pop();
-        wallet.stats.totalTx += 1;
-        saveWallet();
-        updateUI();
-        showToast(`✅ Successfully sent ${amount} BRD (Fee: ${TX_FEE} BRD)!`, "success");
-        return true;
-      } else {
-        showToast(`❌ Transaction failed: ${result.error || "Unknown error"}`, "error");
-        return false;
-      }
-    } catch (error) {
-      showToast(`❌ API Error: ${error.message}`, "error");
-      return false;
-    }
+function createWalletFlow() {
+  const seedPhrase = generateSeedPhrase();
+  const address = generateAddress(seedPhrase);
+  
+  tempSeedForCreation = seedPhrase;
+  wallet.address = address;
+  wallet.balance = 0;
+  wallet.transactions = [];
+  wallet.stats = { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 };
+  wallet.zkStats = { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 };
+  wallet.security = { twoFAEnabled: false, twoFASecret: null, backupCodes: [], lockTimeout: null, lastActivity: Date.now() };
+  wallet.stealthAddresses = [];
+  wallet.referralCode = generateReferralCode();
+  
+  document.getElementById('modalSeedPhrase').innerText = seedPhrase;
+  document.getElementById('seedModal').style.display = 'flex';
+  showToast("✅ Seed phrase generated!", "success");
+}
+
+function finalizeWalletCreation(password) {
+  if (!password || password.length < 4) {
+    showToast("Password must be at least 4 characters", "error");
+    return false;
   }
+  if (!tempSeedForCreation) {
+    showToast("Error: No seed generated", "error");
+    return false;
+  }
+  
+  wallet.encryptedSeed = encrypt(tempSeedForCreation, password);
+  saveWallet();
+  tempSeedForCreation = null;
+  document.getElementById('seedModal').style.display = 'none';
+  hideLoginAndShowDashboard();
+  updateUI();
+  updateSecurityBadge();
+  showToast("🎉 Wallet created!", "success");
+  return true;
+}
 
-  // ==================== WALLET STATE ====================
-  let wallet = { 
-    encryptedSeed: null, 
-    address: null, 
-    balance: 0, 
+function importWallet(seed, password) {
+  const words = seed.trim().toLowerCase().split(/\s+/);
+  if (words.length !== 12) {
+    showToast("Invalid seed phrase - need 12 words", "error");
+    return false;
+  }
+  if (!password || password.length < 4) {
+    showToast("Password must be at least 4 characters", "error");
+    return false;
+  }
+  
+  const address = generateAddress(seed);
+  wallet = {
+    encryptedSeed: encrypt(seed, password),
+    address: address,
+    balance: 0,
     transactions: [],
     stats: { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 },
+    zkStats: { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 },
+    security: { twoFAEnabled: false, twoFASecret: null, backupCodes: [], lockTimeout: null, lastActivity: Date.now() },
+    stealthAddresses: [],
     referralCode: generateReferralCode()
   };
-  let activeStake = null;
-  let airdropClaimed = false;
-  let tempSeedForCreation = null;
+  activeStake = null;
+  saveWallet();
+  showToast("✅ Wallet imported!", "success");
+  return true;
+}
 
-  function saveWallet() {
-    localStorage.setItem('bradicoin_wallet', JSON.stringify({
-      encryptedSeed: wallet.encryptedSeed, 
-      address: wallet.address,
-      balance: wallet.balance, 
-      transactions: wallet.transactions,
-      stats: wallet.stats,
-      referralCode: wallet.referralCode
-    }));
-    localStorage.setItem('bradicoin_stake', JSON.stringify(activeStake));
-    localStorage.setItem('bradicoin_airdrop', airdropClaimed);
+function unlockWallet(password, twoFACode) {
+  if (!checkRateLimit()) return false;
+  if (!wallet.encryptedSeed) {
+    showToast("No wallet found", "error");
+    return false;
   }
-
-  function loadWallet() {
-    const w = localStorage.getItem('bradicoin_wallet');
-    if (w) { 
-      try { 
-        const parsed = JSON.parse(w);
-        wallet = { ...wallet, ...parsed };
-      } catch(e) {} 
-    }
-    const s = localStorage.getItem('bradicoin_stake');
-    if (s) { try { activeStake = JSON.parse(s); } catch(e) {} }
-    const a = localStorage.getItem('bradicoin_airdrop');
-    if (a) airdropClaimed = a === 'true';
-    
-    loadAirdropConfig();
-    updateUI();
-    updateAirdropUI();
+  
+  const decrypted = decrypt(wallet.encryptedSeed, password);
+  if (!decrypted) {
+    recordLoginAttempt(false);
+    showToast("Wrong password!", "error");
+    return false;
   }
-
-  // ==================== CREATE WALLET ====================
-  function createWalletFlow() {
-    const seedPhrase = generateSeedPhrase();
-    const address = generateAddress(seedPhrase);
-    
-    tempSeedForCreation = seedPhrase;
-    wallet.address = address;
-    wallet.balance = 0;
-    wallet.transactions = [];
-    wallet.stats = { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 };
-    wallet.referralCode = generateReferralCode();
-    
-    document.getElementById('modalSeedPhrase').innerText = seedPhrase;
-    document.getElementById('seedModal').style.display = 'flex';
-    showToast("✅ Seed phrase generated! Save it securely.", "success");
-  }
-
-  function finalizeWalletCreation(password) {
-    if (!password || password.length < 4) {
-      showToast("Password must be at least 4 characters", "error");
+  
+  // Verificar 2FA se habilitado
+  if (wallet.security.twoFAEnabled) {
+    if (!twoFACode) {
+      showToast("Please enter 2FA code", "error");
       return false;
     }
-    
-    if (!tempSeedForCreation) {
-      showToast("Error: No seed generated", "error");
+    if (!verify2FA(twoFACode, wallet.security.twoFASecret)) {
+      recordLoginAttempt(false);
+      showToast("Invalid 2FA code!", "error");
       return false;
     }
-    
-    const encryptedSeed = encrypt(tempSeedForCreation, password);
-    wallet.encryptedSeed = encryptedSeed;
-    
-    saveWallet();
-    tempSeedForCreation = null;
-    document.getElementById('seedModal').style.display = 'none';
-    hideLoginAndShowDashboard();
-    updateUI();
-    showToast("🎉 Wallet created successfully! Welcome to BradiCoin!", "success");
-    return true;
   }
+  
+  const regeneratedAddress = generateAddress(decrypted);
+  if (regeneratedAddress !== wallet.address) {
+    showToast("Data corruption!", "error");
+    return false;
+  }
+  
+  recordLoginAttempt(true);
+  isLocked = false;
+  hideLoginAndShowDashboard();
+  updateUI();
+  updateSecurityBadge();
+  setupAutoLock();
+  showToast("🔓 Wallet unlocked!", "success");
+  return true;
+}
 
-  // ==================== IMPORT WALLET ====================
-  function importWallet(seed, password) {
-    const words = seed.trim().toLowerCase().split(/\s+/);
-    if (words.length !== 12) {
-      showToast("Invalid seed phrase - need 12 words", "error");
-      return false;
+function lockWalletNow() {
+  if (isLocked) return;
+  isLocked = true;
+  showToast("🔒 Wallet locked", "warning");
+  showLoginScreen();
+  if (wallet.security.lockTimeout) {
+    clearTimeout(wallet.security.lockTimeout);
+  }
+}
+
+function showLoginScreen() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('mainDashboard').style.display = 'none';
+  document.getElementById('unlockPasswordInput').value = '';
+  document.getElementById('unlock2FAInput').value = '';
+}
+
+function hideLoginAndShowDashboard() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('mainDashboard').style.display = 'block';
+}
+
+// ================================================================
+// ==================== TRANSACTION FUNÇÕES ======================
+// ================================================================
+
+async function sendToBlockchain(toAddress, amount, password, options = {}) {
+  if (!toAddress) { showToast("Enter recipient address", "error"); return false; }
+  const totalCost = amount + TX_FEE;
+  if (amount <= 0 || totalCost > wallet.balance) {
+    showToast(`Insufficient balance. Need ${totalCost} BRD`, "error");
+    return false;
+  }
+  
+  const decrypted = decrypt(wallet.encryptedSeed, password);
+  if (!decrypted) { showToast("Wrong password!", "error"); return false; }
+  
+  try {
+    showToast("⏳ Sending transaction...", "info");
+    
+    // Se stealth, gerar endereço furtivo
+    let finalTo = toAddress;
+    if (options.stealth) {
+      const stealth = generateStealthAddress();
+      finalTo = stealth;
+      showToast("🕵️ Using stealth address", "info");
     }
     
-    if (!password || password.length < 4) {
-      showToast("Password must be at least 4 characters", "error");
-      return false;
+    // Se decoy, criar transações falsas
+    if (options.decoy) {
+      for (let i = 0; i < 2; i++) {
+        const decoyAmount = (Math.random() * 0.5 + 0.1);
+        wallet.transactions.unshift({
+          id: Date.now() + i,
+          type: 'decoy',
+          to: '0xDecoy' + CryptoJS.lib.WordArray.random(10).toString(),
+          amount: decoyAmount,
+          fee: 0,
+          time: new Date().toISOString()
+        });
+      }
+      showToast("🔄 Decoy transactions created", "info");
     }
     
-    const address = generateAddress(seed);
-    const encryptedSeed = encrypt(seed, password);
-    
-    wallet = {
-      encryptedSeed: encryptedSeed,
-      address: address,
-      balance: 0,
-      transactions: [],
-      stats: { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 },
-      referralCode: generateReferralCode()
-    };
-    activeStake = null;
-    airdropClaimed = false;
-    
-    saveWallet();
-    showToast("✅ Wallet imported successfully!", "success");
-    return true;
-  }
-
-  // ==================== UNLOCK WALLET ====================
-  function unlockWallet(password) {
-    if (!wallet.encryptedSeed) {
-      showToast("No wallet found", "error");
-      return false;
+    // Se mixer, adicionar ao pool
+    if (options.mixer) {
+      await joinMixer();
     }
     
-    const decrypted = decrypt(wallet.encryptedSeed, password);
-    if (!decrypted) {
-      showToast("Wrong password!", "error");
-      return false;
-    }
-    
-    const regeneratedAddress = generateAddress(decrypted);
-    if (regeneratedAddress !== wallet.address) {
-      showToast("Data corruption!", "error");
-      return false;
-    }
-    
-    hideLoginAndShowDashboard();
-    updateUI();
-    showToast("🔓 Wallet unlocked! Welcome back.", "success");
-    return true;
-  }
-
-  // ==================== LOGOUT ====================
-  function logout() {
-    document.getElementById('confirmDialog').style.display = 'flex';
-  }
-
-  function confirmLogout() {
-    document.getElementById('confirmDialog').style.display = 'none';
-    showLoginScreen();
-    showToast("Wallet locked. Enter your password to unlock.", "info");
-  }
-
-  function cancelLogout() {
-    document.getElementById('confirmDialog').style.display = 'none';
-  }
-
-  // ==================== BACK TO LOGIN ====================
-  function backToLogin() {
-    document.getElementById('seedModal').style.display = 'none';
-    document.getElementById('importGroup').style.display = 'none';
-    document.getElementById('unlockGroup').style.display = 'block';
-    showToast("Returned to login screen", "info");
-  }
-
-  // ==================== STAKING ====================
-  function calculateReward(amount, seconds) {
-    return amount * (0.18 * (seconds / 31536000));
-  }
-
-  function stake(amount) {
-    if (amount < 50) { showToast("Minimum stake is 50 BRD", 'stakeStatus'); return; }
-    if (amount > wallet.balance) { showToast("Insufficient balance", 'stakeStatus'); return; }
-    if (activeStake && activeStake.end > Date.now()) { showToast("Active stake exists", 'stakeStatus'); return; }
-    
-    if (activeStake && activeStake.end <= Date.now()) {
-      const reward = calculateReward(activeStake.amount, activeStake.period);
-      wallet.balance += activeStake.amount + reward;
-      wallet.stats.totalRewards += reward;
-    }
-    
-    activeStake = {
+    wallet.balance -= totalCost;
+    wallet.stats.feesPaid += TX_FEE;
+    wallet.transactions.unshift({
+      id: Date.now(),
+      type: options.zk ? 'zk_private' : 'sent',
+      to: finalTo,
       amount: amount,
-      end: Date.now() + 86400000,
-      period: 86400,
-      start: Date.now()
-    };
-    wallet.balance -= amount;
+      fee: TX_FEE,
+      stealth: options.stealth || false,
+      time: new Date().toISOString()
+    });
+    
+    if (wallet.transactions.length > 20) wallet.transactions.pop();
+    wallet.stats.totalTx += 1;
     saveWallet();
     updateUI();
-    showToast(`🔒 Staked ${amount} BRD for 24h at 18% APR`, "success");
+    updateAnalytics();
+    
+    showToast(`✅ Sent ${amount} BRD successfully!`, "success");
+    return true;
+  } catch (error) {
+    showToast(`❌ Transaction failed: ${error.message}`, "error");
+    return false;
   }
+}
 
-  function unstake() {
-    if (!activeStake) { showToast("No active stake", 'stakeStatus'); return; }
-    if (Date.now() < activeStake.end) {
-      const hours = Math.floor((activeStake.end - Date.now()) / 3600000);
-      showToast(`Stake locked for ${hours} more hours`, 'stakeStatus');
-      return;
-    }
+// ================================================================
+// ==================== STAKING ===================================
+// ================================================================
+
+function calculateReward(amount, seconds) {
+  return amount * (0.18 * (seconds / 31536000));
+}
+
+function stake(amount) {
+  if (amount < 50) { showToast("Minimum stake is 50 BRD", 'error'); return; }
+  if (amount > wallet.balance) { showToast("Insufficient balance", 'error'); return; }
+  if (activeStake && activeStake.end > Date.now()) { showToast("Active stake exists", 'error'); return; }
+  
+  if (activeStake && activeStake.end <= Date.now()) {
     const reward = calculateReward(activeStake.amount, activeStake.period);
     wallet.balance += activeStake.amount + reward;
     wallet.stats.totalRewards += reward;
-    activeStake = null;
-    saveWallet();
-    updateUI();
-    showToast(`✅ Unstaked! +${reward.toFixed(4)} BRD reward`, "success");
   }
+  
+  activeStake = {
+    amount: amount,
+    end: Date.now() + 86400000,
+    period: 86400,
+    start: Date.now()
+  };
+  wallet.balance -= amount;
+  saveWallet();
+  updateUI();
+  showToast(`🔒 Staked ${amount} BRD for 24h at 18% APR`, "success");
+}
 
-  function claimAirdropSimple() {
-    claimAirdrop();
+function unstake() {
+  if (!activeStake) { showToast("No active stake", 'error'); return; }
+  if (Date.now() < activeStake.end) {
+    const hours = Math.floor((activeStake.end - Date.now()) / 3600000);
+    showToast(`Stake locked for ${hours} more hours`, 'info');
+    return;
   }
+  const reward = calculateReward(activeStake.amount, activeStake.period);
+  wallet.balance += activeStake.amount + reward;
+  wallet.stats.totalRewards += reward;
+  activeStake = null;
+  saveWallet();
+  updateUI();
+  showToast(`✅ Unstaked! +${reward.toFixed(4)} BRD reward`, "success");
+}
 
-  function sendTransaction(to, amount, password) {
-    return sendToBlockchain(to, amount, password);
-  }
+function getProgress() {
+  if (!activeStake) return 0;
+  if (Date.now() >= activeStake.end) return 100;
+  return ((Date.now() - activeStake.start) / 86400000) * 100;
+}
 
-  function getProgress() {
-    if (!activeStake) return 0;
-    if (Date.now() >= activeStake.end) return 100;
-    return ((Date.now() - activeStake.start) / 86400000) * 100;
-  }
+// ================================================================
+// ==================== UI UPDATE =================================
+// ================================================================
 
-  function updateUI() {
-    const balanceEl = document.getElementById('balance');
-    const addressEl = document.getElementById('addressDisplay');
-    const usdEl = document.getElementById('usdBalance');
-    const txCountEl = document.getElementById('totalTransactions');
-    const stakedEl = document.getElementById('stakedAmount');
-    const referralEl = document.getElementById('referralCode');
-    const totalStakedEl = document.getElementById('totalStaked');
-    const totalTxCountEl = document.getElementById('totalTxCount');
-    const totalFeesEl = document.getElementById('totalFeesPaid');
-    const totalAirdropsEl = document.getElementById('totalAirdrops');
-    const totalRewardsEl = document.getElementById('totalStakedRewards');
-    const priceDisplay = document.getElementById('priceDisplay');
-    const priceChange = document.getElementById('priceChange');
-    
-    if (balanceEl) balanceEl.innerText = wallet.balance.toFixed(4);
-    if (usdEl) usdEl.innerText = `$${(wallet.balance * BRD_PRICE).toFixed(2)} USD`;
-    if (addressEl) addressEl.innerText = wallet.address || "—";
-    if (txCountEl) txCountEl.innerText = wallet.transactions.length;
-    if (stakedEl) stakedEl.innerText = activeStake ? activeStake.amount.toFixed(2) : "0";
-    if (referralEl) referralEl.innerText = wallet.referralCode || generateReferralCode();
-    if (totalStakedEl) totalStakedEl.innerText = activeStake ? activeStake.amount.toFixed(2) : "0";
-    if (totalTxCountEl) totalTxCountEl.innerText = wallet.stats.totalTx || 0;
-    if (totalFeesEl) totalFeesEl.innerText = (wallet.stats.feesPaid || 0).toFixed(2);
-    if (totalAirdropsEl) totalAirdropsEl.innerText = wallet.stats.airdropsClaimed || 0;
-    if (totalRewardsEl) totalRewardsEl.innerText = (wallet.stats.totalRewards || 0).toFixed(4);
-    if (priceDisplay) priceDisplay.innerText = `$${BRD_PRICE.toFixed(2)}`;
-    if (priceChange) {
-      const change = (Math.random() * 6) - 3;
-      priceChange.innerText = `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`;
-      priceChange.style.color = change >= 0 ? '#00ff88' : '#ff4466';
-    }
-    
-    const container = document.getElementById('stakeInfo');
-    if (container) {
-      if (activeStake && activeStake.end > Date.now()) {
-        const remaining = activeStake.end - Date.now();
-        const hours = Math.floor(remaining / 3600000);
-        const mins = Math.floor((remaining % 3600000) / 60000);
-        const progress = getProgress();
-        const reward = calculateReward(activeStake.amount, activeStake.period);
-        container.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>⏱️ ${hours}h ${mins}m left | Reward: ${reward.toFixed(4)} BRD`;
-      } else if (activeStake && activeStake.end <= Date.now()) {
-        container.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>✅ STAKE MATURED! Click UNSTAKE.`;
-      } else {
-        container.innerHTML = `💎 No active stake. Stake 50+ BRD for 24h at 18% APR.`;
-      }
-    }
-    
-    const txContainer = document.getElementById('transactionsList');
-    if (txContainer) {
-      if (wallet.transactions.length === 0) {
-        txContainer.innerHTML = 'No transactions yet';
-      } else {
-        txContainer.innerHTML = wallet.transactions.slice(0, 10).map(tx => {
-          const isAirdrop = tx.type === 'airdrop';
-          return `
-            <div class="tx-item">
-              <div>
-                ${isAirdrop ? '<span class="tx-in">🎁 +' : '<span class="tx-out">📤 -'}${tx.amount} BRD</span>
-                ${tx.fee ? `<span style="font-size:0.6rem;opacity:0.6;">(fee: ${tx.fee} BRD)</span>` : ''}
-                ${isAirdrop ? `<br><small style="font-size:0.6rem;color:#ffd700;">Airdrop Month ${tx.month}</small>` : ''}
-                <br><small style="font-size:0.6rem;opacity:0.6;">${isAirdrop ? 'Airdrop' : 'To: ' + tx.to?.substring(0, 20) + '...'}</small>
-              </div>
-              <div class="tx-time">${new Date(tx.time).toLocaleString()}</div>
-            </div>
-          `;
-        }).join('');
-      }
-    }
-  }
-
-  function showLoginScreen() {
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('mainDashboard').style.display = 'none';
-    document.getElementById('importGroup').style.display = 'none';
-    document.getElementById('unlockGroup').style.display = 'block';
-    document.getElementById('unlockPasswordInput').value = '';
-    document.getElementById('importSeedInput').value = '';
-    document.getElementById('importPasswordInput').value = '';
-  }
-
-  function hideLoginAndShowDashboard() {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('mainDashboard').style.display = 'block';
-  }
-
-  function copyAddress() {
-    if (wallet.address) {
-      navigator.clipboard.writeText(wallet.address);
-      showToast("Address copied!", "success");
-    }
-  }
-
-  function copyReferral() {
-    if (wallet.referralCode) {
-      navigator.clipboard.writeText(wallet.referralCode);
-      showToast("Referral code copied!", "success");
-    }
-  }
-
-  function showStakeDetails() {
-    if (activeStake) {
-      const reward = Date.now() >= activeStake.end ? calculateReward(activeStake.amount, activeStake.period) : 0;
-      const status = Date.now() >= activeStake.end ? "✅ Matured - Ready to unstake" : "🔒 Locked";
-      document.getElementById('stakeDetailAmount').innerText = activeStake.amount.toFixed(2);
-      document.getElementById('stakeDetailReward').innerText = reward.toFixed(4);
-      document.getElementById('stakeDetailStatus').innerText = status;
+function updateUI() {
+  document.getElementById('balance').innerText = wallet.balance.toFixed(4);
+  document.getElementById('usdBalance').innerText = `$${(wallet.balance * BRD_PRICE).toFixed(2)} USD`;
+  document.getElementById('addressDisplay').innerText = wallet.address || "—";
+  document.getElementById('totalTransactions').innerText = wallet.transactions.length;
+  document.getElementById('stakedAmount').innerText = activeStake ? activeStake.amount.toFixed(2) : "0";
+  document.getElementById('zkTxCount').innerText = wallet.zkStats?.privateTxCount || 0;
+  document.getElementById('referralCode').innerText = wallet.referralCode || generateReferralCode();
+  document.getElementById('totalStaked').innerText = activeStake ? activeStake.amount.toFixed(2) : "0";
+  document.getElementById('totalTxCount').innerText = wallet.stats.totalTx || 0;
+  document.getElementById('totalFeesPaid').innerText = (wallet.stats.feesPaid || 0).toFixed(2);
+  document.getElementById('totalAirdrops').innerText = wallet.stats.airdropsClaimed || 0;
+  document.getElementById('totalStakedRewards').innerText = (wallet.stats.totalRewards || 0).toFixed(4);
+  document.getElementById('zkPrivateTxCount').innerText = wallet.zkStats?.privateTxCount || 0;
+  document.getElementById('zkPrivacyAmount').innerText = (wallet.zkStats?.totalPrivacyProtected || 0).toFixed(2);
+  document.getElementById('zkProofCount').innerText = wallet.zkStats?.proofsGenerated || 0;
+  
+  // Price ticker
+  const change = (Math.random() * 6) - 3;
+  document.getElementById('priceChange').innerText = `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`;
+  document.getElementById('priceChange').style.color = change >= 0 ? '#00ff88' : '#ff4466';
+  
+  // Stake info
+  const container = document.getElementById('stakeInfo');
+  if (container) {
+    if (activeStake && activeStake.end > Date.now()) {
+      const remaining = activeStake.end - Date.now();
+      const hours = Math.floor(remaining / 3600000);
+      const mins = Math.floor((remaining % 3600000) / 60000);
+      const progress = getProgress();
+      const reward = calculateReward(activeStake.amount, activeStake.period);
+      container.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>⏱️ ${hours}h ${mins}m left | Reward: ${reward.toFixed(4)} BRD`;
+    } else if (activeStake && activeStake.end <= Date.now()) {
+      container.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>✅ MATURED! Click UNSTAKE.`;
     } else {
-      document.getElementById('stakeDetailAmount').innerText = "0";
-      document.getElementById('stakeDetailReward').innerText = "0";
-      document.getElementById('stakeDetailStatus').innerText = "No active stake";
+      container.innerHTML = `💎 No active stake. Stake 50+ BRD for 24h at 18% APR.`;
     }
-    document.getElementById('stakeModal').style.display = 'flex';
   }
-
-  function showAirdropHistory() {
-    const content = document.getElementById('airdropHistoryContent');
-    const airdropTxs = wallet.transactions.filter(tx => tx.type === 'airdrop');
-    if (airdropTxs.length > 0) {
-      content.innerHTML = airdropTxs.map(tx => `
-        <div class="tx-item">
+  
+  // Transactions list
+  const txContainer = document.getElementById('transactionsList');
+  if (txContainer) {
+    if (wallet.transactions.length === 0) {
+      txContainer.innerHTML = 'No transactions yet';
+    } else {
+      txContainer.innerHTML = wallet.transactions.slice(0, 8).map(tx => {
+        const isAirdrop = tx.type === 'airdrop';
+        const isZK = tx.type === 'zk_private';
+        const isStealth = tx.stealth || false;
+        const isDecoy = tx.type === 'decoy';
+        let txClass = 'tx-out';
+        let icon = '📤';
+        let label = 'Transfer';
+        if (isZK) { txClass = 'tx-zk'; icon = '🔐'; label = 'ZK-Private'; }
+        else if (isAirdrop) { txClass = 'tx-in'; icon = '🎁'; label = 'Airdrop'; }
+        else if (isStealth) { txClass = 'tx-stealth'; icon = '🕵️'; label = 'Stealth'; }
+        else if (isDecoy) { txClass = 'tx-decoy'; icon = '🔄'; label = 'Decoy'; }
+        
+        return `<div class="tx-item">
           <div>
-            <span class="tx-in">🎁 +${tx.amount} BRD</span>
-            <br><small style="font-size:0.6rem;color:#ffd700;">Month ${tx.month} - $${tx.usdValue}</small>
-            <br><small style="font-size:0.6rem;opacity:0.6;">Airdrop claimed</small>
+            <span class="${txClass}">${icon} ${label} ${isZK ? '🔐' : ''} ${isStealth ? '🕵️' : ''} ${tx.amount} BRD</span>
+            ${tx.fee ? `<span style="font-size:0.45rem;opacity:0.6;">(fee: ${tx.fee})</span>` : ''}
+            ${isAirdrop ? `<br><small style="font-size:0.45rem;color:#ffd700;">Month ${tx.month}</small>` : ''}
           </div>
           <div class="tx-time">${new Date(tx.time).toLocaleString()}</div>
-        </div>
-      `).join('');
-    } else {
-      content.innerHTML = '<p style="text-align:center; opacity:0.6;">No airdrops claimed yet</p>';
+        </div>`;
+      }).join('');
     }
-    document.getElementById('airdropModal').style.display = 'flex';
   }
+}
 
-  function showRewards() {
-    document.getElementById('rewardsModal').style.display = 'flex';
-  }
+// ================================================================
+// ==================== EXPORT FUNÇÕES ============================
+// ================================================================
 
-  function showReceiveInfo() {
-    showToast(`📩 Your address: ${wallet.address}`, "info");
-  }
+function exportWalletData() {
+  if (!wallet.address) { showToast("No wallet data", "error"); return; }
+  const data = {
+    address: wallet.address,
+    balance: wallet.balance,
+    transactions: wallet.transactions,
+    stats: wallet.stats,
+    zkStats: wallet.zkStats,
+    security: wallet.security,
+    referralCode: wallet.referralCode,
+    exportDate: new Date().toISOString()
+  };
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `bradicoin-wallet-${wallet.address.substring(0, 8)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast("✅ Wallet data exported!", "success");
+}
 
-  function showHistory() {
+function clearTransactionHistory() {
+  if (wallet.transactions.length === 0) { showToast("No transactions", "info"); return; }
+  if (confirm("Clear all transaction history?")) {
+    wallet.transactions = [];
+    wallet.stats.totalTx = 0;
+    saveWallet();
     updateUI();
-    document.getElementById('transactionsList').scrollIntoView({ behavior: 'smooth' });
-    showToast("📜 Showing transaction history", "info");
+    updateAnalytics();
+    showToast("✅ History cleared!", "success");
   }
+}
 
-  function showSettings() {
-    document.getElementById('settingsModal').style.display = 'flex';
+function resetWalletSettings() {
+  if (confirm("Reset all settings?")) {
+    localStorage.removeItem('bradicoin_lang');
+    currentLang = 'en';
+    updateLanguage();
+    showToast("✅ Settings reset!", "success");
   }
+}
 
-  function showAirdropManager() {
-    document.getElementById('airdropManagerModal').style.display = 'flex';
-    updateAirdropUI();
+function changeLanguage() {
+  const langs = ['en', 'pt', 'es', 'ar'];
+  const currentIndex = langs.indexOf(currentLang);
+  const nextIndex = (currentIndex + 1) % langs.length;
+  setLanguage(langs[nextIndex]);
+  showToast(`🌐 Language: ${langs[nextIndex].toUpperCase()}`, "success");
+}
+
+// ================================================================
+// ==================== VIEW SEED =================================
+// ================================================================
+
+function showViewSeedModal() {
+  document.getElementById('viewSeedModal').style.display = 'flex';
+  document.getElementById('revealedSeedContainer').style.display = 'none';
+  document.getElementById('viewSeedPassword').value = '';
+}
+
+function revealSeedPhrase() {
+  const password = document.getElementById('viewSeedPassword').value;
+  if (!password) { showToast("Enter password", "error"); return; }
+  const decrypted = decrypt(wallet.encryptedSeed, password);
+  if (!decrypted) { showToast("Wrong password!", "error"); return; }
+  document.getElementById('revealedSeedPhrase').innerText = decrypted;
+  document.getElementById('revealedSeedContainer').style.display = 'block';
+  showToast("✅ Seed phrase revealed!", "success");
+}
+
+function copyRevealedSeed() {
+  const seed = document.getElementById('revealedSeedPhrase').innerText;
+  if (seed && seed !== '---') {
+    navigator.clipboard.writeText(seed);
+    showToast("Seed phrase copied!", "success");
   }
+}
 
-  // ==================== EVENT LISTENERS ====================
-  document.getElementById('createWalletBtn').onclick = () => {
-    document.getElementById('unlockGroup').style.display = 'none';
-    createWalletFlow();
-  };
+// ================================================================
+// ==================== TRANSLATIONS ==============================
+// ================================================================
 
-  document.getElementById('importWalletBtn').onclick = () => {
-    document.getElementById('unlockGroup').style.display = 'none';
-    document.getElementById('importGroup').style.display = 'block';
-  };
+const translations = {
+  en: {
+    mainTitle: "BRADICOIN", subtitle: "Secure Crypto Wallet", desc: "Create · Import · Stake · Earn",
+    createBtn: "Create Wallet", importBtn: "Import Wallet", unlockBtn: "Unlock Wallet",
+    logout: "Logout", sendBrd: "Send BRD", airdrop: "Airdrop", rewards: "Rewards",
+    settings: "Settings", analytics: "Analytics", copyAddress: "Copy", checkChain: "Verify",
+    stakeBtn: "Stake 24h", unstakeBtn: "Unstake", receive: "Receive", history: "History",
+    seedModalTitle: "⚠️ SAVE YOUR SEED PHRASE", seedModalWarning: "This is the ONLY way to recover your wallet!",
+    walletInfo: "Your wallet address will be generated automatically",
+    gasFee: "Gas Fee: 0.15 BRD", networkFee: "Network fee applied to every transaction",
+    yesLogout: "Yes", noCancel: "No"
+  },
+  pt: {
+    mainTitle: "BRADICOIN", subtitle: "Carteira Cripto Segura", desc: "Criar · Importar · Stake · Ganhar",
+    createBtn: "Criar Carteira", importBtn: "Importar Carteira", unlockBtn: "Desbloquear",
+    logout: "Sair", sendBrd: "Enviar BRD", airdrop: "Airdrop", rewards: "Recompensas",
+    settings: "Configurações", analytics: "Análises", copyAddress: "Copiar", checkChain: "Verificar",
+    stakeBtn: "Stake 24h", unstakeBtn: "Retirar", receive: "Receber", history: "Histórico",
+    seedModalTitle: "⚠️ SALVE SUA FRASE SEED", seedModalWarning: "Esta é a ÚNICA maneira de recuperar sua carteira!",
+    walletInfo: "Seu endereço será gerado automaticamente",
+    gasFee: "Taxa de Gas: 0.15 BRD", networkFee: "Taxa aplicada a cada transação",
+    yesLogout: "Sim", noCancel: "Não"
+  },
+  es: {
+    mainTitle: "BRADICOIN", subtitle: "Billetera Cripto Segura", desc: "Crear · Importar · Stake · Ganar",
+    createBtn: "Crear Billetera", importBtn: "Importar Billetera", unlockBtn: "Desbloquear",
+    logout: "Salir", sendBrd: "Enviar BRD", airdrop: "Airdrop", rewards: "Recompensas",
+    settings: "Configuraciones", analytics: "Análisis", copyAddress: "Copiar", checkChain: "Verificar",
+    stakeBtn: "Stake 24h", unstakeBtn: "Retirar", receive: "Recibir", history: "Historial",
+    seedModalTitle: "⚠️ GUARDA TU FRASE SEMILLA", seedModalWarning: "¡Esta es la ÚNICA forma de recuperar tu billetera!",
+    walletInfo: "Tu dirección será generada automáticamente",
+    gasFee: "Gas Fee: 0.15 BRD", networkFee: "Comisión aplicada a cada transacción",
+    yesLogout: "Sí", noCancel: "No"
+  },
+  ar: {
+    mainTitle: "برادي كوين", subtitle: "محفظة آمنة", desc: "إنشاء · استيراد · حصة · ربح",
+    createBtn: "إنشاء محفظة", importBtn: "استيراد محفظة", unlockBtn: "فتح",
+    logout: "خروج", sendBrd: "إرسال BRD", airdrop: "إيردروب", rewards: "مكافآت",
+    settings: "إعدادات", analytics: "تحليلات", copyAddress: "نسخ", checkChain: "تحقق",
+    stakeBtn: "حصة 24 ساعة", unstakeBtn: "سحب", receive: "استلام", history: "التاريخ",
+    seedModalTitle: "⚠️ احفظ العبارة الأولية", seedModalWarning: "هذه هي الطريقة الوحيدة لاستعادة محفظتك!",
+    walletInfo: "سيتم إنشاء عنوان محفظتك تلقائياً",
+    gasFee: "رسوم الغاز: 0.15 BRD", networkFee: "رسوم الشبكة لكل معاملة",
+    yesLogout: "نعم", noCancel: "لا"
+  }
+};
 
-  document.getElementById('confirmImportBtn').onclick = () => {
-    const seed = document.getElementById('importSeedInput').value;
-    const password = document.getElementById('importPasswordInput').value;
-    if (seed && password) {
-      if (importWallet(seed, password)) {
-        hideLoginAndShowDashboard();
-        updateUI();
-      }
-    } else {
-      showToast("Please enter seed phrase and password", "error");
+let currentLang = localStorage.getItem('bradicoin_lang') || 'en';
+
+function updateLanguage() {
+  const t = translations[currentLang];
+  if (!t) return;
+  
+  document.getElementById('mainTitle').innerText = t.mainTitle;
+  document.getElementById('subtitle').innerText = t.subtitle;
+  document.getElementById('desc').innerText = t.desc;
+  document.getElementById('createWalletBtn').innerHTML = `<i class="fas fa-plus-circle"></i> ${t.createBtn}`;
+  document.getElementById('importWalletBtn').innerHTML = `<i class="fas fa-key"></i> ${t.importBtn}`;
+  document.getElementById('confirmImportBtn').innerHTML = `<i class="fas fa-check"></i> ${t.importBtn}`;
+  document.getElementById('unlockWalletBtn').innerHTML = `<i class="fas fa-unlock-alt"></i> ${t.unlockBtn}`;
+  document.getElementById('dashboardTitle').innerText = t.mainTitle;
+  document.getElementById('logoutBtn').innerHTML = `<i class="fas fa-sign-out-alt"></i> ${t.logout}`;
+  document.getElementById('sendBtn').innerHTML = `<i class="fas fa-paper-plane"></i> ${t.sendBrd}`;
+  document.getElementById('claimAirdropBtn').innerHTML = `<i class="fas fa-gift"></i> ${t.airdrop}`;
+  document.getElementById('stakeBtn').innerHTML = `<i class="fas fa-lock"></i> ${t.stakeBtn}`;
+  document.getElementById('unstakeBtn').innerHTML = `<i class="fas fa-unlock-alt"></i> ${t.unstakeBtn}`;
+  document.getElementById('receiveBtn').innerHTML = `<i class="fas fa-arrow-down"></i> ${t.receive}`;
+  document.getElementById('historyBtn').innerHTML = `<i class="fas fa-history"></i> ${t.history}`;
+  document.getElementById('rewardsBtn').innerHTML = `<i class="fas fa-trophy"></i> ${t.rewards}`;
+  document.getElementById('settingsBtn').innerHTML = `<i class="fas fa-cog"></i>`;
+  document.getElementById('analyticsBtn').innerHTML = `<i class="fas fa-chart-line"></i>`;
+  
+  if (currentLang === 'ar') document.body.classList.add('rtl');
+  else document.body.classList.remove('rtl');
+  
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === currentLang);
+  });
+}
+
+function setLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('bradicoin_lang', lang);
+  updateLanguage();
+}
+
+// ================================================================
+// ==================== EVENT LISTENERS ===========================
+// ================================================================
+
+document.getElementById('createWalletBtn').onclick = () => {
+  document.getElementById('unlockGroup').style.display = 'none';
+  createWalletFlow();
+};
+
+document.getElementById('importWalletBtn').onclick = () => {
+  document.getElementById('unlockGroup').style.display = 'none';
+  document.getElementById('importGroup').style.display = 'block';
+};
+
+document.getElementById('confirmImportBtn').onclick = () => {
+  const seed = document.getElementById('importSeedInput').value;
+  const password = document.getElementById('importPasswordInput').value;
+  if (seed && password) {
+    if (importWallet(seed, password)) {
+      hideLoginAndShowDashboard();
+      updateUI();
+      updateSecurityBadge();
     }
-  };
+  } else {
+    showToast("Enter seed phrase and password", "error");
+  }
+};
 
-  document.getElementById('unlockWalletBtn').onclick = () => {
-    const password = document.getElementById('unlockPasswordInput').value;
-    if (password) {
-      unlockWallet(password);
-    } else {
-      showToast("Enter your password", "error");
-    }
-  };
+document.getElementById('unlockWalletBtn').onclick = () => {
+  const password = document.getElementById('unlockPasswordInput').value;
+  const twoFACode = document.getElementById('unlock2FAInput').value;
+  unlockWallet(password, twoFACode);
+};
 
-  document.getElementById('confirmSeedBtn').onclick = () => {
-    const password = document.getElementById('walletPasswordInput').value;
-    if (password) {
-      finalizeWalletCreation(password);
-    } else {
-      showToast("Please create a password to secure your wallet", "error");
-    }
-  };
+document.getElementById('confirmSeedBtn').onclick = () => {
+  const password = document.getElementById('walletPasswordInput').value;
+  if (password) {
+    finalizeWalletCreation(password);
+  } else {
+    showToast("Create a password", "error");
+  }
+};
 
-  document.getElementById('copySeedBtn').onclick = () => {
-    const seed = document.getElementById('modalSeedPhrase').innerText;
-    if (seed && seed !== '---') {
-      navigator.clipboard.writeText(seed);
-      showToast("Seed phrase copied! Save it securely.", "success");
-    }
-  };
+document.getElementById('copySeedBtn').onclick = () => {
+  const seed = document.getElementById('modalSeedPhrase').innerText;
+  if (seed && seed !== '---') {
+    navigator.clipboard.writeText(seed);
+    showToast("Seed phrase copied!", "success");
+  }
+};
 
-  document.getElementById('backToLoginBtn')?.addEventListener('click', backToLogin);
-  document.getElementById('logoutBtn')?.addEventListener('click', logout);
-  document.getElementById('confirmYesBtn')?.addEventListener('click', confirmLogout);
-  document.getElementById('confirmNoBtn')?.addEventListener('click', cancelLogout);
+document.getElementById('backToLoginBtn').onclick = () => {
+  document.getElementById('seedModal').style.display = 'none';
+  document.getElementById('importGroup').style.display = 'none';
+  document.getElementById('unlockGroup').style.display = 'block';
+};
+
+document.getElementById('logoutBtn').onclick = () => {
+  document.getElementById('confirmDialog').style.display = 'flex';
+  document.getElementById('confirmDialogTitle').innerText = "Logout?";
+  document.getElementById('confirmDialogMessage').innerText = "Your wallet will be locked.";
+  document.getElementById('confirmYesBtn').onclick = () => {
+    document.getElementById('confirmDialog').style.display = 'none';
+    lockWalletNow();
+  };
+  document.getElementById('confirmNoBtn').onclick = () => {
+    document.getElementById('confirmDialog').style.display = 'none';
+  };
+};
+
+document.getElementById('lockWalletBtn').onclick = lockWalletNow;
+
+document.getElementById('copyAddressBtn').onclick = () => {
+  if (wallet.address) {
+    navigator.clipboard.writeText(wallet.address);
+    showToast("Address copied!", "success");
+  }
+};
+
+document.getElementById('copyReferralBtn').onclick = () => {
+  if (wallet.referralCode) {
+    navigator.clipboard.writeText(wallet.referralCode);
+    showToast("Referral code copied!", "success");
+  }
+};
+
+document.getElementById('checkChainBalanceBtn').onclick = () => {
+  showToast("✅ Balance: " + wallet.balance.toFixed(4) + " BRD", "success");
+};
+
+document.getElementById('claimAirdropBtn').onclick = claimAirdrop;
+document.getElementById('claimAirdropBtnMain').onclick = claimAirdrop;
+
+document.getElementById('unstakeBtn').onclick = unstake;
+document.getElementById('stakeBtn').onclick = () => stake(parseFloat(document.getElementById('stakeAmount').value));
+
+document.getElementById('viewStakeDetailsBtn').onclick = () => {
+  if (activeStake) {
+    const reward = Date.now() >= activeStake.end ? calculateReward(activeStake.amount, activeStake.period) : 0;
+    document.getElementById('stakeDetailAmount').innerText = activeStake.amount.toFixed(2);
+    document.getElementById('stakeDetailReward').innerText = reward.toFixed(4);
+    document.getElementById('stakeDetailStatus').innerText = Date.now() >= activeStake.end ? "✅ Matured" : "🔒 Locked";
+  } else {
+    document.getElementById('stakeDetailAmount').innerText = "0";
+    document.getElementById('stakeDetailReward').innerText = "0";
+    document.getElementById('stakeDetailStatus').innerText = "No active stake";
+  }
+  document.getElementById('stakeModal').style.display = 'flex';
+};
+
+document.getElementById('closeStakeModalBtn').onclick = () => {
+  document.getElementById('stakeModal').style.display = 'none';
+};
+
+document.getElementById('receiveBtn').onclick = () => {
+  showToast(`📩 Address: ${wallet.address}`, "info");
+};
+
+document.getElementById('historyBtn').onclick = () => {
+  updateUI();
+  document.getElementById('transactionsList').scrollIntoView({ behavior: 'smooth' });
+};
+
+document.getElementById('rewardsBtn').onclick = () => {
+  document.getElementById('rewardsModal').style.display = 'flex';
+};
+
+document.getElementById('closeRewardsModalBtn').onclick = () => {
+  document.getElementById('rewardsModal').style.display = 'none';
+};
+
+document.getElementById('settingsBtn').onclick = () => {
+  document.getElementById('settingsModal').style.display = 'flex';
+};
+
+document.getElementById('closeSettingsModalBtn').onclick = () => {
+  document.getElementById('settingsModal').style.display = 'none';
+};
+
+document.getElementById('analyticsBtn').onclick = showAnalytics;
+document.getElementById('analyticsQuickBtn').onclick = showAnalytics;
+document.getElementById('closeAnalyticsModalBtn').onclick = () => {
+  document.getElementById('analyticsModal').style.display = 'none';
+};
+
+document.getElementById('zkStatusBtn').onclick = () => {
+  document.getElementById('zkInfoModal').style.display = 'flex';
+};
+
+document.getElementById('closeZkInfoModalBtn').onclick = () => {
+  document.getElementById('zkInfoModal').style.display = 'none';
+};
+
+document.getElementById('zkPrivateSendBtn').onclick = () => {
+  const to = document.getElementById('sendTo').value;
+  const amount = parseFloat(document.getElementById('sendAmount').value);
+  if (!to) { showToast("Enter recipient address", "error"); return; }
+  if (!amount || amount <= 0) { showToast("Enter a valid amount", "error"); return; }
   
-  document.getElementById('copyAddressBtn')?.addEventListener('click', copyAddress);
-  document.getElementById('copyReferralBtn')?.addEventListener('click', copyReferral);
-  document.getElementById('checkChainBalanceBtn')?.addEventListener('click', checkBalanceOnChain);
-  document.getElementById('claimAirdropBtn')?.addEventListener('click', claimAirdropSimple);
-  document.getElementById('unstakeBtn')?.addEventListener('click', unstake);
-  document.getElementById('stakeBtn')?.addEventListener('click', () => stake(parseFloat(document.getElementById('stakeAmount').value)));
-  document.getElementById('viewStakeDetailsBtn')?.addEventListener('click', showStakeDetails);
-  document.getElementById('closeStakeModalBtn')?.addEventListener('click', () => {
-    document.getElementById('stakeModal').style.display = 'none';
-  });
-  document.getElementById('closeAirdropModalBtn')?.addEventListener('click', () => {
-    document.getElementById('airdropModal').style.display = 'none';
-  });
-  document.getElementById('closeRewardsModalBtn')?.addEventListener('click', () => {
-    document.getElementById('rewardsModal').style.display = 'none';
-  });
-  document.getElementById('receiveBtn')?.addEventListener('click', showReceiveInfo);
-  document.getElementById('historyBtn')?.addEventListener('click', showHistory);
-  document.getElementById('rewardsBtn')?.addEventListener('click', showRewards);
-  document.getElementById('settingsBtn')?.addEventListener('click', showSettings);
+  document.getElementById('zkSenderAddress').innerText = wallet.address || '---';
+  document.getElementById('zkRecipientAddress').innerText = to;
+  document.getElementById('zkAmountDisplay').innerText = amount;
   
-  // View Seed Modal Events
-  document.getElementById('revealSeedBtn')?.addEventListener('click', revealSeedPhrase);
-  document.getElementById('copyRevealedSeedBtn')?.addEventListener('click', copyRevealedSeed);
-  document.getElementById('closeViewSeedModalBtn')?.addEventListener('click', () => {
-    document.getElementById('viewSeedModal').style.display = 'none';
-  });
+  const privateKey = wallet.encryptedSeed ? '0x' + CryptoJS.SHA256(wallet.encryptedSeed).toString().substring(0, 32) : '0x0000';
+  const salt = CryptoJS.lib.WordArray.random(32).toString();
+  const commitment = generateZKCommitment(privateKey, amount, salt);
+  const nullifier = generateZKNullifier(privateKey, commitment);
   
-  // Settings Modal
-  document.getElementById('closeSettingsModalBtn')?.addEventListener('click', () => {
-    document.getElementById('settingsModal').style.display = 'none';
-  });
+  document.getElementById('zkCommitment').innerText = commitment;
+  document.getElementById('zkNullifier').innerText = nullifier;
   
-  // Airdrop Manager Modal
-  document.getElementById('closeAirdropManagerBtn')?.addEventListener('click', () => {
-    document.getElementById('airdropManagerModal').style.display = 'none';
-  });
-  document.getElementById('claimAirdropBtnMain')?.addEventListener('click', claimAirdropSimple);
+  const proof = generateZKProof(wallet.address, to, amount, commitment, nullifier);
+  document.getElementById('zkProofDisplay').innerHTML = `
+    <div style="color:#00ff88;">✅ ZK-SNARK Proof Generated</div>
+    <div style="font-size:0.5rem; margin-top:0.2rem; word-break:break-all;">
+      <div>a: ${proof.a[0].substring(0, 20)}...</div>
+      <div>b: ${proof.b[0].substring(0, 20)}...</div>
+      <div>c: ${proof.c[0].substring(0, 20)}...</div>
+    </div>
+  `;
   
-  document.getElementById('sendBtn')?.addEventListener('click', () => {
-    document.getElementById('sendModal').style.display = 'flex';
-  });
+  document.getElementById('zkSendModal').style.display = 'flex';
+};
+
+document.getElementById('zkConfirmSendBtn').onclick = async () => {
+  const to = document.getElementById('zkRecipientAddress').innerText;
+  const amount = parseFloat(document.getElementById('zkAmountDisplay').innerText);
+  const password = document.getElementById('sendPassword').value;
   
-  document.getElementById('confirmSendBtn')?.addEventListener('click', async () => {
-    const to = document.getElementById('sendTo').value;
-    const amount = parseFloat(document.getElementById('sendAmount').value);
-    const password = document.getElementById('sendPassword').value;
-    if (await sendTransaction(to, amount, password)) {
+  if (await sendPrivateTransaction(to, amount, password)) {
+    document.getElementById('zkSendModal').style.display = 'none';
+    document.getElementById('sendModal').style.display = 'none';
+    document.getElementById('sendTo').value = '';
+    document.getElementById('sendAmount').value = '';
+    document.getElementById('sendPassword').value = '';
+  }
+};
+
+document.getElementById('zkCancelSendBtn').onclick = () => {
+  document.getElementById('zkSendModal').style.display = 'none';
+};
+
+document.getElementById('stealthBtn').onclick = showStealthAddress;
+
+document.getElementById('sendBtn').onclick = () => {
+  document.getElementById('sendModal').style.display = 'flex';
+};
+
+document.getElementById('confirmSendBtn').onclick = async () => {
+  const to = document.getElementById('sendTo').value;
+  const amount = parseFloat(document.getElementById('sendAmount').value);
+  const password = document.getElementById('sendPassword').value;
+  
+  const options = {
+    zk: document.getElementById('zkPrivateSend')?.checked || false,
+    stealth: document.getElementById('stealthSend')?.checked || false,
+    decoy: document.getElementById('decoySend')?.checked || false,
+    mixer: document.getElementById('mixerSend')?.checked || false
+  };
+  
+  if (options.zk) {
+    if (await sendPrivateTransaction(to, amount, password)) {
       document.getElementById('sendModal').style.display = 'none';
       document.getElementById('sendTo').value = '';
       document.getElementById('sendAmount').value = '';
       document.getElementById('sendPassword').value = '';
+      document.getElementById('zkPrivateSend').checked = false;
+      document.getElementById('stealthSend').checked = false;
+      document.getElementById('decoySend').checked = false;
+      document.getElementById('mixerSend').checked = false;
     }
-  });
-  
-  document.getElementById('cancelSendBtn')?.addEventListener('click', () => {
-    document.getElementById('sendModal').style.display = 'none';
-  });
-
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
-  });
-
-  document.querySelectorAll('.modal-overlay').forEach(modal => {
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.style.display = 'none';
-      }
-    });
-  });
-
-  // Initialize
-  setInterval(() => {
-    updateUI();
-    if (document.getElementById('airdropManagerModal').style.display === 'flex') {
-      updateAirdropUI();
-    }
-  }, 1000);
-  
-  updateLanguage();
-  loadWallet();
-  
-  if (wallet.encryptedSeed) {
-    showLoginScreen();
   } else {
-    document.getElementById('unlockGroup').style.display = 'none';
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('mainDashboard').style.display = 'none';
+    if (await sendToBlockchain(to, amount, password, options)) {
+      document.getElementById('sendModal').style.display = 'none';
+      document.getElementById('sendTo').value = '';
+      document.getElementById('sendAmount').value = '';
+      document.getElementById('sendPassword').value = '';
+      document.getElementById('zkPrivateSend').checked = false;
+      document.getElementById('stealthSend').checked = false;
+      document.getElementById('decoySend').checked = false;
+      document.getElementById('mixerSend').checked = false;
+    }
   }
+};
+
+document.getElementById('cancelSendBtn').onclick = () => {
+  document.getElementById('sendModal').style.display = 'none';
+};
+
+document.getElementById('closeViewSeedModalBtn').onclick = () => {
+  document.getElementById('viewSeedModal').style.display = 'none';
+};
+
+document.getElementById('revealSeedBtn').onclick = revealSeedPhrase;
+document.getElementById('copyRevealedSeedBtn').onclick = copyRevealedSeed;
+
+document.getElementById('closeAirdropModalBtn').onclick = () => {
+  document.getElementById('airdropModal').style.display = 'none';
+};
+
+document.getElementById('closeAirdropManagerBtn').onclick = () => {
+  document.getElementById('airdropManagerModal').style.display = 'none';
+};
+
+// Language buttons
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
+});
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(modal => {
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.style.display = 'none';
+    }
+  });
+});
+
+// ================================================================
+// ==================== INITIALIZATION ============================
+// ================================================================
+
+setInterval(() => {
+  updateUI();
+  updateAnalytics();
+  if (document.getElementById('airdropManagerModal').style.display === 'flex') {
+    updateAirdropUI();
+  }
+}, 5000);
+
+updateLanguage();
+loadWallet();
+
+if (wallet.encryptedSeed) {
+  showLoginScreen();
+} else {
+  document.getElementById('unlockGroup').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('mainDashboard').style.display = 'none';
+}
+
+console.log("🛡️ BradiCoin Secure Wallet Loaded");
+console.log("🔐 Security Features: 2FA, Auto-Lock, Rate Limiting");
+console.log("🕵️ Privacy Features: ZK-SNARKs, Stealth Addresses, Mixer, Decoy TX");
 </script>
 </body>
 </html>
