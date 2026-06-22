@@ -3240,6 +3240,373 @@ if (wallet.encryptedSeed) {
 console.log("🛡️ BradiCoin Secure Wallet Loaded");
 console.log("🔐 Security Features: 2FA, Auto-Lock, Rate Limiting");
 console.log("🕵️ Privacy Features: ZK-SNARKs, Stealth Addresses, Mixer, Decoy TX");
+
+// ================================================================
+// ==================== VARIABLE FEE SYSTEM =======================
+// ================================================================
+
+const FEE_SYSTEM = {
+  // Preço do BRD em USD (1 BRD = $10.00)
+  brdPriceUSD: 10.00,
+  
+  // Limites da taxa em USD e BRD
+  minFeeUSD: 0.15,
+  maxFeeUSD: 0.70,
+  minFeeBRD: 0.01500,
+  maxFeeBRD: 0.07000,
+  
+  // Tiers baseados no valor da transação (em BRD)
+  tiers: [
+    { min: 0, max: 50, feeUSD: 0.15, feeBRD: 0.01500, label: 'Micro', icon: '📱' },
+    { min: 50, max: 200, feeUSD: 0.25, feeBRD: 0.02500, label: 'Small', icon: '📦' },
+    { min: 200, max: 500, feeUSD: 0.35, feeBRD: 0.03500, label: 'Medium', icon: '📊' },
+    { min: 500, max: 1000, feeUSD: 0.50, feeBRD: 0.05000, label: 'Large', icon: '🚀' },
+    { min: 1000, max: Infinity, feeUSD: 0.70, feeBRD: 0.07000, label: 'Enterprise', icon: '🏢' }
+  ],
+  
+  // Descontos disponíveis
+  discounts: {
+    holder: { minBalance: 100, percentage: 0.30, label: 'Holder' },
+    staker: { minStake: 50, percentage: 0.20, label: 'Staker' },
+    loyal: { minTx: 10, percentage: 0.15, label: 'Loyal User' },
+    referral: { percentage: 0.10, label: 'Referral' },
+    firstTx: { percentage: 0.50, label: 'First Transaction' }
+  }
+};
+
+// ================================================================
+// ==================== CORE FUNCTIONS ============================
+// ================================================================
+
+function getFeeTier(amount) {
+  for (const tier of FEE_SYSTEM.tiers) {
+    if (amount >= tier.min && amount < tier.max) {
+      return tier;
+    }
+  }
+  return FEE_SYSTEM.tiers[FEE_SYSTEM.tiers.length - 1];
+}
+
+function calculateDiscounts() {
+  let maxDiscount = 0;
+  let appliedDiscounts = [];
+  
+  // Holder discount (balance >= 100 BRD)
+  if (wallet && wallet.balance >= FEE_SYSTEM.discounts.holder.minBalance) {
+    maxDiscount = Math.max(maxDiscount, FEE_SYSTEM.discounts.holder.percentage);
+    appliedDiscounts.push('Holder');
+  }
+  
+  // Staker discount (stake >= 50 BRD)
+  if (activeStake && activeStake.amount >= FEE_SYSTEM.discounts.staker.minStake) {
+    maxDiscount = Math.max(maxDiscount, FEE_SYSTEM.discounts.staker.percentage);
+    appliedDiscounts.push('Staker');
+  }
+  
+  // Loyal user discount (10+ transactions this month)
+  if (wallet && wallet.transactions) {
+    const monthlyTxs = wallet.transactions.filter(tx => {
+      return new Date(tx.time).getMonth() === new Date().getMonth();
+    }).length;
+    if (monthlyTxs >= FEE_SYSTEM.discounts.loyal.minTx) {
+      maxDiscount = Math.max(maxDiscount, FEE_SYSTEM.discounts.loyal.percentage);
+      appliedDiscounts.push('Loyal User');
+    }
+  }
+  
+  // Referral discount
+  if (wallet && wallet.referralCode && wallet.referralCode !== 'BRD-XXXX') {
+    maxDiscount = Math.max(maxDiscount, FEE_SYSTEM.discounts.referral.percentage);
+    appliedDiscounts.push('Referral');
+  }
+  
+  // First transaction discount
+  if (wallet && wallet.transactions && wallet.transactions.length === 0) {
+    maxDiscount = Math.max(maxDiscount, FEE_SYSTEM.discounts.firstTx.percentage);
+    appliedDiscounts.push('First Transaction');
+  }
+  
+  return {
+    discount: maxDiscount,
+    appliedDiscounts: appliedDiscounts,
+    hasDiscount: maxDiscount > 0
+  };
+}
+
+function calculateFee(amount) {
+  const tier = getFeeTier(amount || 0);
+  let baseFeeUSD = tier.feeUSD;
+  let baseFeeBRD = tier.feeBRD;
+  
+  const discountInfo = calculateDiscounts();
+  let finalFeeUSD = baseFeeUSD * (1 - discountInfo.discount);
+  let finalFeeBRD = baseFeeBRD * (1 - discountInfo.discount);
+  
+  // Apply min/max limits
+  finalFeeUSD = Math.max(finalFeeUSD, FEE_SYSTEM.minFeeUSD);
+  finalFeeUSD = Math.min(finalFeeUSD, FEE_SYSTEM.maxFeeUSD);
+  finalFeeBRD = Math.max(finalFeeBRD, FEE_SYSTEM.minFeeBRD);
+  finalFeeBRD = Math.min(finalFeeBRD, FEE_SYSTEM.maxFeeBRD);
+  finalFeeBRD = Math.round(finalFeeBRD * 100000) / 100000;
+  
+  return {
+    baseFeeUSD: baseFeeUSD,
+    baseFeeBRD: baseFeeBRD,
+    finalFeeUSD: finalFeeUSD,
+    finalFeeBRD: finalFeeBRD,
+    tier: tier,
+    discount: discountInfo,
+    formattedUSD: `$${finalFeeUSD.toFixed(2)}`,
+    formattedBRD: `${finalFeeBRD.toFixed(5)} BRD`,
+    formattedShortBRD: `${finalFeeBRD.toFixed(3)} BRD`
+  };
+}
+
+function usdToBrd(usdAmount) {
+  return usdAmount / FEE_SYSTEM.brdPriceUSD;
+}
+
+function brdToUsd(brdAmount) {
+  return brdAmount * FEE_SYSTEM.brdPriceUSD;
+}
+
+// ================================================================
+// ==================== UI UPDATE FUNCTIONS =======================
+// ================================================================
+
+function updateFeeDisplay(amount) {
+  const fee = calculateFee(amount || 0);
+  
+  // Update fee display elements
+  const usdEl = document.getElementById('feeUSDDisplay');
+  const brdEl = document.getElementById('feeBRDDisplay');
+  const tierEl = document.getElementById('feeTierDisplay');
+  const discountEl = document.getElementById('feeDiscountDisplay');
+  
+  if (usdEl) usdEl.innerText = fee.formattedUSD;
+  if (brdEl) brdEl.innerText = `(${fee.formattedBRD})`;
+  if (tierEl) tierEl.innerText = `${fee.tier.icon} ${fee.tier.label} Tier`;
+  
+  if (discountEl) {
+    if (fee.discount.hasDiscount) {
+      discountEl.innerText = `${(fee.discount.discount * 100).toFixed(0)}% OFF (${fee.discount.appliedDiscounts.join(', ')})`;
+      discountEl.style.display = 'block';
+      discountEl.style.color = '#00ff88';
+    } else {
+      discountEl.innerText = 'Standard rate';
+      discountEl.style.display = 'block';
+      discountEl.style.color = '#ffaa00';
+    }
+  }
+  
+  // Update fee bars
+  updateFeeBars(fee.finalFeeUSD);
+}
+
+function updateFeeBars(feeUSD) {
+  const bars = [
+    document.getElementById('feeBar1'),
+    document.getElementById('feeBar2'),
+    document.getElementById('feeBar3'),
+    document.getElementById('feeBar4'),
+    document.getElementById('feeBar5')
+  ];
+  
+  const tierValues = [0.15, 0.25, 0.35, 0.50, 0.70];
+  let activeIndex = 0;
+  for (let i = 0; i < tierValues.length; i++) {
+    if (feeUSD >= tierValues[i]) {
+      activeIndex = i;
+    }
+  }
+  
+  bars.forEach((bar, index) => {
+    if (bar) {
+      if (index <= activeIndex) {
+        bar.style.background = 'linear-gradient(90deg, #a855f7, #00f2ff)';
+        bar.style.opacity = '1';
+      } else {
+        bar.style.background = '#333';
+        bar.style.opacity = '0.3';
+      }
+    }
+  });
+}
+
+function showFeeBreakdown(amount) {
+  const fee = calculateFee(amount || 0);
+  const totalCost = (amount || 0) + fee.finalFeeBRD;
+  
+  const modal = document.getElementById('feeBreakdownModal');
+  if (!modal) return;
+  
+  // Update modal content
+  document.getElementById('feeBreakdownAmount').innerText = `${(amount || 0).toFixed(2)} BRD`;
+  document.getElementById('feeBreakdownBaseUSD').innerText = `$${fee.baseFeeUSD.toFixed(2)}`;
+  document.getElementById('feeBreakdownBaseBRD').innerText = `${fee.baseFeeBRD.toFixed(5)} BRD`;
+  document.getElementById('feeBreakdownDiscount').innerText = fee.discount.hasDiscount ? 
+    `${(fee.discount.discount * 100).toFixed(0)}% (${fee.discount.appliedDiscounts.join(', ')})` : 
+    'No discount applied';
+  document.getElementById('feeBreakdownFinalUSD').innerText = fee.formattedUSD;
+  document.getElementById('feeBreakdownFinalBRD').innerText = fee.formattedBRD;
+  document.getElementById('feeBreakdownTier').innerText = `${fee.tier.icon} ${fee.tier.label}`;
+  document.getElementById('feeBreakdownTotal').innerText = `${totalCost.toFixed(5)} BRD`;
+  
+  modal.style.display = 'flex';
+}
+
+function refreshFeeDisplay() {
+  const amount = parseFloat(document.getElementById('sendAmount')?.value) || 0;
+  updateFeeDisplay(amount);
+}
+
+// ================================================================
+// ==================== EVENT LISTENERS ===========================
+// ================================================================
+
+// Update fee when amount changes
+document.getElementById('sendAmount')?.addEventListener('input', function() {
+  const amount = parseFloat(this.value) || 0;
+  updateFeeDisplay(amount);
+});
+
+// Show fee breakdown on click
+document.getElementById('feeDisplayContainer')?.addEventListener('click', function() {
+  const amount = parseFloat(document.getElementById('sendAmount')?.value) || 0;
+  showFeeBreakdown(amount);
+});
+
+// Close fee breakdown modal
+document.getElementById('closeFeeBreakdownBtn')?.addEventListener('click', function() {
+  document.getElementById('feeBreakdownModal').style.display = 'none';
+});
+
+// Close modal on overlay click
+document.getElementById('feeBreakdownModal')?.addEventListener('click', function(e) {
+  if (e.target === this) {
+    this.style.display = 'none';
+  }
+});
+
+// ================================================================
+// ==================== MODIFIED SEND FUNCTION ====================
+// ================================================================
+
+// Override the original sendToBlockchain function to use variable fee
+const originalSendToBlockchain = sendToBlockchain;
+
+sendToBlockchain = async function(toAddress, amount, password, options = {}) {
+  if (!toAddress) { showToast("Enter recipient address", "error"); return false; }
+  
+  // Calculate fee using the variable fee system
+  const feeInfo = calculateFee(amount);
+  const totalCost = amount + feeInfo.finalFeeBRD;
+  
+  if (amount <= 0 || totalCost > wallet.balance) {
+    showToast(`Insufficient balance. Need ${totalCost.toFixed(5)} BRD (Fee: ${feeInfo.formattedBRD})`, "error");
+    return false;
+  }
+  
+  const decrypted = decrypt(wallet.encryptedSeed, password);
+  if (!decrypted) { showToast("Wrong password!", "error"); return false; }
+  
+  try {
+    showToast("⏳ Sending transaction...", "info");
+    
+    // Log fee details
+    console.log('💰 Fee Details:', {
+      amount: amount,
+      baseFeeUSD: feeInfo.baseFeeUSD,
+      baseFeeBRD: feeInfo.baseFeeBRD,
+      finalFeeUSD: feeInfo.finalFeeUSD,
+      finalFeeBRD: feeInfo.finalFeeBRD,
+      tier: feeInfo.tier.label,
+      discount: feeInfo.discount.hasDiscount ? `${(feeInfo.discount.discount * 100).toFixed(0)}%` : 'None'
+    });
+    
+    // Se stealth, gerar endereço furtivo
+    let finalTo = toAddress;
+    if (options.stealth) {
+      const stealth = generateStealthAddress();
+      finalTo = stealth;
+      showToast("🕵️ Using stealth address", "info");
+    }
+    
+    // Se decoy, criar transações falsas
+    if (options.decoy) {
+      for (let i = 0; i < 2; i++) {
+        const decoyAmount = (Math.random() * 0.5 + 0.1);
+        wallet.transactions.unshift({
+          id: Date.now() + i,
+          type: 'decoy',
+          to: '0xDecoy' + CryptoJS.lib.WordArray.random(10).toString(),
+          amount: decoyAmount,
+          fee: 0,
+          time: new Date().toISOString()
+        });
+      }
+      showToast("🔄 Decoy transactions created", "info");
+    }
+    
+    // Se mixer, adicionar ao pool
+    if (options.mixer) {
+      await joinMixer();
+    }
+    
+    // Deduct total cost (amount + fee)
+    wallet.balance -= totalCost;
+    wallet.stats.feesPaid += feeInfo.finalFeeBRD;
+    
+    wallet.transactions.unshift({
+      id: Date.now(),
+      type: options.zk ? 'zk_private' : 'sent',
+      to: finalTo,
+      amount: amount,
+      fee: feeInfo.finalFeeBRD,
+      feeUSD: feeInfo.finalFeeUSD,
+      tier: feeInfo.tier.label,
+      stealth: options.stealth || false,
+      time: new Date().toISOString()
+    });
+    
+    if (wallet.transactions.length > 20) wallet.transactions.pop();
+    wallet.stats.totalTx += 1;
+    saveWallet();
+    updateUI();
+    updateAnalytics();
+    
+    showToast(`✅ Sent ${amount} BRD successfully! (Fee: ${feeInfo.formattedBRD})`, "success");
+    return true;
+  } catch (error) {
+    showToast(`❌ Transaction failed: ${error.message}`, "error");
+    return false;
+  }
+};
+
+// ================================================================
+// ==================== INITIALIZATION ============================
+// ================================================================
+
+// Initialize fee display when page loads
+setTimeout(() => {
+  refreshFeeDisplay();
+}, 1000);
+
+console.log("💰 Variable Fee System loaded!");
+console.log("📊 Fee Range: $0.15 - $0.70 USD (0.01500 - 0.07000 BRD)");
+console.log("🎯 Tiers:", FEE_SYSTEM.tiers.map(t => `${t.icon} ${t.label}: $${t.feeUSD} (${t.feeBRD.toFixed(5)} BRD)`).join(', '));
+console.log("💎 Discounts Available: Holder (30%), Staker (20%), Loyal User (15%), Referral (10%), First Transaction (50%)");
+
+// Export functions for use in other parts of the app
+window.FeeSystem = {
+  calculateFee,
+  getFeeTier,
+  usdToBrd,
+  brdToUsd,
+  refreshFeeDisplay,
+  showFeeBreakdown
+};
+
 </script>
 </body>
 </html>
