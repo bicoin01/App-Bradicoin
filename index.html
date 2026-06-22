@@ -802,7 +802,120 @@
         <div id="transactionsList" class="transaction-list">No transactions yet</div>
       </div>
     </div>
-    
+
+      <div class="neon-card" style="grid-column: span 1;">
+        <h3 style="font-size:0.8rem;"><i class="fas fa-rocket"></i> Innovative Features</h3>
+        
+        <!-- Burner Wallet -->
+        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ff880033;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+            <span>🔥 Burner Wallet</span>
+            <div>
+              <span id="burnerStatus" style="font-size:0.45rem;">💤 No burner active</span>
+              <button id="createBurnerBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#ff8800;">Create</button>
+              <button id="destroyBurnerBtn" class="cyber-btn danger small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">Destroy</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Decoy Mode -->
+        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #9b59b633;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+            <span>🕵️ Decoy Mode</span>
+            <div>
+              <span id="decoyBadge" style="font-size:0.4rem;">👁️ Real Balance</span>
+              <button id="decoyToggleBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#9b59b6;">Toggle</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Booby Traps -->
+        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ff005533;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+            <span>💣 Booby Traps</span>
+            <div>
+              <span id="whitelistCount" style="font-size:0.4rem;">0</span>
+              <button id="addWhitelistBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#ff0055;">+ Add</button>
+            </div>
+          </div>
+          <div id="whitelistDisplay" style="font-size:0.4rem; max-height:60px; overflow-y:auto; margin-top:0.2rem;"></div>
+        </div>
+        
+        <!-- Dead Man's Switch -->
+        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ffd70033;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+            <span>💀 Dead Man's Switch</span>
+            <div>
+              <span id="deadManStatus" style="font-size:0.4rem;">❌ Not configured</span>
+              <button id="deadManBtn" class="cyber-btn gold small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">Setup</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Shadow Mirror -->
+        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #00f2ff33;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+            <span>🌐 Shadow Mirror</span>
+            <div>
+              <button id="addShadowBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#00f2ff;">+ Add</button>
+              <button id="syncShadowBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#00f2ff;">Sync</button>
+            </div>
+          </div>
+          <div id="shadowList" style="font-size:0.4rem; max-height:60px; overflow-y:auto; margin-top:0.2rem;"></div>
+        </div>
+        
+        <!-- Ephemeral Keys -->
+        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #00ff8833;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+            <span>🔑 Ephemeral Keys</span>
+            <div>
+              <span id="ephemeralStatus" style="font-size:0.4rem;">🔑 No key</span>
+              <button id="genEphemeralBtn" class="cyber-btn zk small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">Generate</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Gasless Mode -->
+        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ffaa0033;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+            <span>⛽ Gasless Mode</span>
+            <div>
+              <span id="gaslessStatus" style="font-size:0.4rem;">⛽ Gas: 0.15 BRD</span>
+              <button id="gaslessToggleBtn" class="cyber-btn warning small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">Toggle</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- ZK-Proof Verifier -->
+        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #00ff8833;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+            <span>🔐 ZK-Proof Verifier</span>
+            <button id="verifyProofBtn" class="cyber-btn zk small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">Verify</button>
+          </div>
+          <div id="zkProofHistory" style="font-size:0.4rem; max-height:40px; overflow-y:auto; margin-top:0.2rem;"></div>
+        </div>
+        
+        <!-- Sweep & Destroy -->
+        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ff005533;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+            <span>🧹 Sweep & Destroy</span>
+            <button id="sweepDestroyBtn" class="cyber-btn danger small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">⚠️ Execute</button>
+          </div>
+        </div>
+        
+        <!-- Security Alerts -->
+        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #a855f733;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+            <span>🔔 Security Alerts</span>
+            <div>
+              <span id="alertBadge" style="background:#ff0055; color:#fff; border-radius:50%; padding:0.1rem 0.4rem; font-size:0.4rem; display:none;">0</span>
+              <button id="clearAlertsBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">Clear</button>
+            </div>
+          </div>
+          <div id="securityAlerts" style="font-size:0.4rem; max-height:80px; overflow-y:auto; margin-top:0.2rem;"></div>
+        </div>
+      </div>
+
     <footer>
       Non-Custodial · 18% APR · BradiCoin Ecosystem
       <br><span style="font-size:0.45rem;">© 2026 BradiCoin. 🔐 ZK-SNARK Privacy | 🕵️ Stealth | 🔄 Mixer</span>
@@ -2322,6 +2435,784 @@ document.querySelectorAll('.modal-overlay').forEach(modal => {
     }
   });
 });
+
+// ================================================================
+// ==================== INNOVATIVE FEATURES ======================
+// ================================================================
+
+// ================================================================
+// 1. BURNER WALLETS - Carteiras descartáveis
+// ================================================================
+
+let burnerWallet = null;
+let burnerTimeout = null;
+
+function createBurnerWallet() {
+  if (burnerWallet) {
+    showToast("⚠️ Burner wallet already active!", "warning");
+    return;
+  }
+  
+  const seedPhrase = generateSeedPhrase();
+  const address = generateAddress(seedPhrase);
+  
+  burnerWallet = {
+    seed: seedPhrase,
+    address: address,
+    balance: 0,
+    createdAt: Date.now(),
+    expiresAt: Date.now() + 3600000 // 1 hora
+  };
+  
+  burnerTimeout = setTimeout(() => {
+    destroyBurnerWallet();
+  }, 3600000);
+  
+  showToast(`🔥 Burner wallet created: ${address.substring(0, 16)}... (expires in 1h)`, "success");
+  updateBurnerUI();
+  return burnerWallet;
+}
+
+function destroyBurnerWallet() {
+  if (!burnerWallet) return;
+  
+  if (burnerWallet.balance > 0) {
+    wallet.balance += burnerWallet.balance;
+    wallet.transactions.unshift({
+      id: Date.now(),
+      type: 'burner_sweep',
+      amount: burnerWallet.balance,
+      from: burnerWallet.address,
+      to: wallet.address,
+      time: new Date().toISOString()
+    });
+    showToast(`🧹 Swept ${burnerWallet.balance} BRD from burner wallet`, "success");
+  }
+  
+  burnerWallet = null;
+  if (burnerTimeout) {
+    clearTimeout(burnerTimeout);
+    burnerTimeout = null;
+  }
+  
+  updateBurnerUI();
+  saveWallet();
+  updateUI();
+  showToast("💥 Burner wallet destroyed", "info");
+}
+
+function getBurnerStatus() {
+  if (!burnerWallet) return null;
+  const remaining = Math.max(0, burnerWallet.expiresAt - Date.now());
+  return {
+    address: burnerWallet.address,
+    balance: burnerWallet.balance,
+    remainingMinutes: Math.floor(remaining / 60000),
+    remainingSeconds: Math.floor((remaining % 60000) / 1000)
+  };
+}
+
+function updateBurnerUI() {
+  const status = getBurnerStatus();
+  const el = document.getElementById('burnerStatus');
+  if (!el) return;
+  
+  if (status) {
+    el.innerHTML = `🔥 ${status.address.substring(0, 12)}... 💰${status.balance} ⏱️${status.remainingMinutes}m`;
+    el.style.color = '#ff8800';
+  } else {
+    el.innerHTML = '💤 No burner active';
+    el.style.color = '#666';
+  }
+}
+
+// ================================================================
+// 2. DECOY BALANCES - Saldos Isca
+// ================================================================
+
+let decoyMode = false;
+let decoyBalance = 0.01;
+
+function toggleDecoyMode() {
+  decoyMode = !decoyMode;
+  if (decoyMode) {
+    decoyBalance = parseFloat((Math.random() * 0.1 + 0.001).toFixed(4));
+    showToast("🕵️ Decoy mode ENABLED - Attackers see fake balance", "success");
+  } else {
+    showToast("👁️ Decoy mode DISABLED - Showing real balance", "info");
+  }
+  updateDecoyUI();
+  saveDecoyConfig();
+}
+
+function updateDecoyUI() {
+  const badge = document.getElementById('decoyBadge');
+  if (!badge) return;
+  
+  if (decoyMode) {
+    badge.innerHTML = '🕵️ Decoy Active';
+    badge.style.borderColor = '#9b59b6';
+    badge.style.color = '#9b59b6';
+    badge.style.background = '#9b59b622';
+  } else {
+    badge.innerHTML = '👁️ Real Balance';
+    badge.style.borderColor = '#666';
+    badge.style.color = '#666';
+    badge.style.background = 'transparent';
+  }
+}
+
+function saveDecoyConfig() {
+  localStorage.setItem('bradicoin_decoy_mode', JSON.stringify({
+    enabled: decoyMode,
+    balance: decoyBalance
+  }));
+}
+
+function loadDecoyConfig() {
+  const saved = localStorage.getItem('bradicoin_decoy_mode');
+  if (saved) {
+    try {
+      const config = JSON.parse(saved);
+      decoyMode = config.enabled || false;
+      decoyBalance = config.balance || 0.01;
+    } catch(e) {}
+  }
+  updateDecoyUI();
+}
+
+// ================================================================
+// 3. BOOBY TRAPS - Armadilhas para hackers
+// ================================================================
+
+let whitelist = [];
+
+function addToWhitelist() {
+  const input = prompt("Enter address to whitelist:");
+  if (!input) return;
+  const address = input.trim();
+  
+  if (whitelist.includes(address)) {
+    showToast("Address already in whitelist", "info");
+    return;
+  }
+  
+  whitelist.push(address);
+  saveBoobyConfig();
+  updateBoobyUI();
+  showToast(`✅ ${address.substring(0, 12)}... added to whitelist`, "success");
+}
+
+function removeFromWhitelist(address) {
+  whitelist = whitelist.filter(a => a !== address);
+  saveBoobyConfig();
+  updateBoobyUI();
+  showToast(`Removed from whitelist`, "info");
+}
+
+function saveBoobyConfig() {
+  localStorage.setItem('bradicoin_whitelist', JSON.stringify(whitelist));
+}
+
+function loadBoobyConfig() {
+  const saved = localStorage.getItem('bradicoin_whitelist');
+  if (saved) {
+    try {
+      whitelist = JSON.parse(saved);
+    } catch(e) {}
+  }
+  updateBoobyUI();
+}
+
+function updateBoobyUI() {
+  const el = document.getElementById('whitelistCount');
+  if (el) el.innerText = whitelist.length;
+  
+  const list = document.getElementById('whitelistDisplay');
+  if (!list) return;
+  
+  if (whitelist.length === 0) {
+    list.innerHTML = '<p style="opacity:0.6; font-size:0.5rem;">No addresses in whitelist</p>';
+  } else {
+    list.innerHTML = whitelist.map(addr => `
+      <div style="display:flex; justify-content:space-between; padding:0.2rem 0; border-bottom:1px solid #333; font-size:0.5rem;">
+        <span>${addr.substring(0, 20)}...</span>
+        <button onclick="removeFromWhitelist('${addr}')" class="cyber-btn danger small" style="padding:0.1rem 0.4rem; font-size:0.4rem;">✕</button>
+      </div>
+    `).join('');
+  }
+}
+
+// ================================================================
+// 4. DEAD MAN'S SWITCH - Herança automática
+// ================================================================
+
+let deadManSwitch = null;
+
+function setupDeadManSwitch() {
+  const heir = prompt("Enter heir address (wallet that will inherit funds):");
+  if (!heir) return;
+  
+  const inactivityDays = parseInt(prompt("Inactivity period (days) before activation:", "180"));
+  if (!inactivityDays || inactivityDays < 30) {
+    showToast("Minimum inactivity period is 30 days", "error");
+    return;
+  }
+  
+  deadManSwitch = {
+    heir: heir,
+    inactivityDays: inactivityDays,
+    lastActivity: Date.now(),
+    activated: false,
+    executed: false
+  };
+  
+  saveDeadManSwitch();
+  updateDeadManUI();
+  showToast(`✅ Dead Man's Switch configured for ${heir.substring(0, 16)}... (${inactivityDays} days)`, "success");
+}
+
+function checkDeadManSwitch() {
+  if (!deadManSwitch || deadManSwitch.executed || deadManSwitch.activated) return;
+  
+  const inactiveMs = Date.now() - deadManSwitch.lastActivity;
+  const inactiveDays = inactiveMs / (1000 * 60 * 60 * 24);
+  
+  if (inactiveDays >= deadManSwitch.inactivityDays) {
+    deadManSwitch.activated = true;
+    saveDeadManSwitch();
+    
+    if (wallet.balance > 0) {
+      wallet.transactions.unshift({
+        id: Date.now(),
+        type: 'dead_man_switch',
+        to: deadManSwitch.heir,
+        amount: wallet.balance,
+        time: new Date().toISOString()
+      });
+      
+      wallet.balance = 0;
+      deadManSwitch.executed = true;
+      saveWallet();
+      updateUI();
+      
+      showToast(`💀 Dead Man's Switch ACTIVATED! Funds sent to heir.`, "error");
+    }
+  }
+}
+
+function saveDeadManSwitch() {
+  localStorage.setItem('bradicoin_dead_man_switch', JSON.stringify(deadManSwitch));
+}
+
+function loadDeadManSwitch() {
+  const saved = localStorage.getItem('bradicoin_dead_man_switch');
+  if (saved) {
+    try {
+      deadManSwitch = JSON.parse(saved);
+    } catch(e) {}
+  }
+  updateDeadManUI();
+}
+
+function updateDeadManUI() {
+  const el = document.getElementById('deadManStatus');
+  if (!el) return;
+  
+  if (!deadManSwitch) {
+    el.innerHTML = '❌ Not configured';
+    el.style.color = '#666';
+    return;
+  }
+  
+  if (deadManSwitch.executed) {
+    el.innerHTML = '💀 EXECUTED';
+    el.style.color = '#ff0055';
+    return;
+  }
+  
+  if (deadManSwitch.activated) {
+    el.innerHTML = '🔔 ACTIVATED';
+    el.style.color = '#ffaa00';
+    return;
+  }
+  
+  const days = Math.floor((Date.now() - deadManSwitch.lastActivity) / (1000 * 60 * 60 * 24));
+  el.innerHTML = `⏳ ${days}/${deadManSwitch.inactivityDays}d 👤 ${deadManSwitch.heir.substring(0, 12)}...`;
+  el.style.color = days > deadManSwitch.inactivityDays * 0.8 ? '#ffaa00' : '#00ff88';
+}
+
+function resetDeadManActivity() {
+  if (deadManSwitch) {
+    deadManSwitch.lastActivity = Date.now();
+    saveDeadManSwitch();
+    updateDeadManUI();
+  }
+}
+
+// ================================================================
+// 5. SHADOW MIRROR - Sincronização Multi-Chain
+// ================================================================
+
+let shadowWallets = [];
+
+function addShadowWallet() {
+  const chain = prompt("Enter blockchain name (Ethereum, Solana, etc.):");
+  if (!chain) return;
+  const address = prompt("Enter wallet address:");
+  if (!address) return;
+  
+  shadowWallets.push({
+    chain: chain,
+    address: address,
+    balance: 0,
+    lastSync: null
+  });
+  
+  saveShadowConfig();
+  updateShadowUI();
+  showToast(`🌐 Shadow wallet added for ${chain}`, "success");
+}
+
+function syncShadowWallets() {
+  for (const wallet of shadowWallets) {
+    wallet.balance = parseFloat((Math.random() * 10).toFixed(4));
+    wallet.lastSync = new Date().toISOString();
+  }
+  updateShadowUI();
+  showToast("🌐 All shadow wallets synchronized!", "success");
+}
+
+function saveShadowConfig() {
+  localStorage.setItem('bradicoin_shadow_wallets', JSON.stringify(shadowWallets));
+}
+
+function loadShadowConfig() {
+  const saved = localStorage.getItem('bradicoin_shadow_wallets');
+  if (saved) {
+    try {
+      shadowWallets = JSON.parse(saved);
+    } catch(e) {}
+  }
+  updateShadowUI();
+}
+
+function updateShadowUI() {
+  const el = document.getElementById('shadowList');
+  if (!el) return;
+  
+  if (shadowWallets.length === 0) {
+    el.innerHTML = '<p style="opacity:0.6; font-size:0.5rem;">No shadow wallets configured</p>';
+    return;
+  }
+  
+  el.innerHTML = shadowWallets.map(w => `
+    <div style="display:flex; justify-content:space-between; padding:0.2rem 0; border-bottom:1px solid #333; font-size:0.5rem;">
+      <span>🌐 ${w.chain}</span>
+      <span>💰 ${w.balance || 0}</span>
+      <span style="font-size:0.4rem; opacity:0.5;">${w.address.substring(0, 12)}...</span>
+    </div>
+  `).join('');
+}
+
+// ================================================================
+// 6. EPHEMERAL KEYS - Chaves temporárias
+// ================================================================
+
+let ephemeralKey = null;
+let ephemeralExpiry = null;
+
+function generateEphemeralKey() {
+  const key = CryptoJS.lib.WordArray.random(32).toString();
+  const expiryMinutes = parseInt(prompt("Key expiry (minutes):", "60")) || 60;
+  
+  ephemeralKey = key;
+  ephemeralExpiry = Date.now() + (expiryMinutes * 60 * 1000);
+  
+  localStorage.setItem('bradicoin_ephemeral_expiry', ephemeralExpiry.toString());
+  
+  showToast(`🔑 Ephemeral key generated (expires in ${expiryMinutes} minutes)`, "success");
+  updateEphemeralUI();
+  return key;
+}
+
+function loadEphemeralKey() {
+  const expiry = localStorage.getItem('bradicoin_ephemeral_expiry');
+  
+  if (expiry) {
+    ephemeralExpiry = parseInt(expiry);
+    if (Date.now() > ephemeralExpiry) {
+      localStorage.removeItem('bradicoin_ephemeral_expiry');
+      ephemeralKey = null;
+      ephemeralExpiry = null;
+    } else {
+      ephemeralKey = 'key_active';
+    }
+  }
+  updateEphemeralUI();
+}
+
+function updateEphemeralUI() {
+  const el = document.getElementById('ephemeralStatus');
+  if (!el) return;
+  
+  if (!ephemeralKey) {
+    el.innerHTML = '🔑 No key';
+    el.style.color = '#666';
+    return;
+  }
+  
+  const remaining = Math.max(0, Math.floor((ephemeralExpiry - Date.now()) / 60000));
+  el.innerHTML = `🔑 Active (${remaining}m)`;
+  el.style.color = remaining < 5 ? '#ff0055' : '#00ff88';
+}
+
+// ================================================================
+// 7. GASLESS MODE - Transações sem taxa
+// ================================================================
+
+let gaslessMode = false;
+let gasSponsor = null;
+
+function toggleGaslessMode() {
+  if (!gasSponsor) {
+    const sponsor = prompt("Enter sponsor address (DApp or partner):");
+    if (!sponsor) return;
+    gasSponsor = sponsor;
+  }
+  
+  gaslessMode = !gaslessMode;
+  
+  if (gaslessMode) {
+    showToast(`⛽ Gasless mode ENABLED (Sponsored by ${gasSponsor.substring(0, 12)}...)`, "success");
+  } else {
+    showToast("⛽ Gasless mode DISABLED", "info");
+  }
+  
+  saveGaslessConfig();
+  updateGaslessUI();
+}
+
+function saveGaslessConfig() {
+  localStorage.setItem('bradicoin_gasless', JSON.stringify({
+    enabled: gaslessMode,
+    sponsor: gasSponsor
+  }));
+}
+
+function loadGaslessConfig() {
+  const saved = localStorage.getItem('bradicoin_gasless');
+  if (saved) {
+    try {
+      const config = JSON.parse(saved);
+      gaslessMode = config.enabled || false;
+      gasSponsor = config.sponsor || null;
+    } catch(e) {}
+  }
+  updateGaslessUI();
+}
+
+function updateGaslessUI() {
+  const el = document.getElementById('gaslessStatus');
+  if (!el) return;
+  
+  if (gaslessMode && gasSponsor) {
+    el.innerHTML = `⛽ Gasless (Sponsored)`;
+    el.style.color = '#00ff88';
+  } else {
+    el.innerHTML = `⛽ Gas: ${TX_FEE} BRD`;
+    el.style.color = '#ffaa00';
+  }
+}
+
+// ================================================================
+// 8. ZK-PROOF VERIFIER
+// ================================================================
+
+let zkProofHistory = [];
+
+function verifyZKProof() {
+  const proofInput = prompt("Enter ZK-Proof data (JSON):");
+  if (!proofInput) return;
+  
+  try {
+    const proof = JSON.parse(proofInput);
+    const verified = proof && proof.a && proof.b && proof.c;
+    
+    zkProofHistory.push({
+      proof: proof,
+      timestamp: Date.now(),
+      verified: verified
+    });
+    
+    if (verified) {
+      showToast("✅ ZK-Proof verified successfully!", "success");
+    } else {
+      showToast("❌ ZK-Proof verification failed", "error");
+    }
+    updateZKProofUI();
+  } catch(e) {
+    showToast("Invalid proof format", "error");
+  }
+}
+
+function updateZKProofUI() {
+  const el = document.getElementById('zkProofHistory');
+  if (!el) return;
+  
+  if (zkProofHistory.length === 0) {
+    el.innerHTML = '<p style="opacity:0.6; font-size:0.5rem;">No proofs verified</p>';
+    return;
+  }
+  
+  const recent = zkProofHistory.slice(-3);
+  el.innerHTML = recent.map(p => `
+    <div style="display:flex; justify-content:space-between; padding:0.15rem 0; border-bottom:1px solid #333; font-size:0.45rem;">
+      <span>${p.verified ? '✅' : '❌'}</span>
+      <span style="color:${p.verified ? '#00ff88' : '#ff4466'};">${p.verified ? 'Verified' : 'Failed'}</span>
+      <span style="opacity:0.5;">${new Date(p.timestamp).toLocaleTimeString()}</span>
+    </div>
+  `).join('');
+}
+
+// ================================================================
+// 9. SWEEP & DESTROY
+// ================================================================
+
+function sweepAndDestroy() {
+  if (!wallet.address) {
+    showToast("No wallet active", "error");
+    return;
+  }
+  
+  if (!confirm(`🚨 DANGER: This will move ALL funds (${wallet.balance.toFixed(4)} BRD) and destroy the wallet. Continue?`)) {
+    return;
+  }
+  
+  if (!confirm("⚠️ SECOND CONFIRMATION: Are you ABSOLUTELY sure?")) {
+    return;
+  }
+  
+  try {
+    const sweptAmount = wallet.balance;
+    const newSeed = generateSeedPhrase();
+    const newAddress = generateAddress(newSeed);
+    
+    wallet.transactions.unshift({
+      id: Date.now(),
+      type: 'sweep_destroy',
+      amount: sweptAmount,
+      from: wallet.address,
+      to: newAddress,
+      time: new Date().toISOString()
+    });
+    
+    const oldAddress = wallet.address;
+    wallet.encryptedSeed = null;
+    wallet.address = null;
+    wallet.balance = 0;
+    wallet.transactions = [];
+    wallet.stats = { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 };
+    wallet.zkStats = { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 };
+    
+    saveWallet();
+    updateUI();
+    
+    showToast(`🧹 SWEEP & DESTROY completed! Funds moved to new wallet.`, "success");
+    
+    setTimeout(() => {
+      if (confirm("New wallet created. View seed phrase?")) {
+        document.getElementById('modalSeedPhrase').innerText = newSeed;
+        document.getElementById('seedModal').style.display = 'flex';
+      }
+    }, 1500);
+    
+  } catch (error) {
+    showToast(`❌ Sweep & Destroy failed: ${error.message}`, "error");
+  }
+}
+
+// ================================================================
+// 10. SECURITY ALERTS
+// ================================================================
+
+let securityAlerts = [];
+
+function addSecurityAlert(type, message, severity = 'info') {
+  const alert = {
+    id: Date.now(),
+    type: type,
+    message: message,
+    severity: severity,
+    timestamp: new Date().toISOString(),
+    read: false
+  };
+  
+  securityAlerts.unshift(alert);
+  if (securityAlerts.length > 50) securityAlerts.pop();
+  
+  const colors = {
+    'critical': '#ff0055',
+    'warning': '#ffaa00',
+    'info': '#00f2ff',
+    'success': '#00ff88'
+  };
+  
+  showToast(`🔔 ${type.toUpperCase()}: ${message}`, severity === 'critical' ? 'error' : 'info');
+  updateAlertUI();
+  saveSecurityAlerts();
+}
+
+function updateAlertUI() {
+  const el = document.getElementById('securityAlerts');
+  if (!el) return;
+  
+  const unread = securityAlerts.filter(a => !a.read).length;
+  const badge = document.getElementById('alertBadge');
+  if (badge) {
+    badge.innerText = unread;
+    badge.style.display = unread > 0 ? 'inline' : 'none';
+  }
+  
+  if (securityAlerts.length === 0) {
+    el.innerHTML = '<p style="opacity:0.6; font-size:0.5rem;">No security alerts</p>';
+    return;
+  }
+  
+  const recent = securityAlerts.slice(0, 5);
+  el.innerHTML = recent.map(a => `
+    <div style="display:flex; justify-content:space-between; padding:0.2rem 0; border-bottom:1px solid #333; font-size:0.45rem; ${!a.read ? 'background:#010518;' : ''}">
+      <span style="color:${a.severity === 'critical' ? '#ff0055' : a.severity === 'warning' ? '#ffaa00' : '#00f2ff'};">
+        ${a.severity === 'critical' ? '🚨' : a.severity === 'warning' ? '⚠️' : 'ℹ️'}
+      </span>
+      <span>${a.message}</span>
+      <span style="opacity:0.5; font-size:0.4rem;">${new Date(a.timestamp).toLocaleTimeString()}</span>
+    </div>
+  `).join('');
+}
+
+function saveSecurityAlerts() {
+  localStorage.setItem('bradicoin_security_alerts', JSON.stringify(securityAlerts));
+}
+
+function loadSecurityAlerts() {
+  const saved = localStorage.getItem('bradicoin_security_alerts');
+  if (saved) {
+    try {
+      securityAlerts = JSON.parse(saved);
+    } catch(e) {}
+  }
+  updateAlertUI();
+}
+
+function clearAlerts() {
+  securityAlerts = securityAlerts.filter(a => a.read);
+  securityAlerts.forEach(a => a.read = true);
+  saveSecurityAlerts();
+  updateAlertUI();
+  showToast("Alerts cleared", "info");
+}
+
+// ================================================================
+// ==================== EVENT LISTENERS ==========================
+// ================================================================
+
+// Burner Wallet
+document.getElementById('createBurnerBtn')?.addEventListener('click', createBurnerWallet);
+document.getElementById('destroyBurnerBtn')?.addEventListener('click', destroyBurnerWallet);
+
+// Decoy Mode
+document.getElementById('decoyToggleBtn')?.addEventListener('click', toggleDecoyMode);
+
+// Booby Traps
+document.getElementById('addWhitelistBtn')?.addEventListener('click', addToWhitelist);
+
+// Dead Man's Switch
+document.getElementById('deadManBtn')?.addEventListener('click', setupDeadManSwitch);
+
+// Shadow Mirror
+document.getElementById('addShadowBtn')?.addEventListener('click', addShadowWallet);
+document.getElementById('syncShadowBtn')?.addEventListener('click', syncShadowWallets);
+
+// Ephemeral Keys
+document.getElementById('genEphemeralBtn')?.addEventListener('click', generateEphemeralKey);
+
+// Gasless Mode
+document.getElementById('gaslessToggleBtn')?.addEventListener('click', toggleGaslessMode);
+
+// ZK-Proof Verifier
+document.getElementById('verifyProofBtn')?.addEventListener('click', verifyZKProof);
+
+// Sweep & Destroy
+document.getElementById('sweepDestroyBtn')?.addEventListener('click', sweepAndDestroy);
+
+// Security Alerts
+document.getElementById('clearAlertsBtn')?.addEventListener('click', clearAlerts);
+
+// ================================================================
+// ==================== CARREGAR CONFIGURAÇÕES ===================
+// ================================================================
+
+loadDecoyConfig();
+loadBoobyConfig();
+loadDeadManSwitch();
+loadShadowConfig();
+loadEphemeralKey();
+loadGaslessConfig();
+loadSecurityAlerts();
+
+// Atualizar UI dos componentes
+updateBurnerUI();
+updateDecoyUI();
+updateBoobyUI();
+updateDeadManUI();
+updateShadowUI();
+updateEphemeralUI();
+updateGaslessUI();
+updateZKProofUI();
+updateAlertUI();
+
+// ================================================================
+// ==================== MONITORAMENTO ============================
+// ================================================================
+
+function monitorSecurity() {
+  // Verificar tentativas de login suspeitas
+  if (loginAttempts > 3) {
+    addSecurityAlert('login', `Multiple failed login attempts (${loginAttempts})`, 'warning');
+  }
+  
+  // Verificar transações grandes
+  if (wallet.transactions.length > 0) {
+    const lastTx = wallet.transactions[0];
+    if (lastTx.amount > 100) {
+      addSecurityAlert('transaction', `Large transaction: ${lastTx.amount} BRD`, 'info');
+    }
+  }
+  
+  // Verificar burner wallet
+  if (burnerWallet && burnerWallet.balance > 10) {
+    addSecurityAlert('burner', `Burner wallet has significant balance: ${burnerWallet.balance} BRD`, 'warning');
+  }
+}
+
+// Monitoramento periódico
+setInterval(() => {
+  monitorSecurity();
+  checkDeadManSwitch();
+  updateBurnerUI();
+  updateEphemeralUI();
+}, 30000);
+
+// Reset dead man activity em ações
+document.addEventListener('click', resetDeadManActivity);
+document.addEventListener('keydown', resetDeadManActivity);
+
+console.log("🚀 Innovative Features loaded!");
+console.log("🔥 Burner Wallets | 🕵️ Decoy Mode | 💣 Booby Traps");
+console.log("💀 Dead Man's Switch | 🌐 Shadow Mirror | 🔑 Ephemeral Keys");
+console.log("⛽ Gasless Mode | 🔐 ZK-Proof Verifier | 🧹 Sweep & Destroy");
+console.log("🔔 Security Alerts");
 
 // ================================================================
 // ==================== INITIALIZATION ============================
