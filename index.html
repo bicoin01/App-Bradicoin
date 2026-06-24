@@ -935,6 +935,108 @@ const AUTO_LOCK_MINUTES = 5;
 const MAX_LOGIN_ATTEMPTS = 5;
 
 // ================================================================
+// ==================== API INTEGRATION ===========================
+// ================================================================
+
+// Helper para chamadas à API
+async function apiCall(endpoint, options = {}) {
+    const url = `${API_URL}${endpoint}`;
+    const defaultOptions = {
+        headers: { 'Content-Type': 'application/json' },
+    };
+    const finalOptions = { ...defaultOptions, ...options };
+
+    try {
+        const response = await fetch(url, finalOptions);
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || `HTTP ${response.status}`);
+        }
+
+        return data;
+    } catch (error) {
+        console.error('❌ API Error:', error);
+        throw error;
+    }
+}
+
+// ================================================================
+// ==================== API FUNCTIONS =============================
+// ================================================================
+
+// Registrar usuário na API
+async function registerUserOnAPI(username, password) {
+    try {
+        const result = await apiCall('/api/register', {
+            method: 'POST',
+            body: JSON.stringify({ username, password })
+        });
+        return result.data;
+    } catch (error) {
+        showToast(`❌ Registration failed: ${error.message}`, 'error');
+        throw error;
+    }
+}
+
+// Consultar saldo na API
+async function getBalanceFromAPI(address) {
+    try {
+        const result = await apiCall(`/api/balance/${address}`);
+        return result.data;
+    } catch (error) {
+        showToast(`❌ Balance check failed: ${error.message}`, 'error');
+        throw error;
+    }
+}
+
+// Enviar BRD via API
+async function sendBRDviaAPI(fromAddress, toAddress, amount) {
+    try {
+        const result = await apiCall('/api/send', {
+            method: 'POST',
+            body: JSON.stringify({ fromAddress, toAddress, amount })
+        });
+        return result.data;
+    } catch (error) {
+        showToast(`❌ Send failed: ${error.message}`, 'error');
+        throw error;
+    }
+}
+
+// Listar usuários da API
+async function getUsersFromAPI() {
+    try {
+        const result = await apiCall('/api/users');
+        return result.data;
+    } catch (error) {
+        console.error('❌ Get users failed:', error);
+        return { users: [] };
+    }
+}
+
+// Consultar configuração da API
+async function getConfigFromAPI() {
+    try {
+        const result = await apiCall('/api/config');
+        return result.data;
+    } catch (error) {
+        console.error('❌ Get config failed:', error);
+        return null;
+    }
+}
+
+// Health check da API
+async function checkAPIHealth() {
+    try {
+        await apiCall('/health');
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+// ================================================================
 // ==================== ESTADO DA WALLET ==========================
 // ================================================================
 
@@ -1609,178 +1711,72 @@ function updateAirdropUI() {
 }
 
 // ================================================================
+// ================================================================
 // ==================== WALLET FUNÇÕES ===========================
 // ================================================================
 
-function saveWallet() {
-  localStorage.setItem('bradicoin_wallet', JSON.stringify({
-    encryptedSeed: wallet.encryptedSeed,
-    address: wallet.address,
-    balance: wallet.balance,
-    transactions: wallet.transactions,
-    stats: wallet.stats,
-    zkStats: wallet.zkStats,
-    security: wallet.security,
-    stealthAddresses: wallet.stealthAddresses,
-    referralCode: wallet.referralCode
-  }));
-  localStorage.setItem('bradicoin_stake', JSON.stringify(activeStake));
-}
-
-function loadWallet() {
-  const w = localStorage.getItem('bradicoin_wallet');
-  if (w) {
+async function importWallet(seed, password) {
+    const words = seed.trim().toLowerCase().split(/\s+/);
+    if (words.length !== 12) {
+        showToast("Invalid seed phrase - need 12 words", "error");
+        return false;
+    }
+    if (!password || password.length < 4) {
+        showToast("Password must be at least 4 characters", "error");
+        return false;
+    }
+    
+    const address = generateAddress(seed);
+    
     try {
-      const parsed = JSON.parse(w);
-      wallet = { ...wallet, ...parsed };
-      if (!wallet.zkStats) wallet.zkStats = { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 };
-      if (!wallet.security) wallet.security = { twoFAEnabled: false, twoFASecret: null, backupCodes: [], lockTimeout: null, lastActivity: Date.now() };
-      if (!wallet.stealthAddresses) wallet.stealthAddresses = [];
-    } catch(e) {}
-  }
-  const s = localStorage.getItem('bradicoin_stake');
-  if (s) { try { activeStake = JSON.parse(s); } catch(e) {} }
-  
-  loadAirdropConfig();
-  updateUI();
-  updateAirdropUI();
-  updateAnalytics();
-  updateSecurityBadge();
-  setupAutoLock();
-}
-
-function createWalletFlow() {
-  const seedPhrase = generateSeedPhrase();
-  const address = generateAddress(seedPhrase);
-  
-  tempSeedForCreation = seedPhrase;
-  wallet.address = address;
-  wallet.balance = 0;
-  wallet.transactions = [];
-  wallet.stats = { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 };
-  wallet.zkStats = { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 };
-  wallet.security = { twoFAEnabled: false, twoFASecret: null, backupCodes: [], lockTimeout: null, lastActivity: Date.now() };
-  wallet.stealthAddresses = [];
-  wallet.referralCode = generateReferralCode();
-  
-  document.getElementById('modalSeedPhrase').innerText = seedPhrase;
-  document.getElementById('seedModal').style.display = 'flex';
-  showToast("✅ Seed phrase generated!", "success");
-}
-
-function finalizeWalletCreation(password) {
-  if (!password || password.length < 4) {
-    showToast("Password must be at least 4 characters", "error");
-    return false;
-  }
-  if (!tempSeedForCreation) {
-    showToast("Error: No seed generated", "error");
-    return false;
-  }
-  
-  wallet.encryptedSeed = encrypt(tempSeedForCreation, password);
-  saveWallet();
-  tempSeedForCreation = null;
-  document.getElementById('seedModal').style.display = 'none';
-  hideLoginAndShowDashboard();
-  updateUI();
-  updateSecurityBadge();
-  showToast("🎉 Wallet created!", "success");
-  return true;
-}
-
-function importWallet(seed, password) {
-  const words = seed.trim().toLowerCase().split(/\s+/);
-  if (words.length !== 12) {
-    showToast("Invalid seed phrase - need 12 words", "error");
-    return false;
-  }
-  if (!password || password.length < 4) {
-    showToast("Password must be at least 4 characters", "error");
-    return false;
-  }
-  
-  const address = generateAddress(seed);
-  wallet = {
-    encryptedSeed: encrypt(seed, password),
-    address: address,
-    balance: 0,
-    transactions: [],
-    stats: { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 },
-    zkStats: { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 },
-    security: { twoFAEnabled: false, twoFASecret: null, backupCodes: [], lockTimeout: null, lastActivity: Date.now() },
-    stealthAddresses: [],
-    referralCode: generateReferralCode()
-  };
-  activeStake = null;
-  saveWallet();
-  showToast("✅ Wallet imported!", "success");
-  return true;
-}
-
-function unlockWallet(password, twoFACode) {
-  if (!checkRateLimit()) return false;
-  if (!wallet.encryptedSeed) {
-    showToast("No wallet found", "error");
-    return false;
-  }
-  
-  const decrypted = decrypt(wallet.encryptedSeed, password);
-  if (!decrypted) {
-    recordLoginAttempt(false);
-    showToast("Wrong password!", "error");
-    return false;
-  }
-  
-  // Verificar 2FA se habilitado
-  if (wallet.security.twoFAEnabled) {
-    if (!twoFACode) {
-      showToast("Please enter 2FA code", "error");
-      return false;
+        showToast("⏳ Verifying wallet on blockchain...", "info");
+        
+        // Verifica se existe na API
+        const data = await getBalanceFromAPI(address);
+        
+        // Atualiza wallet local com os dados da API
+        wallet.encryptedSeed = encrypt(seed, password);
+        wallet.address = address;
+        wallet.balance = data.balance || 0;
+        wallet.username = data.username || 'User';
+        wallet.transactions = [];
+        wallet.stats = { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 };
+        wallet.zkStats = { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 };
+        wallet.security = { twoFAEnabled: false, twoFASecret: null, backupCodes: [], lockTimeout: null, lastActivity: Date.now() };
+        wallet.stealthAddresses = [];
+        wallet.referralCode = generateReferralCode();
+        
+        activeStake = null;
+        saveWallet();
+        updateUI();
+        updateSecurityBadge();
+        
+        showToast(`✅ Wallet imported! Balance: ${wallet.balance} BRD`, "success");
+        return true;
+        
+    } catch (error) {
+        // Se não encontrar na API, cria localmente
+        showToast("⚠️ Wallet not found on blockchain. Creating local wallet...", "warning");
+        
+        wallet.encryptedSeed = encrypt(seed, password);
+        wallet.address = address;
+        wallet.balance = 0;
+        wallet.username = 'User';
+        wallet.transactions = [];
+        wallet.stats = { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 };
+        wallet.zkStats = { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 };
+        wallet.security = { twoFAEnabled: false, twoFASecret: null, backupCodes: [], lockTimeout: null, lastActivity: Date.now() };
+        wallet.stealthAddresses = [];
+        wallet.referralCode = generateReferralCode();
+        
+        activeStake = null;
+        saveWallet();
+        updateUI();
+        updateSecurityBadge();
+        
+        showToast("⚠️ Local wallet created. Register on blockchain to sync.", "warning");
+        return true;
     }
-    if (!verify2FA(twoFACode, wallet.security.twoFASecret)) {
-      recordLoginAttempt(false);
-      showToast("Invalid 2FA code!", "error");
-      return false;
-    }
-  }
-  
-  const regeneratedAddress = generateAddress(decrypted);
-  if (regeneratedAddress !== wallet.address) {
-    showToast("Data corruption!", "error");
-    return false;
-  }
-  
-  recordLoginAttempt(true);
-  isLocked = false;
-  hideLoginAndShowDashboard();
-  updateUI();
-  updateSecurityBadge();
-  setupAutoLock();
-  showToast("🔓 Wallet unlocked!", "success");
-  return true;
-}
-
-function lockWalletNow() {
-  if (isLocked) return;
-  isLocked = true;
-  showToast("🔒 Wallet locked", "warning");
-  showLoginScreen();
-  if (wallet.security.lockTimeout) {
-    clearTimeout(wallet.security.lockTimeout);
-  }
-}
-
-function showLoginScreen() {
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('mainDashboard').style.display = 'none';
-  document.getElementById('unlockPasswordInput').value = '';
-  document.getElementById('unlock2FAInput').value = '';
-}
-
-function hideLoginAndShowDashboard() {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('mainDashboard').style.display = 'block';
 }
 
 // ================================================================
@@ -1788,73 +1784,98 @@ function hideLoginAndShowDashboard() {
 // ================================================================
 
 async function sendToBlockchain(toAddress, amount, password, options = {}) {
-  if (!toAddress) { showToast("Enter recipient address", "error"); return false; }
-  const totalCost = amount + TX_FEE;
-  if (amount <= 0 || totalCost > wallet.balance) {
-    showToast(`Insufficient balance. Need ${totalCost} BRD`, "error");
-    return false;
-  }
-  
-  const decrypted = decrypt(wallet.encryptedSeed, password);
-  if (!decrypted) { showToast("Wrong password!", "error"); return false; }
-  
-  try {
-    showToast("⏳ Sending transaction...", "info");
+    if (!toAddress) { showToast("Enter recipient address", "error"); return false; }
+    if (!wallet.address) { showToast("No wallet address", "error"); return false; }
+    if (!wallet.encryptedSeed) { showToast("Wallet not initialized", "error"); return false; }
     
-    // Se stealth, gerar endereço furtivo
-    let finalTo = toAddress;
-    if (options.stealth) {
-      const stealth = generateStealthAddress();
-      finalTo = stealth;
-      showToast("🕵️ Using stealth address", "info");
+    // Verifica password
+    const decrypted = decrypt(wallet.encryptedSeed, password);
+    if (!decrypted) { showToast("Wrong password!", "error"); return false; }
+    
+    // Se ZK, usa função separada
+    if (options.zk) {
+        return await sendPrivateTransaction(toAddress, amount, password);
     }
     
-    // Se decoy, criar transações falsas
-    if (options.decoy) {
-      for (let i = 0; i < 2; i++) {
-        const decoyAmount = (Math.random() * 0.5 + 0.1);
+    try {
+        showToast("⏳ Sending transaction to blockchain...", "info");
+        
+        // Envia via API
+        const result = await sendBRDviaAPI(wallet.address, toAddress, amount);
+        
+        // Atualiza wallet local
+        wallet.balance = result.newBalance;
         wallet.transactions.unshift({
-          id: Date.now() + i,
-          type: 'decoy',
-          to: '0xDecoy' + CryptoJS.lib.WordArray.random(10).toString(),
-          amount: decoyAmount,
-          fee: 0,
-          time: new Date().toISOString()
+            id: Date.now(),
+            type: 'sent',
+            to: toAddress,
+            amount: amount,
+            fee: result.bonus || TX_FEE,
+            time: new Date().toISOString()
         });
-      }
-      showToast("🔄 Decoy transactions created", "info");
+        
+        if (wallet.transactions.length > 20) wallet.transactions.pop();
+        wallet.stats.totalTx += 1;
+        
+        saveWallet();
+        updateUI();
+        updateAnalytics();
+        
+        showToast(`✅ Sent ${amount} BRD successfully! (Bonus: ${result.bonus} BRD)`, "success");
+        return true;
+        
+    } catch (error) {
+        showToast(`❌ Transaction failed: ${error.message}`, "error");
+        return false;
     }
-    
-    // Se mixer, adicionar ao pool
-    if (options.mixer) {
-      await joinMixer();
-    }
-    
-    wallet.balance -= totalCost;
-    wallet.stats.feesPaid += TX_FEE;
-    wallet.transactions.unshift({
-      id: Date.now(),
-      type: options.zk ? 'zk_private' : 'sent',
-      to: finalTo,
-      amount: amount,
-      fee: TX_FEE,
-      stealth: options.stealth || false,
-      time: new Date().toISOString()
-    });
-    
-    if (wallet.transactions.length > 20) wallet.transactions.pop();
-    wallet.stats.totalTx += 1;
-    saveWallet();
-    updateUI();
-    updateAnalytics();
-    
-    showToast(`✅ Sent ${amount} BRD successfully!`, "success");
-    return true;
-  } catch (error) {
-    showToast(`❌ Transaction failed: ${error.message}`, "error");
-    return false;
-  }
 }
+
+// ================================================================
+// ==================== BALANCE CHECK =============================
+// ================================================================
+
+async function checkBalanceOnChain(address) {
+    if (!address) {
+        showToast("No address provided", "error");
+        return null;
+    }
+    
+    try {
+        showToast("⏳ Checking balance on blockchain...", "info");
+        
+        const data = await getBalanceFromAPI(address);
+        
+        // Atualiza wallet local
+        wallet.balance = data.balance;
+        wallet.username = data.username || wallet.username;
+        saveWallet();
+        updateUI();
+        
+        showToast(`💰 Balance: ${data.balance} BRD (${data.username})`, "success");
+        
+        return data;
+    } catch (error) {
+        showToast(`❌ Balance check failed: ${error.message}`, "error");
+        return null;
+    }
+}
+
+// ================================================================
+// ==================== API STATUS ================================
+// ================================================================
+
+async function updateAPIStatus() {
+    const status = await checkAPIHealth();
+    const dot = document.getElementById('networkStatus');
+    if (dot) {
+        dot.className = `notification-dot ${status ? 'online' : 'offline'}`;
+        dot.title = status ? 'API Online ✅' : 'API Offline ❌';
+    }
+    return status;
+}
+
+// Verificar status da API a cada 15 segundos
+setInterval(updateAPIStatus, 15000);
 
 // ================================================================
 // ==================== STAKING ===================================
@@ -2244,8 +2265,12 @@ document.getElementById('copyReferralBtn').onclick = () => {
   }
 };
 
-document.getElementById('checkChainBalanceBtn').onclick = () => {
-  showToast("✅ Balance: " + wallet.balance.toFixed(4) + " BRD", "success");
+document.getElementById('checkChainBalanceBtn').onclick = async () => {
+    if (wallet.address) {
+        await checkBalanceOnChain(wallet.address);
+    } else {
+        showToast("No wallet loaded", "error");
+    }
 };
 
 document.getElementById('claimAirdropBtn').onclick = claimAirdrop;
@@ -3114,40 +3139,15 @@ function clearAlerts() {
 }
 
 // ================================================================
-// ==================== EVENT LISTENERS ==========================
+// ==================== EVENT LISTENERS ===========================
 // ================================================================
-
-// Burner Wallet
-document.getElementById('createBurnerBtn')?.addEventListener('click', createBurnerWallet);
-document.getElementById('destroyBurnerBtn')?.addEventListener('click', destroyBurnerWallet);
-
-// Decoy Mode
-document.getElementById('decoyToggleBtn')?.addEventListener('click', toggleDecoyMode);
-
-// Booby Traps
-document.getElementById('addWhitelistBtn')?.addEventListener('click', addToWhitelist);
-
-// Dead Man's Switch
-document.getElementById('deadManBtn')?.addEventListener('click', setupDeadManSwitch);
-
-// Shadow Mirror
-document.getElementById('addShadowBtn')?.addEventListener('click', addShadowWallet);
-document.getElementById('syncShadowBtn')?.addEventListener('click', syncShadowWallets);
-
-// Ephemeral Keys
-document.getElementById('genEphemeralBtn')?.addEventListener('click', generateEphemeralKey);
-
-// Gasless Mode
-document.getElementById('gaslessToggleBtn')?.addEventListener('click', toggleGaslessMode);
-
-// ZK-Proof Verifier
-document.getElementById('verifyProofBtn')?.addEventListener('click', verifyZKProof);
-
-// Sweep & Destroy
-document.getElementById('sweepDestroyBtn')?.addEventListener('click', sweepAndDestroy);
-
-// Security Alerts
-document.getElementById('clearAlertsBtn')?.addEventListener('click', clearAlerts);
+document.getElementById('checkChainBalanceBtn').onclick = async () => {
+    if (wallet.address) {
+        await checkBalanceOnChain(wallet.address);
+    } else {
+        showToast("No wallet loaded", "error");
+    }
+};
 
 // ================================================================
 // ==================== CARREGAR CONFIGURAÇÕES ===================
@@ -3587,25 +3587,34 @@ sendToBlockchain = async function(toAddress, amount, password, options = {}) {
 // ==================== INITIALIZATION ============================
 // ================================================================
 
-// Initialize fee display when page loads
-setTimeout(() => {
-  refreshFeeDisplay();
-}, 1000);
+// Sync with API every 30 seconds
+setInterval(async () => {
+    if (wallet.address) {
+        try {
+            const data = await getBalanceFromAPI(wallet.address);
+            if (data && data.balance !== wallet.balance) {
+                wallet.balance = data.balance;
+                saveWallet();
+                updateUI();
+                console.log('🔄 Balance synced with API:', data.balance);
+            }
+        } catch (e) {
+            // Silently fail - API may be offline
+        }
+    }
+}, 30000);
 
-console.log("💰 Variable Fee System loaded!");
-console.log("📊 Fee Range: $0.15 - $0.70 USD (0.01500 - 0.07000 BRD)");
-console.log("🎯 Tiers:", FEE_SYSTEM.tiers.map(t => `${t.icon} ${t.label}: $${t.feeUSD} (${t.feeBRD.toFixed(5)} BRD)`).join(', '));
-console.log("💎 Discounts Available: Holder (30%), Staker (20%), Loyal User (15%), Referral (10%), First Transaction (50%)");
+// UI updates every 5 seconds
+setInterval(() => {
+    updateUI();
+    updateAnalytics();
+    if (document.getElementById('airdropManagerModal').style.display === 'flex') {
+        updateAirdropUI();
+    }
+}, 5000);
 
-// Export functions for use in other parts of the app
-window.FeeSystem = {
-  calculateFee,
-  getFeeTier,
-  usdToBrd,
-  brdToUsd,
-  refreshFeeDisplay,
-  showFeeBreakdown
-};
+// Check API status every 15 seconds
+setInterval(updateAPIStatus, 15000);
 
 </script>
 </body>
