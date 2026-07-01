@@ -19,7 +19,6 @@
     body.rtl { direction: rtl; text-align: right; }
     .container { max-width: 1400px; margin: 0 auto; }
     
-    /* ===== CARDS ===== */
     .neon-card {
       background: rgba(8, 12, 26, 0.85);
       backdrop-filter: blur(12px);
@@ -31,7 +30,6 @@
     }
     .neon-card:hover { box-shadow: 0 0 40px rgba(168, 85, 247, 0.5); transform: translateY(-2px); }
     
-    /* ===== BOTÕES ===== */
     .cyber-btn {
       background: rgba(0,0,0,0.6);
       border: 1.5px solid #a855f7;
@@ -86,7 +84,6 @@
     }
     .cyber-input:focus { border-color: #00f2ff; box-shadow: 0 0 15px rgba(0, 242, 255, 0.2); }
     
-    /* ===== TOP BAR ===== */
     .lang-bar {
       position: fixed;
       top: 15px;
@@ -115,7 +112,6 @@
     .lang-btn.active { background: #a855f7; color: #0a0f1e; }
     .lang-btn:hover { background: rgba(168, 85, 247, 0.3); }
 
-    /* ===== LOGIN ===== */
     .login-screen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: radial-gradient(circle at 30% 20%, #0a0f1e, #020408);
@@ -141,7 +137,6 @@
     .login-logo i { font-size: 3rem; color: #0a0f1e; }
     .login-buttons { display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap; }
     
-    /* ===== MODAIS ===== */
     .modal-overlay {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); z-index: 3000;
@@ -164,17 +159,32 @@
       font-family: monospace; font-size: 0.8rem; word-break: break-all;
       border: 1px solid #00f2ff; margin: 1rem 0;
       color: #00f2ff;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 0.3rem;
+      text-align: left;
+    }
+    .seed-phrase-box .word-item {
+      background: rgba(0,0,0,0.3);
+      padding: 0.2rem 0.4rem;
+      border-radius: 0.3rem;
+      font-size: 0.65rem;
+      color: #00f2ff;
+    }
+    .seed-phrase-box .word-item .num {
+      color: #666;
+      font-size: 0.5rem;
+      margin-right: 0.2rem;
     }
     .warning-text { color: #ff0055; font-size: 0.75rem; margin-top: 0.5rem; }
     
-    /* ===== DASHBOARD ===== */
     .main-dashboard { display: none; }
     .top-bar {
       display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
       gap: 1rem; margin-bottom: 2rem; padding: 1rem;
       background: rgba(12,20,35,0.7); border-radius: 2rem; border: 1px solid #a855f7;
     }
-    .logo-area { display: flex; align-items: center; gap: 0.8rem; }
+    .logo-area { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
     .logo-placeholder {
       width: 42px; height: 42px;
       background: linear-gradient(135deg, #a855f7, #00f2ff);
@@ -218,7 +228,6 @@
     .zk-status.active { background: #00ff8822; color: #00ff88; border: 1px solid #00ff88; }
     .zk-status.pending { background: #ffaa0022; color: #ffaa00; border: 1px solid #ffaa00; }
     
-    /* Security Badges */
     .security-badge {
       display: inline-block;
       padding: 0.2rem 0.6rem;
@@ -305,6 +314,7 @@
       .quick-actions { grid-template-columns: 1fr 1fr; }
       .settings-grid { grid-template-columns: 1fr; }
       .analytics-grid { grid-template-columns: 1fr 1fr; }
+      .seed-phrase-box { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
@@ -312,7 +322,7 @@
 
 <!-- ===== LANGUAGE BAR ===== -->
 <div class="lang-bar">
-  <button class="lang-btn" data-lang="en">EN</button>
+  <button class="lang-btn active" data-lang="en">EN</button>
   <button class="lang-btn" data-lang="pt">PT</button>
   <button class="lang-btn" data-lang="es">ES</button>
   <button class="lang-btn" data-lang="ar">AR</button>
@@ -364,10 +374,9 @@
     <i class="fas fa-shield-alt" style="font-size: 3rem; color: #00f2ff;"></i>
     <h2 id="seedModalTitle">⚠️ SAVE YOUR SEED PHRASE</h2>
     <p id="seedModalWarning" style="color: #ff0055; font-size: 0.8rem;">This is the ONLY way to recover your wallet!</p>
-    <div class="seed-phrase-box" id="modalSeedPhrase">---</div>
+    <div class="seed-phrase-box" id="modalSeedPhrase"></div>
     <p id="walletInfoText">Your wallet address will be generated automatically</p>
     <input type="password" id="walletPasswordInput" class="cyber-input" placeholder="Create a password for your wallet" style="margin:0.5rem 0;">
-    <button id="backToLoginBtn" class="cyber-btn back" style="width:100%; margin-bottom: 0.5rem;"><i class="fas fa-arrow-left"></i> Back to Login</button>
     <button id="copySeedBtn" class="cyber-btn" style="width:100%; margin-bottom: 0.5rem;"><i class="fas fa-copy"></i> Copy Seed Phrase</button>
     <button id="confirmSeedBtn" class="cyber-btn primary" style="width:100%;"><i class="fas fa-check-circle"></i> I Have Saved My Seed Phrase</button>
     <p class="warning-text">⚠️ Never share your seed phrase!</p>
@@ -384,7 +393,6 @@
     <input type="number" id="sendAmount" class="cyber-input" placeholder="Amount (BRD)" step="any">
     <input type="password" id="sendPassword" class="cyber-input" placeholder="Wallet Password" style="margin:0.3rem 0;">
     
-    <!-- Security Options -->
     <div style="margin:0.3rem 0; display:grid; grid-template-columns:1fr 1fr; gap:0.3rem; text-align:left; font-size:0.6rem;">
       <label style="display:flex; align-items:center; gap:0.3rem; color:#00ff88;">
         <input type="checkbox" id="zkPrivateSend" style="accent-color:#00ff88;"> ZK-SNARK Privacy
@@ -469,7 +477,7 @@
     <input type="password" id="viewSeedPassword" class="cyber-input" placeholder="Enter your wallet password" style="margin:0.5rem 0;">
     <button id="revealSeedBtn" class="cyber-btn warning" style="width:100%;"><i class="fas fa-unlock"></i> Reveal Seed Phrase</button>
     <div id="revealedSeedContainer" style="display:none; margin-top:1rem;">
-      <div class="seed-phrase-box" id="revealedSeedPhrase">---</div>
+      <div class="seed-phrase-box" id="revealedSeedPhrase"></div>
       <button id="copyRevealedSeedBtn" class="cyber-btn" style="width:100%; margin-top:0.5rem;"><i class="fas fa-copy"></i> Copy Seed Phrase</button>
     </div>
     <button id="closeViewSeedModalBtn" class="cyber-btn primary" style="width:100%; margin-top:1rem;">Close</button>
@@ -511,17 +519,6 @@
   </div>
 </div>
 
-<!-- ===== AIRDROP HISTORY MODAL ===== -->
-<div id="airdropModal" class="modal-overlay">
-  <div class="modal-content">
-    <h2><i class="fas fa-gift"></i> Airdrop History</h2>
-    <div id="airdropHistoryContent" style="margin:0.5rem 0; text-align:left; max-height:250px; overflow-y:auto; font-size:0.65rem;">
-      <p style="text-align:center; opacity:0.6;">No airdrops claimed yet</p>
-    </div>
-    <button id="closeAirdropModalBtn" class="cyber-btn primary" style="width:100%;">Close</button>
-  </div>
-</div>
-
 <!-- ===== REWARDS MODAL ===== -->
 <div id="rewardsModal" class="modal-overlay">
   <div class="modal-content">
@@ -535,65 +532,6 @@
       </div>
     </div>
     <button id="closeRewardsModalBtn" class="cyber-btn primary" style="width:100%;">Close</button>
-  </div>
-</div>
-
-<!-- ===== AIRDROP MANAGER MODAL ===== -->
-<div id="airdropManagerModal" class="modal-overlay">
-  <div class="modal-content" style="max-width:550px;">
-    <h2><i class="fas fa-gift" style="color: #ffd700;"></i> Airdrop Manager</h2>
-    <p style="font-size:0.5rem; opacity:0.6;">Configure values below before distribution</p>
-    <div style="text-align:left; margin:0.5rem 0; font-size:0.6rem;">
-      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin-bottom:0.3rem; border:1px solid #a855f7;">
-        <p><strong>📊 Status:</strong> <span id="airdropStatusDisplay">⏳ Pending Configuration</span></p>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.2rem; margin-top:0.2rem; font-size:0.55rem;">
-          <p>📅 Month: <span id="airdropMonthDisplay">0/0</span></p>
-          <p>💰 Per Month: <span id="airdropPerMonthDisplay">$0</span></p>
-          <p>📈 BRD: <span id="airdropPerMonthBRD">0</span></p>
-          <p>📊 Claimed: <span id="airdropTotalClaimed">0</span></p>
-        </div>
-      </div>
-      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin-bottom:0.3rem; border:1px solid #ffd70033;">
-        <p><strong>📈 Progress</strong></p>
-        <div class="progress-bar"><div class="progress-fill" id="airdropProgressFill" style="width:0%"></div></div>
-        <p style="font-size:0.5rem; text-align:center;" id="airdropProgressText">0 of 0 months</p>
-      </div>
-      <div style="background:#010518; padding:0.5rem; border-radius:1rem; border:1px solid #a855f7;">
-        <p><strong>⚙️ Config</strong></p>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.3rem; margin-top:0.3rem;">
-          <div><label style="font-size:0.5rem;">USD/Month</label><input type="number" id="configUSD" class="cyber-input" value="300" style="font-size:0.5rem; padding:0.2rem;"></div>
-          <div><label style="font-size:0.5rem;">BRD/Month</label><input type="number" id="configBRD" class="cyber-input" value="30" style="font-size:0.5rem; padding:0.2rem;"></div>
-          <div><label style="font-size:0.5rem;">Months</label><input type="number" id="configMonths" class="cyber-input" value="6" style="font-size:0.5rem; padding:0.2rem;"></div>
-          <div><label style="font-size:0.5rem;">Users</label><input type="number" id="configUsers" class="cyber-input" value="40" style="font-size:0.5rem; padding:0.2rem;"></div>
-        </div>
-        <button onclick="updateAirdropConfig()" class="cyber-btn primary" style="width:100%; margin-top:0.3rem; font-size:0.5rem;"><i class="fas fa-save"></i> Update</button>
-      </div>
-      <button id="claimAirdropBtnMain" class="cyber-btn gold" style="width:100%; margin-top:0.3rem; font-size:0.6rem;"><i class="fas fa-gift"></i> Claim Airdrop</button>
-    </div>
-    <button id="closeAirdropManagerBtn" class="cyber-btn" style="width:100%; margin-top:0.3rem;"><i class="fas fa-times"></i> Close</button>
-  </div>
-</div>
-
-<!-- ===== ZK INFO MODAL ===== -->
-<div id="zkInfoModal" class="modal-overlay">
-  <div class="modal-content" style="max-width:550px;">
-    <i class="fas fa-shield-alt" style="font-size: 3rem; color: #00ff88;"></i>
-    <h2 style="color: #00ff88;">🔐 ZK-SNARK Privacy</h2>
-    <div style="text-align:left; margin:0.5rem 0; font-size:0.65rem;">
-      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.2rem 0; border:1px solid #00ff88;">
-        <strong>Status:</strong> <span id="zkStatus" class="zk-status active">✅ Active</span>
-      </div>
-      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.2rem 0;">
-        <strong>🔑 Private Transactions:</strong> <span id="zkPrivateTxCount">0</span>
-      </div>
-      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.2rem 0;">
-        <strong>🛡️ Privacy Protected:</strong> <span id="zkPrivacyAmount">0</span> BRD
-      </div>
-      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.2rem 0;">
-        <strong>📊 Proofs Generated:</strong> <span id="zkProofCount">0</span>
-      </div>
-    </div>
-    <button id="closeZkInfoModalBtn" class="cyber-btn primary" style="width:100%;"><i class="fas fa-times"></i> Close</button>
   </div>
 </div>
 
@@ -925,115 +863,240 @@
 
 <script>
 // ================================================================
-// ==================== CONFIGURAÇÃO ==============================
+// ==================== SISTEMA DE SEED PHRASE ====================
 // ================================================================
 
-const API_URL = 'https://bradicoin-api.onrender.com';
-const TX_FEE = 0.15;
-const BRD_PRICE = 10.00;
-const AUTO_LOCK_MINUTES = 5;
-const MAX_LOGIN_ATTEMPTS = 5;
+// Lista completa de palavras em inglês usando todo o alfabeto A-Z
+const WORD_LIST = [
+  "abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract", "absurd", "abuse",
+  "access", "accident", "account", "accuse", "achieve", "acid", "acoustic", "acquire", "across", "act",
+  "action", "actor", "actress", "actual", "adapt", "add", "addict", "address", "adjust", "admit",
+  "adult", "advance", "advice", "aerobic", "affair", "afford", "afraid", "africa", "after", "again",
+  "age", "agent", "agree", "ahead", "aim", "air", "airport", "alarm", "album", "alcohol",
+  "alert", "alien", "all", "alley", "allow", "almost", "alone", "alpha", "already", "also",
+  "alter", "always", "amateur", "amazing", "among", "amount", "amused", "analyst", "anchor", "ancient",
+  "anger", "angle", "angry", "animal", "ankle", "announce", "annual", "another", "answer", "antenna",
+  "antique", "anxiety", "any", "apart", "apology", "appear", "apple", "approve", "april", "arch",
+  "arctic", "area", "arena", "argue", "arm", "army", "around", "arrange", "arrest", "arrive",
+  "arrow", "art", "artefact", "artist", "artwork", "ask", "aspect", "assault", "asset", "assist",
+  "assume", "asthma", "athlete", "atom", "attack", "attend", "attitude", "attract", "auction", "audit",
+  "august", "aunt", "author", "auto", "autumn", "average", "avocado", "avoid", "awake", "aware",
+  "away", "awesome", "awful", "awkward", "axis", "baby", "bachelor", "bacon", "badge", "bag",
+  "balance", "balcony", "ball", "bamboo", "banana", "banner", "bar", "barely", "bargain", "barrel",
+  "base", "basic", "basket", "battle", "beach", "bean", "beauty", "because", "become", "beef",
+  "before", "begin", "behave", "behind", "believe", "below", "belt", "bench", "benefit", "best",
+  "betray", "better", "between", "beyond", "bicycle", "bid", "bike", "bind", "biology", "bird",
+  "birth", "bitter", "black", "blade", "blame", "blanket", "blast", "bleak", "bless", "blind",
+  "blood", "blossom", "blouse", "blue", "blur", "blush", "board", "boat", "body", "boil",
+  "bomb", "bone", "bonus", "book", "boost", "border", "boring", "borrow", "boss", "bottom",
+  "bounce", "box", "boy", "bracket", "brain", "brand", "brass", "brave", "bread", "breeze",
+  "brick", "bridge", "brief", "bright", "bring", "brisk", "broccoli", "broken", "bronze", "broom",
+  "brother", "brown", "brush", "bubble", "buddy", "budget", "buffalo", "build", "bulb", "bulk",
+  "bullet", "bundle", "bunker", "burden", "burger", "burst", "bus", "business", "busy", "butter",
+  "buyer", "buzz", "cabbage", "cabin", "cable", "cactus", "cage", "cake", "call", "calm",
+  "camera", "camp", "can", "canal", "cancel", "candy", "cannon", "canoe", "canvas", "canyon",
+  "capable", "capital", "captain", "car", "carbon", "card", "cargo", "carpet", "carry", "cart",
+  "case", "cash", "casino", "castle", "casual", "cat", "catalog", "catch", "category", "cattle",
+  "caught", "cause", "caution", "cave", "ceiling", "celery", "cement", "census", "century", "cereal",
+  "certain", "chair", "chalk", "champion", "change", "chaos", "chapter", "charge", "chase", "chat",
+  "cheap", "check", "cheese", "chef", "cherry", "chest", "chicken", "chief", "child", "chimney",
+  "choice", "choose", "chronic", "chuckle", "chunk", "churn", "cigar", "cinnamon", "circle", "citizen",
+  "city", "civil", "claim", "clap", "clarify", "claw", "clay", "clean", "clerk", "clever",
+  "click", "client", "cliff", "climb", "clinic", "clip", "clock", "clog", "close", "cloth",
+  "cloud", "clown", "club", "clump", "cluster", "clutch", "coach", "coast", "coconut", "code",
+  "coffee", "coil", "coin", "collect", "color", "column", "combine", "come", "comfort", "comic",
+  "common", "company", "concert", "conduct", "confirm", "congress", "connect", "consider", "control", "convince",
+  "cook", "cool", "copper", "copy", "coral", "core", "corn", "correct", "cost", "cotton",
+  "couch", "country", "couple", "course", "cousin", "cover", "coyote", "crack", "craft", "cram",
+  "crane", "crash", "crater", "crawl", "crazy", "cream", "credit", "creek", "crew", "cricket",
+  "crime", "crisp", "critic", "crop", "cross", "crouch", "crowd", "crucial", "cruel", "cruise",
+  "crumble", "crunch", "crush", "cry", "crystal", "cube", "culture", "cup", "cupboard", "curious",
+  "current", "curtain", "curve", "cushion", "custom", "cute", "cycle", "dad", "damage", "damp",
+  "dance", "danger", "daring", "dash", "daughter", "dawn", "day", "deal", "debate", "debris",
+  "decade", "december", "decide", "decline", "decorate", "decrease", "deer", "defense", "define", "defy",
+  "degree", "delay", "deliver", "demand", "demise", "denial", "dentist", "deny", "depart", "depend",
+  "deposit", "depth", "deputy", "derive", "describe", "desert", "design", "desk", "despair", "destroy",
+  "detail", "detect", "develop", "device", "devote", "diagram", "dial", "diamond", "diary", "dice",
+  "diesel", "diet", "differ", "digital", "dignity", "dilemma", "dinner", "dinosaur", "direct", "dirt",
+  "disagree", "discover", "disease", "dish", "dismiss", "disorder", "display", "distance", "divert", "divide",
+  "divorce", "dizzy", "doctor", "document", "dog", "doll", "dolphin", "domain", "donate", "donkey",
+  "donor", "door", "dose", "double", "dove", "draft", "dragon", "drama", "drastic", "draw",
+  "dream", "dress", "drift", "drill", "drink", "drip", "drive", "drop", "drum", "dry",
+  "duck", "dumb", "dune", "during", "dust", "dutch", "duty", "dwarf", "dynamic", "eager",
+  "eagle", "early", "earn", "earth", "easily", "east", "easy", "echo", "ecology", "economy",
+  "edge", "edit", "educate", "effort", "egg", "eight", "either", "elbow", "elder", "electric",
+  "elegant", "element", "elephant", "elevator", "elite", "else", "embark", "embody", "embrace", "emerge",
+  "emotion", "employ", "empower", "empty", "enable", "enact", "end", "endless", "endorse", "enemy",
+  "energy", "enforce", "engage", "engine", "enhance", "enjoy", "enlist", "enough", "enrich", "enroll",
+  "ensure", "enter", "entire", "entry", "envelope", "episode", "equal", "equip", "era", "erase",
+  "erode", "erosion", "error", "erupt", "escape", "essay", "essence", "estate", "eternal", "ethics",
+  "evidence", "evil", "evoke", "evolve", "exact", "example", "excess", "exchange", "excite", "exclude",
+  "excuse", "execute", "exercise", "exhaust", "exhibit", "exile", "exist", "exit", "exotic", "expand",
+  "expect", "expire", "explain", "expose", "express", "extend", "extra", "eye", "eyebrow", "fabric",
+  "face", "faculty", "fade", "faint", "faith", "fall", "false", "fame", "family", "famous",
+  "fan", "fancy", "fantasy", "farm", "fashion", "fat", "fatal", "father", "fatigue", "fault",
+  "favorite", "feature", "february", "federal", "fee", "feed", "feel", "female", "fence", "festival",
+  "fetch", "fever", "few", "fiber", "fiction", "field", "figure", "file", "film", "filter",
+  "final", "find", "fine", "finger", "finish", "fire", "firm", "first", "fiscal", "fish",
+  "fit", "fitness", "fix", "flag", "flame", "flash", "flat", "flavor", "flee", "flight",
+  "flip", "float", "flock", "floor", "flower", "fluid", "flush", "fly", "foam", "focus",
+  "fog", "foil", "fold", "follow", "food", "foot", "force", "forest", "forget", "fork",
+  "fortune", "forum", "forward", "fossil", "foster", "found", "fox", "fragile", "frame", "frequent",
+  "fresh", "friend", "fringe", "frog", "front", "frost", "frown", "frozen", "fruit", "fuel",
+  "fun", "funny", "furnace", "fury", "future", "gadget", "gain", "galaxy", "gallery", "game",
+  "gap", "garage", "garbage", "garden", "garlic", "garment", "gas", "gasp", "gate", "gather",
+  "gauge", "gaze", "general", "genius", "genre", "gentle", "genuine", "gesture", "ghost", "giant",
+  "gift", "giggle", "ginger", "giraffe", "girl", "give", "glad", "glance", "glare", "glass",
+  "glide", "glimpse", "globe", "gloom", "glory", "glove", "glow", "glue", "goat", "goddess",
+  "gold", "good", "goose", "gorilla", "gospel", "gossip", "govern", "gown", "grab", "grace",
+  "grain", "grant", "grape", "grass", "gravity", "great", "green", "grid", "grief", "grit",
+  "grocery", "group", "grow", "grunt", "guard", "guess", "guide", "guilt", "guitar", "gun",
+  "gym", "habit", "hair", "half", "hammer", "hamster", "hand", "happy", "harbor", "hard",
+  "harsh", "harvest", "hat", "have", "hawk", "hazard", "head", "health", "heart", "heavy",
+  "hedgehog", "height", "hello", "helmet", "help", "hen", "hero", "hidden", "high", "hill",
+  "hint", "hip", "hire", "history", "hobby", "hockey", "hold", "hole", "holiday", "hollow",
+  "home", "honey", "hood", "hope", "horn", "horror", "horse", "hospital", "host", "hotel",
+  "hour", "hover", "hub", "huge", "human", "humble", "humor", "hundred", "hungry", "hunt",
+  "hurdle", "hurry", "hurt", "husband", "hybrid", "ice", "icon", "idea", "identify", "idle",
+  "ignore", "ill", "illegal", "illness", "image", "imitate", "immense", "immune", "impact", "impose",
+  "improve", "impulse", "inch", "include", "income", "increase", "index", "indicate", "indoor", "industry",
+  "infant", "inflict", "inform", "inhale", "inherit", "initial", "inject", "injury", "inmate", "inner",
+  "innocent", "input", "inquiry", "insane", "insect", "inside", "inspire", "install", "intact", "interest",
+  "into", "invest", "invite", "involve", "iron", "island", "isolate", "issue", "item", "ivory",
+  "jacket", "jaguar", "jar", "jazz", "jealous", "jeans", "jelly", "jewel", "job", "join",
+  "joke", "journey", "joy", "judge", "juice", "jump", "jungle", "junior", "junk", "just",
+  "kangaroo", "keen", "keep", "ketchup", "key", "kick", "kid", "kidney", "kind", "kingdom",
+  "kiss", "kit", "kitchen", "kite", "kitten", "kiwi", "knee", "knife", "knock", "know",
+  "lab", "label", "labor", "ladder", "lady", "lake", "lamp", "language", "laptop", "large",
+  "later", "latin", "laugh", "laundry", "lava", "law", "lawn", "lawsuit", "layer", "lazy",
+  "leader", "leaf", "learn", "leave", "lecture", "left", "leg", "legal", "legend", "leisure",
+  "lemon", "lend", "length", "lens", "leopard", "lesson", "letter", "level", "liar", "liberty",
+  "library", "license", "life", "lift", "light", "like", "limb", "limit", "link", "lion",
+  "liquid", "list", "little", "live", "lizard", "load", "loan", "lobster", "local", "lock",
+  "logic", "lonely", "long", "loop", "lottery", "loud", "lounge", "love", "loyal", "lucky",
+  "luggage", "lumber", "lunar", "lunch", "luxury", "lyrics", "machine", "mad", "magic", "magnet",
+  "maid", "mail", "main", "major", "make", "mammal", "man", "manage", "mandate", "mango",
+  "mansion", "manual", "maple", "marble", "march", "margin", "marine", "market", "marriage", "mask",
+  "mass", "master", "match", "material", "math", "matrix", "matter", "maximum", "maze", "meadow",
+  "mean", "measure", "meat", "mechanic", "medal", "media", "melody", "melt", "member", "memory",
+  "mention", "menu", "mercy", "merge", "merit", "merry", "mesh", "message", "metal", "method",
+  "middle", "midnight", "milk", "million", "mimic", "mind", "mineral", "minimum", "minor", "minute",
+  "miracle", "mirror", "misery", "miss", "mistake", "mix", "mixed", "mixture", "mobile", "model",
+  "modify", "mom", "moment", "monitor", "monkey", "monster", "month", "moon", "moral", "more",
+  "morning", "mosquito", "mother", "motion", "motor", "mountain", "mouse", "move", "movie", "much",
+  "muffin", "mule", "multiply", "muscle", "museum", "mushroom", "music", "must", "mutual", "myself",
+  "mystery", "myth", "naive", "name", "napkin", "narrow", "nasty", "nation", "nature", "near",
+  "neck", "need", "negative", "neglect", "neither", "nephew", "nerve", "nest", "net", "neutral",
+  "never", "new", "news", "next", "nice", "night", "noble", "noise", "nominee", "noodle",
+  "normal", "north", "nose", "notable", "note", "nothing", "notice", "novel", "now", "nuclear",
+  "number", "nurse", "nut", "oak", "obey", "object", "oblige", "obscure", "observe", "obtain",
+  "obvious", "occur", "ocean", "october", "odor", "off", "offer", "office", "often", "oil",
+  "okay", "old", "olive", "olympic", "omit", "once", "one", "onion", "online", "only",
+  "open", "opera", "opinion", "oppose", "option", "orange", "orbit", "orchard", "order", "ordinary",
+  "organ", "orient", "original", "orphan", "ostrich", "other", "outdoor", "outer", "output", "outside",
+  "oval", "oven", "over", "own", "owner", "oxygen", "oyster", "ozone", "pact", "paddle",
+  "page", "pair", "palace", "palm", "panda", "panel", "panic", "panther", "paper", "parade",
+  "parent", "park", "parrot", "party", "pass", "patch", "path", "patient", "patrol", "pattern",
+  "pause", "pave", "payment", "peace", "peanut", "pear", "peasant", "pelican", "pen", "penalty",
+  "pencil", "people", "pepper", "perfect", "permit", "person", "pet", "phone", "photo", "phrase",
+  "physical", "piano", "picnic", "picture", "piece", "pig", "pigeon", "pill", "pilot", "pink",
+  "pioneer", "pipe", "pistol", "pitch", "pizza", "place", "planet", "plastic", "plate", "play",
+  "please", "pledge", "pluck", "plug", "plunge", "poem", "poet", "point", "polar", "pole",
+  "police", "pond", "pony", "pool", "popular", "portion", "position", "possible", "post", "potato",
+  "pottery", "poverty", "powder", "power", "practice", "praise", "predict", "prefer", "prepare", "present",
+  "pretty", "prevent", "price", "pride", "primary", "print", "priority", "prison", "private", "prize",
+  "problem", "process", "produce", "profit", "program", "project", "promote", "proof", "property", "prosper",
+  "protect", "proud", "provide", "public", "pudding", "pull", "pulp", "pulse", "pumpkin", "punch",
+  "pupil", "puppy", "purchase", "purity", "purpose", "purse", "push", "put", "puzzle", "pyramid",
+  "quality", "quantum", "quarter", "question", "quick", "quit", "quiz", "quote", "rabbit", "raccoon",
+  "race", "rack", "radar", "radio", "rail", "rain", "raise", "rally", "ramp", "ranch",
+  "random", "range", "rapid", "rare", "rate", "rather", "raven", "raw", "razor", "ready",
+  "real", "reason", "rebel", "rebuild", "recall", "receive", "recipe", "record", "recycle", "reduce",
+  "reflect", "reform", "refuse", "region", "regret", "regular", "reject", "relax", "release", "relief",
+  "rely", "remain", "remember", "remind", "remove", "render", "renew", "rent", "reopen", "repair",
+  "repeat", "replace", "report", "require", "rescue", "resemble", "resist", "resource", "response", "result",
+  "retire", "retreat", "return", "reunion", "reveal", "review", "revolt", "reward", "rhythm", "rib",
+  "ribbon", "rice", "rich", "ride", "ridge", "rifle", "right", "rigid", "ring", "riot",
+  "ripple", "risk", "ritual", "rival", "river", "road", "roast", "robot", "robust", "rocket",
+  "romance", "roof", "rookie", "room", "rose", "rotate", "rough", "round", "route", "royal",
+  "rubber", "rude", "rug", "rule", "run", "runway", "rural", "sad", "saddle", "sadness",
+  "safe", "sail", "salad", "salmon", "salon", "salt", "salute", "same", "sample", "sand",
+  "satisfy", "satoshi", "sauce", "sausage", "save", "say", "scale", "scan", "scare", "scatter",
+  "scene", "scheme", "school", "science", "scissors", "scorpion", "scout", "scrap", "screen", "script",
+  "scrub", "sea", "search", "season", "seat", "second", "secret", "section", "security", "seed",
+  "seek", "segment", "select", "sell", "seminar", "senior", "sense", "sentence", "series", "service",
+  "session", "settle", "setup", "seven", "shadow", "shaft", "shallow", "share", "shed", "shell",
+  "sheriff", "shield", "shift", "shine", "ship", "shiver", "shock", "shoe", "shoot", "shop",
+  "short", "shoulder", "shove", "shrimp", "shrug", "shuffle", "shy", "sibling", "sick", "side",
+  "siege", "sight", "sign", "silent", "silk", "silly", "silver", "similar", "simple", "since",
+  "sing", "siren", "sister", "situate", "six", "size", "skate", "sketch", "ski", "skill",
+  "skin", "skirt", "skull", "slab", "sleep", "slender", "slice", "slide", "slight", "slim",
+  "slogan", "slot", "slow", "slush", "small", "smart", "smile", "smoke", "smooth", "snack",
+  "snake", "snap", "sniff", "snow", "soap", "soccer", "social", "sock", "soda", "soft",
+  "solar", "soldier", "solid", "solution", "solve", "someone", "song", "soon", "sorry", "sort",
+  "soul", "sound", "soup", "source", "south", "space", "spare", "spatial", "spawn", "speak",
+  "special", "speed", "spell", "spend", "sphere", "spice", "spider", "spike", "spin", "spirit",
+  "split", "spoil", "sponsor", "spoon", "sport", "spot", "spray", "spread", "spring", "spy",
+  "square", "squeeze", "squirrel", "stable", "stadium", "staff", "stage", "stairs", "stamp", "stand",
+  "start", "state", "stay", "steak", "steel", "stem", "step", "stereo", "stick", "still",
+  "sting", "stock", "stomach", "stone", "stool", "story", "stove", "strategy", "street", "strike",
+  "strong", "struggle", "student", "stuff", "stumble", "style", "subject", "submit", "subway", "success",
+  "such", "sudden", "suffer", "sugar", "suggest", "suit", "summer", "sun", "sunny", "sunset",
+  "super", "supply", "supreme", "sure", "surface", "surge", "surprise", "surround", "survey", "suspect",
+  "sustain", "swallow", "swamp", "swap", "swarm", "swear", "sweet", "swift", "swim", "swing",
+  "switch", "sword", "symbol", "symptom", "syrup", "system", "table", "tackle", "tag", "tail",
+  "talent", "talk", "tank", "tape", "target", "task", "taste", "tattoo", "taxi", "teach",
+  "team", "tell", "ten", "tenant", "tennis", "tent", "term", "test", "text", "thank",
+  "that", "theme", "then", "theory", "there", "they", "thing", "this", "thought", "three",
+  "thrive", "throw", "thumb", "thunder", "ticket", "tide", "tiger", "tilt", "timber", "time",
+  "tiny", "tip", "tired", "tissue", "title", "toast", "tobacco", "today", "toddler", "toe",
+  "together", "toilet", "token", "tomato", "tomorrow", "tone", "tongue", "tonight", "tool", "tooth",
+  "top", "topic", "topple", "torch", "tornado", "tortoise", "toss", "total", "tourist", "toward",
+  "tower", "town", "toy", "track", "trade", "traffic", "tragic", "train", "transfer", "trap",
+  "trash", "travel", "tray", "treat", "tree", "trend", "trial", "tribe", "trick", "trigger",
+  "trim", "trip", "trophy", "trouble", "truck", "true", "truly", "trumpet", "trust", "truth",
+  "try", "tube", "tuition", "tumble", "tuna", "tunnel", "turkey", "turn", "turtle", "twelve",
+  "twenty", "twice", "twin", "twist", "two", "type", "typical", "ugly", "umbrella", "unable",
+  "unaware", "uncle", "uncover", "under", "undo", "unfair", "unfold", "unhappy", "uniform", "unique",
+  "unit", "universe", "unknown", "unlock", "until", "unusual", "unveil", "update", "upgrade", "uphold",
+  "upon", "upper", "upset", "urban", "urge", "usage", "use", "used", "useful", "user",
+  "usual", "utility", "vacant", "vacuum", "vague", "valid", "valley", "valve", "van", "vanish",
+  "vapor", "various", "vast", "vault", "vehicle", "velvet", "vendor", "venture", "venue", "verb",
+  "verify", "version", "very", "vessel", "veteran", "viable", "vibrant", "vicious", "victory", "video",
+  "view", "village", "vintage", "violin", "virtual", "virus", "visa", "visit", "visual", "vital",
+  "vivid", "vocal", "voice", "void", "volcano", "volume", "vote", "voyage", "wage", "wagon",
+  "wait", "walk", "wall", "walnut", "want", "warfare", "warm", "warrior", "wash", "wasp",
+  "waste", "water", "wave", "way", "wealth", "weapon", "wear", "weasel", "weather", "web",
+  "wedding", "weekend", "weird", "welcome", "west", "wet", "whale", "what", "wheat", "wheel",
+  "when", "where", "whip", "whisper", "wide", "width", "wife", "wild", "will", "win",
+  "window", "wine", "wing", "wink", "winner", "winter", "wire", "wisdom", "wise", "wish",
+  "witness", "wolf", "woman", "wonder", "wood", "wool", "word", "work", "world", "worry",
+  "worth", "wrap", "wreck", "wrestle", "wrist", "write", "wrong", "yard", "year", "yellow",
+  "you", "young", "youth", "zebra", "zero", "zone", "zoo"
+];
 
 // ================================================================
-// ==================== API INTEGRATION ===========================
+// ==================== FUNÇÕES DE SEED ===========================
 // ================================================================
 
-// Helper para chamadas à API
-async function apiCall(endpoint, options = {}) {
-    const url = `${API_URL}${endpoint}`;
-    const defaultOptions = {
-        headers: { 'Content-Type': 'application/json' },
-    };
-    const finalOptions = { ...defaultOptions, ...options };
-
-    try {
-        const response = await fetch(url, finalOptions);
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error || `HTTP ${response.status}`);
-        }
-
-        return data;
-    } catch (error) {
-        console.error('❌ API Error:', error);
-        throw error;
+function generateSeedPhrase() {
+    let words = [];
+    for (let i = 0; i < 12; i++) {
+        const randomIndex = Math.floor(Math.random() * WORD_LIST.length);
+        words.push(WORD_LIST[randomIndex]);
     }
+    return words;
 }
 
-// ================================================================
-// ==================== API FUNCTIONS =============================
-// ================================================================
-
-// Registrar usuário na API
-async function registerUserOnAPI(username, password) {
-    try {
-        const result = await apiCall('/api/register', {
-            method: 'POST',
-            body: JSON.stringify({ username, password })
-        });
-        return result.data;
-    } catch (error) {
-        showToast(`❌ Registration failed: ${error.message}`, 'error');
-        throw error;
+function generateAddressFromSeed(seed) {
+    const seedStr = seed.join(' ');
+    let hash = 0;
+    for (let i = 0; i < seedStr.length; i++) {
+        hash = ((hash << 5) - hash) + seedStr.charCodeAt(i);
+        hash |= 0;
     }
-}
-
-// Consultar saldo na API
-async function getBalanceFromAPI(address) {
-    try {
-        const result = await apiCall(`/api/balance/${address}`);
-        return result.data;
-    } catch (error) {
-        showToast(`❌ Balance check failed: ${error.message}`, 'error');
-        throw error;
-    }
-}
-
-// Enviar BRD via API
-async function sendBRDviaAPI(fromAddress, toAddress, amount) {
-    try {
-        const result = await apiCall('/api/send', {
-            method: 'POST',
-            body: JSON.stringify({ fromAddress, toAddress, amount })
-        });
-        return result.data;
-    } catch (error) {
-        showToast(`❌ Send failed: ${error.message}`, 'error');
-        throw error;
-    }
-}
-
-// Listar usuários da API
-async function getUsersFromAPI() {
-    try {
-        const result = await apiCall('/api/users');
-        return result.data;
-    } catch (error) {
-        console.error('❌ Get users failed:', error);
-        return { users: [] };
-    }
-}
-
-// Consultar configuração da API
-async function getConfigFromAPI() {
-    try {
-        const result = await apiCall('/api/config');
-        return result.data;
-    } catch (error) {
-        console.error('❌ Get config failed:', error);
-        return null;
-    }
-}
-
-// Health check da API
-async function checkAPIHealth() {
-    try {
-        await apiCall('/health');
-        return true;
-    } catch (error) {
-        return false;
-    }
+    const hex = Math.abs(hash).toString(16).padStart(40, '0');
+    return `Br${hex.substring(0, 36)}`;
 }
 
 // ================================================================
@@ -1041,682 +1104,117 @@ async function checkAPIHealth() {
 // ================================================================
 
 let wallet = { 
-  encryptedSeed: null, 
-  address: null, 
-  balance: 0, 
-  transactions: [],
-  stats: { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 },
-  zkStats: { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 },
-  security: {
-    twoFAEnabled: false,
-    twoFASecret: null,
-    backupCodes: [],
-    lockTimeout: null,
-    lastActivity: Date.now()
-  },
-  stealthAddresses: [],
-  referralCode: generateReferralCode()
+    encryptedSeed: null, 
+    address: null, 
+    balance: 0, 
+    transactions: [],
+    stats: { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 },
+    zkStats: { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 },
+    security: {
+        twoFAEnabled: false,
+        twoFASecret: null,
+        backupCodes: [],
+        lockTimeout: null,
+        lastActivity: Date.now()
+    },
+    stealthAddresses: [],
+    referralCode: 'BRD-XXXX'
 };
 
 let activeStake = null;
 let tempSeedForCreation = null;
-let loginAttempts = 0;
 let isLocked = false;
-
-// ================================================================
-// ==================== 2FA / SEGURANÇA ==========================
-// ================================================================
-
-// Gerar segredo 2FA
-function generate2FASecret() {
-  const secret = CryptoJS.lib.WordArray.random(20).toString().toUpperCase();
-  return secret;
-}
-
-// Gerar código TOTP
-function generateTOTP(secret) {
-  const time = Math.floor(Date.now() / 30000);
-  const hash = CryptoJS.HmacSHA256(time.toString(), secret);
-  const code = parseInt(hash.toString().substring(0, 6), 16) % 1000000;
-  return String(code).padStart(6, '0');
-}
-
-// Verificar código 2FA
-function verify2FA(code, secret) {
-  if (!secret || !code) return false;
-  const expected = generateTOTP(secret);
-  return code === expected;
-}
-
-// Gerar códigos de backup
-function generateBackupCodes() {
-  const codes = [];
-  for (let i = 0; i < 10; i++) {
-    codes.push(CryptoJS.lib.WordArray.random(4).toString().toUpperCase());
-  }
-  return codes;
-}
-
-// Setup 2FA
-function setup2FA() {
-  if (wallet.security.twoFAEnabled) {
-    showToast("2FA already enabled!", "info");
-    return;
-  }
-  
-  const secret = generate2FASecret();
-  const backupCodes = generateBackupCodes();
-  
-  wallet.security.twoFASecret = secret;
-  wallet.security.backupCodes = backupCodes;
-  
-  document.getElementById('twoFASecret').innerText = secret;
-  document.getElementById('backupCodesDisplay').innerHTML = backupCodes.map(c => 
-    `<span style="background:#010518; padding:0.2rem 0.4rem; border:1px solid #ffd70033; border-radius:0.3rem;">${c}</span>`
-  ).join('');
-  
-  document.getElementById('twoFAModal').style.display = 'flex';
-  showToast("📱 Scan QR code with Google Authenticator", "info");
-}
-
-// Verificar e ativar 2FA
-document.getElementById('verify2FABtn')?.addEventListener('click', () => {
-  const code = document.getElementById('verify2FACode').value;
-  if (verify2FA(code, wallet.security.twoFASecret)) {
-    wallet.security.twoFAEnabled = true;
-    saveWallet();
-    document.getElementById('twoFAModal').style.display = 'none';
-    showToast("✅ 2FA enabled successfully!", "success");
-    updateSecurityBadge();
-  } else {
-    showToast("❌ Invalid 2FA code!", "error");
-  }
-});
-
-document.getElementById('close2FAModalBtn')?.addEventListener('click', () => {
-  document.getElementById('twoFAModal').style.display = 'none';
-});
-
-// ================================================================
-// ==================== AUTO-LOCK =================================
-// ================================================================
-
-function setupAutoLock() {
-  document.addEventListener('click', () => resetLockTimer());
-  document.addEventListener('keydown', () => resetLockTimer());
-  document.addEventListener('scroll', () => resetLockTimer());
-  document.addEventListener('mousemove', () => resetLockTimer());
-  document.addEventListener('touchstart', () => resetLockTimer());
-  resetLockTimer();
-}
-
-function resetLockTimer() {
-  if (wallet.security.lockTimeout) {
-    clearTimeout(wallet.security.lockTimeout);
-  }
-  wallet.security.lastActivity = Date.now();
-  wallet.security.lockTimeout = setTimeout(() => {
-    if (wallet.address && !isLocked) {
-      lockWalletNow();
-    }
-  }, AUTO_LOCK_MINUTES * 60 * 1000);
-}
-
-function lockWalletNow() {
-  if (isLocked) return;
-  isLocked = true;
-  showToast("🔒 Wallet locked due to inactivity", "warning");
-  showLoginScreen();
-  if (wallet.security.lockTimeout) {
-    clearTimeout(wallet.security.lockTimeout);
-  }
-}
-
-// ================================================================
-// ==================== RATE LIMITING =============================
-// ================================================================
-
-function checkRateLimit() {
-  if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
-    showToast(`⛔ Too many attempts. Locked for 15 minutes`, "error");
-    return false;
-  }
-  return true;
-}
-
-function recordLoginAttempt(success) {
-  if (success) {
-    loginAttempts = 0;
-  } else {
-    loginAttempts++;
-  }
-}
-
-// ================================================================
-// ==================== STEALTH ADDRESSES =========================
-// ================================================================
-
-function generateStealthAddress() {
-  const random = CryptoJS.lib.WordArray.random(18).toString();
-  const stealth = 'Br_' + random.substring(0, 36);
-  wallet.stealthAddresses.push(stealth);
-  document.getElementById('stealthAddressDisplay').innerText = stealth;
-  showToast("🕵️ New stealth address generated!", "success");
-  return stealth;
-}
-
-function copyStealthAddress() {
-  const addr = document.getElementById('stealthAddressDisplay').innerText;
-  if (addr && addr !== '---') {
-    navigator.clipboard.writeText(addr);
-    showToast("Stealth address copied!", "success");
-  }
-}
-
-function showStealthAddress() {
-  if (wallet.stealthAddresses.length === 0) {
-    generateStealthAddress();
-  }
-  document.getElementById('stealthAddressDisplay').innerText = wallet.stealthAddresses[wallet.stealthAddresses.length - 1];
-  document.getElementById('stealthModal').style.display = 'flex';
-}
-
-document.getElementById('closeStealthModalBtn')?.addEventListener('click', () => {
-  document.getElementById('stealthModal').style.display = 'none';
-});
-
-// ================================================================
-// ==================== MIXER =====================================
-// ================================================================
-
-let mixerState = {
-  participants: [],
-  poolSize: 0,
-  isMixing: false
-};
-
-function joinMixer() {
-  if (mixerState.participants.includes(wallet.address)) {
-    showToast("Already in mixer pool", "info");
-    return;
-  }
-  
-  const amount = parseFloat(prompt("Enter amount to mix (min 100 BRD):"));
-  if (!amount || amount < 100) {
-    showToast("Minimum 100 BRD to join mixer", "error");
-    return;
-  }
-  
-  if (amount > wallet.balance) {
-    showToast("Insufficient balance", "error");
-    return;
-  }
-  
-  mixerState.participants.push(wallet.address);
-  mixerState.poolSize += amount;
-  wallet.balance -= amount;
-  
-  updateMixerUI();
-  saveWallet();
-  updateUI();
-  showToast(`🔀 Joined mixer with ${amount} BRD`, "success");
-}
-
-function mixTransactions() {
-  if (mixerState.participants.length < 3) {
-    showToast("Need at least 3 participants to mix", "error");
-    return;
-  }
-  
-  if (mixerState.isMixing) {
-    showToast("Mix already in progress", "info");
-    return;
-  }
-  
-  mixerState.isMixing = true;
-  showToast("🔄 Mixing transactions...", "info");
-  
-  setTimeout(() => {
-    mixerState.isMixing = false;
-    const mixedAmount = mixerState.poolSize / mixerState.participants.length;
-    mixerState.participants.forEach(addr => {
-      if (addr === wallet.address) {
-        wallet.balance += mixedAmount;
-      }
-    });
-    mixerState.participants = [];
-    mixerState.poolSize = 0;
-    saveWallet();
-    updateUI();
-    updateMixerUI();
-    showToast(`✅ Mix completed! Received ${mixedAmount.toFixed(2)} BRD`, "success");
-  }, 3000);
-}
-
-function updateMixerUI() {
-  document.getElementById('mixerParticipants').innerText = mixerState.participants.length;
-  document.getElementById('mixerPoolSize').innerText = mixerState.poolSize.toFixed(2);
-  document.getElementById('mixerStatus').innerText = mixerState.isMixing ? '🔄 Mixing...' : 'Ready';
-}
-
-document.getElementById('closeMixerModalBtn')?.addEventListener('click', () => {
-  document.getElementById('mixerModal').style.display = 'none';
-});
-
-function showMixerUI() {
-  updateMixerUI();
-  document.getElementById('mixerModal').style.display = 'flex';
-}
+let currentLang = 'en';
 
 // ================================================================
 // ==================== HELPERS ===================================
 // ================================================================
 
-const wordList = [
-  "abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract", "absurd", "abuse",
-  "access", "accident", "account", "accuse", "achieve", "acid", "acoustic", "acquire", "across", "act",
-  "action", "actor", "actress", "actual", "adapt", "add", "addict", "address", "adjust", "admit",
-  "adult", "advance", "advice", "aerobic", "affair", "afford", "afraid", "africa", "after", "again"
-];
-
-function generateSeedPhrase() {
-  let words = [];
-  for(let i = 0; i < 12; i++) {
-    words.push(wordList[Math.floor(Math.random() * wordList.length)]);
-  }
-  return words.join(' ');
+function encrypt(data, pass) { 
+    return CryptoJS.AES.encrypt(data, pass).toString(); 
 }
 
-function generateAddress(seed) {
-  let hash = 0;
-  const str = seed.replace(/\s/g, '');
-  for(let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i);
-    hash |= 0;
-  }
-  const hex = Math.abs(hash).toString(16).padStart(40, '0');
-  return `Br${hex.substring(0, 36)}`;
-}
-
-function encrypt(data, pass) { return CryptoJS.AES.encrypt(data, pass).toString(); }
 function decrypt(encrypted, pass) {
-  try {
-    const bytes = CryptoJS.AES.decrypt(encrypted, pass);
-    return bytes.toString(CryptoJS.enc.Utf8) || null;
-  } catch(e) { return null; }
-}
-
-function showToast(msg, type = "info") {
-  const toast = document.createElement('div');
-  toast.style.cssText = `position:fixed; bottom:20px; right:20px; background:${type === "error" ? "#ff0055" : type === "success" ? "#00ff88" : "#a855f7"}; color:#0a0f1e; padding:0.6rem 1.2rem; border-radius:2rem; font-family:Orbitron; z-index:9999; animation:fadeInOut 3s ease; font-weight:bold; font-size:0.7rem; max-width:90%;`;
-  toast.innerText = msg;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+    try {
+        const bytes = CryptoJS.AES.decrypt(encrypted, pass);
+        return bytes.toString(CryptoJS.enc.Utf8) || null;
+    } catch(e) { 
+        return null; 
+    }
 }
 
 function generateReferralCode() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let code = 'BRD-';
-  for(let i = 0; i < 4; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return code;
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = 'BRD-';
+    for(let i = 0; i < 4; i++) {
+        code += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return code;
 }
 
-function updateSecurityBadge() {
-  const badge = document.getElementById('securityBadge');
-  if (wallet.security.twoFAEnabled) {
-    badge.className = 'security-badge secure';
-    badge.innerHTML = '<i class="fas fa-shield-alt"></i> 2FA Active';
-  } else {
-    badge.className = 'security-badge warning';
-    badge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 2FA Off';
-  }
+function showToast(msg, type = "info") {
+    const toast = document.createElement('div');
+    toast.style.cssText = `position:fixed; bottom:20px; right:20px; background:${type === "error" ? "#ff0055" : type === "success" ? "#00ff88" : "#a855f7"}; color:#0a0f1e; padding:0.6rem 1.2rem; border-radius:2rem; font-family:Orbitron; z-index:9999; animation:fadeInOut 3s ease; font-weight:bold; font-size:0.7rem; max-width:90%;`;
+    toast.innerText = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+function getCurrentTimestamp() {
+    return new Date().toISOString();
 }
 
 // ================================================================
-// ==================== ZK-SNARK FUNÇÕES =========================
+// ==================== FUNÇÕES DE WALLET =========================
 // ================================================================
 
-function generateZKCommitment(privateKey, amount, salt) {
-  const hash = CryptoJS.SHA256(privateKey + amount.toString() + salt).toString();
-  return '0x' + hash.substring(0, 64);
-}
-
-function generateZKNullifier(privateKey, commitment) {
-  const hash = CryptoJS.SHA256(privateKey + commitment).toString();
-  return '0x' + hash.substring(0, 64);
-}
-
-function generateZKProof(sender, recipient, amount, commitment, nullifier) {
-  return {
-    a: ['0x' + CryptoJS.SHA256(sender + amount).toString().substring(0, 64)],
-    b: ['0x' + CryptoJS.SHA256(recipient + amount).toString().substring(0, 64)],
-    c: ['0x' + CryptoJS.SHA256(commitment + nullifier).toString().substring(0, 64)],
-    input: [commitment, nullifier, '0x' + CryptoJS.SHA256(amount.toString()).toString().substring(0, 64)]
-  };
-}
-
-async function sendPrivateTransaction(toAddress, amount, password) {
-  if (!toAddress) { showToast("Enter recipient address", "error"); return false; }
-  const totalCost = amount + TX_FEE;
-  if (amount <= 0 || totalCost > wallet.balance) { 
-    showToast(`Insufficient balance. Need ${totalCost} BRD`, "error"); 
-    return false; 
-  }
-  
-  const decrypted = decrypt(wallet.encryptedSeed, password);
-  if (!decrypted) { showToast("Wrong password!", "error"); return false; }
-  
-  try {
-    showToast("🔐 Generating ZK-SNARK proof...", "info");
+function createWalletFromSeed(seedWords, password) {
+    if (!seedWords || seedWords.length !== 12) {
+        showToast("Invalid seed phrase - need 12 words", "error");
+        return false;
+    }
+    if (!password || password.length < 4) {
+        showToast("Password must be at least 4 characters", "error");
+        return false;
+    }
     
-    const salt = CryptoJS.lib.WordArray.random(32).toString();
-    const commitment = generateZKCommitment(decrypted, amount, salt);
-    const nullifier = generateZKNullifier(decrypted, commitment);
-    const proof = generateZKProof(wallet.address, toAddress, amount, commitment, nullifier);
+    const address = generateAddressFromSeed(seedWords);
+    const seedStr = seedWords.join(' ');
     
-    wallet.balance -= totalCost;
-    wallet.stats.feesPaid += TX_FEE;
-    wallet.zkStats.privateTxCount += 1;
-    wallet.zkStats.totalPrivacyProtected += amount;
-    wallet.zkStats.proofsGenerated += 1;
+    wallet.encryptedSeed = encrypt(seedStr, password);
+    wallet.address = address;
+    wallet.balance = 1000;
+    wallet.transactions = [];
+    wallet.stats = { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 };
+    wallet.zkStats = { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 };
+    wallet.security = { 
+        twoFAEnabled: false, 
+        twoFASecret: null, 
+        backupCodes: [], 
+        lockTimeout: null, 
+        lastActivity: Date.now() 
+    };
+    wallet.stealthAddresses = [];
+    wallet.referralCode = generateReferralCode();
     
     wallet.transactions.unshift({
-      id: Date.now(),
-      type: 'zk_private',
-      to: toAddress,
-      amount: amount,
-      fee: TX_FEE,
-      commitment: commitment,
-      nullifier: nullifier,
-      proof: proof,
-      time: new Date().toISOString()
+        id: Date.now(),
+        type: 'deposit',
+        amount: 1000,
+        time: new Date().toISOString(),
+        message: 'Wallet creation bonus'
     });
     
-    if (wallet.transactions.length > 20) wallet.transactions.pop();
-    wallet.stats.totalTx += 1;
     saveWallet();
     updateUI();
-    updateAnalytics();
+    updateSecurityBadge();
     
-    showToast(`🔐 Private TX sent! ${amount} BRD`, "success");
+    showToast(`✅ Wallet created! Address: ${address.substring(0, 16)}...`, "success");
     return true;
-    
-  } catch (error) {
-    showToast(`❌ ZK error: ${error.message}`, "error");
-    return false;
-  }
 }
 
-// ================================================================
-// ==================== ANALYTICS =================================
-// ================================================================
-
-let analyticsData = {
-  totalTransactions: 0,
-  totalVolume: 0,
-  totalFees: 0,
-  zkTransactions: 0,
-  uniqueUsers: 0,
-  dailyTransactions: [],
-  dailyVolume: [],
-  lastUpdate: null
-};
-
-function updateAnalytics() {
-  if (!wallet || !wallet.transactions) return;
-  
-  const txs = wallet.transactions;
-  const total = txs.length;
-  let volume = 0, fees = 0, zkCount = 0;
-  const today = new Date().toDateString();
-  let dailyTx = 0, dailyVol = 0;
-  
-  txs.forEach(tx => {
-    const txDate = new Date(tx.time).toDateString();
-    if (txDate === today) { dailyTx++; dailyVol += tx.amount; }
-    volume += tx.amount || 0;
-    fees += tx.fee || 0;
-    if (tx.type === 'zk_private') zkCount++;
-  });
-  
-  analyticsData.totalTransactions = total;
-  analyticsData.totalVolume = volume;
-  analyticsData.totalFees = fees;
-  analyticsData.zkTransactions = zkCount;
-  analyticsData.uniqueUsers = wallet.address ? 1 : 0;
-  analyticsData.dailyTransactions = [dailyTx];
-  analyticsData.dailyVolume = [dailyVol];
-  analyticsData.lastUpdate = new Date();
-  
-  document.getElementById('analyticsTotalTx').innerText = total;
-  document.getElementById('analyticsVolume').innerText = volume.toFixed(2);
-  document.getElementById('analyticsAvgTx').innerText = total > 0 ? (volume / total).toFixed(2) : '0';
-  document.getElementById('analyticsFees').innerText = fees.toFixed(2);
-  document.getElementById('analyticsDailyTx').innerText = dailyTx;
-  document.getElementById('analyticsDailyVolume').innerText = dailyVol.toFixed(2) + ' BRD';
-  document.getElementById('analyticsZkTxs').innerText = zkCount;
-  document.getElementById('analyticsUsers').innerText = wallet.address ? 1 : 0;
-  
-  updateAnalyticsTimeline();
-}
-
-function updateAnalyticsTimeline() {
-  const timeline = document.getElementById('analyticsTimeline');
-  if (!timeline) return;
-  
-  const txs = wallet.transactions || [];
-  if (txs.length === 0) {
-    timeline.innerHTML = '<p style="opacity:0.6; text-align:center; font-size:0.5rem;">No recent activity</p>';
-    return;
-  }
-  
-  const recent = txs.slice(0, 8);
-  timeline.innerHTML = recent.map(tx => {
-    const isZK = tx.type === 'zk_private';
-    const isAirdrop = tx.type === 'airdrop';
-    const icon = isZK ? '🔐' : (isAirdrop ? '🎁' : '📤');
-    const color = isZK ? '#00f2ff' : (isAirdrop ? '#ffd700' : '#ff6b6b');
-    const type = isZK ? 'ZK-Private' : (isAirdrop ? 'Airdrop' : 'Transfer');
-    return `<div style="display:flex; justify-content:space-between; padding:0.15rem 0; border-bottom:1px solid rgba(168,85,247,0.1); font-size:0.5rem;">
-      <span>${icon} ${type}</span>
-      <span style="color:${color};">${tx.amount} BRD</span>
-      <span style="opacity:0.5;">${new Date(tx.time).toLocaleTimeString()}</span>
-    </div>`;
-  }).join('');
-}
-
-function showAnalytics() {
-  updateAnalytics();
-  document.getElementById('analyticsModal').style.display = 'flex';
-}
-
-function refreshAnalytics() {
-  updateAnalytics();
-  showToast("📊 Analytics refreshed!", "success");
-}
-
-function exportAnalyticsCSV() {
-  const txs = wallet.transactions || [];
-  if (txs.length === 0) { showToast("No data to export", "error"); return; }
-  
-  let csv = 'Date,Type,Amount,Fee,Status\n';
-  txs.forEach(tx => {
-    const date = new Date(tx.time).toLocaleDateString();
-    const type = tx.type === 'zk_private' ? 'ZK-Private' : (tx.type === 'airdrop' ? 'Airdrop' : 'Transfer');
-    csv += `${date},${type},${tx.amount},${tx.fee || 0},Completed\n`;
-  });
-  
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `bradicoin-analytics-${new Date().toISOString().split('T')[0]}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast("📊 Analytics exported as CSV!", "success");
-}
-
-function exportAnalyticsData() {
-  if (!wallet.address) { showToast("No data", "error"); return; }
-  
-  const data = {
-    address: wallet.address,
-    analytics: analyticsData,
-    transactions: wallet.transactions,
-    stats: wallet.stats,
-    zkStats: wallet.zkStats,
-    exportDate: new Date().toISOString()
-  };
-  
-  const json = JSON.stringify(data, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `bradicoin-analytics-${wallet.address.substring(0, 8)}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast("📊 Analytics exported as JSON!", "success");
-}
-
-// ================================================================
-// ==================== AIRDROP ===================================
-// ================================================================
-
-let AIRDROP_CONFIG = {
-  enabled: false,
-  usdPerMonth: 0,
-  brdPerMonth: 0,
-  totalMonths: 0,
-  totalUsers: 0,
-  startDate: new Date(),
-  brdPrice: 10
-};
-
-function loadAirdropConfig() {
-  const saved = localStorage.getItem('bradicoin_airdrop_config');
-  if (saved) {
-    try { AIRDROP_CONFIG = { ...AIRDROP_CONFIG, ...JSON.parse(saved) }; } catch(e) {}
-  }
-}
-
-function saveAirdropConfig() {
-  localStorage.setItem('bradicoin_airdrop_config', JSON.stringify(AIRDROP_CONFIG));
-}
-
-function updateAirdropConfig() {
-  const usd = parseFloat(document.getElementById('configUSD').value) || 0;
-  const brd = parseFloat(document.getElementById('configBRD').value) || 0;
-  const months = parseInt(document.getElementById('configMonths').value) || 0;
-  const users = parseInt(document.getElementById('configUsers').value) || 0;
-  
-  AIRDROP_CONFIG.usdPerMonth = usd;
-  AIRDROP_CONFIG.brdPerMonth = brd;
-  AIRDROP_CONFIG.totalMonths = months;
-  AIRDROP_CONFIG.totalUsers = users;
-  AIRDROP_CONFIG.enabled = (usd > 0 && brd > 0 && months > 0 && users > 0);
-  AIRDROP_CONFIG.startDate = new Date();
-  
-  saveAirdropConfig();
-  updateAirdropUI();
-  showToast("✅ Airdrop config updated!", "success");
-}
-
-function isUserEligibleForAirdrop() {
-  if (!AIRDROP_CONFIG.enabled) return false;
-  if (!wallet.address) return false;
-  if (wallet.balance <= 0) return false;
-  if (wallet.transactions.length < 3) return false;
-  
-  const lastClaim = localStorage.getItem('bradicoin_airdrop_last_claim');
-  if (lastClaim) {
-    const daysDiff = (Date.now() - parseInt(lastClaim)) / (1000 * 60 * 60 * 24);
-    if (daysDiff < 28) return false;
-  }
-  return true;
-}
-
-function getAirdropStatus() {
-  const monthsPassed = Math.floor((Date.now() - AIRDROP_CONFIG.startDate) / (1000 * 60 * 60 * 24 * 30));
-  const currentMonth = Math.min(monthsPassed + 1, AIRDROP_CONFIG.totalMonths);
-  const lastClaim = localStorage.getItem('bradicoin_airdrop_last_claim');
-  const claimedMonths = localStorage.getItem('bradicoin_airdrop_month') || '0';
-  
-  return {
-    currentMonth: currentMonth,
-    totalMonths: AIRDROP_CONFIG.totalMonths,
-    claimedMonths: parseInt(claimedMonths),
-    hasClaimedThisMonth: lastClaim ? (Date.now() - parseInt(lastClaim)) < (28 * 24 * 60 * 60 * 1000) : false,
-    totalClaimed: parseInt(claimedMonths) * AIRDROP_CONFIG.brdPerMonth,
-    totalUSDClaimed: parseInt(claimedMonths) * AIRDROP_CONFIG.usdPerMonth,
-    isActive: currentMonth <= AIRDROP_CONFIG.totalMonths && AIRDROP_CONFIG.enabled
-  };
-}
-
-function claimAirdrop() {
-  if (!AIRDROP_CONFIG.enabled) {
-    showToast("⚠️ Airdrop not configured!", "error");
-    return;
-  }
-  if (!isUserEligibleForAirdrop()) {
-    showToast("❌ Need 3+ transactions to claim!", "error");
-    return;
-  }
-  
-  const status = getAirdropStatus();
-  if (!status.isActive) { showToast("🎉 Airdrop ended!", "info"); return; }
-  if (status.hasClaimedThisMonth) {
-    showToast("⏳ Already claimed this month!", "error");
-    return;
-  }
-  
-  const amountToClaim = AIRDROP_CONFIG.brdPerMonth;
-  wallet.balance += amountToClaim;
-  wallet.stats.airdropsClaimed += 1;
-  
-  wallet.transactions.unshift({
-    id: Date.now(),
-    type: 'airdrop',
-    amount: amountToClaim,
-    month: status.currentMonth,
-    usdValue: AIRDROP_CONFIG.usdPerMonth,
-    time: new Date().toISOString()
-  });
-  
-  localStorage.setItem('bradicoin_airdrop_last_claim', Date.now().toString());
-  localStorage.setItem('bradicoin_airdrop_month', status.currentMonth.toString());
-  
-  saveWallet();
-  updateUI();
-  updateAirdropUI();
-  updateAnalytics();
-  showToast(`🎁 Airdrop claimed! +${amountToClaim} BRD`, "success");
-}
-
-function updateAirdropUI() {
-  const status = getAirdropStatus();
-  document.getElementById('airdropStatusDisplay').innerText = AIRDROP_CONFIG.enabled ? (status.isActive ? '✅ Active' : '🔴 Ended') : '⏳ Pending';
-  document.getElementById('airdropStatusDisplay').style.color = AIRDROP_CONFIG.enabled ? (status.isActive ? '#00ff88' : '#ff4466') : '#ffaa00';
-  document.getElementById('airdropMonthDisplay').innerText = AIRDROP_CONFIG.enabled ? `${status.currentMonth}/${AIRDROP_CONFIG.totalMonths}` : '0/0';
-  document.getElementById('airdropPerMonthDisplay').innerText = AIRDROP_CONFIG.enabled ? `$${AIRDROP_CONFIG.usdPerMonth}` : '$0';
-  document.getElementById('airdropPerMonthBRD').innerText = AIRDROP_CONFIG.enabled ? AIRDROP_CONFIG.brdPerMonth : '0';
-  document.getElementById('airdropTotalClaimed').innerText = status.totalClaimed.toFixed(2);
-  
-  const progress = AIRDROP_CONFIG.enabled ? (status.currentMonth / AIRDROP_CONFIG.totalMonths) * 100 : 0;
-  document.getElementById('airdropProgressFill').style.width = `${Math.min(progress, 100)}%`;
-  document.getElementById('airdropProgressText').innerText = AIRDROP_CONFIG.enabled ? 
-    `${status.currentMonth}/${AIRDROP_CONFIG.totalMonths} months` : '0/0';
-}
-
-// ================================================================
-// ================================================================
-// ==================== WALLET FUNÇÕES ===========================
-// ================================================================
-
-async function importWallet(seed, password) {
-    const words = seed.trim().toLowerCase().split(/\s+/);
+function importWalletFromSeed(seedStr, password) {
+    const words = seedStr.trim().toLowerCase().split(/\s+/);
     if (words.length !== 12) {
         showToast("Invalid seed phrase - need 12 words", "error");
         return false;
@@ -1726,339 +1224,574 @@ async function importWallet(seed, password) {
         return false;
     }
     
-    const address = generateAddress(seed);
+    const address = generateAddressFromSeed(words);
     
-    try {
-        showToast("⏳ Verifying wallet on blockchain...", "info");
-        
-        // Verifica se existe na API
-        const data = await getBalanceFromAPI(address);
-        
-        // Atualiza wallet local com os dados da API
-        wallet.encryptedSeed = encrypt(seed, password);
-        wallet.address = address;
-        wallet.balance = data.balance || 0;
-        wallet.username = data.username || 'User';
-        wallet.transactions = [];
-        wallet.stats = { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 };
-        wallet.zkStats = { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 };
-        wallet.security = { twoFAEnabled: false, twoFASecret: null, backupCodes: [], lockTimeout: null, lastActivity: Date.now() };
-        wallet.stealthAddresses = [];
-        wallet.referralCode = generateReferralCode();
-        
-        activeStake = null;
-        saveWallet();
-        updateUI();
-        updateSecurityBadge();
-        
-        showToast(`✅ Wallet imported! Balance: ${wallet.balance} BRD`, "success");
-        return true;
-        
-    } catch (error) {
-        // Se não encontrar na API, cria localmente
-        showToast("⚠️ Wallet not found on blockchain. Creating local wallet...", "warning");
-        
-        wallet.encryptedSeed = encrypt(seed, password);
-        wallet.address = address;
-        wallet.balance = 0;
-        wallet.username = 'User';
-        wallet.transactions = [];
-        wallet.stats = { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 };
-        wallet.zkStats = { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 };
-        wallet.security = { twoFAEnabled: false, twoFASecret: null, backupCodes: [], lockTimeout: null, lastActivity: Date.now() };
-        wallet.stealthAddresses = [];
-        wallet.referralCode = generateReferralCode();
-        
-        activeStake = null;
-        saveWallet();
-        updateUI();
-        updateSecurityBadge();
-        
-        showToast("⚠️ Local wallet created. Register on blockchain to sync.", "warning");
-        return true;
-    }
+    wallet.encryptedSeed = encrypt(seedStr, password);
+    wallet.address = address;
+    wallet.balance = 0;
+    wallet.transactions = [];
+    wallet.stats = { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 };
+    wallet.zkStats = { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 };
+    wallet.security = { 
+        twoFAEnabled: false, 
+        twoFASecret: null, 
+        backupCodes: [], 
+        lockTimeout: null, 
+        lastActivity: Date.now() 
+    };
+    wallet.stealthAddresses = [];
+    wallet.referralCode = generateReferralCode();
+    
+    saveWallet();
+    updateUI();
+    updateSecurityBadge();
+    
+    showToast(`✅ Wallet imported! Address: ${address.substring(0, 16)}...`, "success");
+    return true;
 }
 
-// ================================================================
-// ==================== TRANSACTION FUNÇÕES ======================
-// ================================================================
-
-async function sendToBlockchain(toAddress, amount, password, options = {}) {
-    if (!toAddress) { showToast("Enter recipient address", "error"); return false; }
-    if (!wallet.address) { showToast("No wallet address", "error"); return false; }
-    if (!wallet.encryptedSeed) { showToast("Wallet not initialized", "error"); return false; }
-    
-    // Verifica password
-    const decrypted = decrypt(wallet.encryptedSeed, password);
-    if (!decrypted) { showToast("Wrong password!", "error"); return false; }
-    
-    // Se ZK, usa função separada
-    if (options.zk) {
-        return await sendPrivateTransaction(toAddress, amount, password);
-    }
-    
-    try {
-        showToast("⏳ Sending transaction to blockchain...", "info");
-        
-        // Envia via API
-        const result = await sendBRDviaAPI(wallet.address, toAddress, amount);
-        
-        // Atualiza wallet local
-        wallet.balance = result.newBalance;
-        wallet.transactions.unshift({
-            id: Date.now(),
-            type: 'sent',
-            to: toAddress,
-            amount: amount,
-            fee: result.bonus || TX_FEE,
-            time: new Date().toISOString()
-        });
-        
-        if (wallet.transactions.length > 20) wallet.transactions.pop();
-        wallet.stats.totalTx += 1;
-        
-        saveWallet();
-        updateUI();
-        updateAnalytics();
-        
-        showToast(`✅ Sent ${amount} BRD successfully! (Bonus: ${result.bonus} BRD)`, "success");
-        return true;
-        
-    } catch (error) {
-        showToast(`❌ Transaction failed: ${error.message}`, "error");
+function unlockWallet(password, twoFACode) {
+    if (!wallet.encryptedSeed) {
+        showToast("No wallet found", "error");
         return false;
     }
-}
-
-// ================================================================
-// ==================== BALANCE CHECK =============================
-// ================================================================
-
-async function checkBalanceOnChain(address) {
-    if (!address) {
-        showToast("No address provided", "error");
-        return null;
+    
+    const decrypted = decrypt(wallet.encryptedSeed, password);
+    if (!decrypted) {
+        showToast("Wrong password!", "error");
+        return false;
     }
     
+    if (wallet.security.twoFAEnabled) {
+        if (!twoFACode || !verify2FA(twoFACode, wallet.security.twoFASecret)) {
+            showToast("Invalid 2FA code!", "error");
+            return false;
+        }
+    }
+    
+    isLocked = false;
+    hideLoginAndShowDashboard();
+    updateUI();
+    updateSecurityBadge();
+    showToast("🔓 Wallet unlocked!", "success");
+    return true;
+}
+
+function lockWalletNow() {
+    isLocked = true;
+    showToast("🔒 Wallet locked", "info");
+    showLoginScreen();
+}
+
+function saveWallet() {
     try {
-        showToast("⏳ Checking balance on blockchain...", "info");
-        
-        const data = await getBalanceFromAPI(address);
-        
-        // Atualiza wallet local
-        wallet.balance = data.balance;
-        wallet.username = data.username || wallet.username;
-        saveWallet();
+        const data = {
+            encryptedSeed: wallet.encryptedSeed,
+            address: wallet.address,
+            balance: wallet.balance,
+            transactions: wallet.transactions,
+            stats: wallet.stats,
+            zkStats: wallet.zkStats,
+            security: wallet.security,
+            stealthAddresses: wallet.stealthAddresses,
+            referralCode: wallet.referralCode
+        };
+        localStorage.setItem('bradicoin_wallet', JSON.stringify(data));
+    } catch(e) {
+        console.error('Save wallet error:', e);
+    }
+}
+
+function loadWallet() {
+    try {
+        const data = localStorage.getItem('bradicoin_wallet');
+        if (data) {
+            const parsed = JSON.parse(data);
+            wallet = { ...wallet, ...parsed };
+            return true;
+        }
+    } catch(e) {
+        console.error('Load wallet error:', e);
+    }
+    return false;
+}
+
+// ================================================================
+// ==================== UI FUNÇÕES ================================
+// ================================================================
+
+function showLoginScreen() {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('mainDashboard').style.display = 'none';
+    document.getElementById('unlockGroup').style.display = wallet.encryptedSeed ? 'block' : 'none';
+    document.getElementById('importGroup').style.display = 'none';
+}
+
+function hideLoginAndShowDashboard() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainDashboard').style.display = 'block';
+}
+
+function updateUI() {
+    document.getElementById('balance').innerText = (wallet.balance || 0).toFixed(4);
+    document.getElementById('usdBalance').innerText = `$${((wallet.balance || 0) * 10).toFixed(2)} USD`;
+    document.getElementById('addressDisplay').innerText = wallet.address || "—";
+    document.getElementById('totalTransactions').innerText = (wallet.transactions || []).length;
+    document.getElementById('stakedAmount').innerText = activeStake ? activeStake.amount.toFixed(2) : "0";
+    document.getElementById('zkTxCount').innerText = (wallet.zkStats?.privateTxCount || 0);
+    document.getElementById('referralCode').innerText = wallet.referralCode || generateReferralCode();
+    document.getElementById('totalStaked').innerText = activeStake ? activeStake.amount.toFixed(2) : "0";
+    document.getElementById('totalTxCount').innerText = (wallet.stats?.totalTx || 0);
+    document.getElementById('totalFeesPaid').innerText = (wallet.stats?.feesPaid || 0).toFixed(2);
+    document.getElementById('totalAirdrops').innerText = (wallet.stats?.airdropsClaimed || 0);
+    document.getElementById('totalStakedRewards').innerText = (wallet.stats?.totalRewards || 0).toFixed(4);
+    document.getElementById('zkPrivateTxCount').innerText = (wallet.zkStats?.privateTxCount || 0);
+    document.getElementById('zkPrivacyAmount').innerText = (wallet.zkStats?.totalPrivacyProtected || 0).toFixed(2);
+    document.getElementById('zkProofCount').innerText = (wallet.zkStats?.proofsGenerated || 0);
+    
+    const change = (Math.random() * 6) - 3;
+    document.getElementById('priceChange').innerText = `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`;
+    document.getElementById('priceChange').style.color = change >= 0 ? '#00ff88' : '#ff4466';
+    
+    const container = document.getElementById('stakeInfo');
+    if (container) {
+        if (activeStake && activeStake.end > Date.now()) {
+            const remaining = activeStake.end - Date.now();
+            const hours = Math.floor(remaining / 3600000);
+            const mins = Math.floor((remaining % 3600000) / 60000);
+            const progress = ((Date.now() - activeStake.start) / 86400000) * 100;
+            const reward = activeStake.amount * 0.18 * ((Date.now() - activeStake.start) / 31536000000);
+            container.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width:${Math.min(progress, 100)}%"></div></div>⏱️ ${hours}h ${mins}m left | Reward: ${reward.toFixed(4)} BRD`;
+        } else if (activeStake && activeStake.end <= Date.now()) {
+            container.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>✅ MATURED! Click UNSTAKE.`;
+        } else {
+            container.innerHTML = `💎 No active stake. Stake 50+ BRD for 24h at 18% APR.`;
+        }
+    }
+    
+    const txContainer = document.getElementById('transactionsList');
+    if (txContainer) {
+        if (!wallet.transactions || wallet.transactions.length === 0) {
+            txContainer.innerHTML = 'No transactions yet';
+        } else {
+            txContainer.innerHTML = wallet.transactions.slice(0, 8).map(tx => {
+                const isAirdrop = tx.type === 'airdrop';
+                const isZK = tx.type === 'zk_private';
+                const isDeposit = tx.type === 'deposit';
+                let txClass = 'tx-out';
+                let icon = '📤';
+                let label = 'Transfer';
+                if (isZK) { txClass = 'tx-zk'; icon = '🔐'; label = 'ZK-Private'; }
+                else if (isAirdrop) { txClass = 'tx-in'; icon = '🎁'; label = 'Airdrop'; }
+                else if (isDeposit) { txClass = 'tx-in'; icon = '💰'; label = 'Deposit'; }
+                
+                return `<div class="tx-item">
+                    <div>
+                        <span class="${txClass}">${icon} ${label} ${tx.amount} BRD</span>
+                        ${tx.fee ? `<span style="font-size:0.45rem;opacity:0.6;">(fee: ${tx.fee})</span>` : ''}
+                        ${tx.message ? `<br><small style="font-size:0.4rem;opacity:0.5;">${tx.message}</small>` : ''}
+                    </div>
+                    <div class="tx-time" style="font-size:0.45rem;opacity:0.5;">${new Date(tx.time).toLocaleString()}</div>
+                </div>`;
+            }).join('');
+        }
+    }
+}
+
+function updateSecurityBadge() {
+    const badge = document.getElementById('securityBadge');
+    if (wallet.security.twoFAEnabled) {
+        badge.className = 'security-badge secure';
+        badge.innerHTML = '<i class="fas fa-shield-alt"></i> 2FA Active';
+    } else {
+        badge.className = 'security-badge warning';
+        badge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 2FA Off';
+    }
+}
+
+// ================================================================
+// ==================== FLUXO DE CRIAÇÃO DE WALLET ===============
+// ================================================================
+
+function createWalletFlow() {
+    const seedWords = generateSeedPhrase();
+    tempSeedForCreation = seedWords;
+    
+    const modal = document.getElementById('seedModal');
+    const seedDisplay = document.getElementById('modalSeedPhrase');
+    
+    seedDisplay.innerHTML = seedWords.map((word, index) => 
+        `<span class="word-item"><span class="num">${String(index + 1).padStart(2, '0')}.</span> ${word}</span>`
+    ).join('');
+    
+    modal.style.display = 'flex';
+    document.getElementById('walletPasswordInput').value = '';
+    document.getElementById('walletPasswordInput').focus();
+}
+
+function finalizeWalletCreation(password) {
+    if (!tempSeedForCreation) {
+        showToast("No seed phrase found", "error");
+        return;
+    }
+    
+    if (!password || password.length < 4) {
+        showToast("Password must be at least 4 characters", "error");
+        return;
+    }
+    
+    if (createWalletFromSeed(tempSeedForCreation, password)) {
+        document.getElementById('seedModal').style.display = 'none';
+        tempSeedForCreation = null;
+        hideLoginAndShowDashboard();
         updateUI();
-        
-        showToast(`💰 Balance: ${data.balance} BRD (${data.username})`, "success");
-        
-        return data;
-    } catch (error) {
-        showToast(`❌ Balance check failed: ${error.message}`, "error");
-        return null;
+        updateSecurityBadge();
     }
 }
 
 // ================================================================
-// ==================== API STATUS ================================
+// ==================== 2FA FUNÇÕES ==============================
 // ================================================================
 
-async function updateAPIStatus() {
-    const status = await checkAPIHealth();
-    const dot = document.getElementById('networkStatus');
-    if (dot) {
-        dot.className = `notification-dot ${status ? 'online' : 'offline'}`;
-        dot.title = status ? 'API Online ✅' : 'API Offline ❌';
+function generate2FASecret() {
+    const secret = CryptoJS.lib.WordArray.random(20).toString().toUpperCase();
+    return secret;
+}
+
+function generateTOTP(secret) {
+    const time = Math.floor(Date.now() / 30000);
+    const hash = CryptoJS.HmacSHA256(time.toString(), secret);
+    const code = parseInt(hash.toString().substring(0, 6), 16) % 1000000;
+    return String(code).padStart(6, '0');
+}
+
+function verify2FA(code, secret) {
+    if (!secret || !code) return false;
+    const expected = generateTOTP(secret);
+    return code === expected;
+}
+
+function generateBackupCodes() {
+    const codes = [];
+    for (let i = 0; i < 10; i++) {
+        codes.push(CryptoJS.lib.WordArray.random(4).toString().toUpperCase());
     }
-    return status;
+    return codes;
 }
 
-// Verificar status da API a cada 15 segundos
-setInterval(updateAPIStatus, 15000);
-
-// ================================================================
-// ==================== STAKING ===================================
-// ================================================================
-
-function calculateReward(amount, seconds) {
-  return amount * (0.18 * (seconds / 31536000));
+function setup2FA() {
+    if (wallet.security.twoFAEnabled) {
+        showToast("2FA already enabled!", "info");
+        return;
+    }
+    
+    const secret = generate2FASecret();
+    const backupCodes = generateBackupCodes();
+    
+    wallet.security.twoFASecret = secret;
+    wallet.security.backupCodes = backupCodes;
+    
+    document.getElementById('twoFASecret').innerText = secret;
+    document.getElementById('backupCodesDisplay').innerHTML = backupCodes.map(c => 
+        `<span style="background:#010518; padding:0.2rem 0.4rem; border:1px solid #ffd70033; border-radius:0.3rem;">${c}</span>`
+    ).join('');
+    
+    document.getElementById('twoFAModal').style.display = 'flex';
+    showToast("📱 Scan QR code with Google Authenticator", "info");
 }
+
+// ================================================================
+// ==================== ZK-SNARK FUNÇÕES ==========================
+// ================================================================
+
+function generateZKCommitment(privateKey, amount, salt) {
+    const hash = CryptoJS.SHA256(privateKey + amount.toString() + salt).toString();
+    return '0x' + hash.substring(0, 64);
+}
+
+function generateZKNullifier(privateKey, commitment) {
+    const hash = CryptoJS.SHA256(privateKey + commitment).toString();
+    return '0x' + hash.substring(0, 64);
+}
+
+function generateZKProof(sender, recipient, amount, commitment, nullifier) {
+    return {
+        a: ['0x' + CryptoJS.SHA256(sender + amount).toString().substring(0, 64)],
+        b: ['0x' + CryptoJS.SHA256(recipient + amount).toString().substring(0, 64)],
+        c: ['0x' + CryptoJS.SHA256(commitment + nullifier).toString().substring(0, 64)],
+        input: [commitment, nullifier, '0x' + CryptoJS.SHA256(amount.toString()).toString().substring(0, 64)]
+    };
+}
+
+// ================================================================
+// ==================== STAKING FUNÇÕES ===========================
+// ================================================================
 
 function stake(amount) {
-  if (amount < 50) { showToast("Minimum stake is 50 BRD", 'error'); return; }
-  if (amount > wallet.balance) { showToast("Insufficient balance", 'error'); return; }
-  if (activeStake && activeStake.end > Date.now()) { showToast("Active stake exists", 'error'); return; }
-  
-  if (activeStake && activeStake.end <= Date.now()) {
-    const reward = calculateReward(activeStake.amount, activeStake.period);
-    wallet.balance += activeStake.amount + reward;
-    wallet.stats.totalRewards += reward;
-  }
-  
-  activeStake = {
-    amount: amount,
-    end: Date.now() + 86400000,
-    period: 86400,
-    start: Date.now()
-  };
-  wallet.balance -= amount;
-  saveWallet();
-  updateUI();
-  showToast(`🔒 Staked ${amount} BRD for 24h at 18% APR`, "success");
+    if (amount < 50) { 
+        showToast("Minimum stake is 50 BRD", 'error'); 
+        return; 
+    }
+    if (amount > (wallet.balance || 0)) { 
+        showToast("Insufficient balance", 'error'); 
+        return; 
+    }
+    if (activeStake && activeStake.end > Date.now()) { 
+        showToast("Active stake exists", 'error'); 
+        return; 
+    }
+    
+    if (activeStake && activeStake.end <= Date.now()) {
+        const reward = activeStake.amount * 0.18 * (86400 / 31536000);
+        wallet.balance += activeStake.amount + reward;
+        wallet.stats.totalRewards += reward;
+    }
+    
+    activeStake = {
+        amount: amount,
+        end: Date.now() + 86400000,
+        period: 86400,
+        start: Date.now()
+    };
+    wallet.balance -= amount;
+    saveWallet();
+    updateUI();
+    showToast(`🔒 Staked ${amount} BRD for 24h at 18% APR`, "success");
 }
 
 function unstake() {
-  if (!activeStake) { showToast("No active stake", 'error'); return; }
-  if (Date.now() < activeStake.end) {
-    const hours = Math.floor((activeStake.end - Date.now()) / 3600000);
-    showToast(`Stake locked for ${hours} more hours`, 'info');
-    return;
-  }
-  const reward = calculateReward(activeStake.amount, activeStake.period);
-  wallet.balance += activeStake.amount + reward;
-  wallet.stats.totalRewards += reward;
-  activeStake = null;
-  saveWallet();
-  updateUI();
-  showToast(`✅ Unstaked! +${reward.toFixed(4)} BRD reward`, "success");
-}
-
-function getProgress() {
-  if (!activeStake) return 0;
-  if (Date.now() >= activeStake.end) return 100;
-  return ((Date.now() - activeStake.start) / 86400000) * 100;
-}
-
-// ================================================================
-// ==================== UI UPDATE =================================
-// ================================================================
-
-function updateUI() {
-  document.getElementById('balance').innerText = wallet.balance.toFixed(4);
-  document.getElementById('usdBalance').innerText = `$${(wallet.balance * BRD_PRICE).toFixed(2)} USD`;
-  document.getElementById('addressDisplay').innerText = wallet.address || "—";
-  document.getElementById('totalTransactions').innerText = wallet.transactions.length;
-  document.getElementById('stakedAmount').innerText = activeStake ? activeStake.amount.toFixed(2) : "0";
-  document.getElementById('zkTxCount').innerText = wallet.zkStats?.privateTxCount || 0;
-  document.getElementById('referralCode').innerText = wallet.referralCode || generateReferralCode();
-  document.getElementById('totalStaked').innerText = activeStake ? activeStake.amount.toFixed(2) : "0";
-  document.getElementById('totalTxCount').innerText = wallet.stats.totalTx || 0;
-  document.getElementById('totalFeesPaid').innerText = (wallet.stats.feesPaid || 0).toFixed(2);
-  document.getElementById('totalAirdrops').innerText = wallet.stats.airdropsClaimed || 0;
-  document.getElementById('totalStakedRewards').innerText = (wallet.stats.totalRewards || 0).toFixed(4);
-  document.getElementById('zkPrivateTxCount').innerText = wallet.zkStats?.privateTxCount || 0;
-  document.getElementById('zkPrivacyAmount').innerText = (wallet.zkStats?.totalPrivacyProtected || 0).toFixed(2);
-  document.getElementById('zkProofCount').innerText = wallet.zkStats?.proofsGenerated || 0;
-  
-  // Price ticker
-  const change = (Math.random() * 6) - 3;
-  document.getElementById('priceChange').innerText = `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`;
-  document.getElementById('priceChange').style.color = change >= 0 ? '#00ff88' : '#ff4466';
-  
-  // Stake info
-  const container = document.getElementById('stakeInfo');
-  if (container) {
-    if (activeStake && activeStake.end > Date.now()) {
-      const remaining = activeStake.end - Date.now();
-      const hours = Math.floor(remaining / 3600000);
-      const mins = Math.floor((remaining % 3600000) / 60000);
-      const progress = getProgress();
-      const reward = calculateReward(activeStake.amount, activeStake.period);
-      container.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>⏱️ ${hours}h ${mins}m left | Reward: ${reward.toFixed(4)} BRD`;
-    } else if (activeStake && activeStake.end <= Date.now()) {
-      container.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>✅ MATURED! Click UNSTAKE.`;
-    } else {
-      container.innerHTML = `💎 No active stake. Stake 50+ BRD for 24h at 18% APR.`;
+    if (!activeStake) { 
+        showToast("No active stake", 'error'); 
+        return; 
     }
-  }
-  
-  // Transactions list
-  const txContainer = document.getElementById('transactionsList');
-  if (txContainer) {
-    if (wallet.transactions.length === 0) {
-      txContainer.innerHTML = 'No transactions yet';
-    } else {
-      txContainer.innerHTML = wallet.transactions.slice(0, 8).map(tx => {
-        const isAirdrop = tx.type === 'airdrop';
-        const isZK = tx.type === 'zk_private';
-        const isStealth = tx.stealth || false;
-        const isDecoy = tx.type === 'decoy';
-        let txClass = 'tx-out';
-        let icon = '📤';
-        let label = 'Transfer';
-        if (isZK) { txClass = 'tx-zk'; icon = '🔐'; label = 'ZK-Private'; }
-        else if (isAirdrop) { txClass = 'tx-in'; icon = '🎁'; label = 'Airdrop'; }
-        else if (isStealth) { txClass = 'tx-stealth'; icon = '🕵️'; label = 'Stealth'; }
-        else if (isDecoy) { txClass = 'tx-decoy'; icon = '🔄'; label = 'Decoy'; }
-        
-        return `<div class="tx-item">
-          <div>
-            <span class="${txClass}">${icon} ${label} ${isZK ? '🔐' : ''} ${isStealth ? '🕵️' : ''} ${tx.amount} BRD</span>
-            ${tx.fee ? `<span style="font-size:0.45rem;opacity:0.6;">(fee: ${tx.fee})</span>` : ''}
-            ${isAirdrop ? `<br><small style="font-size:0.45rem;color:#ffd700;">Month ${tx.month}</small>` : ''}
-          </div>
-          <div class="tx-time">${new Date(tx.time).toLocaleString()}</div>
-        </div>`;
-      }).join('');
+    if (Date.now() < activeStake.end) {
+        const hours = Math.floor((activeStake.end - Date.now()) / 3600000);
+        showToast(`Stake locked for ${hours} more hours`, 'info');
+        return;
     }
-  }
-}
-
-// ================================================================
-// ==================== EXPORT FUNÇÕES ============================
-// ================================================================
-
-function exportWalletData() {
-  if (!wallet.address) { showToast("No wallet data", "error"); return; }
-  const data = {
-    address: wallet.address,
-    balance: wallet.balance,
-    transactions: wallet.transactions,
-    stats: wallet.stats,
-    zkStats: wallet.zkStats,
-    security: wallet.security,
-    referralCode: wallet.referralCode,
-    exportDate: new Date().toISOString()
-  };
-  const json = JSON.stringify(data, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `bradicoin-wallet-${wallet.address.substring(0, 8)}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast("✅ Wallet data exported!", "success");
-}
-
-function clearTransactionHistory() {
-  if (wallet.transactions.length === 0) { showToast("No transactions", "info"); return; }
-  if (confirm("Clear all transaction history?")) {
-    wallet.transactions = [];
-    wallet.stats.totalTx = 0;
+    const reward = activeStake.amount * 0.18 * (86400 / 31536000);
+    wallet.balance += activeStake.amount + reward;
+    wallet.stats.totalRewards += reward;
+    activeStake = null;
     saveWallet();
     updateUI();
+    showToast(`✅ Unstaked! +${reward.toFixed(4)} BRD reward`, "success");
+}
+
+// ================================================================
+// ==================== ANALYTICS =================================
+// ================================================================
+
+function updateAnalytics() {
+    const txs = wallet.transactions || [];
+    const total = txs.length;
+    let volume = 0, fees = 0, zkCount = 0;
+    const today = new Date().toDateString();
+    let dailyTx = 0, dailyVol = 0;
+    
+    txs.forEach(tx => {
+        const txDate = new Date(tx.time).toDateString();
+        if (txDate === today) { 
+            dailyTx++; 
+            dailyVol += tx.amount || 0; 
+        }
+        volume += tx.amount || 0;
+        fees += tx.fee || 0;
+        if (tx.type === 'zk_private') zkCount++;
+    });
+    
+    document.getElementById('analyticsTotalTx').innerText = total;
+    document.getElementById('analyticsVolume').innerText = volume.toFixed(2);
+    document.getElementById('analyticsAvgTx').innerText = total > 0 ? (volume / total).toFixed(2) : '0';
+    document.getElementById('analyticsFees').innerText = fees.toFixed(2);
+    document.getElementById('analyticsDailyTx').innerText = dailyTx;
+    document.getElementById('analyticsDailyVolume').innerText = dailyVol.toFixed(2) + ' BRD';
+    document.getElementById('analyticsZkTxs').innerText = zkCount;
+    document.getElementById('analyticsUsers').innerText = wallet.address ? 1 : 0;
+    
+    const timeline = document.getElementById('analyticsTimeline');
+    if (timeline) {
+        if (txs.length === 0) {
+            timeline.innerHTML = '<p style="opacity:0.6; text-align:center; font-size:0.5rem;">No recent activity</p>';
+        } else {
+            const recent = txs.slice(0, 8);
+            timeline.innerHTML = recent.map(tx => {
+                const isZK = tx.type === 'zk_private';
+                const isAirdrop = tx.type === 'airdrop';
+                const isDeposit = tx.type === 'deposit';
+                const icon = isZK ? '🔐' : (isAirdrop ? '🎁' : (isDeposit ? '💰' : '📤'));
+                const color = isZK ? '#00f2ff' : (isAirdrop ? '#ffd700' : (isDeposit ? '#00ff88' : '#ff6b6b'));
+                const type = isZK ? 'ZK-Private' : (isAirdrop ? 'Airdrop' : (isDeposit ? 'Deposit' : 'Transfer'));
+                return `<div style="display:flex; justify-content:space-between; padding:0.15rem 0; border-bottom:1px solid rgba(168,85,247,0.1); font-size:0.5rem;">
+                    <span>${icon} ${type}</span>
+                    <span style="color:${color};">${tx.amount} BRD</span>
+                    <span style="opacity:0.5;">${new Date(tx.time).toLocaleTimeString()}</span>
+                </div>`;
+            }).join('');
+        }
+    }
+}
+
+function showAnalytics() {
     updateAnalytics();
-    showToast("✅ History cleared!", "success");
-  }
+    document.getElementById('analyticsModal').style.display = 'flex';
 }
 
-function resetWalletSettings() {
-  if (confirm("Reset all settings?")) {
-    localStorage.removeItem('bradicoin_lang');
-    currentLang = 'en';
-    updateLanguage();
-    showToast("✅ Settings reset!", "success");
-  }
+function refreshAnalytics() {
+    updateAnalytics();
+    showToast("📊 Analytics refreshed!", "success");
 }
 
-function changeLanguage() {
-  const langs = ['en', 'pt', 'es', 'ar'];
-  const currentIndex = langs.indexOf(currentLang);
-  const nextIndex = (currentIndex + 1) % langs.length;
-  setLanguage(langs[nextIndex]);
-  showToast(`🌐 Language: ${langs[nextIndex].toUpperCase()}`, "success");
+function exportAnalyticsCSV() {
+    const txs = wallet.transactions || [];
+    if (txs.length === 0) { 
+        showToast("No data to export", "error"); 
+        return; 
+    }
+    
+    let csv = 'Date,Type,Amount,Fee,Status\n';
+    txs.forEach(tx => {
+        const date = new Date(tx.time).toLocaleDateString();
+        const type = tx.type === 'zk_private' ? 'ZK-Private' : (tx.type === 'airdrop' ? 'Airdrop' : (tx.type === 'deposit' ? 'Deposit' : 'Transfer'));
+        csv += `${date},${type},${tx.amount},${tx.fee || 0},Completed\n`;
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bradicoin-analytics-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast("📊 Analytics exported as CSV!", "success");
+}
+
+function exportAnalyticsData() {
+    if (!wallet.address) { 
+        showToast("No data", "error"); 
+        return; 
+    }
+    
+    const data = {
+        address: wallet.address,
+        transactions: wallet.transactions,
+        stats: wallet.stats,
+        zkStats: wallet.zkStats,
+        exportDate: new Date().toISOString()
+    };
+    
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bradicoin-analytics-${wallet.address.substring(0, 8)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast("📊 Analytics exported as JSON!", "success");
+}
+
+// ================================================================
+// ==================== STEALTH E MIXER ===========================
+// ================================================================
+
+function generateStealthAddress() {
+    const random = CryptoJS.lib.WordArray.random(18).toString();
+    const stealth = 'Br_' + random.substring(0, 36);
+    if (!wallet.stealthAddresses) wallet.stealthAddresses = [];
+    wallet.stealthAddresses.push(stealth);
+    document.getElementById('stealthAddressDisplay').innerText = stealth;
+    showToast("🕵️ New stealth address generated!", "success");
+    saveWallet();
+    return stealth;
+}
+
+function copyStealthAddress() {
+    const addr = document.getElementById('stealthAddressDisplay').innerText;
+    if (addr && addr !== '---') {
+        navigator.clipboard.writeText(addr);
+        showToast("Stealth address copied!", "success");
+    }
+}
+
+function showStealthAddress() {
+    if (!wallet.stealthAddresses) wallet.stealthAddresses = [];
+    if (wallet.stealthAddresses.length === 0) {
+        generateStealthAddress();
+    }
+    document.getElementById('stealthAddressDisplay').innerText = wallet.stealthAddresses[wallet.stealthAddresses.length - 1];
+    document.getElementById('stealthModal').style.display = 'flex';
+}
+
+let mixerState = { participants: [], poolSize: 0, isMixing: false };
+
+function joinMixer() {
+    if (mixerState.participants.includes(wallet.address)) {
+        showToast("Already in mixer pool", "info");
+        return;
+    }
+    
+    const amount = parseFloat(prompt("Enter amount to mix (min 100 BRD):"));
+    if (!amount || amount < 100) {
+        showToast("Minimum 100 BRD to join mixer", "error");
+        return;
+    }
+    
+    if (amount > (wallet.balance || 0)) {
+        showToast("Insufficient balance", "error");
+        return;
+    }
+    
+    mixerState.participants.push(wallet.address);
+    mixerState.poolSize += amount;
+    wallet.balance -= amount;
+    
+    updateMixerUI();
+    saveWallet();
+    updateUI();
+    showToast(`🔀 Joined mixer with ${amount} BRD`, "success");
+}
+
+function mixTransactions() {
+    if (mixerState.participants.length < 3) {
+        showToast("Need at least 3 participants to mix", "error");
+        return;
+    }
+    
+    if (mixerState.isMixing) {
+        showToast("Mix already in progress", "info");
+        return;
+    }
+    
+    mixerState.isMixing = true;
+    showToast("🔄 Mixing transactions...", "info");
+    
+    setTimeout(() => {
+        mixerState.isMixing = false;
+        const mixedAmount = mixerState.poolSize / mixerState.participants.length;
+        mixerState.participants.forEach(addr => {
+            if (addr === wallet.address) {
+                wallet.balance += mixedAmount;
+            }
+        });
+        mixerState.participants = [];
+        mixerState.poolSize = 0;
+        saveWallet();
+        updateUI();
+        updateMixerUI();
+        showToast(`✅ Mix completed! Received ${mixedAmount.toFixed(2)} BRD`, "success");
+    }, 3000);
+}
+
+function updateMixerUI() {
+    document.getElementById('mixerParticipants').innerText = mixerState.participants.length;
+    document.getElementById('mixerPoolSize').innerText = mixerState.poolSize.toFixed(2);
+    document.getElementById('mixerStatus').innerText = mixerState.isMixing ? '🔄 Mixing...' : 'Ready';
+}
+
+function showMixerUI() {
+    updateMixerUI();
+    document.getElementById('mixerModal').style.display = 'flex';
 }
 
 // ================================================================
@@ -2066,27 +1799,39 @@ function changeLanguage() {
 // ================================================================
 
 function showViewSeedModal() {
-  document.getElementById('viewSeedModal').style.display = 'flex';
-  document.getElementById('revealedSeedContainer').style.display = 'none';
-  document.getElementById('viewSeedPassword').value = '';
+    document.getElementById('viewSeedModal').style.display = 'flex';
+    document.getElementById('revealedSeedContainer').style.display = 'none';
+    document.getElementById('viewSeedPassword').value = '';
 }
 
-function revealSeedPhrase() {
-  const password = document.getElementById('viewSeedPassword').value;
-  if (!password) { showToast("Enter password", "error"); return; }
-  const decrypted = decrypt(wallet.encryptedSeed, password);
-  if (!decrypted) { showToast("Wrong password!", "error"); return; }
-  document.getElementById('revealedSeedPhrase').innerText = decrypted;
-  document.getElementById('revealedSeedContainer').style.display = 'block';
-  showToast("✅ Seed phrase revealed!", "success");
-}
+// ================================================================
+// ==================== EXPORT WALLET =============================
+// ================================================================
 
-function copyRevealedSeed() {
-  const seed = document.getElementById('revealedSeedPhrase').innerText;
-  if (seed && seed !== '---') {
-    navigator.clipboard.writeText(seed);
-    showToast("Seed phrase copied!", "success");
-  }
+function exportWalletData() {
+    if (!wallet.address) { 
+        showToast("No wallet data", "error"); 
+        return; 
+    }
+    const data = {
+        address: wallet.address,
+        balance: wallet.balance,
+        transactions: wallet.transactions,
+        stats: wallet.stats,
+        zkStats: wallet.zkStats,
+        security: wallet.security,
+        referralCode: wallet.referralCode,
+        exportDate: new Date().toISOString()
+    };
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bradicoin-wallet-${wallet.address.substring(0, 8)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast("✅ Wallet data exported!", "success");
 }
 
 // ================================================================
@@ -2094,1528 +1839,581 @@ function copyRevealedSeed() {
 // ================================================================
 
 const translations = {
-  en: {
-    mainTitle: "BRADICOIN", subtitle: "Secure Crypto Wallet", desc: "Create · Import · Stake · Earn",
-    createBtn: "Create Wallet", importBtn: "Import Wallet", unlockBtn: "Unlock Wallet",
-    logout: "Logout", sendBrd: "Send BRD", airdrop: "Airdrop", rewards: "Rewards",
-    settings: "Settings", analytics: "Analytics", copyAddress: "Copy", checkChain: "Verify",
-    stakeBtn: "Stake 24h", unstakeBtn: "Unstake", receive: "Receive", history: "History",
-    seedModalTitle: "⚠️ SAVE YOUR SEED PHRASE", seedModalWarning: "This is the ONLY way to recover your wallet!",
-    walletInfo: "Your wallet address will be generated automatically",
-    gasFee: "Gas Fee: 0.15 BRD", networkFee: "Network fee applied to every transaction",
-    yesLogout: "Yes", noCancel: "No"
-  },
-  pt: {
-    mainTitle: "BRADICOIN", subtitle: "Carteira Cripto Segura", desc: "Criar · Importar · Stake · Ganhar",
-    createBtn: "Criar Carteira", importBtn: "Importar Carteira", unlockBtn: "Desbloquear",
-    logout: "Sair", sendBrd: "Enviar BRD", airdrop: "Airdrop", rewards: "Recompensas",
-    settings: "Configurações", analytics: "Análises", copyAddress: "Copiar", checkChain: "Verificar",
-    stakeBtn: "Stake 24h", unstakeBtn: "Retirar", receive: "Receber", history: "Histórico",
-    seedModalTitle: "⚠️ SALVE SUA FRASE SEED", seedModalWarning: "Esta é a ÚNICA maneira de recuperar sua carteira!",
-    walletInfo: "Seu endereço será gerado automaticamente",
-    gasFee: "Taxa de Gas: 0.15 BRD", networkFee: "Taxa aplicada a cada transação",
-    yesLogout: "Sim", noCancel: "Não"
-  },
-  es: {
-    mainTitle: "BRADICOIN", subtitle: "Billetera Cripto Segura", desc: "Crear · Importar · Stake · Ganar",
-    createBtn: "Crear Billetera", importBtn: "Importar Billetera", unlockBtn: "Desbloquear",
-    logout: "Salir", sendBrd: "Enviar BRD", airdrop: "Airdrop", rewards: "Recompensas",
-    settings: "Configuraciones", analytics: "Análisis", copyAddress: "Copiar", checkChain: "Verificar",
-    stakeBtn: "Stake 24h", unstakeBtn: "Retirar", receive: "Recibir", history: "Historial",
-    seedModalTitle: "⚠️ GUARDA TU FRASE SEMILLA", seedModalWarning: "¡Esta es la ÚNICA forma de recuperar tu billetera!",
-    walletInfo: "Tu dirección será generada automáticamente",
-    gasFee: "Gas Fee: 0.15 BRD", networkFee: "Comisión aplicada a cada transacción",
-    yesLogout: "Sí", noCancel: "No"
-  },
-  ar: {
-    mainTitle: "برادي كوين", subtitle: "محفظة آمنة", desc: "إنشاء · استيراد · حصة · ربح",
-    createBtn: "إنشاء محفظة", importBtn: "استيراد محفظة", unlockBtn: "فتح",
-    logout: "خروج", sendBrd: "إرسال BRD", airdrop: "إيردروب", rewards: "مكافآت",
-    settings: "إعدادات", analytics: "تحليلات", copyAddress: "نسخ", checkChain: "تحقق",
-    stakeBtn: "حصة 24 ساعة", unstakeBtn: "سحب", receive: "استلام", history: "التاريخ",
-    seedModalTitle: "⚠️ احفظ العبارة الأولية", seedModalWarning: "هذه هي الطريقة الوحيدة لاستعادة محفظتك!",
-    walletInfo: "سيتم إنشاء عنوان محفظتك تلقائياً",
-    gasFee: "رسوم الغاز: 0.15 BRD", networkFee: "رسوم الشبكة لكل معاملة",
-    yesLogout: "نعم", noCancel: "لا"
-  }
+    en: {
+        mainTitle: "BRADICOIN", subtitle: "Secure Crypto Wallet", desc: "Create · Import · Stake · Earn",
+        createBtn: "Create Wallet", importBtn: "Import Wallet", unlockBtn: "Unlock Wallet",
+        logout: "Logout", sendBrd: "Send BRD", airdrop: "Airdrop", rewards: "Rewards",
+        settings: "Settings", analytics: "Analytics", copyAddress: "Copy", checkChain: "Verify",
+        stakeBtn: "Stake 24h", unstakeBtn: "Unstake", receive: "Receive", history: "History",
+        seedModalTitle: "⚠️ SAVE YOUR SEED PHRASE", seedModalWarning: "This is the ONLY way to recover your wallet!",
+        walletInfo: "Your wallet address will be generated automatically",
+        gasFee: "Gas Fee: 0.15 BRD", networkFee: "Network fee applied to every transaction",
+        yesLogout: "Yes", noCancel: "No"
+    },
+    pt: {
+        mainTitle: "BRADICOIN", subtitle: "Carteira Cripto Segura", desc: "Criar · Importar · Stake · Ganhar",
+        createBtn: "Criar Carteira", importBtn: "Importar Carteira", unlockBtn: "Desbloquear",
+        logout: "Sair", sendBrd: "Enviar BRD", airdrop: "Airdrop", rewards: "Recompensas",
+        settings: "Configurações", analytics: "Análises", copyAddress: "Copiar", checkChain: "Verificar",
+        stakeBtn: "Stake 24h", unstakeBtn: "Retirar", receive: "Receber", history: "Histórico",
+        seedModalTitle: "⚠️ SALVE SUA FRASE SEED", seedModalWarning: "Esta é a ÚNICA maneira de recuperar sua carteira!",
+        walletInfo: "Seu endereço será gerado automaticamente",
+        gasFee: "Taxa de Gas: 0.15 BRD", networkFee: "Taxa aplicada a cada transação",
+        yesLogout: "Sim", noCancel: "Não"
+    },
+    es: {
+        mainTitle: "BRADICOIN", subtitle: "Billetera Cripto Segura", desc: "Crear · Importar · Stake · Ganar",
+        createBtn: "Crear Billetera", importBtn: "Importar Billetera", unlockBtn: "Desbloquear",
+        logout: "Salir", sendBrd: "Enviar BRD", airdrop: "Airdrop", rewards: "Recompensas",
+        settings: "Configuraciones", analytics: "Análisis", copyAddress: "Copiar", checkChain: "Verificar",
+        stakeBtn: "Stake 24h", unstakeBtn: "Retirar", receive: "Recibir", history: "Historial",
+        seedModalTitle: "⚠️ GUARDA TU FRASE SEMILLA", seedModalWarning: "¡Esta es la ÚNICA forma de recuperar tu billetera!",
+        walletInfo: "Tu dirección será generada automáticamente",
+        gasFee: "Gas Fee: 0.15 BRD", networkFee: "Comisión aplicada a cada transacción",
+        yesLogout: "Sí", noCancel: "No"
+    },
+    ar: {
+        mainTitle: "برادي كوين", subtitle: "محفظة آمنة", desc: "إنشاء · استيراد · حصة · ربح",
+        createBtn: "إنشاء محفظة", importBtn: "استيراد محفظة", unlockBtn: "فتح",
+        logout: "خروج", sendBrd: "إرسال BRD", airdrop: "إيردروب", rewards: "مكافآت",
+        settings: "إعدادات", analytics: "تحليلات", copyAddress: "نسخ", checkChain: "تحقق",
+        stakeBtn: "حصة 24 ساعة", unstakeBtn: "سحب", receive: "استلام", history: "التاريخ",
+        seedModalTitle: "⚠️ احفظ العبارة الأولية", seedModalWarning: "هذه هي الطريقة الوحيدة لاستعادة محفظتك!",
+        walletInfo: "سيتم إنشاء عنوان محفظتك تلقائياً",
+        gasFee: "رسوم الغاز: 0.15 BRD", networkFee: "رسوم الشبكة لكل معاملة",
+        yesLogout: "نعم", noCancel: "لا"
+    }
 };
 
-let currentLang = localStorage.getItem('bradicoin_lang') || 'en';
-
 function updateLanguage() {
-  const t = translations[currentLang];
-  if (!t) return;
-  
-  document.getElementById('mainTitle').innerText = t.mainTitle;
-  document.getElementById('subtitle').innerText = t.subtitle;
-  document.getElementById('desc').innerText = t.desc;
-  document.getElementById('createWalletBtn').innerHTML = `<i class="fas fa-plus-circle"></i> ${t.createBtn}`;
-  document.getElementById('importWalletBtn').innerHTML = `<i class="fas fa-key"></i> ${t.importBtn}`;
-  document.getElementById('confirmImportBtn').innerHTML = `<i class="fas fa-check"></i> ${t.importBtn}`;
-  document.getElementById('unlockWalletBtn').innerHTML = `<i class="fas fa-unlock-alt"></i> ${t.unlockBtn}`;
-  document.getElementById('dashboardTitle').innerText = t.mainTitle;
-  document.getElementById('logoutBtn').innerHTML = `<i class="fas fa-sign-out-alt"></i> ${t.logout}`;
-  document.getElementById('sendBtn').innerHTML = `<i class="fas fa-paper-plane"></i> ${t.sendBrd}`;
-  document.getElementById('claimAirdropBtn').innerHTML = `<i class="fas fa-gift"></i> ${t.airdrop}`;
-  document.getElementById('stakeBtn').innerHTML = `<i class="fas fa-lock"></i> ${t.stakeBtn}`;
-  document.getElementById('unstakeBtn').innerHTML = `<i class="fas fa-unlock-alt"></i> ${t.unstakeBtn}`;
-  document.getElementById('receiveBtn').innerHTML = `<i class="fas fa-arrow-down"></i> ${t.receive}`;
-  document.getElementById('historyBtn').innerHTML = `<i class="fas fa-history"></i> ${t.history}`;
-  document.getElementById('rewardsBtn').innerHTML = `<i class="fas fa-trophy"></i> ${t.rewards}`;
-  document.getElementById('settingsBtn').innerHTML = `<i class="fas fa-cog"></i>`;
-  document.getElementById('analyticsBtn').innerHTML = `<i class="fas fa-chart-line"></i>`;
-  
-  if (currentLang === 'ar') document.body.classList.add('rtl');
-  else document.body.classList.remove('rtl');
-  
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.lang === currentLang);
-  });
+    const t = translations[currentLang];
+    if (!t) return;
+    
+    document.getElementById('mainTitle').innerText = t.mainTitle;
+    document.getElementById('subtitle').innerText = t.subtitle;
+    document.getElementById('desc').innerText = t.desc;
+    document.getElementById('createWalletBtn').innerHTML = `<i class="fas fa-plus-circle"></i> ${t.createBtn}`;
+    document.getElementById('importWalletBtn').innerHTML = `<i class="fas fa-key"></i> ${t.importBtn}`;
+    document.getElementById('confirmImportBtn').innerHTML = `<i class="fas fa-check"></i> ${t.importBtn}`;
+    document.getElementById('unlockWalletBtn').innerHTML = `<i class="fas fa-unlock-alt"></i> ${t.unlockBtn}`;
+    document.getElementById('dashboardTitle').innerText = t.mainTitle;
+    document.getElementById('logoutBtn').innerHTML = `<i class="fas fa-sign-out-alt"></i> ${t.logout}`;
+    document.getElementById('sendBtn').innerHTML = `<i class="fas fa-paper-plane"></i> ${t.sendBrd}`;
+    document.getElementById('claimAirdropBtn').innerHTML = `<i class="fas fa-gift"></i> ${t.airdrop}`;
+    document.getElementById('stakeBtn').innerHTML = `<i class="fas fa-lock"></i> ${t.stakeBtn}`;
+    document.getElementById('unstakeBtn').innerHTML = `<i class="fas fa-unlock-alt"></i> ${t.unstakeBtn}`;
+    document.getElementById('receiveBtn').innerHTML = `<i class="fas fa-arrow-down"></i> ${t.receive}`;
+    document.getElementById('historyBtn').innerHTML = `<i class="fas fa-history"></i> ${t.history}`;
+    document.getElementById('rewardsBtn').innerHTML = `<i class="fas fa-trophy"></i> ${t.rewards}`;
+    document.getElementById('settingsBtn').innerHTML = `<i class="fas fa-cog"></i>`;
+    document.getElementById('analyticsBtn').innerHTML = `<i class="fas fa-chart-line"></i>`;
+    document.getElementById('seedModalTitle').innerText = t.seedModalTitle;
+    document.getElementById('seedModalWarning').innerText = t.seedModalWarning;
+    document.getElementById('walletInfoText').innerText = t.walletInfo;
+    
+    if (currentLang === 'ar') document.body.classList.add('rtl');
+    else document.body.classList.remove('rtl');
+    
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === currentLang);
+    });
 }
 
 function setLanguage(lang) {
-  currentLang = lang;
-  localStorage.setItem('bradicoin_lang', lang);
-  updateLanguage();
+    currentLang = lang;
+    localStorage.setItem('bradicoin_lang', lang);
+    updateLanguage();
 }
 
 // ================================================================
-// ==================== EVENT LISTENERS ===========================
-// ================================================================
-
-document.getElementById('createWalletBtn').onclick = () => {
-  document.getElementById('unlockGroup').style.display = 'none';
-  createWalletFlow();
-};
-
-document.getElementById('importWalletBtn').onclick = () => {
-  document.getElementById('unlockGroup').style.display = 'none';
-  document.getElementById('importGroup').style.display = 'block';
-};
-
-document.getElementById('confirmImportBtn').onclick = () => {
-  const seed = document.getElementById('importSeedInput').value;
-  const password = document.getElementById('importPasswordInput').value;
-  if (seed && password) {
-    if (importWallet(seed, password)) {
-      hideLoginAndShowDashboard();
-      updateUI();
-      updateSecurityBadge();
-    }
-  } else {
-    showToast("Enter seed phrase and password", "error");
-  }
-};
-
-document.getElementById('unlockWalletBtn').onclick = () => {
-  const password = document.getElementById('unlockPasswordInput').value;
-  const twoFACode = document.getElementById('unlock2FAInput').value;
-  unlockWallet(password, twoFACode);
-};
-
-document.getElementById('confirmSeedBtn').onclick = () => {
-  const password = document.getElementById('walletPasswordInput').value;
-  if (password) {
-    finalizeWalletCreation(password);
-  } else {
-    showToast("Create a password", "error");
-  }
-};
-
-document.getElementById('copySeedBtn').onclick = () => {
-  const seed = document.getElementById('modalSeedPhrase').innerText;
-  if (seed && seed !== '---') {
-    navigator.clipboard.writeText(seed);
-    showToast("Seed phrase copied!", "success");
-  }
-};
-
-document.getElementById('backToLoginBtn').onclick = () => {
-  document.getElementById('seedModal').style.display = 'none';
-  document.getElementById('importGroup').style.display = 'none';
-  document.getElementById('unlockGroup').style.display = 'block';
-};
-
-document.getElementById('logoutBtn').onclick = () => {
-  document.getElementById('confirmDialog').style.display = 'flex';
-  document.getElementById('confirmDialogTitle').innerText = "Logout?";
-  document.getElementById('confirmDialogMessage').innerText = "Your wallet will be locked.";
-  document.getElementById('confirmYesBtn').onclick = () => {
-    document.getElementById('confirmDialog').style.display = 'none';
-    lockWalletNow();
-  };
-  document.getElementById('confirmNoBtn').onclick = () => {
-    document.getElementById('confirmDialog').style.display = 'none';
-  };
-};
-
-document.getElementById('lockWalletBtn').onclick = lockWalletNow;
-
-document.getElementById('copyAddressBtn').onclick = () => {
-  if (wallet.address) {
-    navigator.clipboard.writeText(wallet.address);
-    showToast("Address copied!", "success");
-  }
-};
-
-document.getElementById('copyReferralBtn').onclick = () => {
-  if (wallet.referralCode) {
-    navigator.clipboard.writeText(wallet.referralCode);
-    showToast("Referral code copied!", "success");
-  }
-};
-
-document.getElementById('checkChainBalanceBtn').onclick = async () => {
-    if (wallet.address) {
-        await checkBalanceOnChain(wallet.address);
-    } else {
-        showToast("No wallet loaded", "error");
-    }
-};
-
-document.getElementById('claimAirdropBtn').onclick = claimAirdrop;
-document.getElementById('claimAirdropBtnMain').onclick = claimAirdrop;
-
-document.getElementById('unstakeBtn').onclick = unstake;
-document.getElementById('stakeBtn').onclick = () => stake(parseFloat(document.getElementById('stakeAmount').value));
-
-document.getElementById('viewStakeDetailsBtn').onclick = () => {
-  if (activeStake) {
-    const reward = Date.now() >= activeStake.end ? calculateReward(activeStake.amount, activeStake.period) : 0;
-    document.getElementById('stakeDetailAmount').innerText = activeStake.amount.toFixed(2);
-    document.getElementById('stakeDetailReward').innerText = reward.toFixed(4);
-    document.getElementById('stakeDetailStatus').innerText = Date.now() >= activeStake.end ? "✅ Matured" : "🔒 Locked";
-  } else {
-    document.getElementById('stakeDetailAmount').innerText = "0";
-    document.getElementById('stakeDetailReward').innerText = "0";
-    document.getElementById('stakeDetailStatus').innerText = "No active stake";
-  }
-  document.getElementById('stakeModal').style.display = 'flex';
-};
-
-document.getElementById('closeStakeModalBtn').onclick = () => {
-  document.getElementById('stakeModal').style.display = 'none';
-};
-
-document.getElementById('receiveBtn').onclick = () => {
-  showToast(`📩 Address: ${wallet.address}`, "info");
-};
-
-document.getElementById('historyBtn').onclick = () => {
-  updateUI();
-  document.getElementById('transactionsList').scrollIntoView({ behavior: 'smooth' });
-};
-
-document.getElementById('rewardsBtn').onclick = () => {
-  document.getElementById('rewardsModal').style.display = 'flex';
-};
-
-document.getElementById('closeRewardsModalBtn').onclick = () => {
-  document.getElementById('rewardsModal').style.display = 'none';
-};
-
-document.getElementById('settingsBtn').onclick = () => {
-  document.getElementById('settingsModal').style.display = 'flex';
-};
-
-document.getElementById('closeSettingsModalBtn').onclick = () => {
-  document.getElementById('settingsModal').style.display = 'none';
-};
-
-document.getElementById('analyticsBtn').onclick = showAnalytics;
-document.getElementById('analyticsQuickBtn').onclick = showAnalytics;
-document.getElementById('closeAnalyticsModalBtn').onclick = () => {
-  document.getElementById('analyticsModal').style.display = 'none';
-};
-
-document.getElementById('zkStatusBtn').onclick = () => {
-  document.getElementById('zkInfoModal').style.display = 'flex';
-};
-
-document.getElementById('closeZkInfoModalBtn').onclick = () => {
-  document.getElementById('zkInfoModal').style.display = 'none';
-};
-
-document.getElementById('zkPrivateSendBtn').onclick = () => {
-  const to = document.getElementById('sendTo').value;
-  const amount = parseFloat(document.getElementById('sendAmount').value);
-  if (!to) { showToast("Enter recipient address", "error"); return; }
-  if (!amount || amount <= 0) { showToast("Enter a valid amount", "error"); return; }
-  
-  document.getElementById('zkSenderAddress').innerText = wallet.address || '---';
-  document.getElementById('zkRecipientAddress').innerText = to;
-  document.getElementById('zkAmountDisplay').innerText = amount;
-  
-  const privateKey = wallet.encryptedSeed ? '0x' + CryptoJS.SHA256(wallet.encryptedSeed).toString().substring(0, 32) : '0x0000';
-  const salt = CryptoJS.lib.WordArray.random(32).toString();
-  const commitment = generateZKCommitment(privateKey, amount, salt);
-  const nullifier = generateZKNullifier(privateKey, commitment);
-  
-  document.getElementById('zkCommitment').innerText = commitment;
-  document.getElementById('zkNullifier').innerText = nullifier;
-  
-  const proof = generateZKProof(wallet.address, to, amount, commitment, nullifier);
-  document.getElementById('zkProofDisplay').innerHTML = `
-    <div style="color:#00ff88;">✅ ZK-SNARK Proof Generated</div>
-    <div style="font-size:0.5rem; margin-top:0.2rem; word-break:break-all;">
-      <div>a: ${proof.a[0].substring(0, 20)}...</div>
-      <div>b: ${proof.b[0].substring(0, 20)}...</div>
-      <div>c: ${proof.c[0].substring(0, 20)}...</div>
-    </div>
-  `;
-  
-  document.getElementById('zkSendModal').style.display = 'flex';
-};
-
-document.getElementById('zkConfirmSendBtn').onclick = async () => {
-  const to = document.getElementById('zkRecipientAddress').innerText;
-  const amount = parseFloat(document.getElementById('zkAmountDisplay').innerText);
-  const password = document.getElementById('sendPassword').value;
-  
-  if (await sendPrivateTransaction(to, amount, password)) {
-    document.getElementById('zkSendModal').style.display = 'none';
-    document.getElementById('sendModal').style.display = 'none';
-    document.getElementById('sendTo').value = '';
-    document.getElementById('sendAmount').value = '';
-    document.getElementById('sendPassword').value = '';
-  }
-};
-
-document.getElementById('zkCancelSendBtn').onclick = () => {
-  document.getElementById('zkSendModal').style.display = 'none';
-};
-
-document.getElementById('stealthBtn').onclick = showStealthAddress;
-
-document.getElementById('sendBtn').onclick = () => {
-  document.getElementById('sendModal').style.display = 'flex';
-};
-
-document.getElementById('confirmSendBtn').onclick = async () => {
-  const to = document.getElementById('sendTo').value;
-  const amount = parseFloat(document.getElementById('sendAmount').value);
-  const password = document.getElementById('sendPassword').value;
-  
-  const options = {
-    zk: document.getElementById('zkPrivateSend')?.checked || false,
-    stealth: document.getElementById('stealthSend')?.checked || false,
-    decoy: document.getElementById('decoySend')?.checked || false,
-    mixer: document.getElementById('mixerSend')?.checked || false
-  };
-  
-  if (options.zk) {
-    if (await sendPrivateTransaction(to, amount, password)) {
-      document.getElementById('sendModal').style.display = 'none';
-      document.getElementById('sendTo').value = '';
-      document.getElementById('sendAmount').value = '';
-      document.getElementById('sendPassword').value = '';
-      document.getElementById('zkPrivateSend').checked = false;
-      document.getElementById('stealthSend').checked = false;
-      document.getElementById('decoySend').checked = false;
-      document.getElementById('mixerSend').checked = false;
-    }
-  } else {
-    if (await sendToBlockchain(to, amount, password, options)) {
-      document.getElementById('sendModal').style.display = 'none';
-      document.getElementById('sendTo').value = '';
-      document.getElementById('sendAmount').value = '';
-      document.getElementById('sendPassword').value = '';
-      document.getElementById('zkPrivateSend').checked = false;
-      document.getElementById('stealthSend').checked = false;
-      document.getElementById('decoySend').checked = false;
-      document.getElementById('mixerSend').checked = false;
-    }
-  }
-};
-
-document.getElementById('cancelSendBtn').onclick = () => {
-  document.getElementById('sendModal').style.display = 'none';
-};
-
-document.getElementById('closeViewSeedModalBtn').onclick = () => {
-  document.getElementById('viewSeedModal').style.display = 'none';
-};
-
-document.getElementById('revealSeedBtn').onclick = revealSeedPhrase;
-document.getElementById('copyRevealedSeedBtn').onclick = copyRevealedSeed;
-
-document.getElementById('closeAirdropModalBtn').onclick = () => {
-  document.getElementById('airdropModal').style.display = 'none';
-};
-
-document.getElementById('closeAirdropManagerBtn').onclick = () => {
-  document.getElementById('airdropManagerModal').style.display = 'none';
-};
-
-// Language buttons
-document.querySelectorAll('.lang-btn').forEach(btn => {
-  btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
-});
-
-// Close modals on overlay click
-document.querySelectorAll('.modal-overlay').forEach(modal => {
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      modal.style.display = 'none';
-    }
-  });
-});
-
-// ================================================================
-// ==================== INNOVATIVE FEATURES ======================
-// ================================================================
-
-// ================================================================
-// 1. BURNER WALLETS - Carteiras descartáveis
+// ==================== INNOVATIVE FEATURES =======================
 // ================================================================
 
 let burnerWallet = null;
 let burnerTimeout = null;
-
-function createBurnerWallet() {
-  if (burnerWallet) {
-    showToast("⚠️ Burner wallet already active!", "warning");
-    return;
-  }
-  
-  const seedPhrase = generateSeedPhrase();
-  const address = generateAddress(seedPhrase);
-  
-  burnerWallet = {
-    seed: seedPhrase,
-    address: address,
-    balance: 0,
-    createdAt: Date.now(),
-    expiresAt: Date.now() + 3600000 // 1 hora
-  };
-  
-  burnerTimeout = setTimeout(() => {
-    destroyBurnerWallet();
-  }, 3600000);
-  
-  showToast(`🔥 Burner wallet created: ${address.substring(0, 16)}... (expires in 1h)`, "success");
-  updateBurnerUI();
-  return burnerWallet;
-}
-
-function destroyBurnerWallet() {
-  if (!burnerWallet) return;
-  
-  if (burnerWallet.balance > 0) {
-    wallet.balance += burnerWallet.balance;
-    wallet.transactions.unshift({
-      id: Date.now(),
-      type: 'burner_sweep',
-      amount: burnerWallet.balance,
-      from: burnerWallet.address,
-      to: wallet.address,
-      time: new Date().toISOString()
-    });
-    showToast(`🧹 Swept ${burnerWallet.balance} BRD from burner wallet`, "success");
-  }
-  
-  burnerWallet = null;
-  if (burnerTimeout) {
-    clearTimeout(burnerTimeout);
-    burnerTimeout = null;
-  }
-  
-  updateBurnerUI();
-  saveWallet();
-  updateUI();
-  showToast("💥 Burner wallet destroyed", "info");
-}
-
-function getBurnerStatus() {
-  if (!burnerWallet) return null;
-  const remaining = Math.max(0, burnerWallet.expiresAt - Date.now());
-  return {
-    address: burnerWallet.address,
-    balance: burnerWallet.balance,
-    remainingMinutes: Math.floor(remaining / 60000),
-    remainingSeconds: Math.floor((remaining % 60000) / 1000)
-  };
-}
-
-function updateBurnerUI() {
-  const status = getBurnerStatus();
-  const el = document.getElementById('burnerStatus');
-  if (!el) return;
-  
-  if (status) {
-    el.innerHTML = `🔥 ${status.address.substring(0, 12)}... 💰${status.balance} ⏱️${status.remainingMinutes}m`;
-    el.style.color = '#ff8800';
-  } else {
-    el.innerHTML = '💤 No burner active';
-    el.style.color = '#666';
-  }
-}
-
-// ================================================================
-// 2. DECOY BALANCES - Saldos Isca
-// ================================================================
-
 let decoyMode = false;
-let decoyBalance = 0.01;
-
-function toggleDecoyMode() {
-  decoyMode = !decoyMode;
-  if (decoyMode) {
-    decoyBalance = parseFloat((Math.random() * 0.1 + 0.001).toFixed(4));
-    showToast("🕵️ Decoy mode ENABLED - Attackers see fake balance", "success");
-  } else {
-    showToast("👁️ Decoy mode DISABLED - Showing real balance", "info");
-  }
-  updateDecoyUI();
-  saveDecoyConfig();
-}
-
-function updateDecoyUI() {
-  const badge = document.getElementById('decoyBadge');
-  if (!badge) return;
-  
-  if (decoyMode) {
-    badge.innerHTML = '🕵️ Decoy Active';
-    badge.style.borderColor = '#9b59b6';
-    badge.style.color = '#9b59b6';
-    badge.style.background = '#9b59b622';
-  } else {
-    badge.innerHTML = '👁️ Real Balance';
-    badge.style.borderColor = '#666';
-    badge.style.color = '#666';
-    badge.style.background = 'transparent';
-  }
-}
-
-function saveDecoyConfig() {
-  localStorage.setItem('bradicoin_decoy_mode', JSON.stringify({
-    enabled: decoyMode,
-    balance: decoyBalance
-  }));
-}
-
-function loadDecoyConfig() {
-  const saved = localStorage.getItem('bradicoin_decoy_mode');
-  if (saved) {
-    try {
-      const config = JSON.parse(saved);
-      decoyMode = config.enabled || false;
-      decoyBalance = config.balance || 0.01;
-    } catch(e) {}
-  }
-  updateDecoyUI();
-}
-
-// ================================================================
-// 3. BOOBY TRAPS - Armadilhas para hackers
-// ================================================================
-
 let whitelist = [];
-
-function addToWhitelist() {
-  const input = prompt("Enter address to whitelist:");
-  if (!input) return;
-  const address = input.trim();
-  
-  if (whitelist.includes(address)) {
-    showToast("Address already in whitelist", "info");
-    return;
-  }
-  
-  whitelist.push(address);
-  saveBoobyConfig();
-  updateBoobyUI();
-  showToast(`✅ ${address.substring(0, 12)}... added to whitelist`, "success");
-}
-
-function removeFromWhitelist(address) {
-  whitelist = whitelist.filter(a => a !== address);
-  saveBoobyConfig();
-  updateBoobyUI();
-  showToast(`Removed from whitelist`, "info");
-}
-
-function saveBoobyConfig() {
-  localStorage.setItem('bradicoin_whitelist', JSON.stringify(whitelist));
-}
-
-function loadBoobyConfig() {
-  const saved = localStorage.getItem('bradicoin_whitelist');
-  if (saved) {
-    try {
-      whitelist = JSON.parse(saved);
-    } catch(e) {}
-  }
-  updateBoobyUI();
-}
-
-function updateBoobyUI() {
-  const el = document.getElementById('whitelistCount');
-  if (el) el.innerText = whitelist.length;
-  
-  const list = document.getElementById('whitelistDisplay');
-  if (!list) return;
-  
-  if (whitelist.length === 0) {
-    list.innerHTML = '<p style="opacity:0.6; font-size:0.5rem;">No addresses in whitelist</p>';
-  } else {
-    list.innerHTML = whitelist.map(addr => `
-      <div style="display:flex; justify-content:space-between; padding:0.2rem 0; border-bottom:1px solid #333; font-size:0.5rem;">
-        <span>${addr.substring(0, 20)}...</span>
-        <button onclick="removeFromWhitelist('${addr}')" class="cyber-btn danger small" style="padding:0.1rem 0.4rem; font-size:0.4rem;">✕</button>
-      </div>
-    `).join('');
-  }
-}
-
-// ================================================================
-// 4. DEAD MAN'S SWITCH - Herança automática
-// ================================================================
-
 let deadManSwitch = null;
-
-function setupDeadManSwitch() {
-  const heir = prompt("Enter heir address (wallet that will inherit funds):");
-  if (!heir) return;
-  
-  const inactivityDays = parseInt(prompt("Inactivity period (days) before activation:", "180"));
-  if (!inactivityDays || inactivityDays < 30) {
-    showToast("Minimum inactivity period is 30 days", "error");
-    return;
-  }
-  
-  deadManSwitch = {
-    heir: heir,
-    inactivityDays: inactivityDays,
-    lastActivity: Date.now(),
-    activated: false,
-    executed: false
-  };
-  
-  saveDeadManSwitch();
-  updateDeadManUI();
-  showToast(`✅ Dead Man's Switch configured for ${heir.substring(0, 16)}... (${inactivityDays} days)`, "success");
-}
-
-function checkDeadManSwitch() {
-  if (!deadManSwitch || deadManSwitch.executed || deadManSwitch.activated) return;
-  
-  const inactiveMs = Date.now() - deadManSwitch.lastActivity;
-  const inactiveDays = inactiveMs / (1000 * 60 * 60 * 24);
-  
-  if (inactiveDays >= deadManSwitch.inactivityDays) {
-    deadManSwitch.activated = true;
-    saveDeadManSwitch();
-    
-    if (wallet.balance > 0) {
-      wallet.transactions.unshift({
-        id: Date.now(),
-        type: 'dead_man_switch',
-        to: deadManSwitch.heir,
-        amount: wallet.balance,
-        time: new Date().toISOString()
-      });
-      
-      wallet.balance = 0;
-      deadManSwitch.executed = true;
-      saveWallet();
-      updateUI();
-      
-      showToast(`💀 Dead Man's Switch ACTIVATED! Funds sent to heir.`, "error");
-    }
-  }
-}
-
-function saveDeadManSwitch() {
-  localStorage.setItem('bradicoin_dead_man_switch', JSON.stringify(deadManSwitch));
-}
-
-function loadDeadManSwitch() {
-  const saved = localStorage.getItem('bradicoin_dead_man_switch');
-  if (saved) {
-    try {
-      deadManSwitch = JSON.parse(saved);
-    } catch(e) {}
-  }
-  updateDeadManUI();
-}
-
-function updateDeadManUI() {
-  const el = document.getElementById('deadManStatus');
-  if (!el) return;
-  
-  if (!deadManSwitch) {
-    el.innerHTML = '❌ Not configured';
-    el.style.color = '#666';
-    return;
-  }
-  
-  if (deadManSwitch.executed) {
-    el.innerHTML = '💀 EXECUTED';
-    el.style.color = '#ff0055';
-    return;
-  }
-  
-  if (deadManSwitch.activated) {
-    el.innerHTML = '🔔 ACTIVATED';
-    el.style.color = '#ffaa00';
-    return;
-  }
-  
-  const days = Math.floor((Date.now() - deadManSwitch.lastActivity) / (1000 * 60 * 60 * 24));
-  el.innerHTML = `⏳ ${days}/${deadManSwitch.inactivityDays}d 👤 ${deadManSwitch.heir.substring(0, 12)}...`;
-  el.style.color = days > deadManSwitch.inactivityDays * 0.8 ? '#ffaa00' : '#00ff88';
-}
-
-function resetDeadManActivity() {
-  if (deadManSwitch) {
-    deadManSwitch.lastActivity = Date.now();
-    saveDeadManSwitch();
-    updateDeadManUI();
-  }
-}
-
-// ================================================================
-// 5. SHADOW MIRROR - Sincronização Multi-Chain
-// ================================================================
-
 let shadowWallets = [];
-
-function addShadowWallet() {
-  const chain = prompt("Enter blockchain name (Ethereum, Solana, etc.):");
-  if (!chain) return;
-  const address = prompt("Enter wallet address:");
-  if (!address) return;
-  
-  shadowWallets.push({
-    chain: chain,
-    address: address,
-    balance: 0,
-    lastSync: null
-  });
-  
-  saveShadowConfig();
-  updateShadowUI();
-  showToast(`🌐 Shadow wallet added for ${chain}`, "success");
-}
-
-function syncShadowWallets() {
-  for (const wallet of shadowWallets) {
-    wallet.balance = parseFloat((Math.random() * 10).toFixed(4));
-    wallet.lastSync = new Date().toISOString();
-  }
-  updateShadowUI();
-  showToast("🌐 All shadow wallets synchronized!", "success");
-}
-
-function saveShadowConfig() {
-  localStorage.setItem('bradicoin_shadow_wallets', JSON.stringify(shadowWallets));
-}
-
-function loadShadowConfig() {
-  const saved = localStorage.getItem('bradicoin_shadow_wallets');
-  if (saved) {
-    try {
-      shadowWallets = JSON.parse(saved);
-    } catch(e) {}
-  }
-  updateShadowUI();
-}
-
-function updateShadowUI() {
-  const el = document.getElementById('shadowList');
-  if (!el) return;
-  
-  if (shadowWallets.length === 0) {
-    el.innerHTML = '<p style="opacity:0.6; font-size:0.5rem;">No shadow wallets configured</p>';
-    return;
-  }
-  
-  el.innerHTML = shadowWallets.map(w => `
-    <div style="display:flex; justify-content:space-between; padding:0.2rem 0; border-bottom:1px solid #333; font-size:0.5rem;">
-      <span>🌐 ${w.chain}</span>
-      <span>💰 ${w.balance || 0}</span>
-      <span style="font-size:0.4rem; opacity:0.5;">${w.address.substring(0, 12)}...</span>
-    </div>
-  `).join('');
-}
-
-// ================================================================
-// 6. EPHEMERAL KEYS - Chaves temporárias
-// ================================================================
-
 let ephemeralKey = null;
 let ephemeralExpiry = null;
-
-function generateEphemeralKey() {
-  const key = CryptoJS.lib.WordArray.random(32).toString();
-  const expiryMinutes = parseInt(prompt("Key expiry (minutes):", "60")) || 60;
-  
-  ephemeralKey = key;
-  ephemeralExpiry = Date.now() + (expiryMinutes * 60 * 1000);
-  
-  localStorage.setItem('bradicoin_ephemeral_expiry', ephemeralExpiry.toString());
-  
-  showToast(`🔑 Ephemeral key generated (expires in ${expiryMinutes} minutes)`, "success");
-  updateEphemeralUI();
-  return key;
-}
-
-function loadEphemeralKey() {
-  const expiry = localStorage.getItem('bradicoin_ephemeral_expiry');
-  
-  if (expiry) {
-    ephemeralExpiry = parseInt(expiry);
-    if (Date.now() > ephemeralExpiry) {
-      localStorage.removeItem('bradicoin_ephemeral_expiry');
-      ephemeralKey = null;
-      ephemeralExpiry = null;
-    } else {
-      ephemeralKey = 'key_active';
-    }
-  }
-  updateEphemeralUI();
-}
-
-function updateEphemeralUI() {
-  const el = document.getElementById('ephemeralStatus');
-  if (!el) return;
-  
-  if (!ephemeralKey) {
-    el.innerHTML = '🔑 No key';
-    el.style.color = '#666';
-    return;
-  }
-  
-  const remaining = Math.max(0, Math.floor((ephemeralExpiry - Date.now()) / 60000));
-  el.innerHTML = `🔑 Active (${remaining}m)`;
-  el.style.color = remaining < 5 ? '#ff0055' : '#00ff88';
-}
-
-// ================================================================
-// 7. GASLESS MODE - Transações sem taxa
-// ================================================================
-
 let gaslessMode = false;
 let gasSponsor = null;
-
-function toggleGaslessMode() {
-  if (!gasSponsor) {
-    const sponsor = prompt("Enter sponsor address (DApp or partner):");
-    if (!sponsor) return;
-    gasSponsor = sponsor;
-  }
-  
-  gaslessMode = !gaslessMode;
-  
-  if (gaslessMode) {
-    showToast(`⛽ Gasless mode ENABLED (Sponsored by ${gasSponsor.substring(0, 12)}...)`, "success");
-  } else {
-    showToast("⛽ Gasless mode DISABLED", "info");
-  }
-  
-  saveGaslessConfig();
-  updateGaslessUI();
-}
-
-function saveGaslessConfig() {
-  localStorage.setItem('bradicoin_gasless', JSON.stringify({
-    enabled: gaslessMode,
-    sponsor: gasSponsor
-  }));
-}
-
-function loadGaslessConfig() {
-  const saved = localStorage.getItem('bradicoin_gasless');
-  if (saved) {
-    try {
-      const config = JSON.parse(saved);
-      gaslessMode = config.enabled || false;
-      gasSponsor = config.sponsor || null;
-    } catch(e) {}
-  }
-  updateGaslessUI();
-}
-
-function updateGaslessUI() {
-  const el = document.getElementById('gaslessStatus');
-  if (!el) return;
-  
-  if (gaslessMode && gasSponsor) {
-    el.innerHTML = `⛽ Gasless (Sponsored)`;
-    el.style.color = '#00ff88';
-  } else {
-    el.innerHTML = `⛽ Gas: ${TX_FEE} BRD`;
-    el.style.color = '#ffaa00';
-  }
-}
-
-// ================================================================
-// 8. ZK-PROOF VERIFIER
-// ================================================================
-
 let zkProofHistory = [];
-
-function verifyZKProof() {
-  const proofInput = prompt("Enter ZK-Proof data (JSON):");
-  if (!proofInput) return;
-  
-  try {
-    const proof = JSON.parse(proofInput);
-    const verified = proof && proof.a && proof.b && proof.c;
-    
-    zkProofHistory.push({
-      proof: proof,
-      timestamp: Date.now(),
-      verified: verified
-    });
-    
-    if (verified) {
-      showToast("✅ ZK-Proof verified successfully!", "success");
-    } else {
-      showToast("❌ ZK-Proof verification failed", "error");
-    }
-    updateZKProofUI();
-  } catch(e) {
-    showToast("Invalid proof format", "error");
-  }
-}
-
-function updateZKProofUI() {
-  const el = document.getElementById('zkProofHistory');
-  if (!el) return;
-  
-  if (zkProofHistory.length === 0) {
-    el.innerHTML = '<p style="opacity:0.6; font-size:0.5rem;">No proofs verified</p>';
-    return;
-  }
-  
-  const recent = zkProofHistory.slice(-3);
-  el.innerHTML = recent.map(p => `
-    <div style="display:flex; justify-content:space-between; padding:0.15rem 0; border-bottom:1px solid #333; font-size:0.45rem;">
-      <span>${p.verified ? '✅' : '❌'}</span>
-      <span style="color:${p.verified ? '#00ff88' : '#ff4466'};">${p.verified ? 'Verified' : 'Failed'}</span>
-      <span style="opacity:0.5;">${new Date(p.timestamp).toLocaleTimeString()}</span>
-    </div>
-  `).join('');
-}
-
-// ================================================================
-// 9. SWEEP & DESTROY
-// ================================================================
-
-function sweepAndDestroy() {
-  if (!wallet.address) {
-    showToast("No wallet active", "error");
-    return;
-  }
-  
-  if (!confirm(`🚨 DANGER: This will move ALL funds (${wallet.balance.toFixed(4)} BRD) and destroy the wallet. Continue?`)) {
-    return;
-  }
-  
-  if (!confirm("⚠️ SECOND CONFIRMATION: Are you ABSOLUTELY sure?")) {
-    return;
-  }
-  
-  try {
-    const sweptAmount = wallet.balance;
-    const newSeed = generateSeedPhrase();
-    const newAddress = generateAddress(newSeed);
-    
-    wallet.transactions.unshift({
-      id: Date.now(),
-      type: 'sweep_destroy',
-      amount: sweptAmount,
-      from: wallet.address,
-      to: newAddress,
-      time: new Date().toISOString()
-    });
-    
-    const oldAddress = wallet.address;
-    wallet.encryptedSeed = null;
-    wallet.address = null;
-    wallet.balance = 0;
-    wallet.transactions = [];
-    wallet.stats = { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 };
-    wallet.zkStats = { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 };
-    
-    saveWallet();
-    updateUI();
-    
-    showToast(`🧹 SWEEP & DESTROY completed! Funds moved to new wallet.`, "success");
-    
-    setTimeout(() => {
-      if (confirm("New wallet created. View seed phrase?")) {
-        document.getElementById('modalSeedPhrase').innerText = newSeed;
-        document.getElementById('seedModal').style.display = 'flex';
-      }
-    }, 1500);
-    
-  } catch (error) {
-    showToast(`❌ Sweep & Destroy failed: ${error.message}`, "error");
-  }
-}
-
-// ================================================================
-// 10. SECURITY ALERTS
-// ================================================================
-
 let securityAlerts = [];
 
-function addSecurityAlert(type, message, severity = 'info') {
-  const alert = {
-    id: Date.now(),
-    type: type,
-    message: message,
-    severity: severity,
-    timestamp: new Date().toISOString(),
-    read: false
-  };
-  
-  securityAlerts.unshift(alert);
-  if (securityAlerts.length > 50) securityAlerts.pop();
-  
-  const colors = {
-    'critical': '#ff0055',
-    'warning': '#ffaa00',
-    'info': '#00f2ff',
-    'success': '#00ff88'
-  };
-  
-  showToast(`🔔 ${type.toUpperCase()}: ${message}`, severity === 'critical' ? 'error' : 'info');
-  updateAlertUI();
-  saveSecurityAlerts();
-}
-
-function updateAlertUI() {
-  const el = document.getElementById('securityAlerts');
-  if (!el) return;
-  
-  const unread = securityAlerts.filter(a => !a.read).length;
-  const badge = document.getElementById('alertBadge');
-  if (badge) {
-    badge.innerText = unread;
-    badge.style.display = unread > 0 ? 'inline' : 'none';
-  }
-  
-  if (securityAlerts.length === 0) {
-    el.innerHTML = '<p style="opacity:0.6; font-size:0.5rem;">No security alerts</p>';
-    return;
-  }
-  
-  const recent = securityAlerts.slice(0, 5);
-  el.innerHTML = recent.map(a => `
-    <div style="display:flex; justify-content:space-between; padding:0.2rem 0; border-bottom:1px solid #333; font-size:0.45rem; ${!a.read ? 'background:#010518;' : ''}">
-      <span style="color:${a.severity === 'critical' ? '#ff0055' : a.severity === 'warning' ? '#ffaa00' : '#00f2ff'};">
-        ${a.severity === 'critical' ? '🚨' : a.severity === 'warning' ? '⚠️' : 'ℹ️'}
-      </span>
-      <span>${a.message}</span>
-      <span style="opacity:0.5; font-size:0.4rem;">${new Date(a.timestamp).toLocaleTimeString()}</span>
-    </div>
-  `).join('');
-}
-
-function saveSecurityAlerts() {
-  localStorage.setItem('bradicoin_security_alerts', JSON.stringify(securityAlerts));
-}
-
-function loadSecurityAlerts() {
-  const saved = localStorage.getItem('bradicoin_security_alerts');
-  if (saved) {
-    try {
-      securityAlerts = JSON.parse(saved);
-    } catch(e) {}
-  }
-  updateAlertUI();
-}
-
-function clearAlerts() {
-  securityAlerts = securityAlerts.filter(a => a.read);
-  securityAlerts.forEach(a => a.read = true);
-  saveSecurityAlerts();
-  updateAlertUI();
-  showToast("Alerts cleared", "info");
-}
-
 // ================================================================
 // ==================== EVENT LISTENERS ===========================
 // ================================================================
-document.getElementById('checkChainBalanceBtn').onclick = async () => {
-    if (wallet.address) {
-        await checkBalanceOnChain(wallet.address);
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Carrega wallet
+    loadWallet();
+    
+    // Carrega idioma
+    const savedLang = localStorage.getItem('bradicoin_lang');
+    if (savedLang) {
+        currentLang = savedLang;
+    }
+    updateLanguage();
+    
+    // Atualiza UI
+    if (wallet.encryptedSeed) {
+        showLoginScreen();
+        document.getElementById('unlockGroup').style.display = 'block';
     } else {
-        showToast("No wallet loaded", "error");
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('mainDashboard').style.display = 'none';
+        document.getElementById('unlockGroup').style.display = 'none';
     }
-};
+    
+    // ===== BOTÃO CREATE WALLET =====
+    document.getElementById('createWalletBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('unlockGroup').style.display = 'none';
+        document.getElementById('importGroup').style.display = 'none';
+        createWalletFlow();
+    });
+    
+    // ===== BOTÃO IMPORT WALLET =====
+    document.getElementById('importWalletBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('unlockGroup').style.display = 'none';
+        document.getElementById('importGroup').style.display = 'block';
+    });
+    
+    // ===== CONFIRMAR IMPORTAÇÃO =====
+    document.getElementById('confirmImportBtn').addEventListener('click', function() {
+        const seed = document.getElementById('importSeedInput').value;
+        const password = document.getElementById('importPasswordInput').value;
+        if (seed && password) {
+            if (importWalletFromSeed(seed, password)) {
+                hideLoginAndShowDashboard();
+                updateUI();
+                updateSecurityBadge();
+            }
+        } else {
+            showToast("Enter seed phrase and password", "error");
+        }
+    });
+    
+    // ===== CONFIRMAR SEED =====
+    document.getElementById('confirmSeedBtn').addEventListener('click', function() {
+        const password = document.getElementById('walletPasswordInput').value;
+        if (password) {
+            finalizeWalletCreation(password);
+        } else {
+            showToast("Create a password", "error");
+        }
+    });
+    
+    // ===== COPY SEED =====
+    document.getElementById('copySeedBtn').addEventListener('click', function() {
+        const seedWords = tempSeedForCreation || [];
+        if (seedWords.length === 12) {
+            const seedStr = seedWords.join(' ');
+            navigator.clipboard.writeText(seedStr);
+            showToast("Seed phrase copied!", "success");
+        } else {
+            showToast("No seed phrase to copy", "error");
+        }
+    });
+    
+    // ===== UNLOCK WALLET =====
+    document.getElementById('unlockWalletBtn').addEventListener('click', function() {
+        const password = document.getElementById('unlockPasswordInput').value;
+        const twoFACode = document.getElementById('unlock2FAInput').value;
+        unlockWallet(password, twoFACode);
+    });
+    
+    // ===== ENTER KEY =====
+    document.getElementById('unlockPasswordInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('unlockWalletBtn').click();
+        }
+    });
+    
+    // ===== LANGUAGE BUTTONS =====
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const lang = this.dataset.lang;
+            setLanguage(lang);
+        });
+    });
+    
+    // ===== CLOSE MODALS =====
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+    });
+    
+    // ===== COPY ADDRESS =====
+    document.getElementById('copyAddressBtn').addEventListener('click', function() {
+        if (wallet.address) {
+            navigator.clipboard.writeText(wallet.address);
+            showToast("Address copied!", "success");
+        }
+    });
+    
+    // ===== COPY REFERRAL =====
+    document.getElementById('copyReferralBtn').addEventListener('click', function() {
+        if (wallet.referralCode) {
+            navigator.clipboard.writeText(wallet.referralCode);
+            showToast("Referral code copied!", "success");
+        }
+    });
+    
+    // ===== LOGOUT =====
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+        document.getElementById('confirmDialog').style.display = 'flex';
+        document.getElementById('confirmDialogTitle').innerText = "Logout?";
+        document.getElementById('confirmDialogMessage').innerText = "Your wallet will be locked.";
+        document.getElementById('confirmYesBtn').onclick = function() {
+            document.getElementById('confirmDialog').style.display = 'none';
+            lockWalletNow();
+        };
+        document.getElementById('confirmNoBtn').onclick = function() {
+            document.getElementById('confirmDialog').style.display = 'none';
+        };
+    });
+    
+    // ===== LOCK WALLET =====
+    document.getElementById('lockWalletBtn').addEventListener('click', lockWalletNow);
+    
+    // ===== SETTINGS =====
+    document.getElementById('settingsBtn').addEventListener('click', function() {
+        document.getElementById('settingsModal').style.display = 'flex';
+    });
+    document.getElementById('closeSettingsModalBtn').addEventListener('click', function() {
+        document.getElementById('settingsModal').style.display = 'none';
+    });
+    
+    // ===== REWARDS =====
+    document.getElementById('rewardsBtn').addEventListener('click', function() {
+        document.getElementById('rewardsModal').style.display = 'flex';
+    });
+    document.getElementById('closeRewardsModalBtn').addEventListener('click', function() {
+        document.getElementById('rewardsModal').style.display = 'none';
+    });
+    
+    // ===== ANALYTICS =====
+    document.getElementById('analyticsBtn').addEventListener('click', showAnalytics);
+    document.getElementById('closeAnalyticsModalBtn').addEventListener('click', function() {
+        document.getElementById('analyticsModal').style.display = 'none';
+    });
+    
+    // ===== SEND =====
+    document.getElementById('sendBtn').addEventListener('click', function() {
+        document.getElementById('sendModal').style.display = 'flex';
+    });
+    document.getElementById('cancelSendBtn').addEventListener('click', function() {
+        document.getElementById('sendModal').style.display = 'none';
+    });
+    
+    // ===== RECEIVE =====
+    document.getElementById('receiveBtn').addEventListener('click', function() {
+        if (wallet.address) {
+            navigator.clipboard.writeText(wallet.address);
+            showToast("Address copied to clipboard!", "success");
+        } else {
+            showToast("No wallet loaded", "error");
+        }
+    });
+    
+    // ===== HISTORY =====
+    document.getElementById('historyBtn').addEventListener('click', function() {
+        document.getElementById('transactionsList').scrollIntoView({ behavior: 'smooth' });
+    });
+    
+    // ===== STAKE =====
+    document.getElementById('stakeBtn').addEventListener('click', function() {
+        const amount = parseFloat(document.getElementById('stakeAmount').value);
+        if (!amount || amount <= 0) {
+            showToast("Enter a valid amount", "error");
+            return;
+        }
+        stake(amount);
+    });
+    
+    // ===== UNSTAKE =====
+    document.getElementById('unstakeBtn').addEventListener('click', unstake);
+    
+    // ===== VIEW STAKE DETAILS =====
+    document.getElementById('viewStakeDetailsBtn').addEventListener('click', function() {
+        if (activeStake) {
+            const reward = Date.now() >= activeStake.end ? activeStake.amount * 0.18 * (86400 / 31536000) : 0;
+            document.getElementById('stakeDetailAmount').innerText = activeStake.amount.toFixed(2);
+            document.getElementById('stakeDetailReward').innerText = reward.toFixed(4);
+            document.getElementById('stakeDetailStatus').innerText = Date.now() >= activeStake.end ? "✅ Matured" : "🔒 Locked";
+        } else {
+            document.getElementById('stakeDetailAmount').innerText = "0";
+            document.getElementById('stakeDetailReward').innerText = "0";
+            document.getElementById('stakeDetailStatus').innerText = "No active stake";
+        }
+        document.getElementById('stakeModal').style.display = 'flex';
+    });
+    document.getElementById('closeStakeModalBtn').addEventListener('click', function() {
+        document.getElementById('stakeModal').style.display = 'none';
+    });
+    
+    // ===== ZK STATUS =====
+    document.getElementById('zkStatusBtn').addEventListener('click', function() {
+        document.getElementById('zkInfoModal').style.display = 'flex';
+    });
+    document.getElementById('closeZkInfoModalBtn').addEventListener('click', function() {
+        document.getElementById('zkInfoModal').style.display = 'none';
+    });
+    
+    // ===== VIEW SEED =====
+    document.getElementById('viewSeedModal').addEventListener('click', function() {
+        document.getElementById('viewSeedModal').style.display = 'flex';
+    });
+    document.getElementById('closeViewSeedModalBtn').addEventListener('click', function() {
+        document.getElementById('viewSeedModal').style.display = 'none';
+    });
+    document.getElementById('revealSeedBtn').addEventListener('click', function() {
+        const password = document.getElementById('viewSeedPassword').value;
+        if (!password) {
+            showToast("Enter password", "error");
+            return;
+        }
+        const decrypted = decrypt(wallet.encryptedSeed, password);
+        if (!decrypted) {
+            showToast("Wrong password!", "error");
+            return;
+        }
+        const words = decrypted.split(' ');
+        const seedDisplay = document.getElementById('revealedSeedPhrase');
+        seedDisplay.innerHTML = words.map((word, index) => 
+            `<span class="word-item"><span class="num">${String(index + 1).padStart(2, '0')}.</span> ${word}</span>`
+        ).join('');
+        document.getElementById('revealedSeedContainer').style.display = 'block';
+        showToast("✅ Seed phrase revealed!", "success");
+    });
+    document.getElementById('copyRevealedSeedBtn').addEventListener('click', function() {
+        const seedDisplay = document.getElementById('revealedSeedPhrase');
+        const seedWords = seedDisplay.textContent.trim().split(/\s+/).filter((_, i) => i % 2 === 1);
+        if (seedWords.length === 12) {
+            navigator.clipboard.writeText(seedWords.join(' '));
+            showToast("Seed phrase copied!", "success");
+        }
+    });
+    
+    // ===== STEALTH =====
+    document.getElementById('stealthBtn').addEventListener('click', showStealthAddress);
+    document.getElementById('closeStealthModalBtn').addEventListener('click', function() {
+        document.getElementById('stealthModal').style.display = 'none';
+    });
+    
+    // ===== MIXER =====
+    document.getElementById('closeMixerModalBtn').addEventListener('click', function() {
+        document.getElementById('mixerModal').style.display = 'none';
+    });
+    
+    // ===== 2FA =====
+    document.getElementById('verify2FABtn').addEventListener('click', function() {
+        const code = document.getElementById('verify2FACode').value;
+        if (verify2FA(code, wallet.security.twoFASecret)) {
+            wallet.security.twoFAEnabled = true;
+            saveWallet();
+            document.getElementById('twoFAModal').style.display = 'none';
+            showToast("✅ 2FA enabled successfully!", "success");
+            updateSecurityBadge();
+        } else {
+            showToast("❌ Invalid 2FA code!", "error");
+        }
+    });
+    document.getElementById('close2FAModalBtn').addEventListener('click', function() {
+        document.getElementById('twoFAModal').style.display = 'none';
+    });
+    
+    // ===== ZK PRIVATE SEND =====
+    document.getElementById('zkPrivateSendBtn').addEventListener('click', function() {
+        const to = document.getElementById('sendTo').value;
+        const amount = parseFloat(document.getElementById('sendAmount').value);
+        if (!to) { showToast("Enter recipient address", "error"); return; }
+        if (!amount || amount <= 0) { showToast("Enter a valid amount", "error"); return; }
+        
+        document.getElementById('zkSenderAddress').innerText = wallet.address || '---';
+        document.getElementById('zkRecipientAddress').innerText = to;
+        document.getElementById('zkAmountDisplay').innerText = amount;
+        
+        const privateKey = wallet.encryptedSeed ? '0x' + CryptoJS.SHA256(wallet.encryptedSeed).toString().substring(0, 32) : '0x0000';
+        const salt = CryptoJS.lib.WordArray.random(32).toString();
+        const commitment = generateZKCommitment(privateKey, amount, salt);
+        const nullifier = generateZKNullifier(privateKey, commitment);
+        
+        document.getElementById('zkCommitment').innerText = commitment;
+        document.getElementById('zkNullifier').innerText = nullifier;
+        
+        const proof = generateZKProof(wallet.address, to, amount, commitment, nullifier);
+        document.getElementById('zkProofDisplay').innerHTML = `
+            <div style="color:#00ff88;">✅ ZK-SNARK Proof Generated</div>
+            <div style="font-size:0.5rem; margin-top:0.2rem; word-break:break-all;">
+                <div>a: ${proof.a[0].substring(0, 20)}...</div>
+                <div>b: ${proof.b[0].substring(0, 20)}...</div>
+                <div>c: ${proof.c[0].substring(0, 20)}...</div>
+            </div>
+        `;
+        
+        document.getElementById('zkSendModal').style.display = 'flex';
+    });
+    
+    document.getElementById('zkConfirmSendBtn').addEventListener('click', function() {
+        const to = document.getElementById('zkRecipientAddress').innerText;
+        const amount = parseFloat(document.getElementById('zkAmountDisplay').innerText);
+        const password = document.getElementById('sendPassword').value;
+        
+        // Simula envio privado
+        if (password && wallet.encryptedSeed) {
+            const decrypted = decrypt(wallet.encryptedSeed, password);
+            if (decrypted) {
+                const totalCost = amount + 0.15;
+                if (totalCost <= wallet.balance) {
+                    wallet.balance -= totalCost;
+                    wallet.stats.feesPaid += 0.15;
+                    wallet.zkStats.privateTxCount += 1;
+                    wallet.zkStats.totalPrivacyProtected += amount;
+                    wallet.zkStats.proofsGenerated += 1;
+                    
+                    wallet.transactions.unshift({
+                        id: Date.now(),
+                        type: 'zk_private',
+                        to: to,
+                        amount: amount,
+                        fee: 0.15,
+                        time: new Date().toISOString()
+                    });
+                    
+                    saveWallet();
+                    updateUI();
+                    updateAnalytics();
+                    document.getElementById('zkSendModal').style.display = 'none';
+                    document.getElementById('sendModal').style.display = 'none';
+                    document.getElementById('sendTo').value = '';
+                    document.getElementById('sendAmount').value = '';
+                    document.getElementById('sendPassword').value = '';
+                    showToast(`🔐 Private TX sent! ${amount} BRD`, "success");
+                } else {
+                    showToast("Insufficient balance", "error");
+                }
+            } else {
+                showToast("Wrong password!", "error");
+            }
+        } else {
+            showToast("Enter password", "error");
+        }
+    });
+    
+    document.getElementById('zkCancelSendBtn').addEventListener('click', function() {
+        document.getElementById('zkSendModal').style.display = 'none';
+    });
+    
+    // ===== CONFIRM SEND =====
+    document.getElementById('confirmSendBtn').addEventListener('click', function() {
+        const to = document.getElementById('sendTo').value;
+        const amount = parseFloat(document.getElementById('sendAmount').value);
+        const password = document.getElementById('sendPassword').value;
+        const isZK = document.getElementById('zkPrivateSend')?.checked || false;
+        
+        if (!to) { showToast("Enter recipient address", "error"); return; }
+        if (!amount || amount <= 0) { showToast("Enter a valid amount", "error"); return; }
+        if (!password) { showToast("Enter your password", "error"); return; }
+        
+        if (isZK) {
+            document.getElementById('zkSenderAddress').innerText = wallet.address || '---';
+            document.getElementById('zkRecipientAddress').innerText = to;
+            document.getElementById('zkAmountDisplay').innerText = amount;
+            document.getElementById('zkSendModal').style.display = 'flex';
+            return;
+        }
+        
+        // Simula envio normal
+        const decrypted = decrypt(wallet.encryptedSeed, password);
+        if (!decrypted) {
+            showToast("Wrong password!", "error");
+            return;
+        }
+        
+        const totalCost = amount + 0.15;
+        if (totalCost > wallet.balance) {
+            showToast("Insufficient balance", "error");
+            return;
+        }
+        
+        wallet.balance -= totalCost;
+        wallet.stats.feesPaid += 0.15;
+        wallet.stats.totalTx += 1;
+        
+        wallet.transactions.unshift({
+            id: Date.now(),
+            type: 'sent',
+            to: to,
+            amount: amount,
+            fee: 0.15,
+            time: new Date().toISOString()
+        });
+        
+        saveWallet();
+        updateUI();
+        updateAnalytics();
+        document.getElementById('sendModal').style.display = 'none';
+        document.getElementById('sendTo').value = '';
+        document.getElementById('sendAmount').value = '';
+        document.getElementById('sendPassword').value = '';
+        document.getElementById('zkPrivateSend').checked = false;
+        document.getElementById('stealthSend').checked = false;
+        document.getElementById('decoySend').checked = false;
+        document.getElementById('mixerSend').checked = false;
+        showToast(`✅ Sent ${amount} BRD successfully!`, "success");
+    });
+    
+    // ===== CHECK BALANCE ON CHAIN =====
+    document.getElementById('checkChainBalanceBtn').addEventListener('click', function() {
+        if (wallet.address) {
+            showToast(`💰 Balance: ${wallet.balance} BRD`, "success");
+        } else {
+            showToast("No wallet loaded", "error");
+        }
+    });
+    
+    // ===== AIRDROP CLAIM =====
+    document.getElementById('claimAirdropBtn').addEventListener('click', function() {
+        const amount = 5 + Math.random() * 10;
+        wallet.balance += amount;
+        wallet.stats.airdropsClaimed += 1;
+        wallet.transactions.unshift({
+            id: Date.now(),
+            type: 'airdrop',
+            amount: amount,
+            time: new Date().toISOString()
+        });
+        saveWallet();
+        updateUI();
+        updateAnalytics();
+        showToast(`🎁 Airdrop claimed! +${amount.toFixed(2)} BRD`, "success");
+    });
+});
 
 // ================================================================
-// ==================== CARREGAR CONFIGURAÇÕES ===================
+// ==================== INICIALIZAÇÃO =============================
 // ================================================================
 
-loadDecoyConfig();
-loadBoobyConfig();
-loadDeadManSwitch();
-loadShadowConfig();
-loadEphemeralKey();
-loadGaslessConfig();
-loadSecurityAlerts();
-
-// Atualizar UI dos componentes
-updateBurnerUI();
-updateDecoyUI();
-updateBoobyUI();
-updateDeadManUI();
-updateShadowUI();
-updateEphemeralUI();
-updateGaslessUI();
-updateZKProofUI();
-updateAlertUI();
-
-// ================================================================
-// ==================== MONITORAMENTO ============================
-// ================================================================
-
-function monitorSecurity() {
-  // Verificar tentativas de login suspeitas
-  if (loginAttempts > 3) {
-    addSecurityAlert('login', `Multiple failed login attempts (${loginAttempts})`, 'warning');
-  }
-  
-  // Verificar transações grandes
-  if (wallet.transactions.length > 0) {
-    const lastTx = wallet.transactions[0];
-    if (lastTx.amount > 100) {
-      addSecurityAlert('transaction', `Large transaction: ${lastTx.amount} BRD`, 'info');
-    }
-  }
-  
-  // Verificar burner wallet
-  if (burnerWallet && burnerWallet.balance > 10) {
-    addSecurityAlert('burner', `Burner wallet has significant balance: ${burnerWallet.balance} BRD`, 'warning');
-  }
-}
-
-// Monitoramento periódico
-setInterval(() => {
-  monitorSecurity();
-  checkDeadManSwitch();
-  updateBurnerUI();
-  updateEphemeralUI();
-}, 30000);
-
-// Reset dead man activity em ações
-document.addEventListener('click', resetDeadManActivity);
-document.addEventListener('keydown', resetDeadManActivity);
-
-console.log("🚀 Innovative Features loaded!");
-console.log("🔥 Burner Wallets | 🕵️ Decoy Mode | 💣 Booby Traps");
-console.log("💀 Dead Man's Switch | 🌐 Shadow Mirror | 🔑 Ephemeral Keys");
-console.log("⛽ Gasless Mode | 🔐 ZK-Proof Verifier | 🧹 Sweep & Destroy");
-console.log("🔔 Security Alerts");
-
-// ================================================================
-// ==================== INITIALIZATION ============================
-// ================================================================
-
-setInterval(() => {
-  updateUI();
-  updateAnalytics();
-  if (document.getElementById('airdropManagerModal').style.display === 'flex') {
-    updateAirdropUI();
-  }
-}, 5000);
-
-updateLanguage();
-loadWallet();
-
-if (wallet.encryptedSeed) {
-  showLoginScreen();
-} else {
-  document.getElementById('unlockGroup').style.display = 'none';
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('mainDashboard').style.display = 'none';
-}
-
-console.log("🛡️ BradiCoin Secure Wallet Loaded");
+console.log("🚀 BradiCoin Secure Wallet Loaded");
 console.log("🔐 Security Features: 2FA, Auto-Lock, Rate Limiting");
 console.log("🕵️ Privacy Features: ZK-SNARKs, Stealth Addresses, Mixer, Decoy TX");
+console.log("📚 Seed phrase uses " + WORD_LIST.length + " words from A-Z");
 
-// ================================================================
-// ==================== VARIABLE FEE SYSTEM =======================
-// ================================================================
-
-const FEE_SYSTEM = {
-  // Preço do BRD em USD (1 BRD = $10.00)
-  brdPriceUSD: 10.00,
-  
-  // Limites da taxa em USD e BRD
-  minFeeUSD: 0.15,
-  maxFeeUSD: 0.70,
-  minFeeBRD: 0.01500,
-  maxFeeBRD: 0.07000,
-  
-  // Tiers baseados no valor da transação (em BRD)
-  tiers: [
-    { min: 0, max: 50, feeUSD: 0.15, feeBRD: 0.01500, label: 'Micro', icon: '📱' },
-    { min: 50, max: 200, feeUSD: 0.25, feeBRD: 0.02500, label: 'Small', icon: '📦' },
-    { min: 200, max: 500, feeUSD: 0.35, feeBRD: 0.03500, label: 'Medium', icon: '📊' },
-    { min: 500, max: 1000, feeUSD: 0.50, feeBRD: 0.05000, label: 'Large', icon: '🚀' },
-    { min: 1000, max: Infinity, feeUSD: 0.70, feeBRD: 0.07000, label: 'Enterprise', icon: '🏢' }
-  ],
-  
-  // Descontos disponíveis
-  discounts: {
-    holder: { minBalance: 100, percentage: 0.30, label: 'Holder' },
-    staker: { minStake: 50, percentage: 0.20, label: 'Staker' },
-    loyal: { minTx: 10, percentage: 0.15, label: 'Loyal User' },
-    referral: { percentage: 0.10, label: 'Referral' },
-    firstTx: { percentage: 0.50, label: 'First Transaction' }
-  }
-};
-
-// ================================================================
-// ==================== CORE FUNCTIONS ============================
-// ================================================================
-
-function getFeeTier(amount) {
-  for (const tier of FEE_SYSTEM.tiers) {
-    if (amount >= tier.min && amount < tier.max) {
-      return tier;
-    }
-  }
-  return FEE_SYSTEM.tiers[FEE_SYSTEM.tiers.length - 1];
-}
-
-function calculateDiscounts() {
-  let maxDiscount = 0;
-  let appliedDiscounts = [];
-  
-  // Holder discount (balance >= 100 BRD)
-  if (wallet && wallet.balance >= FEE_SYSTEM.discounts.holder.minBalance) {
-    maxDiscount = Math.max(maxDiscount, FEE_SYSTEM.discounts.holder.percentage);
-    appliedDiscounts.push('Holder');
-  }
-  
-  // Staker discount (stake >= 50 BRD)
-  if (activeStake && activeStake.amount >= FEE_SYSTEM.discounts.staker.minStake) {
-    maxDiscount = Math.max(maxDiscount, FEE_SYSTEM.discounts.staker.percentage);
-    appliedDiscounts.push('Staker');
-  }
-  
-  // Loyal user discount (10+ transactions this month)
-  if (wallet && wallet.transactions) {
-    const monthlyTxs = wallet.transactions.filter(tx => {
-      return new Date(tx.time).getMonth() === new Date().getMonth();
-    }).length;
-    if (monthlyTxs >= FEE_SYSTEM.discounts.loyal.minTx) {
-      maxDiscount = Math.max(maxDiscount, FEE_SYSTEM.discounts.loyal.percentage);
-      appliedDiscounts.push('Loyal User');
-    }
-  }
-  
-  // Referral discount
-  if (wallet && wallet.referralCode && wallet.referralCode !== 'BRD-XXXX') {
-    maxDiscount = Math.max(maxDiscount, FEE_SYSTEM.discounts.referral.percentage);
-    appliedDiscounts.push('Referral');
-  }
-  
-  // First transaction discount
-  if (wallet && wallet.transactions && wallet.transactions.length === 0) {
-    maxDiscount = Math.max(maxDiscount, FEE_SYSTEM.discounts.firstTx.percentage);
-    appliedDiscounts.push('First Transaction');
-  }
-  
-  return {
-    discount: maxDiscount,
-    appliedDiscounts: appliedDiscounts,
-    hasDiscount: maxDiscount > 0
-  };
-}
-
-function calculateFee(amount) {
-  const tier = getFeeTier(amount || 0);
-  let baseFeeUSD = tier.feeUSD;
-  let baseFeeBRD = tier.feeBRD;
-  
-  const discountInfo = calculateDiscounts();
-  let finalFeeUSD = baseFeeUSD * (1 - discountInfo.discount);
-  let finalFeeBRD = baseFeeBRD * (1 - discountInfo.discount);
-  
-  // Apply min/max limits
-  finalFeeUSD = Math.max(finalFeeUSD, FEE_SYSTEM.minFeeUSD);
-  finalFeeUSD = Math.min(finalFeeUSD, FEE_SYSTEM.maxFeeUSD);
-  finalFeeBRD = Math.max(finalFeeBRD, FEE_SYSTEM.minFeeBRD);
-  finalFeeBRD = Math.min(finalFeeBRD, FEE_SYSTEM.maxFeeBRD);
-  finalFeeBRD = Math.round(finalFeeBRD * 100000) / 100000;
-  
-  return {
-    baseFeeUSD: baseFeeUSD,
-    baseFeeBRD: baseFeeBRD,
-    finalFeeUSD: finalFeeUSD,
-    finalFeeBRD: finalFeeBRD,
-    tier: tier,
-    discount: discountInfo,
-    formattedUSD: `$${finalFeeUSD.toFixed(2)}`,
-    formattedBRD: `${finalFeeBRD.toFixed(5)} BRD`,
-    formattedShortBRD: `${finalFeeBRD.toFixed(3)} BRD`
-  };
-}
-
-function usdToBrd(usdAmount) {
-  return usdAmount / FEE_SYSTEM.brdPriceUSD;
-}
-
-function brdToUsd(brdAmount) {
-  return brdAmount * FEE_SYSTEM.brdPriceUSD;
-}
-
-// ================================================================
-// ==================== UI UPDATE FUNCTIONS =======================
-// ================================================================
-
-function updateFeeDisplay(amount) {
-  const fee = calculateFee(amount || 0);
-  
-  // Update fee display elements
-  const usdEl = document.getElementById('feeUSDDisplay');
-  const brdEl = document.getElementById('feeBRDDisplay');
-  const tierEl = document.getElementById('feeTierDisplay');
-  const discountEl = document.getElementById('feeDiscountDisplay');
-  
-  if (usdEl) usdEl.innerText = fee.formattedUSD;
-  if (brdEl) brdEl.innerText = `(${fee.formattedBRD})`;
-  if (tierEl) tierEl.innerText = `${fee.tier.icon} ${fee.tier.label} Tier`;
-  
-  if (discountEl) {
-    if (fee.discount.hasDiscount) {
-      discountEl.innerText = `${(fee.discount.discount * 100).toFixed(0)}% OFF (${fee.discount.appliedDiscounts.join(', ')})`;
-      discountEl.style.display = 'block';
-      discountEl.style.color = '#00ff88';
-    } else {
-      discountEl.innerText = 'Standard rate';
-      discountEl.style.display = 'block';
-      discountEl.style.color = '#ffaa00';
-    }
-  }
-  
-  // Update fee bars
-  updateFeeBars(fee.finalFeeUSD);
-}
-
-function updateFeeBars(feeUSD) {
-  const bars = [
-    document.getElementById('feeBar1'),
-    document.getElementById('feeBar2'),
-    document.getElementById('feeBar3'),
-    document.getElementById('feeBar4'),
-    document.getElementById('feeBar5')
-  ];
-  
-  const tierValues = [0.15, 0.25, 0.35, 0.50, 0.70];
-  let activeIndex = 0;
-  for (let i = 0; i < tierValues.length; i++) {
-    if (feeUSD >= tierValues[i]) {
-      activeIndex = i;
-    }
-  }
-  
-  bars.forEach((bar, index) => {
-    if (bar) {
-      if (index <= activeIndex) {
-        bar.style.background = 'linear-gradient(90deg, #a855f7, #00f2ff)';
-        bar.style.opacity = '1';
-      } else {
-        bar.style.background = '#333';
-        bar.style.opacity = '0.3';
-      }
-    }
-  });
-}
-
-function showFeeBreakdown(amount) {
-  const fee = calculateFee(amount || 0);
-  const totalCost = (amount || 0) + fee.finalFeeBRD;
-  
-  const modal = document.getElementById('feeBreakdownModal');
-  if (!modal) return;
-  
-  // Update modal content
-  document.getElementById('feeBreakdownAmount').innerText = `${(amount || 0).toFixed(2)} BRD`;
-  document.getElementById('feeBreakdownBaseUSD').innerText = `$${fee.baseFeeUSD.toFixed(2)}`;
-  document.getElementById('feeBreakdownBaseBRD').innerText = `${fee.baseFeeBRD.toFixed(5)} BRD`;
-  document.getElementById('feeBreakdownDiscount').innerText = fee.discount.hasDiscount ? 
-    `${(fee.discount.discount * 100).toFixed(0)}% (${fee.discount.appliedDiscounts.join(', ')})` : 
-    'No discount applied';
-  document.getElementById('feeBreakdownFinalUSD').innerText = fee.formattedUSD;
-  document.getElementById('feeBreakdownFinalBRD').innerText = fee.formattedBRD;
-  document.getElementById('feeBreakdownTier').innerText = `${fee.tier.icon} ${fee.tier.label}`;
-  document.getElementById('feeBreakdownTotal').innerText = `${totalCost.toFixed(5)} BRD`;
-  
-  modal.style.display = 'flex';
-}
-
-function refreshFeeDisplay() {
-  const amount = parseFloat(document.getElementById('sendAmount')?.value) || 0;
-  updateFeeDisplay(amount);
-}
-
-// ================================================================
-// ==================== EVENT LISTENERS ===========================
-// ================================================================
-
-// Update fee when amount changes
-document.getElementById('sendAmount')?.addEventListener('input', function() {
-  const amount = parseFloat(this.value) || 0;
-  updateFeeDisplay(amount);
-});
-
-// Show fee breakdown on click
-document.getElementById('feeDisplayContainer')?.addEventListener('click', function() {
-  const amount = parseFloat(document.getElementById('sendAmount')?.value) || 0;
-  showFeeBreakdown(amount);
-});
-
-// Close fee breakdown modal
-document.getElementById('closeFeeBreakdownBtn')?.addEventListener('click', function() {
-  document.getElementById('feeBreakdownModal').style.display = 'none';
-});
-
-// Close modal on overlay click
-document.getElementById('feeBreakdownModal')?.addEventListener('click', function(e) {
-  if (e.target === this) {
-    this.style.display = 'none';
-  }
-});
-
-// ================================================================
-// ==================== MODIFIED SEND FUNCTION ====================
-// ================================================================
-
-// Override the original sendToBlockchain function to use variable fee
-const originalSendToBlockchain = sendToBlockchain;
-
-sendToBlockchain = async function(toAddress, amount, password, options = {}) {
-  if (!toAddress) { showToast("Enter recipient address", "error"); return false; }
-  
-  // Calculate fee using the variable fee system
-  const feeInfo = calculateFee(amount);
-  const totalCost = amount + feeInfo.finalFeeBRD;
-  
-  if (amount <= 0 || totalCost > wallet.balance) {
-    showToast(`Insufficient balance. Need ${totalCost.toFixed(5)} BRD (Fee: ${feeInfo.formattedBRD})`, "error");
-    return false;
-  }
-  
-  const decrypted = decrypt(wallet.encryptedSeed, password);
-  if (!decrypted) { showToast("Wrong password!", "error"); return false; }
-  
-  try {
-    showToast("⏳ Sending transaction...", "info");
-    
-    // Log fee details
-    console.log('💰 Fee Details:', {
-      amount: amount,
-      baseFeeUSD: feeInfo.baseFeeUSD,
-      baseFeeBRD: feeInfo.baseFeeBRD,
-      finalFeeUSD: feeInfo.finalFeeUSD,
-      finalFeeBRD: feeInfo.finalFeeBRD,
-      tier: feeInfo.tier.label,
-      discount: feeInfo.discount.hasDiscount ? `${(feeInfo.discount.discount * 100).toFixed(0)}%` : 'None'
-    });
-    
-    // Se stealth, gerar endereço furtivo
-    let finalTo = toAddress;
-    if (options.stealth) {
-      const stealth = generateStealthAddress();
-      finalTo = stealth;
-      showToast("🕵️ Using stealth address", "info");
-    }
-    
-    // Se decoy, criar transações falsas
-    if (options.decoy) {
-      for (let i = 0; i < 2; i++) {
-        const decoyAmount = (Math.random() * 0.5 + 0.1);
-        wallet.transactions.unshift({
-          id: Date.now() + i,
-          type: 'decoy',
-          to: '0xDecoy' + CryptoJS.lib.WordArray.random(10).toString(),
-          amount: decoyAmount,
-          fee: 0,
-          time: new Date().toISOString()
-        });
-      }
-      showToast("🔄 Decoy transactions created", "info");
-    }
-    
-    // Se mixer, adicionar ao pool
-    if (options.mixer) {
-      await joinMixer();
-    }
-    
-    // Deduct total cost (amount + fee)
-    wallet.balance -= totalCost;
-    wallet.stats.feesPaid += feeInfo.finalFeeBRD;
-    
-    wallet.transactions.unshift({
-      id: Date.now(),
-      type: options.zk ? 'zk_private' : 'sent',
-      to: finalTo,
-      amount: amount,
-      fee: feeInfo.finalFeeBRD,
-      feeUSD: feeInfo.finalFeeUSD,
-      tier: feeInfo.tier.label,
-      stealth: options.stealth || false,
-      time: new Date().toISOString()
-    });
-    
-    if (wallet.transactions.length > 20) wallet.transactions.pop();
-    wallet.stats.totalTx += 1;
-    saveWallet();
-    updateUI();
-    updateAnalytics();
-    
-    showToast(`✅ Sent ${amount} BRD successfully! (Fee: ${feeInfo.formattedBRD})`, "success");
-    return true;
-  } catch (error) {
-    showToast(`❌ Transaction failed: ${error.message}`, "error");
-    return false;
-  }
-};
-
-// ================================================================
-// ==================== INITIALIZATION ============================
-// ================================================================
-
-// Sync with API every 30 seconds
-setInterval(async () => {
-    if (wallet.address) {
-        try {
-            const data = await getBalanceFromAPI(wallet.address);
-            if (data && data.balance !== wallet.balance) {
-                wallet.balance = data.balance;
-                saveWallet();
-                updateUI();
-                console.log('🔄 Balance synced with API:', data.balance);
-            }
-        } catch (e) {
-            // Silently fail - API may be offline
-        }
-    }
-}, 30000);
-
-// UI updates every 5 seconds
+// Atualiza UI a cada 5 segundos
 setInterval(() => {
     updateUI();
     updateAnalytics();
-    if (document.getElementById('airdropManagerModal').style.display === 'flex') {
-        updateAirdropUI();
-    }
 }, 5000);
 
-// Check API status every 15 seconds
-setInterval(updateAPIStatus, 15000);
-
+console.log("✅ All systems ready!");
 </script>
 </body>
 </html>
