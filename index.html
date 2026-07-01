@@ -356,6 +356,7 @@
       <textarea id="importSeedInput" class="cyber-input" rows="3" placeholder="Enter your 12-word seed phrase"></textarea>
       <input type="password" id="importPasswordInput" class="cyber-input" placeholder="Create a password" style="margin-top:0.5rem;">
       <button id="confirmImportBtn" class="cyber-btn primary" style="margin-top:0.8rem; width:100%;"><i class="fas fa-check"></i> Import Wallet</button>
+      <button id="backToLoginFromImport" class="cyber-btn back" style="margin-top:0.5rem; width:100%;"><i class="fas fa-arrow-left"></i> Back</button>
     </div>
     <div id="unlockGroup" style="display:none; margin-top:1.5rem;">
       <input type="password" id="unlockPasswordInput" class="cyber-input" placeholder="Enter your wallet password">
@@ -379,6 +380,7 @@
     <input type="password" id="walletPasswordInput" class="cyber-input" placeholder="Create a password for your wallet" style="margin:0.5rem 0;">
     <button id="copySeedBtn" class="cyber-btn" style="width:100%; margin-bottom: 0.5rem;"><i class="fas fa-copy"></i> Copy Seed Phrase</button>
     <button id="confirmSeedBtn" class="cyber-btn primary" style="width:100%;"><i class="fas fa-check-circle"></i> I Have Saved My Seed Phrase</button>
+    <button id="backToLoginFromSeed" class="cyber-btn back" style="width:100%; margin-top:0.5rem;"><i class="fas fa-arrow-left"></i> Back to Login</button>
     <p class="warning-text">⚠️ Never share your seed phrase!</p>
   </div>
 </div>
@@ -1446,6 +1448,7 @@ function finalizeWalletCreation(password) {
         hideLoginAndShowDashboard();
         updateUI();
         updateSecurityBadge();
+        showToast("🎉 Wallet created successfully! Welcome to BradiCoin!", "success");
     }
 }
 
@@ -1975,6 +1978,22 @@ document.addEventListener('DOMContentLoaded', function() {
         createWalletFlow();
     });
     
+    // ===== BOTÃO BACK TO LOGIN FROM SEED =====
+    document.getElementById('backToLoginFromSeed').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('seedModal').style.display = 'none';
+        tempSeedForCreation = null;
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('mainDashboard').style.display = 'none';
+    });
+    
+    // ===== BOTÃO BACK TO LOGIN FROM IMPORT =====
+    document.getElementById('backToLoginFromImport').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('importGroup').style.display = 'none';
+        document.getElementById('loginScreen').style.display = 'flex';
+    });
+    
     // ===== BOTÃO IMPORT WALLET =====
     document.getElementById('importWalletBtn').addEventListener('click', function(e) {
         e.preventDefault();
@@ -1997,13 +2016,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // ===== CONFIRMAR SEED =====
-    document.getElementById('confirmSeedBtn').addEventListener('click', function() {
+    // ===== CONFIRMAR SEED (I HAVE SAVED MY SEED PHRASE) =====
+    document.getElementById('confirmSeedBtn').addEventListener('click', function(e) {
+        e.preventDefault();
         const password = document.getElementById('walletPasswordInput').value;
         if (password) {
             finalizeWalletCreation(password);
         } else {
-            showToast("Create a password", "error");
+            showToast("Please create a password for your wallet", "error");
+            document.getElementById('walletPasswordInput').focus();
         }
     });
     
@@ -2030,6 +2051,12 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('unlockPasswordInput').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             document.getElementById('unlockWalletBtn').click();
+        }
+    });
+    
+    document.getElementById('walletPasswordInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('confirmSeedBtn').click();
         }
     });
     
@@ -2267,7 +2294,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const amount = parseFloat(document.getElementById('zkAmountDisplay').innerText);
         const password = document.getElementById('sendPassword').value;
         
-        // Simula envio privado
         if (password && wallet.encryptedSeed) {
             const decrypted = decrypt(wallet.encryptedSeed, password);
             if (decrypted) {
@@ -2331,7 +2357,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Simula envio normal
         const decrypted = decrypt(wallet.encryptedSeed, password);
         if (!decrypted) {
             showToast("Wrong password!", "error");
