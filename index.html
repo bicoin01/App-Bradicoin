@@ -352,12 +352,18 @@
       <button id="createWalletBtn" class="cyber-btn primary"><i class="fas fa-plus-circle"></i> Create Wallet</button>
       <button id="importWalletBtn" class="cyber-btn"><i class="fas fa-key"></i> Import Wallet</button>
     </div>
+    
+    <!-- Import Wallet Group -->
     <div id="importGroup" style="display:none; margin-top:1.5rem;">
+      <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem;">
+        <button id="backToLoginFromImport" class="cyber-btn back small" style="flex:1;"><i class="fas fa-arrow-left"></i> Back</button>
+      </div>
       <textarea id="importSeedInput" class="cyber-input" rows="3" placeholder="Enter your 12-word seed phrase"></textarea>
       <input type="password" id="importPasswordInput" class="cyber-input" placeholder="Create a password" style="margin-top:0.5rem;">
       <button id="confirmImportBtn" class="cyber-btn primary" style="margin-top:0.8rem; width:100%;"><i class="fas fa-check"></i> Import Wallet</button>
-      <button id="backToLoginFromImport" class="cyber-btn back" style="margin-top:0.5rem; width:100%;"><i class="fas fa-arrow-left"></i> Back</button>
     </div>
+    
+    <!-- Unlock Group -->
     <div id="unlockGroup" style="display:none; margin-top:1.5rem;">
       <input type="password" id="unlockPasswordInput" class="cyber-input" placeholder="Enter your wallet password">
       <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
@@ -1323,54 +1329,83 @@ function loadWallet() {
 // ================================================================
 
 function showLoginScreen() {
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('mainDashboard').style.display = 'none';
-    document.getElementById('unlockGroup').style.display = wallet.encryptedSeed ? 'block' : 'none';
-    document.getElementById('importGroup').style.display = 'none';
+    const loginScreen = document.getElementById('loginScreen');
+    const mainDashboard = document.getElementById('mainDashboard');
+    if (loginScreen) loginScreen.style.display = 'flex';
+    if (mainDashboard) mainDashboard.style.display = 'none';
+    
+    const unlockGroup = document.getElementById('unlockGroup');
+    const importGroup = document.getElementById('importGroup');
+    if (unlockGroup) unlockGroup.style.display = wallet.encryptedSeed ? 'block' : 'none';
+    if (importGroup) importGroup.style.display = 'none';
 }
 
 function hideLoginAndShowDashboard() {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('mainDashboard').style.display = 'block';
+    const loginScreen = document.getElementById('loginScreen');
+    const mainDashboard = document.getElementById('mainDashboard');
+    if (loginScreen) loginScreen.style.display = 'none';
+    if (mainDashboard) mainDashboard.style.display = 'block';
 }
 
 function updateUI() {
-    document.getElementById('balance').innerText = (wallet.balance || 0).toFixed(4);
-    document.getElementById('usdBalance').innerText = `$${((wallet.balance || 0) * 10).toFixed(2)} USD`;
-    document.getElementById('addressDisplay').innerText = wallet.address || "—";
-    document.getElementById('totalTransactions').innerText = (wallet.transactions || []).length;
-    document.getElementById('stakedAmount').innerText = activeStake ? activeStake.amount.toFixed(2) : "0";
-    document.getElementById('zkTxCount').innerText = (wallet.zkStats?.privateTxCount || 0);
-    document.getElementById('referralCode').innerText = wallet.referralCode || generateReferralCode();
-    document.getElementById('totalStaked').innerText = activeStake ? activeStake.amount.toFixed(2) : "0";
-    document.getElementById('totalTxCount').innerText = (wallet.stats?.totalTx || 0);
-    document.getElementById('totalFeesPaid').innerText = (wallet.stats?.feesPaid || 0).toFixed(2);
-    document.getElementById('totalAirdrops').innerText = (wallet.stats?.airdropsClaimed || 0);
-    document.getElementById('totalStakedRewards').innerText = (wallet.stats?.totalRewards || 0).toFixed(4);
-    document.getElementById('zkPrivateTxCount').innerText = (wallet.zkStats?.privateTxCount || 0);
-    document.getElementById('zkPrivacyAmount').innerText = (wallet.zkStats?.totalPrivacyProtected || 0).toFixed(2);
-    document.getElementById('zkProofCount').innerText = (wallet.zkStats?.proofsGenerated || 0);
+    const balanceEl = document.getElementById('balance');
+    const usdBalanceEl = document.getElementById('usdBalance');
+    const addressEl = document.getElementById('addressDisplay');
+    const totalTxEl = document.getElementById('totalTransactions');
+    const stakedEl = document.getElementById('stakedAmount');
+    const zkTxEl = document.getElementById('zkTxCount');
+    const referralEl = document.getElementById('referralCode');
+    const totalStakedEl = document.getElementById('totalStaked');
+    const totalTxCountEl = document.getElementById('totalTxCount');
+    const totalFeesEl = document.getElementById('totalFeesPaid');
+    const totalAirdropsEl = document.getElementById('totalAirdrops');
+    const totalRewardsEl = document.getElementById('totalStakedRewards');
+    const zkPrivateTxEl = document.getElementById('zkPrivateTxCount');
+    const zkPrivacyEl = document.getElementById('zkPrivacyAmount');
+    const zkProofCountEl = document.getElementById('zkProofCount');
     
+    if (balanceEl) balanceEl.innerText = (wallet.balance || 0).toFixed(4);
+    if (usdBalanceEl) usdBalanceEl.innerText = `$${((wallet.balance || 0) * 10).toFixed(2)} USD`;
+    if (addressEl) addressEl.innerText = wallet.address || "—";
+    if (totalTxEl) totalTxEl.innerText = (wallet.transactions || []).length;
+    if (stakedEl) stakedEl.innerText = activeStake ? activeStake.amount.toFixed(2) : "0";
+    if (zkTxEl) zkTxEl.innerText = (wallet.zkStats?.privateTxCount || 0);
+    if (referralEl) referralEl.innerText = wallet.referralCode || generateReferralCode();
+    if (totalStakedEl) totalStakedEl.innerText = activeStake ? activeStake.amount.toFixed(2) : "0";
+    if (totalTxCountEl) totalTxCountEl.innerText = (wallet.stats?.totalTx || 0);
+    if (totalFeesEl) totalFeesEl.innerText = (wallet.stats?.feesPaid || 0).toFixed(2);
+    if (totalAirdropsEl) totalAirdropsEl.innerText = (wallet.stats?.airdropsClaimed || 0);
+    if (totalRewardsEl) totalRewardsEl.innerText = (wallet.stats?.totalRewards || 0).toFixed(4);
+    if (zkPrivateTxEl) zkPrivateTxEl.innerText = (wallet.zkStats?.privateTxCount || 0);
+    if (zkPrivacyEl) zkPrivacyEl.innerText = (wallet.zkStats?.totalPrivacyProtected || 0).toFixed(2);
+    if (zkProofCountEl) zkProofCountEl.innerText = (wallet.zkStats?.proofsGenerated || 0);
+    
+    // Price ticker
     const change = (Math.random() * 6) - 3;
-    document.getElementById('priceChange').innerText = `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`;
-    document.getElementById('priceChange').style.color = change >= 0 ? '#00ff88' : '#ff4466';
+    const priceChangeEl = document.getElementById('priceChange');
+    if (priceChangeEl) {
+        priceChangeEl.innerText = `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`;
+        priceChangeEl.style.color = change >= 0 ? '#00ff88' : '#ff4466';
+    }
     
-    const container = document.getElementById('stakeInfo');
-    if (container) {
+    // Stake info
+    const stakeInfoEl = document.getElementById('stakeInfo');
+    if (stakeInfoEl) {
         if (activeStake && activeStake.end > Date.now()) {
             const remaining = activeStake.end - Date.now();
             const hours = Math.floor(remaining / 3600000);
             const mins = Math.floor((remaining % 3600000) / 60000);
             const progress = ((Date.now() - activeStake.start) / 86400000) * 100;
             const reward = activeStake.amount * 0.18 * ((Date.now() - activeStake.start) / 31536000000);
-            container.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width:${Math.min(progress, 100)}%"></div></div>⏱️ ${hours}h ${mins}m left | Reward: ${reward.toFixed(4)} BRD`;
+            stakeInfoEl.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width:${Math.min(progress, 100)}%"></div></div>⏱️ ${hours}h ${mins}m left | Reward: ${reward.toFixed(4)} BRD`;
         } else if (activeStake && activeStake.end <= Date.now()) {
-            container.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>✅ MATURED! Click UNSTAKE.`;
+            stakeInfoEl.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>✅ MATURED! Click UNSTAKE.`;
         } else {
-            container.innerHTML = `💎 No active stake. Stake 50+ BRD for 24h at 18% APR.`;
+            stakeInfoEl.innerHTML = `💎 No active stake. Stake 50+ BRD for 24h at 18% APR.`;
         }
     }
     
+    // Transactions list
     const txContainer = document.getElementById('transactionsList');
     if (txContainer) {
         if (!wallet.transactions || wallet.transactions.length === 0) {
@@ -1603,14 +1638,23 @@ function updateAnalytics() {
         if (tx.type === 'zk_private') zkCount++;
     });
     
-    document.getElementById('analyticsTotalTx').innerText = total;
-    document.getElementById('analyticsVolume').innerText = volume.toFixed(2);
-    document.getElementById('analyticsAvgTx').innerText = total > 0 ? (volume / total).toFixed(2) : '0';
-    document.getElementById('analyticsFees').innerText = fees.toFixed(2);
-    document.getElementById('analyticsDailyTx').innerText = dailyTx;
-    document.getElementById('analyticsDailyVolume').innerText = dailyVol.toFixed(2) + ' BRD';
-    document.getElementById('analyticsZkTxs').innerText = zkCount;
-    document.getElementById('analyticsUsers').innerText = wallet.address ? 1 : 0;
+    const analyticsTotalTx = document.getElementById('analyticsTotalTx');
+    const analyticsVolume = document.getElementById('analyticsVolume');
+    const analyticsAvgTx = document.getElementById('analyticsAvgTx');
+    const analyticsFees = document.getElementById('analyticsFees');
+    const analyticsDailyTx = document.getElementById('analyticsDailyTx');
+    const analyticsDailyVolume = document.getElementById('analyticsDailyVolume');
+    const analyticsZkTxs = document.getElementById('analyticsZkTxs');
+    const analyticsUsers = document.getElementById('analyticsUsers');
+    
+    if (analyticsTotalTx) analyticsTotalTx.innerText = total;
+    if (analyticsVolume) analyticsVolume.innerText = volume.toFixed(2);
+    if (analyticsAvgTx) analyticsAvgTx.innerText = total > 0 ? (volume / total).toFixed(2) : '0';
+    if (analyticsFees) analyticsFees.innerText = fees.toFixed(2);
+    if (analyticsDailyTx) analyticsDailyTx.innerText = dailyTx;
+    if (analyticsDailyVolume) analyticsDailyVolume.innerText = dailyVol.toFixed(2) + ' BRD';
+    if (analyticsZkTxs) analyticsZkTxs.innerText = zkCount;
+    if (analyticsUsers) analyticsUsers.innerText = wallet.address ? 1 : 0;
     
     const timeline = document.getElementById('analyticsTimeline');
     if (timeline) {
@@ -1851,7 +1895,8 @@ const translations = {
         seedModalTitle: "⚠️ SAVE YOUR SEED PHRASE", seedModalWarning: "This is the ONLY way to recover your wallet!",
         walletInfo: "Your wallet address will be generated automatically",
         gasFee: "Gas Fee: 0.15 BRD", networkFee: "Network fee applied to every transaction",
-        yesLogout: "Yes", noCancel: "No"
+        yesLogout: "Yes", noCancel: "No",
+        back: "Back", backToLogin: "Back to Login"
     },
     pt: {
         mainTitle: "BRADICOIN", subtitle: "Carteira Cripto Segura", desc: "Criar · Importar · Stake · Ganhar",
@@ -1862,7 +1907,8 @@ const translations = {
         seedModalTitle: "⚠️ SALVE SUA FRASE SEED", seedModalWarning: "Esta é a ÚNICA maneira de recuperar sua carteira!",
         walletInfo: "Seu endereço será gerado automaticamente",
         gasFee: "Taxa de Gas: 0.15 BRD", networkFee: "Taxa aplicada a cada transação",
-        yesLogout: "Sim", noCancel: "Não"
+        yesLogout: "Sim", noCancel: "Não",
+        back: "Voltar", backToLogin: "Voltar ao Login"
     },
     es: {
         mainTitle: "BRADICOIN", subtitle: "Billetera Cripto Segura", desc: "Crear · Importar · Stake · Ganar",
@@ -1873,7 +1919,8 @@ const translations = {
         seedModalTitle: "⚠️ GUARDA TU FRASE SEMILLA", seedModalWarning: "¡Esta es la ÚNICA forma de recuperar tu billetera!",
         walletInfo: "Tu dirección será generada automáticamente",
         gasFee: "Gas Fee: 0.15 BRD", networkFee: "Comisión aplicada a cada transacción",
-        yesLogout: "Sí", noCancel: "No"
+        yesLogout: "Sí", noCancel: "No",
+        back: "Volver", backToLogin: "Volver al Login"
     },
     ar: {
         mainTitle: "برادي كوين", subtitle: "محفظة آمنة", desc: "إنشاء · استيراد · حصة · ربح",
@@ -1884,7 +1931,8 @@ const translations = {
         seedModalTitle: "⚠️ احفظ العبارة الأولية", seedModalWarning: "هذه هي الطريقة الوحيدة لاستعادة محفظتك!",
         walletInfo: "سيتم إنشاء عنوان محفظتك تلقائياً",
         gasFee: "رسوم الغاز: 0.15 BRD", networkFee: "رسوم الشبكة لكل معاملة",
-        yesLogout: "نعم", noCancel: "لا"
+        yesLogout: "نعم", noCancel: "لا",
+        back: "رجوع", backToLogin: "رجوع إلى تسجيل الدخول"
     }
 };
 
@@ -1892,27 +1940,55 @@ function updateLanguage() {
     const t = translations[currentLang];
     if (!t) return;
     
-    document.getElementById('mainTitle').innerText = t.mainTitle;
-    document.getElementById('subtitle').innerText = t.subtitle;
-    document.getElementById('desc').innerText = t.desc;
-    document.getElementById('createWalletBtn').innerHTML = `<i class="fas fa-plus-circle"></i> ${t.createBtn}`;
-    document.getElementById('importWalletBtn').innerHTML = `<i class="fas fa-key"></i> ${t.importBtn}`;
-    document.getElementById('confirmImportBtn').innerHTML = `<i class="fas fa-check"></i> ${t.importBtn}`;
-    document.getElementById('unlockWalletBtn').innerHTML = `<i class="fas fa-unlock-alt"></i> ${t.unlockBtn}`;
-    document.getElementById('dashboardTitle').innerText = t.mainTitle;
-    document.getElementById('logoutBtn').innerHTML = `<i class="fas fa-sign-out-alt"></i> ${t.logout}`;
-    document.getElementById('sendBtn').innerHTML = `<i class="fas fa-paper-plane"></i> ${t.sendBrd}`;
-    document.getElementById('claimAirdropBtn').innerHTML = `<i class="fas fa-gift"></i> ${t.airdrop}`;
-    document.getElementById('stakeBtn').innerHTML = `<i class="fas fa-lock"></i> ${t.stakeBtn}`;
-    document.getElementById('unstakeBtn').innerHTML = `<i class="fas fa-unlock-alt"></i> ${t.unstakeBtn}`;
-    document.getElementById('receiveBtn').innerHTML = `<i class="fas fa-arrow-down"></i> ${t.receive}`;
-    document.getElementById('historyBtn').innerHTML = `<i class="fas fa-history"></i> ${t.history}`;
-    document.getElementById('rewardsBtn').innerHTML = `<i class="fas fa-trophy"></i> ${t.rewards}`;
-    document.getElementById('settingsBtn').innerHTML = `<i class="fas fa-cog"></i>`;
-    document.getElementById('analyticsBtn').innerHTML = `<i class="fas fa-chart-line"></i>`;
-    document.getElementById('seedModalTitle').innerText = t.seedModalTitle;
-    document.getElementById('seedModalWarning').innerText = t.seedModalWarning;
-    document.getElementById('walletInfoText').innerText = t.walletInfo;
+    const elements = {
+        mainTitle: document.getElementById('mainTitle'),
+        subtitle: document.getElementById('subtitle'),
+        desc: document.getElementById('desc'),
+        createWalletBtn: document.getElementById('createWalletBtn'),
+        importWalletBtn: document.getElementById('importWalletBtn'),
+        confirmImportBtn: document.getElementById('confirmImportBtn'),
+        unlockWalletBtn: document.getElementById('unlockWalletBtn'),
+        dashboardTitle: document.getElementById('dashboardTitle'),
+        logoutBtn: document.getElementById('logoutBtn'),
+        sendBtn: document.getElementById('sendBtn'),
+        claimAirdropBtn: document.getElementById('claimAirdropBtn'),
+        stakeBtn: document.getElementById('stakeBtn'),
+        unstakeBtn: document.getElementById('unstakeBtn'),
+        receiveBtn: document.getElementById('receiveBtn'),
+        historyBtn: document.getElementById('historyBtn'),
+        rewardsBtn: document.getElementById('rewardsBtn'),
+        settingsBtn: document.getElementById('settingsBtn'),
+        analyticsBtn: document.getElementById('analyticsBtn'),
+        seedModalTitle: document.getElementById('seedModalTitle'),
+        seedModalWarning: document.getElementById('seedModalWarning'),
+        walletInfoText: document.getElementById('walletInfoText'),
+        backToLoginFromSeed: document.getElementById('backToLoginFromSeed'),
+        backToLoginFromImport: document.getElementById('backToLoginFromImport')
+    };
+    
+    if (elements.mainTitle) elements.mainTitle.innerText = t.mainTitle;
+    if (elements.subtitle) elements.subtitle.innerText = t.subtitle;
+    if (elements.desc) elements.desc.innerText = t.desc;
+    if (elements.createWalletBtn) elements.createWalletBtn.innerHTML = `<i class="fas fa-plus-circle"></i> ${t.createBtn}`;
+    if (elements.importWalletBtn) elements.importWalletBtn.innerHTML = `<i class="fas fa-key"></i> ${t.importBtn}`;
+    if (elements.confirmImportBtn) elements.confirmImportBtn.innerHTML = `<i class="fas fa-check"></i> ${t.importBtn}`;
+    if (elements.unlockWalletBtn) elements.unlockWalletBtn.innerHTML = `<i class="fas fa-unlock-alt"></i> ${t.unlockBtn}`;
+    if (elements.dashboardTitle) elements.dashboardTitle.innerText = t.mainTitle;
+    if (elements.logoutBtn) elements.logoutBtn.innerHTML = `<i class="fas fa-sign-out-alt"></i> ${t.logout}`;
+    if (elements.sendBtn) elements.sendBtn.innerHTML = `<i class="fas fa-paper-plane"></i> ${t.sendBrd}`;
+    if (elements.claimAirdropBtn) elements.claimAirdropBtn.innerHTML = `<i class="fas fa-gift"></i> ${t.airdrop}`;
+    if (elements.stakeBtn) elements.stakeBtn.innerHTML = `<i class="fas fa-lock"></i> ${t.stakeBtn}`;
+    if (elements.unstakeBtn) elements.unstakeBtn.innerHTML = `<i class="fas fa-unlock-alt"></i> ${t.unstakeBtn}`;
+    if (elements.receiveBtn) elements.receiveBtn.innerHTML = `<i class="fas fa-arrow-down"></i> ${t.receive}`;
+    if (elements.historyBtn) elements.historyBtn.innerHTML = `<i class="fas fa-history"></i> ${t.history}`;
+    if (elements.rewardsBtn) elements.rewardsBtn.innerHTML = `<i class="fas fa-trophy"></i> ${t.rewards}`;
+    if (elements.settingsBtn) elements.settingsBtn.innerHTML = `<i class="fas fa-cog"></i>`;
+    if (elements.analyticsBtn) elements.analyticsBtn.innerHTML = `<i class="fas fa-chart-line"></i>`;
+    if (elements.seedModalTitle) elements.seedModalTitle.innerText = t.seedModalTitle;
+    if (elements.seedModalWarning) elements.seedModalWarning.innerText = t.seedModalWarning;
+    if (elements.walletInfoText) elements.walletInfoText.innerText = t.walletInfo;
+    if (elements.backToLoginFromSeed) elements.backToLoginFromSeed.innerHTML = `<i class="fas fa-arrow-left"></i> ${t.backToLogin}`;
+    if (elements.backToLoginFromImport) elements.backToLoginFromImport.innerHTML = `<i class="fas fa-arrow-left"></i> ${t.back}`;
     
     if (currentLang === 'ar') document.body.classList.add('rtl');
     else document.body.classList.remove('rtl');
@@ -1985,6 +2061,8 @@ document.addEventListener('DOMContentLoaded', function() {
         tempSeedForCreation = null;
         document.getElementById('loginScreen').style.display = 'flex';
         document.getElementById('mainDashboard').style.display = 'none';
+        document.getElementById('unlockGroup').style.display = 'none';
+        document.getElementById('importGroup').style.display = 'none';
     });
     
     // ===== BOTÃO BACK TO LOGIN FROM IMPORT =====
@@ -1992,6 +2070,7 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         document.getElementById('importGroup').style.display = 'none';
         document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('unlockGroup').style.display = 'none';
     });
     
     // ===== BOTÃO IMPORT WALLET =====
