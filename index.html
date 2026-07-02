@@ -644,6 +644,21 @@
   </div>
 </div>
 
+<!-- ===== ZK INFO MODAL ===== -->
+<div id="zkInfoModal" class="modal-overlay">
+  <div class="modal-content">
+    <i class="fas fa-shield-alt" style="font-size: 3rem; color: #00ff88;"></i>
+    <h2 style="color: #00ff88;">🔐 ZK-SNARK Status</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.3rem; margin:0.5rem 0;">
+      <div class="stat-item"><div class="stat-value" id="zkPrivateTxCount">0</div><div class="stat-label">Private TX</div></div>
+      <div class="stat-item"><div class="stat-value" id="zkPrivacyAmount">0</div><div class="stat-label">Privacy Protected</div></div>
+      <div class="stat-item"><div class="stat-value" id="zkProofCount">0</div><div class="stat-label">ZK-Proofs</div></div>
+      <div class="stat-item"><div class="stat-value" id="zkActiveStatus">✓ Active</div><div class="stat-label">Status</div></div>
+    </div>
+    <button id="closeZkInfoModalBtn" class="cyber-btn primary" style="width:100%;">Close</button>
+  </div>
+</div>
+
 <!-- ===== MAIN DASHBOARD ===== -->
 <div id="mainDashboard" class="main-dashboard">
   <div class="container">
@@ -2027,7 +2042,7 @@ let securityAlerts = [];
 
 document.addEventListener('DOMContentLoaded', function() {
     // Carrega wallet
-    loadWallet();
+    const hasWallet = loadWallet();
     
     // Carrega idioma
     const savedLang = localStorage.getItem('bradicoin_lang');
@@ -2036,14 +2051,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     updateLanguage();
     
-    // Atualiza UI
-    if (wallet.encryptedSeed) {
+    // Atualiza UI baseado no estado da wallet
+    if (hasWallet && wallet.encryptedSeed) {
+        // Wallet existe - mostra tela de login para desbloquear
         showLoginScreen();
         document.getElementById('unlockGroup').style.display = 'block';
+        document.getElementById('importGroup').style.display = 'none';
     } else {
+        // Sem wallet - mostra tela de login limpa
         document.getElementById('loginScreen').style.display = 'flex';
         document.getElementById('mainDashboard').style.display = 'none';
         document.getElementById('unlockGroup').style.display = 'none';
+        document.getElementById('importGroup').style.display = 'none';
     }
     
     // ===== BOTÃO CREATE WALLET =====
