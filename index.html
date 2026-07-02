@@ -69,6 +69,8 @@
     .cyber-btn.lock:hover { background: #ff8800; color: #0a0f1e; }
     .cyber-btn.anon { border-color: #9b59b6; }
     .cyber-btn.anon:hover { background: #9b59b6; color: #0a0f1e; }
+    .cyber-btn.create-token { border-color: #00d4ff; }
+    .cyber-btn.create-token:hover { background: #00d4ff; color: #0a0f1e; }
     
     .cyber-input {
       background: #010518;
@@ -83,6 +85,7 @@
       font-size: 0.75rem;
     }
     .cyber-input:focus { border-color: #00f2ff; box-shadow: 0 0 15px rgba(0, 242, 255, 0.2); }
+    .cyber-input.file-input { padding: 0.4rem; font-size: 0.6rem; }
     
     .lang-bar {
       position: fixed;
@@ -154,6 +157,34 @@
       from { transform: scale(0.9); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
     }
+    
+    .token-preview {
+      width: 200px; height: 200px; border-radius: 1rem; 
+      border: 2px solid #a855f7; margin: 0.5rem auto;
+      display: flex; align-items: center; justify-content: center;
+      background: #010518; overflow: hidden;
+    }
+    .token-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .token-preview .placeholder { color: #666; font-size: 0.8rem; }
+    
+    .token-card {
+      background: #010518; border-radius: 1rem; padding: 0.8rem;
+      border: 1px solid #a855f733; display: flex; align-items: center;
+      gap: 1rem; margin: 0.3rem 0;
+    }
+    .token-card img { width: 50px; height: 50px; border-radius: 0.5rem; object-fit: cover; }
+    .token-card .token-info { flex: 1; text-align: left; }
+    .token-card .token-name { font-size: 0.7rem; font-weight: 700; }
+    .token-card .token-symbol { font-size: 0.5rem; color: #a855f7; }
+    .token-card .token-supply { font-size: 0.5rem; opacity: 0.6; }
+    
+    .loan-summary {
+      background: #010518; padding: 1rem; border-radius: 1rem;
+      border: 1px solid #ffd70033; margin: 0.5rem 0;
+    }
+    .loan-summary .row { display: flex; justify-content: space-between; padding: 0.2rem 0; font-size: 0.65rem; }
+    .loan-summary .total { border-top: 1px solid #a855f733; padding-top: 0.3rem; margin-top: 0.3rem; font-weight: 700; color: #ffd700; }
+    
     .seed-phrase-box {
       background: #010518; padding: 1rem; border-radius: 1rem;
       font-family: monospace; font-size: 0.8rem; word-break: break-all;
@@ -307,6 +338,17 @@
       100% { opacity: 0; transform: translateY(-20px); }
     }
     
+    .tokens-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .tokens-grid::-webkit-scrollbar { width: 3px; }
+    .tokens-grid::-webkit-scrollbar-thumb { background: #a855f7; border-radius: 2px; }
+    
     @media (max-width: 768px) {
       .dashboard-grid { grid-template-columns: 1fr; }
       .top-bar { flex-direction: column; text-align: center; }
@@ -315,6 +357,7 @@
       .settings-grid { grid-template-columns: 1fr; }
       .analytics-grid { grid-template-columns: 1fr 1fr; }
       .seed-phrase-box { grid-template-columns: 1fr 1fr; }
+      .tokens-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
@@ -489,6 +532,64 @@
       <button id="copyRevealedSeedBtn" class="cyber-btn" style="width:100%; margin-top:0.5rem;"><i class="fas fa-copy"></i> Copy Seed Phrase</button>
     </div>
     <button id="closeViewSeedModalBtn" class="cyber-btn primary" style="width:100%; margin-top:1rem;">Close</button>
+  </div>
+</div>
+
+<!-- ===== CREATE TOKEN MODAL ===== -->
+<div id="createTokenModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:600px;">
+    <i class="fas fa-coins" style="font-size: 3rem; color: #00d4ff;"></i>
+    <h2 id="createTokenTitle" style="color: #00d4ff;">🚀 Create Token</h2>
+    <p id="createTokenSub" style="font-size:0.55rem; opacity:0.7;">Create your own token on BradiCoin</p>
+    
+    <div style="text-align:left; margin-top:0.5rem;">
+      <label style="font-size:0.55rem; opacity:0.7;">Token Name</label>
+      <input type="text" id="tokenName" class="cyber-input" placeholder="My Token" style="font-size:0.6rem; padding:0.4rem; margin:0.2rem 0;">
+      
+      <label style="font-size:0.55rem; opacity:0.7;">Token Symbol</label>
+      <input type="text" id="tokenSymbol" class="cyber-input" placeholder="MTK" style="font-size:0.6rem; padding:0.4rem; margin:0.2rem 0;">
+      
+      <label style="font-size:0.55rem; opacity:0.7;">Total Supply</label>
+      <input type="number" id="tokenSupply" class="cyber-input" placeholder="1000000" style="font-size:0.6rem; padding:0.4rem; margin:0.2rem 0;">
+      
+      <label style="font-size:0.55rem; opacity:0.7;">Token Logo (200x200)</label>
+      <div class="token-preview" id="tokenPreview">
+        <span class="placeholder">🖼️ 200x200</span>
+      </div>
+      <input type="file" id="tokenLogo" class="cyber-input file-input" accept="image/*" style="font-size:0.55rem; padding:0.3rem;">
+      <p style="font-size:0.45rem; color:#666; margin:0.2rem 0;">📏 Image size: 200 x 200 pixels recommended</p>
+    </div>
+    
+    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
+      <button id="createTokenSubmitBtn" class="cyber-btn create-token" style="flex:1;"><i class="fas fa-plus-circle"></i> <span id="createTokenBtnText">Create Token</span></button>
+      <button id="cancelCreateTokenBtn" class="cyber-btn" style="flex:1;"><i class="fas fa-times"></i> Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CREATE LOAN / PAYMENT MODAL ===== -->
+<div id="createLoanModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:550px;">
+    <i class="fas fa-hand-holding-usd" style="font-size: 3rem; color: #ffd700;"></i>
+    <h2 id="loanTitle" style="color: #ffd700;">💰 Create Loan / Payment</h2>
+    <p id="loanSub" style="font-size:0.55rem; opacity:0.7;">Complete payment to finalize token creation</p>
+    
+    <div class="loan-summary">
+      <div class="row"><span>Token</span><span><strong id="loanTokenName">---</strong> (<span id="loanTokenSymbol">---</span>)</span></div>
+      <div class="row"><span>Total Supply</span><span id="loanTokenSupply">0</span></div>
+      <div class="row"><span>Price per Token</span><span>$1.50 USD</span></div>
+      <div class="row"><span>Total Price (USD)</span><span>$<span id="loanTotalUsd">0</span>.00</span></div>
+      <div class="row"><span>Amount in BRD</span><span id="loanTotalBrd">0.15000000</span> BRD</div>
+      <div class="row"><span>Network Fee</span><span id="loanFee">0.01600000</span> BRD</div>
+      <div class="row total"><span>Total to Pay</span><span id="loanTotalPay">0.16600000</span> BRD</div>
+    </div>
+    
+    <input type="password" id="loanPassword" class="cyber-input" placeholder="Enter your wallet password" style="margin:0.3rem 0; font-size:0.6rem; padding:0.4rem;">
+    
+    <div style="display:flex; gap:0.3rem;">
+      <button id="confirmLoanBtn" class="cyber-btn gold" style="flex:1;"><i class="fas fa-check-circle"></i> <span id="confirmLoanText">Confirm Payment</span></button>
+      <button id="cancelLoanBtn" class="cyber-btn" style="flex:1;"><i class="fas fa-times"></i> Cancel</button>
+    </div>
   </div>
 </div>
 
@@ -676,6 +777,7 @@
         <span>24h <span id="priceChange" style="color:#00ff88;">+2.5%</span></span>
       </div>
       <div class="wallet-actions">
+        <button id="createTokenBtn" class="cyber-btn create-token small"><i class="fas fa-coins"></i> Token</button>
         <button id="lockWalletBtn" class="cyber-btn lock small"><i class="fas fa-lock"></i> Lock</button>
         <button id="analyticsBtn" class="cyber-btn analytics small"><i class="fas fa-chart-line"></i></button>
         <button id="settingsBtn" class="cyber-btn settings small"><i class="fas fa-cog"></i></button>
@@ -764,118 +866,127 @@
       </div>
     </div>
 
-      <div class="neon-card" style="grid-column: span 1;">
-        <h3 style="font-size:0.8rem;"><i class="fas fa-rocket"></i> Innovative Features</h3>
-        
-        <!-- Burner Wallet -->
-        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ff880033;">
-          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-            <span>🔥 Burner Wallet</span>
-            <div>
-              <span id="burnerStatus" style="font-size:0.45rem;">💤 No burner active</span>
-              <button id="createBurnerBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#ff8800;">Create</button>
-              <button id="destroyBurnerBtn" class="cyber-btn danger small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">Destroy</button>
-            </div>
+    <!-- MY TOKENS CARD -->
+    <div class="neon-card" style="margin-top:1.5rem;">
+      <h3 style="font-size:0.9rem;"><i class="fas fa-coins"></i> <span id="myTokensTitle">My Tokens</span></h3>
+      <div id="tokensContainer" style="margin-top:0.5rem;">
+        <p style="font-size:0.6rem; opacity:0.5; text-align:center;" id="noTokensMsg">No tokens created yet. Click "Create Token" to get started!</p>
+        <div id="tokensList" class="tokens-grid"></div>
+      </div>
+    </div>
+
+    <div class="neon-card" style="margin-top:1.5rem; grid-column: span 1;">
+      <h3 style="font-size:0.8rem;"><i class="fas fa-rocket"></i> Innovative Features</h3>
+      
+      <!-- Burner Wallet -->
+      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ff880033;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span>🔥 Burner Wallet</span>
+          <div>
+            <span id="burnerStatus" style="font-size:0.45rem;">💤 No burner active</span>
+            <button id="createBurnerBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#ff8800;">Create</button>
+            <button id="destroyBurnerBtn" class="cyber-btn danger small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">Destroy</button>
           </div>
-        </div>
-        
-        <!-- Decoy Mode -->
-        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #9b59b633;">
-          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-            <span>🕵️ Decoy Mode</span>
-            <div>
-              <span id="decoyBadge" style="font-size:0.4rem;">👁️ Real Balance</span>
-              <button id="decoyToggleBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#9b59b6;">Toggle</button>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Booby Traps -->
-        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ff005533;">
-          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-            <span>💣 Booby Traps</span>
-            <div>
-              <span id="whitelistCount" style="font-size:0.4rem;">0</span>
-              <button id="addWhitelistBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#ff0055;">+ Add</button>
-            </div>
-          </div>
-          <div id="whitelistDisplay" style="font-size:0.4rem; max-height:60px; overflow-y:auto; margin-top:0.2rem;"></div>
-        </div>
-        
-        <!-- Dead Man's Switch -->
-        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ffd70033;">
-          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-            <span>💀 Dead Man's Switch</span>
-            <div>
-              <span id="deadManStatus" style="font-size:0.4rem;">❌ Not configured</span>
-              <button id="deadManBtn" class="cyber-btn gold small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">Setup</button>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Shadow Mirror -->
-        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #00f2ff33;">
-          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-            <span>🌐 Shadow Mirror</span>
-            <div>
-              <button id="addShadowBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#00f2ff;">+ Add</button>
-              <button id="syncShadowBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#00f2ff;">Sync</button>
-            </div>
-          </div>
-          <div id="shadowList" style="font-size:0.4rem; max-height:60px; overflow-y:auto; margin-top:0.2rem;"></div>
-        </div>
-        
-        <!-- Ephemeral Keys -->
-        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #00ff8833;">
-          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-            <span>🔑 Ephemeral Keys</span>
-            <div>
-              <span id="ephemeralStatus" style="font-size:0.4rem;">🔑 No key</span>
-              <button id="genEphemeralBtn" class="cyber-btn zk small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">Generate</button>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Gasless Mode -->
-        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ffaa0033;">
-          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-            <span>⛽ Gasless Mode</span>
-            <div>
-              <span id="gaslessStatus" style="font-size:0.4rem;">⛽ Gas: 0.15 BRD</span>
-              <button id="gaslessToggleBtn" class="cyber-btn warning small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">Toggle</button>
-            </div>
-          </div>
-        </div>
-        
-        <!-- ZK-Proof Verifier -->
-        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #00ff8833;">
-          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-            <span>🔐 ZK-Proof Verifier</span>
-            <button id="verifyProofBtn" class="cyber-btn zk small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">Verify</button>
-          </div>
-          <div id="zkProofHistory" style="font-size:0.4rem; max-height:40px; overflow-y:auto; margin-top:0.2rem;"></div>
-        </div>
-        
-        <!-- Sweep & Destroy -->
-        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ff005533;">
-          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-            <span>🧹 Sweep & Destroy</span>
-            <button id="sweepDestroyBtn" class="cyber-btn danger small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">⚠️ Execute</button>
-          </div>
-        </div>
-        
-        <!-- Security Alerts -->
-        <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #a855f733;">
-          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-            <span>🔔 Security Alerts</span>
-            <div>
-              <span id="alertBadge" style="background:#ff0055; color:#fff; border-radius:50%; padding:0.1rem 0.4rem; font-size:0.4rem; display:none;">0</span>
-              <button id="clearAlertsBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">Clear</button>
-            </div>
-          </div>
-          <div id="securityAlerts" style="font-size:0.4rem; max-height:80px; overflow-y:auto; margin-top:0.2rem;"></div>
         </div>
       </div>
+      
+      <!-- Decoy Mode -->
+      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #9b59b633;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span>🕵️ Decoy Mode</span>
+          <div>
+            <span id="decoyBadge" style="font-size:0.4rem;">👁️ Real Balance</span>
+            <button id="decoyToggleBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#9b59b6;">Toggle</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Booby Traps -->
+      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ff005533;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span>💣 Booby Traps</span>
+          <div>
+            <span id="whitelistCount" style="font-size:0.4rem;">0</span>
+            <button id="addWhitelistBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#ff0055;">+ Add</button>
+          </div>
+        </div>
+        <div id="whitelistDisplay" style="font-size:0.4rem; max-height:60px; overflow-y:auto; margin-top:0.2rem;"></div>
+      </div>
+      
+      <!-- Dead Man's Switch -->
+      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ffd70033;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span>💀 Dead Man's Switch</span>
+          <div>
+            <span id="deadManStatus" style="font-size:0.4rem;">❌ Not configured</span>
+            <button id="deadManBtn" class="cyber-btn gold small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">Setup</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Shadow Mirror -->
+      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #00f2ff33;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span>🌐 Shadow Mirror</span>
+          <div>
+            <button id="addShadowBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#00f2ff;">+ Add</button>
+            <button id="syncShadowBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#00f2ff;">Sync</button>
+          </div>
+        </div>
+        <div id="shadowList" style="font-size:0.4rem; max-height:60px; overflow-y:auto; margin-top:0.2rem;"></div>
+      </div>
+      
+      <!-- Ephemeral Keys -->
+      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #00ff8833;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span>🔑 Ephemeral Keys</span>
+          <div>
+            <span id="ephemeralStatus" style="font-size:0.4rem;">🔑 No key</span>
+            <button id="genEphemeralBtn" class="cyber-btn zk small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">Generate</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Gasless Mode -->
+      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ffaa0033;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span>⛽ Gasless Mode</span>
+          <div>
+            <span id="gaslessStatus" style="font-size:0.4rem;">⛽ Gas: 0.15 BRD</span>
+            <button id="gaslessToggleBtn" class="cyber-btn warning small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">Toggle</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- ZK-Proof Verifier -->
+      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #00ff8833;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span>🔐 ZK-Proof Verifier</span>
+          <button id="verifyProofBtn" class="cyber-btn zk small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">Verify</button>
+        </div>
+        <div id="zkProofHistory" style="font-size:0.4rem; max-height:40px; overflow-y:auto; margin-top:0.2rem;"></div>
+      </div>
+      
+      <!-- Sweep & Destroy -->
+      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ff005533;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span>🧹 Sweep & Destroy</span>
+          <button id="sweepDestroyBtn" class="cyber-btn danger small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">⚠️ Execute</button>
+        </div>
+      </div>
+      
+      <!-- Security Alerts -->
+      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #a855f733;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span>🔔 Security Alerts</span>
+          <div>
+            <span id="alertBadge" style="background:#ff0055; color:#fff; border-radius:50%; padding:0.1rem 0.4rem; font-size:0.4rem; display:none;">0</span>
+            <button id="clearAlertsBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem;">Clear</button>
+          </div>
+        </div>
+        <div id="securityAlerts" style="font-size:0.4rem; max-height:80px; overflow-y:auto; margin-top:0.2rem;"></div>
+      </div>
+    </div>
 
     <footer>
       Non-Custodial · 18% APR · BradiCoin Ecosystem
@@ -1141,7 +1252,8 @@ let wallet = {
         lastActivity: Date.now()
     },
     stealthAddresses: [],
-    referralCode: 'BRD-XXXX'
+    referralCode: 'BRD-XXXX',
+    tokens: [] // Array de tokens criados
 };
 
 let activeStake = null;
@@ -1219,6 +1331,7 @@ function createWalletFromSeed(seedWords, password) {
     };
     wallet.stealthAddresses = [];
     wallet.referralCode = generateReferralCode();
+    wallet.tokens = [];
     
     wallet.transactions.unshift({
         id: Date.now(),
@@ -1231,6 +1344,7 @@ function createWalletFromSeed(seedWords, password) {
     saveWallet();
     updateUI();
     updateSecurityBadge();
+    updateTokensUI();
     
     showToast(`✅ Wallet created! Address: ${address.substring(0, 16)}...`, "success");
     return true;
@@ -1264,10 +1378,12 @@ function importWalletFromSeed(seedStr, password) {
     };
     wallet.stealthAddresses = [];
     wallet.referralCode = generateReferralCode();
+    wallet.tokens = [];
     
     saveWallet();
     updateUI();
     updateSecurityBadge();
+    updateTokensUI();
     
     showToast(`✅ Wallet imported! Address: ${address.substring(0, 16)}...`, "success");
     return true;
@@ -1296,6 +1412,7 @@ function unlockWallet(password, twoFACode) {
     hideLoginAndShowDashboard();
     updateUI();
     updateSecurityBadge();
+    updateTokensUI();
     showToast("🔓 Wallet unlocked!", "success");
     return true;
 }
@@ -1317,7 +1434,8 @@ function saveWallet() {
             zkStats: wallet.zkStats,
             security: wallet.security,
             stealthAddresses: wallet.stealthAddresses,
-            referralCode: wallet.referralCode
+            referralCode: wallet.referralCode,
+            tokens: wallet.tokens
         };
         localStorage.setItem('bradicoin_wallet', JSON.stringify(data));
     } catch(e) {
@@ -1331,6 +1449,7 @@ function loadWallet() {
         if (data) {
             const parsed = JSON.parse(data);
             wallet = { ...wallet, ...parsed };
+            if (!wallet.tokens) wallet.tokens = [];
             return true;
         }
     } catch(e) {
@@ -1430,18 +1549,21 @@ function updateUI() {
                 const isAirdrop = tx.type === 'airdrop';
                 const isZK = tx.type === 'zk_private';
                 const isDeposit = tx.type === 'deposit';
+                const isToken = tx.type === 'token_created';
                 let txClass = 'tx-out';
                 let icon = '📤';
                 let label = 'Transfer';
                 if (isZK) { txClass = 'tx-zk'; icon = '🔐'; label = 'ZK-Private'; }
                 else if (isAirdrop) { txClass = 'tx-in'; icon = '🎁'; label = 'Airdrop'; }
                 else if (isDeposit) { txClass = 'tx-in'; icon = '💰'; label = 'Deposit'; }
+                else if (isToken) { txClass = 'tx-in'; icon = '🪙'; label = 'Token Created'; }
                 
                 return `<div class="tx-item">
                     <div>
                         <span class="${txClass}">${icon} ${label} ${tx.amount} BRD</span>
                         ${tx.fee ? `<span style="font-size:0.45rem;opacity:0.6;">(fee: ${tx.fee})</span>` : ''}
                         ${tx.message ? `<br><small style="font-size:0.4rem;opacity:0.5;">${tx.message}</small>` : ''}
+                        ${tx.tokenName ? `<br><small style="font-size:0.4rem;color:#00d4ff;">${tx.tokenName} (${tx.tokenSymbol})</small>` : ''}
                     </div>
                     <div class="tx-time" style="font-size:0.45rem;opacity:0.5;">${new Date(tx.time).toLocaleString()}</div>
                 </div>`;
@@ -1462,44 +1584,154 @@ function updateSecurityBadge() {
 }
 
 // ================================================================
-// ==================== FLUXO DE CRIAÇÃO DE WALLET ===============
+// ==================== TOKEN FUNCTIONS ===========================
 // ================================================================
 
-function createWalletFlow() {
-    const seedWords = generateSeedPhrase();
-    tempSeedForCreation = seedWords;
+function updateTokensUI() {
+    const container = document.getElementById('tokensList');
+    const noMsg = document.getElementById('noTokensMsg');
     
-    const modal = document.getElementById('seedModal');
-    const seedDisplay = document.getElementById('modalSeedPhrase');
+    if (!container) return;
     
-    seedDisplay.innerHTML = seedWords.map((word, index) => 
-        `<span class="word-item"><span class="num">${String(index + 1).padStart(2, '0')}.</span> ${word}</span>`
-    ).join('');
+    if (!wallet.tokens || wallet.tokens.length === 0) {
+        container.innerHTML = '';
+        if (noMsg) noMsg.style.display = 'block';
+        return;
+    }
     
-    modal.style.display = 'flex';
-    document.getElementById('walletPasswordInput').value = '';
-    document.getElementById('walletPasswordInput').focus();
+    if (noMsg) noMsg.style.display = 'none';
+    
+    container.innerHTML = wallet.tokens.map((token, index) => `
+        <div class="token-card">
+            ${token.logo ? `<img src="${token.logo}" alt="${token.name}">` : `<div style="width:50px;height:50px;border-radius:0.5rem;background:linear-gradient(135deg,#a855f7,#00d4ff);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🪙</div>`}
+            <div class="token-info">
+                <div class="token-name">${token.name}</div>
+                <div class="token-symbol">${token.symbol}</div>
+                <div class="token-supply">Supply: ${token.supply.toLocaleString()}</div>
+                <div style="font-size:0.4rem;color:#ffd700;">Created: ${new Date(token.createdAt).toLocaleDateString()}</div>
+            </div>
+            <button onclick="deleteToken(${index})" class="cyber-btn danger small" style="font-size:0.4rem;padding:0.1rem 0.4rem;"><i class="fas fa-trash"></i></button>
+        </div>
+    `).join('');
 }
 
-function finalizeWalletCreation(password) {
-    if (!tempSeedForCreation) {
-        showToast("No seed phrase found", "error");
+function deleteToken(index) {
+    if (!wallet.tokens[index]) return;
+    document.getElementById('confirmDialog').style.display = 'flex';
+    document.getElementById('confirmDialogTitle').innerText = "Delete Token?";
+    document.getElementById('confirmDialogMessage').innerText = `Are you sure you want to delete ${wallet.tokens[index].name}?`;
+    document.getElementById('confirmYesBtn').onclick = function() {
+        document.getElementById('confirmDialog').style.display = 'none';
+        wallet.tokens.splice(index, 1);
+        saveWallet();
+        updateTokensUI();
+        showToast("🗑️ Token deleted!", "info");
+    };
+    document.getElementById('confirmNoBtn').onclick = function() {
+        document.getElementById('confirmDialog').style.display = 'none';
+    };
+}
+
+// ================================================================
+// ==================== CREATE TOKEN FLOW =========================
+// ================================================================
+
+let pendingTokenData = null;
+let tokenImageDataUrl = null;
+
+function openCreateTokenModal() {
+    document.getElementById('createTokenModal').style.display = 'flex';
+    document.getElementById('tokenName').value = '';
+    document.getElementById('tokenSymbol').value = '';
+    document.getElementById('tokenSupply').value = '';
+    document.getElementById('tokenLogo').value = '';
+    tokenImageDataUrl = null;
+    document.getElementById('tokenPreview').innerHTML = '<span class="placeholder">🖼️ 200x200</span>';
+    updateLanguage();
+}
+
+function openLoanModal(tokenData) {
+    pendingTokenData = tokenData;
+    
+    const totalUsd = tokenData.supply * 1.50;
+    const totalBrd = totalUsd / 10; // 1 BRD = $10
+    const fee = 0.016;
+    const totalPay = totalBrd + fee;
+    
+    document.getElementById('loanTokenName').innerText = tokenData.name;
+    document.getElementById('loanTokenSymbol').innerText = tokenData.symbol;
+    document.getElementById('loanTokenSupply').innerText = tokenData.supply.toLocaleString();
+    document.getElementById('loanTotalUsd').innerText = totalUsd.toFixed(2);
+    document.getElementById('loanTotalBrd').innerText = totalBrd.toFixed(8);
+    document.getElementById('loanFee').innerText = fee.toFixed(8);
+    document.getElementById('loanTotalPay').innerText = totalPay.toFixed(8);
+    document.getElementById('loanPassword').value = '';
+    
+    document.getElementById('createTokenModal').style.display = 'none';
+    document.getElementById('createLoanModal').style.display = 'flex';
+    updateLanguage();
+}
+
+function confirmLoanPayment() {
+    const password = document.getElementById('loanPassword').value;
+    
+    if (!password) {
+        showToast("Enter your password", "error");
         return;
     }
     
-    if (!password || password.length < 4) {
-        showToast("Password must be at least 4 characters", "error");
+    if (!pendingTokenData) {
+        showToast("No token data found", "error");
         return;
     }
     
-    if (createWalletFromSeed(tempSeedForCreation, password)) {
-        document.getElementById('seedModal').style.display = 'none';
-        tempSeedForCreation = null;
-        hideLoginAndShowDashboard();
-        updateUI();
-        updateSecurityBadge();
-        showToast("🎉 Wallet created successfully! Welcome to BradiCoin!", "success");
+    const decrypted = decrypt(wallet.encryptedSeed, password);
+    if (!decrypted) {
+        showToast("Wrong password!", "error");
+        return;
     }
+    
+    const totalUsd = pendingTokenData.supply * 1.50;
+    const totalBrd = totalUsd / 10;
+    const fee = 0.016;
+    const totalPay = totalBrd + fee;
+    
+    if (totalPay > wallet.balance) {
+        showToast("Insufficient balance!", "error");
+        return;
+    }
+    
+    // Deduct payment
+    wallet.balance -= totalPay;
+    wallet.stats.feesPaid += fee;
+    wallet.stats.totalTx += 1;
+    
+    // Add token to wallet
+    if (!wallet.tokens) wallet.tokens = [];
+    pendingTokenData.createdAt = Date.now();
+    pendingTokenData.id = 'token_' + Date.now();
+    wallet.tokens.push(pendingTokenData);
+    
+    // Add transaction
+    wallet.transactions.unshift({
+        id: Date.now(),
+        type: 'token_created',
+        amount: totalPay,
+        fee: fee,
+        tokenName: pendingTokenData.name,
+        tokenSymbol: pendingTokenData.symbol,
+        time: new Date().toISOString(),
+        message: `Created token ${pendingTokenData.name} (${pendingTokenData.symbol})`
+    });
+    
+    saveWallet();
+    updateUI();
+    updateTokensUI();
+    
+    document.getElementById('createLoanModal').style.display = 'none';
+    pendingTokenData = null;
+    
+    showToast(`✅ Token "${pendingTokenData?.name || 'Unknown'}" created successfully!`, "success");
 }
 
 // ================================================================
@@ -1681,9 +1913,10 @@ function updateAnalytics() {
                 const isZK = tx.type === 'zk_private';
                 const isAirdrop = tx.type === 'airdrop';
                 const isDeposit = tx.type === 'deposit';
-                const icon = isZK ? '🔐' : (isAirdrop ? '🎁' : (isDeposit ? '💰' : '📤'));
-                const color = isZK ? '#00f2ff' : (isAirdrop ? '#ffd700' : (isDeposit ? '#00ff88' : '#ff6b6b'));
-                const type = isZK ? 'ZK-Private' : (isAirdrop ? 'Airdrop' : (isDeposit ? 'Deposit' : 'Transfer'));
+                const isToken = tx.type === 'token_created';
+                const icon = isZK ? '🔐' : (isAirdrop ? '🎁' : (isDeposit ? '💰' : (isToken ? '🪙' : '📤')));
+                const color = isZK ? '#00f2ff' : (isAirdrop ? '#ffd700' : (isDeposit ? '#00ff88' : (isToken ? '#00d4ff' : '#ff6b6b')));
+                const type = isZK ? 'ZK-Private' : (isAirdrop ? 'Airdrop' : (isDeposit ? 'Deposit' : (isToken ? 'Token Created' : 'Transfer')));
                 return `<div style="display:flex; justify-content:space-between; padding:0.15rem 0; border-bottom:1px solid rgba(168,85,247,0.1); font-size:0.5rem;">
                     <span>${icon} ${type}</span>
                     <span style="color:${color};">${tx.amount} BRD</span>
@@ -1714,7 +1947,7 @@ function exportAnalyticsCSV() {
     let csv = 'Date,Type,Amount,Fee,Status\n';
     txs.forEach(tx => {
         const date = new Date(tx.time).toLocaleDateString();
-        const type = tx.type === 'zk_private' ? 'ZK-Private' : (tx.type === 'airdrop' ? 'Airdrop' : (tx.type === 'deposit' ? 'Deposit' : 'Transfer'));
+        const type = tx.type === 'zk_private' ? 'ZK-Private' : (tx.type === 'airdrop' ? 'Airdrop' : (tx.type === 'deposit' ? 'Deposit' : (tx.type === 'token_created' ? 'Token Created' : 'Transfer')));
         csv += `${date},${type},${tx.amount},${tx.fee || 0},Completed\n`;
     });
     
@@ -1739,6 +1972,7 @@ function exportAnalyticsData() {
         transactions: wallet.transactions,
         stats: wallet.stats,
         zkStats: wallet.zkStats,
+        tokens: wallet.tokens,
         exportDate: new Date().toISOString()
     };
     
@@ -1883,6 +2117,7 @@ function exportWalletData() {
         zkStats: wallet.zkStats,
         security: wallet.security,
         referralCode: wallet.referralCode,
+        tokens: wallet.tokens,
         exportDate: new Date().toISOString()
     };
     const json = JSON.stringify(data, null, 2);
@@ -1911,7 +2146,15 @@ const translations = {
         walletInfo: "Your wallet address will be generated automatically",
         gasFee: "Gas Fee: 0.15 BRD", networkFee: "Network fee applied to every transaction",
         yesLogout: "Yes", noCancel: "No",
-        back: "Back", backToLogin: "Back to Login"
+        back: "Back", backToLogin: "Back to Login",
+        createToken: "Create Token", createTokenTitle: "🚀 Create Token", createTokenSub: "Create your own token on BradiCoin",
+        tokenName: "Token Name", tokenSymbol: "Token Symbol", totalSupply: "Total Supply",
+        tokenLogo: "Token Logo (200x200)", imageSize: "Image size: 200 x 200 pixels recommended",
+        createLoan: "Create Loan / Payment", loanSub: "Complete payment to finalize token creation",
+        pricePerToken: "Price per Token", totalPrice: "Total Price (USD)", amountInBrd: "Amount in BRD",
+        networkFee: "Network Fee", totalToPay: "Total to Pay", confirmPayment: "Confirm Payment",
+        myTokens: "My Tokens", noTokens: "No tokens created yet. Click 'Create Token' to get started!",
+        cancel: "Cancel", confirm: "Confirm"
     },
     pt: {
         mainTitle: "BRADICOIN", subtitle: "Carteira Cripto Segura", desc: "Criar · Importar · Stake · Ganhar",
@@ -1923,7 +2166,15 @@ const translations = {
         walletInfo: "Seu endereço será gerado automaticamente",
         gasFee: "Taxa de Gas: 0.15 BRD", networkFee: "Taxa aplicada a cada transação",
         yesLogout: "Sim", noCancel: "Não",
-        back: "Voltar", backToLogin: "Voltar ao Login"
+        back: "Voltar", backToLogin: "Voltar ao Login",
+        createToken: "Criar Token", createTokenTitle: "🚀 Criar Token", createTokenSub: "Crie seu próprio token no BradiCoin",
+        tokenName: "Nome do Token", tokenSymbol: "Símbolo do Token", totalSupply: "Suprimento Total",
+        tokenLogo: "Logo do Token (200x200)", imageSize: "Tamanho da imagem: 200 x 200 pixels recomendado",
+        createLoan: "Criar Empréstimo / Pagamento", loanSub: "Complete o pagamento para finalizar a criação do token",
+        pricePerToken: "Preço por Token", totalPrice: "Preço Total (USD)", amountInBrd: "Valor em BRD",
+        networkFee: "Taxa de Rede", totalToPay: "Total a Pagar", confirmPayment: "Confirmar Pagamento",
+        myTokens: "Meus Tokens", noTokens: "Nenhum token criado ainda. Clique em 'Criar Token' para começar!",
+        cancel: "Cancelar", confirm: "Confirmar"
     },
     es: {
         mainTitle: "BRADICOIN", subtitle: "Billetera Cripto Segura", desc: "Crear · Importar · Stake · Ganar",
@@ -1935,7 +2186,15 @@ const translations = {
         walletInfo: "Tu dirección será generada automáticamente",
         gasFee: "Gas Fee: 0.15 BRD", networkFee: "Comisión aplicada a cada transacción",
         yesLogout: "Sí", noCancel: "No",
-        back: "Volver", backToLogin: "Volver al Login"
+        back: "Volver", backToLogin: "Volver al Login",
+        createToken: "Crear Token", createTokenTitle: "🚀 Crear Token", createTokenSub: "Crea tu propio token en BradiCoin",
+        tokenName: "Nombre del Token", tokenSymbol: "Símbolo del Token", totalSupply: "Suministro Total",
+        tokenLogo: "Logo del Token (200x200)", imageSize: "Tamaño de imagen: 200 x 200 píxeles recomendado",
+        createLoan: "Crear Préstamo / Pago", loanSub: "Complete el pago para finalizar la creación del token",
+        pricePerToken: "Precio por Token", totalPrice: "Precio Total (USD)", amountInBrd: "Cantidad en BRD",
+        networkFee: "Comisión de Red", totalToPay: "Total a Pagar", confirmPayment: "Confirmar Pago",
+        myTokens: "Mis Tokens", noTokens: "No hay tokens creados aún. ¡Haz clic en 'Crear Token' para comenzar!",
+        cancel: "Cancelar", confirm: "Confirmar"
     },
     ar: {
         mainTitle: "برادي كوين", subtitle: "محفظة آمنة", desc: "إنشاء · استيراد · حصة · ربح",
@@ -1947,7 +2206,15 @@ const translations = {
         walletInfo: "سيتم إنشاء عنوان محفظتك تلقائياً",
         gasFee: "رسوم الغاز: 0.15 BRD", networkFee: "رسوم الشبكة لكل معاملة",
         yesLogout: "نعم", noCancel: "لا",
-        back: "رجوع", backToLogin: "رجوع إلى تسجيل الدخول"
+        back: "رجوع", backToLogin: "رجوع إلى تسجيل الدخول",
+        createToken: "إنشاء رمز", createTokenTitle: "🚀 إنشاء رمز", createTokenSub: "أنشئ الرمز الخاص بك على BradiCoin",
+        tokenName: "اسم الرمز", tokenSymbol: "رمز الرمز", totalSupply: "العرض الإجمالي",
+        tokenLogo: "شعار الرمز (200x200)", imageSize: "حجم الصورة: 200 × 200 بكسل موصى به",
+        createLoan: "إنشاء قرض / دفع", loanSub: "أكمل الدفع لإنهاء إنشاء الرمز",
+        pricePerToken: "السعر لكل رمز", totalPrice: "السعر الإجمالي (USD)", amountInBrd: "المبلغ بـ BRD",
+        networkFee: "رسوم الشبكة", totalToPay: "الإجمالي للدفع", confirmPayment: "تأكيد الدفع",
+        myTokens: "رموزي", noTokens: "لم يتم إنشاء رموز بعد. انقر فوق 'إنشاء رمز' للبدء!",
+        cancel: "إلغاء", confirm: "تأكيد"
     }
 };
 
@@ -1974,11 +2241,20 @@ function updateLanguage() {
         rewardsBtn: document.getElementById('rewardsBtn'),
         settingsBtn: document.getElementById('settingsBtn'),
         analyticsBtn: document.getElementById('analyticsBtn'),
+        createTokenBtn: document.getElementById('createTokenBtn'),
         seedModalTitle: document.getElementById('seedModalTitle'),
         seedModalWarning: document.getElementById('seedModalWarning'),
         walletInfoText: document.getElementById('walletInfoText'),
         backToLoginFromSeed: document.getElementById('backToLoginFromSeed'),
-        backToLoginFromImport: document.getElementById('backToLoginFromImport')
+        backToLoginFromImport: document.getElementById('backToLoginFromImport'),
+        createTokenTitle: document.getElementById('createTokenTitle'),
+        createTokenSub: document.getElementById('createTokenSub'),
+        createTokenBtnText: document.getElementById('createTokenBtnText'),
+        loanTitle: document.getElementById('loanTitle'),
+        loanSub: document.getElementById('loanSub'),
+        confirmLoanText: document.getElementById('confirmLoanText'),
+        myTokensTitle: document.getElementById('myTokensTitle'),
+        noTokensMsg: document.getElementById('noTokensMsg')
     };
     
     if (elements.mainTitle) elements.mainTitle.innerText = t.mainTitle;
@@ -1999,11 +2275,20 @@ function updateLanguage() {
     if (elements.rewardsBtn) elements.rewardsBtn.innerHTML = `<i class="fas fa-trophy"></i> ${t.rewards}`;
     if (elements.settingsBtn) elements.settingsBtn.innerHTML = `<i class="fas fa-cog"></i>`;
     if (elements.analyticsBtn) elements.analyticsBtn.innerHTML = `<i class="fas fa-chart-line"></i>`;
+    if (elements.createTokenBtn) elements.createTokenBtn.innerHTML = `<i class="fas fa-coins"></i> ${t.createToken}`;
     if (elements.seedModalTitle) elements.seedModalTitle.innerText = t.seedModalTitle;
     if (elements.seedModalWarning) elements.seedModalWarning.innerText = t.seedModalWarning;
     if (elements.walletInfoText) elements.walletInfoText.innerText = t.walletInfo;
     if (elements.backToLoginFromSeed) elements.backToLoginFromSeed.innerHTML = `<i class="fas fa-arrow-left"></i> ${t.backToLogin}`;
     if (elements.backToLoginFromImport) elements.backToLoginFromImport.innerHTML = `<i class="fas fa-arrow-left"></i> ${t.back}`;
+    if (elements.createTokenTitle) elements.createTokenTitle.innerText = t.createTokenTitle;
+    if (elements.createTokenSub) elements.createTokenSub.innerText = t.createTokenSub;
+    if (elements.createTokenBtnText) elements.createTokenBtnText.innerText = t.createToken;
+    if (elements.loanTitle) elements.loanTitle.innerText = t.createLoan;
+    if (elements.loanSub) elements.loanSub.innerText = t.loanSub;
+    if (elements.confirmLoanText) elements.confirmLoanText.innerText = t.confirmPayment;
+    if (elements.myTokensTitle) elements.myTokensTitle.innerText = t.myTokens;
+    if (elements.noTokensMsg) elements.noTokensMsg.innerText = t.noTokens;
     
     if (currentLang === 'ar') document.body.classList.add('rtl');
     else document.body.classList.remove('rtl');
@@ -2108,6 +2393,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 hideLoginAndShowDashboard();
                 updateUI();
                 updateSecurityBadge();
+                updateTokensUI();
             }
         } else {
             showToast("Enter seed phrase and password", "error");
@@ -2519,6 +2805,66 @@ document.addEventListener('DOMContentLoaded', function() {
         updateAnalytics();
         showToast(`🎁 Airdrop claimed! +${amount.toFixed(2)} BRD`, "success");
     });
+    
+    // ===== CREATE TOKEN =====
+    document.getElementById('createTokenBtn').addEventListener('click', openCreateTokenModal);
+    document.getElementById('cancelCreateTokenBtn').addEventListener('click', function() {
+        document.getElementById('createTokenModal').style.display = 'none';
+    });
+    
+    // ===== TOKEN LOGO PREVIEW =====
+    document.getElementById('tokenLogo').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const imgDataUrl = event.target.result;
+                tokenImageDataUrl = imgDataUrl;
+                document.getElementById('tokenPreview').innerHTML = `<img src="${imgDataUrl}" alt="Token Logo">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // ===== CREATE TOKEN SUBMIT =====
+    document.getElementById('createTokenSubmitBtn').addEventListener('click', function() {
+        const name = document.getElementById('tokenName').value.trim();
+        const symbol = document.getElementById('tokenSymbol').value.trim().toUpperCase();
+        const supply = parseFloat(document.getElementById('tokenSupply').value);
+        
+        if (!name) { showToast("Enter a token name", "error"); return; }
+        if (!symbol) { showToast("Enter a token symbol", "error"); return; }
+        if (!supply || supply <= 0) { showToast("Enter a valid total supply", "error"); return; }
+        
+        // Check if balance is sufficient
+        const totalUsd = supply * 1.50;
+        const totalBrd = totalUsd / 10;
+        const fee = 0.016;
+        const totalPay = totalBrd + fee;
+        
+        if (totalPay > wallet.balance) {
+            showToast(`Insufficient balance! Need ${totalPay.toFixed(8)} BRD`, "error");
+            return;
+        }
+        
+        const tokenData = {
+            name: name,
+            symbol: symbol,
+            supply: supply,
+            logo: tokenImageDataUrl || null,
+            price: 1.50,
+            createdAt: Date.now()
+        };
+        
+        openLoanModal(tokenData);
+    });
+    
+    // ===== CONFIRM LOAN =====
+    document.getElementById('confirmLoanBtn').addEventListener('click', confirmLoanPayment);
+    document.getElementById('cancelLoanBtn').addEventListener('click', function() {
+        document.getElementById('createLoanModal').style.display = 'none';
+        pendingTokenData = null;
+    });
 });
 
 // ================================================================
@@ -2528,6 +2874,7 @@ document.addEventListener('DOMContentLoaded', function() {
 console.log("🚀 BradiCoin Secure Wallet Loaded");
 console.log("🔐 Security Features: 2FA, Auto-Lock, Rate Limiting");
 console.log("🕵️ Privacy Features: ZK-SNARKs, Stealth Addresses, Mixer, Decoy TX");
+console.log("🪙 Token Features: Create your own tokens with payment");
 console.log("📚 Seed phrase uses " + WORD_LIST.length + " words from A-Z");
 
 // Atualiza UI a cada 5 segundos
