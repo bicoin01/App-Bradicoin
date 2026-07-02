@@ -349,6 +349,29 @@
     .tokens-grid::-webkit-scrollbar { width: 3px; }
     .tokens-grid::-webkit-scrollbar-thumb { background: #a855f7; border-radius: 2px; }
     
+    /* NOVO: Estilo para informações de Gas Fee no Send */
+    .send-gas-info {
+      background: #010518;
+      padding: 0.5rem 0.8rem;
+      border-radius: 1rem;
+      margin: 0.3rem 0;
+      border: 1px solid #ffaa0033;
+      text-align: left;
+      font-size: 0.6rem;
+    }
+    .send-gas-info .gas-label {
+      color: #ffaa00;
+      font-weight: 600;
+    }
+    .send-gas-info .gas-detail {
+      color: #a855f7;
+    }
+    .send-gas-info .network-note {
+      color: #666;
+      font-size: 0.5rem;
+      margin-top: 0.2rem;
+    }
+    
     @media (max-width: 768px) {
       .dashboard-grid { grid-template-columns: 1fr; }
       .top-bar { flex-direction: column; text-align: center; }
@@ -438,8 +461,14 @@
 <div id="sendModal" class="modal-overlay">
   <div class="modal-content">
     <h2 id="sendModalTitle"><i class="fas fa-paper-plane"></i> Send BRD</h2>
-    <div class="fee-display"><i class="fas fa-gas-pump"></i> Gas Fee: 0.15 BRD</div>
-    <p style="font-size:0.5rem; color:#ff0055; margin:0.3rem 0;">⛽ Network fee applied to every transaction</p>
+    
+    <!-- NOVO: Informações de Gas Fee -->
+    <div class="send-gas-info">
+      <div><span class="gas-label">⛽ Gas Fee:</span> <span class="gas-detail">0.15 BRD</span></div>
+      <div><span class="gas-label">📤 Mínimo para enviar:</span> <span class="gas-detail">0.17000000 BRD</span></div>
+      <div class="network-note">⛽ Network fee applied to every transaction</div>
+    </div>
+    
     <input type="text" id="sendTo" class="cyber-input" placeholder="Recipient Address" style="margin:0.3rem 0;">
     <input type="number" id="sendAmount" class="cyber-input" placeholder="Amount (BRD)" step="any">
     <input type="password" id="sendPassword" class="cyber-input" placeholder="Wallet Password" style="margin:0.3rem 0;">
@@ -619,7 +648,7 @@
     <div id="stakeDetailContent" style="margin:0.5rem 0; text-align:left; font-size:0.7rem;">
       <p><strong>Lock Period:</strong> 24 Hours</p>
       <p><strong>APR:</strong> 18%</p>
-      <p><strong>Minimum Stake:</strong> 50 BRD</p>
+      <p><strong>Minimum Stake:</strong> 1 BRD</p>
       <p><strong>Your Stake:</strong> <span id="stakeDetailAmount">0</span> BRD</p>
       <p><strong>Reward:</strong> <span id="stakeDetailReward">0</span> BRD</p>
       <p><strong>Status:</strong> <span id="stakeDetailStatus">No active stake</span></p>
@@ -790,7 +819,7 @@
       <!-- Balance Card -->
       <div class="neon-card">
         <h3 style="font-size:0.9rem;"><i class="fas fa-chart-line"></i> BRD Balance</h3>
-        <div class="balance-amount" id="balance" style="font-size:2rem;">0.00</div>
+        <div class="balance-amount" id="balance" style="font-size:2rem;">0.00000000</div>
         <div class="balance-usd" id="usdBalance" style="font-size:0.8rem;">$0.00 USD</div>
         <div style="display:flex; gap:0.5rem; margin:0.3rem 0; flex-wrap:wrap;">
           <div class="stat-item" style="flex:1; padding:0.4rem;">
@@ -828,7 +857,7 @@
             <strong>24 HOURS LOCK</strong>
             <span style="color:#00ff88;">18% APR</span>
           </div>
-          <div style="font-size:0.6rem; margin:0.3rem 0;">⚡ Min: 50 BRD | 📈 18% annual</div>
+          <div style="font-size:0.6rem; margin:0.3rem 0;">⚡ Min: 1 BRD | 📈 18% annual</div>
           <input type="number" id="stakeAmount" class="cyber-input" placeholder="Amount to stake" step="any" style="font-size:0.6rem; padding:0.4rem;">
           <button id="stakeBtn" class="cyber-btn primary" style="width:100%; margin-top:0.3rem; font-size:0.6rem; padding:0.4rem;"><i class="fas fa-lock"></i> Stake 24h</button>
         </div>
@@ -1240,7 +1269,7 @@ function generateAddressFromSeed(seed) {
 let wallet = { 
     encryptedSeed: null, 
     address: null, 
-    balance: 0, 
+    balance: 0, // ALTERADO: ZERADO - começa com 0 BRD
     transactions: [],
     stats: { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 },
     zkStats: { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 },
@@ -1318,7 +1347,7 @@ function createWalletFromSeed(seedWords, password) {
     
     wallet.encryptedSeed = encrypt(seedStr, password);
     wallet.address = address;
-    wallet.balance = 0; // ALTERADO: ZERADO - começa com 0 BRD
+    wallet.balance = 0; // ZERADO - começa com 0 BRD
     wallet.transactions = [];
     wallet.stats = { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 };
     wallet.zkStats = { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 };
@@ -1332,15 +1361,6 @@ function createWalletFromSeed(seedWords, password) {
     wallet.stealthAddresses = [];
     wallet.referralCode = generateReferralCode();
     wallet.tokens = [];
-    
-    // REMOVIDO: Bônus de criação de 1000 BRD
-    // wallet.transactions.unshift({
-    //     id: Date.now(),
-    //     type: 'deposit',
-    //     amount: 1000,
-    //     time: new Date().toISOString(),
-    //     message: 'Wallet creation bonus'
-    // });
     
     saveWallet();
     updateUI();
@@ -1366,7 +1386,7 @@ function importWalletFromSeed(seedStr, password) {
     
     wallet.encryptedSeed = encrypt(seedStr, password);
     wallet.address = address;
-    wallet.balance = 0;
+    wallet.balance = 0; // ZERADO - começa com 0 BRD
     wallet.transactions = [];
     wallet.stats = { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 };
     wallet.zkStats = { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 };
@@ -1499,7 +1519,7 @@ function updateUI() {
     const zkPrivacyEl = document.getElementById('zkPrivacyAmount');
     const zkProofCountEl = document.getElementById('zkProofCount');
     
-    if (balanceEl) balanceEl.innerText = (wallet.balance || 0).toFixed(4);
+    if (balanceEl) balanceEl.innerText = (wallet.balance || 0).toFixed(8);
     if (usdBalanceEl) usdBalanceEl.innerText = `$${((wallet.balance || 0) * 10).toFixed(2)} USD`;
     if (addressEl) addressEl.innerText = wallet.address || "—";
     if (totalTxEl) totalTxEl.innerText = (wallet.transactions || []).length;
@@ -1536,7 +1556,7 @@ function updateUI() {
         } else if (activeStake && activeStake.end <= Date.now()) {
             stakeInfoEl.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>✅ MATURED! Click UNSTAKE.`;
         } else {
-            stakeInfoEl.innerHTML = `💎 No active stake. Stake 50+ BRD for 24h at 18% APR.`;
+            stakeInfoEl.innerHTML = `💎 No active stake. Stake 1+ BRD for 24h at 18% APR.`;
         }
     }
     
@@ -1814,8 +1834,8 @@ function generateZKProof(sender, recipient, amount, commitment, nullifier) {
 // ================================================================
 
 function stake(amount) {
-    if (amount < 50) { 
-        showToast("Minimum stake is 50 BRD", 'error'); 
+    if (amount < 1) { 
+        showToast("Minimum stake is 1 BRD", 'error'); 
         return; 
     }
     if (amount > (wallet.balance || 0)) { 
@@ -2784,7 +2804,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===== CHECK BALANCE ON CHAIN =====
     document.getElementById('checkChainBalanceBtn').addEventListener('click', function() {
         if (wallet.address) {
-            showToast(`💰 Balance: ${wallet.balance} BRD`, "success");
+            showToast(`💰 Balance: ${wallet.balance.toFixed(8)} BRD`, "success");
         } else {
             showToast("No wallet loaded", "error");
         }
