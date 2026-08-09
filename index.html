@@ -71,6 +71,8 @@
     .cyber-btn.anon:hover { background: #9b59b6; color: #0a0f1e; }
     .cyber-btn.create-token { border-color: #00d4ff; }
     .cyber-btn.create-token:hover { background: #00d4ff; color: #0a0f1e; }
+    .cyber-btn.private-key { border-color: #ff6b6b; }
+    .cyber-btn.private-key:hover { background: #ff6b6b; color: #0a0f1e; }
     
     .cyber-input {
       background: #010518;
@@ -397,6 +399,191 @@
       opacity: 0.5;
       font-size: 0.7rem;
     }
+
+    /* PRIVATE KEY MODAL STYLES */
+    .private-key-box {
+      background: #010518;
+      padding: 1rem;
+      border-radius: 1rem;
+      border: 2px solid #ff6b6b;
+      margin: 1rem 0;
+      font-family: monospace;
+      font-size: 0.6rem;
+      word-break: break-all;
+      color: #ff6b6b;
+      max-height: 150px;
+      overflow-y: auto;
+      position: relative;
+    }
+    .private-key-box::-webkit-scrollbar { width: 3px; }
+    .private-key-box::-webkit-scrollbar-thumb { background: #ff6b6b; border-radius: 2px; }
+    .private-key-box .key-label {
+      font-size: 0.5rem;
+      color: #ff6b6b;
+      opacity: 0.7;
+      margin-bottom: 0.3rem;
+      display: block;
+    }
+    .private-key-warning {
+      background: rgba(255, 0, 85, 0.1);
+      border: 1px solid #ff0055;
+      border-radius: 0.8rem;
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      font-size: 0.5rem;
+      color: #ff0055;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .private-key-warning i {
+      font-size: 1rem;
+    }
+    .private-key-actions {
+      display: flex;
+      gap: 0.3rem;
+      margin-top: 0.5rem;
+    }
+    .private-key-actions .cyber-btn {
+      flex: 1;
+      font-size: 0.5rem;
+      padding: 0.3rem;
+    }
+
+    /* CONGRATULATIONS MODAL - APENAS FOGUETE COM LUZES NEON */
+    .congrats-modal-content {
+      background: #0a0f1e;
+      border: 2px solid #00f2ff;
+      border-radius: 2rem;
+      padding: 2.5rem;
+      max-width: 550px;
+      width: 92%;
+      text-align: center;
+      animation: modalFade 0.5s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 60px rgba(0, 242, 255, 0.2), 0 0 120px rgba(168, 85, 247, 0.15);
+    }
+    .congrats-modal-content::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #00f2ff, #a855f7, #00f2ff, #a855f7);
+      background-size: 400% 400%;
+      border-radius: 2rem;
+      z-index: -1;
+      animation: neonBorder 4s ease infinite;
+    }
+    @keyframes neonBorder {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* FOGUETE COM APENAS LUZES NEON - SEM ANÉIS */
+    .congrats-icon {
+      font-size: 4.5rem;
+      color: #00f2ff;
+      display: inline-block;
+      background: rgba(0, 242, 255, 0.05);
+      padding: 1.5rem;
+      border-radius: 50%;
+      border: 2px solid rgba(0, 242, 255, 0.2);
+      position: relative;
+      animation: neonGlow 2s ease-in-out infinite;
+      text-shadow: 0 0 30px #00f2ff, 0 0 60px #a855f7, 0 0 90px #00f2ff;
+      margin: 0.5rem 0;
+      box-shadow: 0 0 40px rgba(0, 242, 255, 0.15), 0 0 80px rgba(168, 85, 247, 0.1);
+    }
+    @keyframes neonGlow {
+      0%, 100% { 
+        text-shadow: 0 0 30px #00f2ff, 0 0 60px #a855f7, 0 0 90px #00f2ff;
+        filter: brightness(1);
+        box-shadow: 0 0 40px rgba(0, 242, 255, 0.15), 0 0 80px rgba(168, 85, 247, 0.1);
+      }
+      50% { 
+        text-shadow: 0 0 50px #00f2ff, 0 0 100px #a855f7, 0 0 150px #00f2ff;
+        filter: brightness(1.2);
+        box-shadow: 0 0 60px rgba(0, 242, 255, 0.25), 0 0 120px rgba(168, 85, 247, 0.2);
+      }
+    }
+
+    .congrats-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #00f2ff, #a855f7, #00f2ff);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0.5rem 0 0.3rem;
+      animation: textGlow 3s ease infinite;
+    }
+    @keyframes textGlow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    .congrats-sub {
+      font-size: 0.9rem;
+      color: #e0e5ff;
+      opacity: 0.9;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+    }
+    .congrats-address {
+      background: #010518;
+      padding: 0.6rem;
+      border-radius: 1rem;
+      font-family: monospace;
+      font-size: 0.55rem;
+      word-break: break-all;
+      border: 1px solid rgba(0, 242, 255, 0.3);
+      margin: 0.5rem 0;
+      color: #00f2ff;
+      box-shadow: 0 0 20px rgba(0, 242, 255, 0.05);
+    }
+    .congrats-checkmark {
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      background: linear-gradient(135deg, #00f2ff, #a855f7);
+      border-radius: 50%;
+      color: #0a0f1e;
+      line-height: 30px;
+      font-size: 1.2rem;
+      margin-right: 0.5rem;
+      box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+    }
+    .congrats-btn {
+      margin-top: 1.5rem;
+      padding: 0.8rem 2.5rem;
+      font-size: 0.8rem;
+      background: linear-gradient(135deg, #00f2ff, #a855f7);
+      border: none;
+      color: #0a0f1e;
+      font-weight: 700;
+      border-radius: 2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Orbitron', monospace;
+      box-shadow: 0 0 30px rgba(0, 242, 255, 0.2);
+    }
+    .congrats-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 50px rgba(0, 242, 255, 0.4);
+    }
+    .congrats-sparkle {
+      font-size: 1.2rem;
+      display: inline-block;
+      animation: sparkle 1.5s ease-in-out infinite;
+    }
+    @keyframes sparkle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
     
     @media (max-width: 768px) {
       .dashboard-grid { grid-template-columns: 1fr; }
@@ -407,6 +594,10 @@
       .analytics-grid { grid-template-columns: 1fr 1fr; }
       .seed-phrase-box { grid-template-columns: 1fr 1fr; }
       .tokens-grid { grid-template-columns: 1fr 1fr; }
+      .congrats-title { font-size: 1.2rem; }
+      .congrats-modal-content { padding: 1.5rem; }
+      .congrats-icon { font-size: 3.5rem; padding: 1rem; }
+      .private-key-actions { flex-direction: column; }
     }
   </style>
 </head>
@@ -430,6 +621,57 @@
       <button id="confirmYesBtn" class="cyber-btn danger">Yes</button>
       <button id="confirmNoBtn" class="cyber-btn primary">No</button>
     </div>
+  </div>
+</div>
+
+<!-- ===== PRIVATE KEY MODAL ===== -->
+<div id="privateKeyModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:600px;">
+    <i class="fas fa-key" style="font-size: 3rem; color: #ff6b6b;"></i>
+    <h2 style="color: #ff6b6b;">🔑 Private Key</h2>
+    <p style="font-size:0.55rem; opacity:0.7; margin:0.3rem 0;">Your wallet's private key - Keep it safe!</p>
+    
+    <div class="private-key-warning">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span id="privateKeyWarning">⚠️ WARNING: Never share your private key with anyone! Anyone with this key can access your funds.</span>
+    </div>
+    
+    <input type="password" id="privateKeyPassword" class="cyber-input" placeholder="Enter your wallet password" style="margin:0.5rem 0; font-size:0.6rem; padding:0.4rem;">
+    
+    <button id="revealPrivateKeyBtn" class="cyber-btn danger" style="width:100%;"><i class="fas fa-unlock-alt"></i> <span id="revealPrivateKeyText">Reveal Private Key</span></button>
+    
+    <div id="privateKeyContainer" style="display:none; margin-top:1rem;">
+      <div class="private-key-box">
+        <span class="key-label">🔑 PRIVATE KEY:</span>
+        <div id="privateKeyDisplay" style="font-size:0.55rem; word-break:break-all; color:#ff6b6b;">---</div>
+      </div>
+      <div class="private-key-actions">
+        <button id="copyPrivateKeyBtn" class="cyber-btn small"><i class="fas fa-copy"></i> Copy</button>
+        <button id="hidePrivateKeyBtn" class="cyber-btn small primary"><i class="fas fa-eye-slash"></i> Hide</button>
+      </div>
+    </div>
+    
+    <button id="closePrivateKeyModalBtn" class="cyber-btn" style="width:100%; margin-top:1rem;"><i class="fas fa-times"></i> Close</button>
+  </div>
+</div>
+
+<!-- ===== CONGRATULATIONS MODAL - SEM ANÉIS ===== -->
+<div id="congratsModal" class="modal-overlay" style="z-index: 3500;">
+  <div class="congrats-modal-content">
+    <div class="congrats-icon">
+      <i class="fas fa-rocket"></i>
+    </div>
+    <div class="congrats-title" id="congratsTitle">🎉 CONGRATULATIONS!</div>
+    <div class="congrats-sub" id="congratsSub">Your wallet has been successfully created.</div>
+    <div class="congrats-address" id="congratsAddress">Br0000000000000000000000000000</div>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin: 0.5rem 0;">
+      <span class="congrats-checkmark">✓</span>
+      <span id="congratsSecureMsg" style="font-size: 0.65rem; color: #00f2ff; text-shadow: 0 0 20px rgba(0, 242, 255, 0.3);">🔐 Secure & Encrypted</span>
+    </div>
+    <p id="congratsTip" style="font-size: 0.55rem; opacity: 0.6; margin: 0.5rem 0; color: #a855f7;">💡 Your wallet is now ready to use. Start sending and receiving BRD!</p>
+    <button class="congrats-btn" id="congratsGoToDashboard">
+      <span class="congrats-sparkle">✨</span> Go to Dashboard <span class="congrats-sparkle">✨</span>
+    </button>
   </div>
 </div>
 
@@ -667,6 +909,7 @@
     <div class="settings-grid">
       <button class="cyber-btn lock" onclick="lockWalletNow()"><i class="fas fa-lock"></i> Lock Wallet</button>
       <button class="cyber-btn settings" onclick="showViewSeedModal()"><i class="fas fa-eye"></i> View Seed Phrase</button>
+      <button class="cyber-btn private-key" onclick="showPrivateKeyModal()"><i class="fas fa-key"></i> Private Key</button>
       <button class="cyber-btn settings" onclick="setup2FA()"><i class="fas fa-shield-alt"></i> Setup 2FA</button>
       <button class="cyber-btn anon" onclick="showStealthAddress()"><i class="fas fa-mask"></i> Stealth Address</button>
       <button class="cyber-btn warning" onclick="showMixerUI()"><i class="fas fa-random"></i> Mixer</button>
@@ -1365,6 +1608,186 @@ function getCurrentTimestamp() {
 }
 
 // ================================================================
+// ==================== PRIVATE KEY FUNCTIONS =====================
+// ================================================================
+
+function generatePrivateKeyFromSeed(seedWords) {
+    const seedStr = seedWords.join(' ');
+    const hash = CryptoJS.SHA256(seedStr).toString();
+    return '0x' + hash;
+}
+
+function showPrivateKeyModal() {
+    if (!wallet.encryptedSeed) {
+        showToast("No wallet loaded", "error");
+        return;
+    }
+    document.getElementById('privateKeyModal').style.display = 'flex';
+    document.getElementById('privateKeyPassword').value = '';
+    document.getElementById('privateKeyContainer').style.display = 'none';
+    document.getElementById('privateKeyDisplay').innerText = '---';
+    document.getElementById('revealPrivateKeyBtn').innerHTML = '<i class="fas fa-unlock-alt"></i> Reveal Private Key';
+}
+
+document.getElementById('revealPrivateKeyBtn').addEventListener('click', function() {
+    const password = document.getElementById('privateKeyPassword').value;
+    if (!password) {
+        showToast("Enter your wallet password", "error");
+        return;
+    }
+    
+    if (!wallet.encryptedSeed) {
+        showToast("No wallet found", "error");
+        return;
+    }
+    
+    const decryptedSeed = decrypt(wallet.encryptedSeed, password);
+    if (!decryptedSeed) {
+        showToast("Wrong password!", "error");
+        return;
+    }
+    
+    const seedWords = decryptedSeed.split(' ');
+    if (seedWords.length !== 12) {
+        showToast("Invalid seed data", "error");
+        return;
+    }
+    
+    const privateKey = generatePrivateKeyFromSeed(seedWords);
+    
+    document.getElementById('privateKeyDisplay').innerText = privateKey;
+    document.getElementById('privateKeyContainer').style.display = 'block';
+    document.getElementById('revealPrivateKeyBtn').innerHTML = '<i class="fas fa-eye"></i> Private Key Revealed';
+    showToast("🔑 Private key revealed! Copy it now.", "success");
+});
+
+document.getElementById('copyPrivateKeyBtn').addEventListener('click', function() {
+    const privateKey = document.getElementById('privateKeyDisplay').innerText;
+    if (privateKey && privateKey !== '---') {
+        navigator.clipboard.writeText(privateKey);
+        showToast("🔑 Private key copied to clipboard!", "success");
+    } else {
+        showToast("No private key to copy", "error");
+    }
+});
+
+document.getElementById('hidePrivateKeyBtn').addEventListener('click', function() {
+    document.getElementById('privateKeyContainer').style.display = 'none';
+    document.getElementById('privateKeyDisplay').innerText = '---';
+    document.getElementById('revealPrivateKeyBtn').innerHTML = '<i class="fas fa-unlock-alt"></i> Reveal Private Key';
+    document.getElementById('privateKeyPassword').value = '';
+    showToast("🔒 Private key hidden", "info");
+});
+
+document.getElementById('closePrivateKeyModalBtn').addEventListener('click', function() {
+    document.getElementById('privateKeyModal').style.display = 'none';
+    document.getElementById('privateKeyContainer').style.display = 'none';
+    document.getElementById('privateKeyDisplay').innerText = '---';
+    document.getElementById('revealPrivateKeyBtn').innerHTML = '<i class="fas fa-unlock-alt"></i> Reveal Private Key';
+    document.getElementById('privateKeyPassword').value = '';
+});
+
+// ================================================================
+// ==================== CONGRATULATIONS MODAL =====================
+// ================================================================
+
+const congratsMessages = {
+    en: {
+        create: {
+            title: "🎉 CONGRATULATIONS!",
+            sub: "Your wallet has been successfully created.",
+            secure: "🔐 Secure & Encrypted",
+            tip: "💡 Your wallet is now ready to use. Start sending and receiving BRD!",
+            btn: "Go to Dashboard"
+        },
+        import: {
+            title: "🎉 CONGRATULATIONS!",
+            sub: "Your wallet has been successfully imported.",
+            secure: "🔐 Secure & Encrypted",
+            tip: "💡 Your wallet is now ready to use. Start sending and receiving BRD!",
+            btn: "Go to Dashboard"
+        }
+    },
+    pt: {
+        create: {
+            title: "🎉 PARABÉNS!",
+            sub: "Sua carteira foi criada com sucesso.",
+            secure: "🔐 Segura e Criptografada",
+            tip: "💡 Sua carteira está pronta para uso. Comece a enviar e receber BRD!",
+            btn: "Ir para o Dashboard"
+        },
+        import: {
+            title: "🎉 PARABÉNS!",
+            sub: "Sua carteira foi importada com sucesso.",
+            secure: "🔐 Segura e Criptografada",
+            tip: "💡 Sua carteira está pronta para uso. Comece a enviar e receber BRD!",
+            btn: "Ir para o Dashboard"
+        }
+    },
+    es: {
+        create: {
+            title: "🎉 ¡FELICITACIONES!",
+            sub: "Tu billetera ha sido creada con éxito.",
+            secure: "🔐 Segura y Cifrada",
+            tip: "💡 Tu billetera ya está lista para usar. ¡Comienza a enviar y recibir BRD!",
+            btn: "Ir al Dashboard"
+        },
+        import: {
+            title: "🎉 ¡FELICITACIONES!",
+            sub: "Tu billetera ha sido importada con éxito.",
+            secure: "🔐 Segura y Cifrada",
+            tip: "💡 Tu billetera ya está lista para usar. ¡Comienza a enviar y recibir BRD!",
+            btn: "Ir al Dashboard"
+        }
+    },
+    ar: {
+        create: {
+            title: "🎉 مبروك!",
+            sub: "تم إنشاء محفظتك بنجاح.",
+            secure: "🔐 آمنة ومشفرة",
+            tip: "💡 محفظتك جاهزة للاستخدام. ابدأ في إرسال واستلام BRD!",
+            btn: "اذهب إلى لوحة التحكم"
+        },
+        import: {
+            title: "🎉 مبروك!",
+            sub: "تم استيراد محفظتك بنجاح.",
+            secure: "🔐 آمنة ومشفرة",
+            tip: "💡 محفظتك جاهزة للاستخدام. ابدأ في إرسال واستلام BRD!",
+            btn: "اذهب إلى لوحة التحكم"
+        }
+    }
+};
+
+function showCongratulationsModal(type) {
+    const msg = congratsMessages[currentLang]?.[type] || congratsMessages.en[type];
+    
+    document.getElementById('congratsTitle').innerText = msg.title;
+    document.getElementById('congratsSub').innerText = msg.sub;
+    document.getElementById('congratsAddress').innerText = wallet.address || '---';
+    document.getElementById('congratsSecureMsg').innerText = msg.secure;
+    document.getElementById('congratsTip').innerText = msg.tip;
+    document.getElementById('congratsGoToDashboard').innerText = msg.btn;
+    
+    document.getElementById('congratsModal').dataset.type = type;
+    document.getElementById('congratsModal').style.display = 'flex';
+}
+
+function goToDashboardFromCongrats() {
+    document.getElementById('congratsModal').style.display = 'none';
+    hideLoginAndShowDashboard();
+    updateUI();
+    updateSecurityBadge();
+    updateTokensUI();
+    
+    const type = document.getElementById('congratsModal').dataset.type || 'create';
+    if (type === 'create') {
+        showToast("🎉 Wallet created successfully!", "success");
+    } else {
+        showToast("🎉 Wallet imported successfully!", "success");
+    }
+}
+
+// ================================================================
 // ==================== FUNÇÕES DE WALLET =========================
 // ================================================================
 
@@ -1409,54 +1832,10 @@ function finalizeWalletCreation(password) {
     wallet.tokens = [];
     
     saveWallet();
-    hideLoginAndShowDashboard();
-    updateUI();
-    updateSecurityBadge();
-    updateTokensUI();
-    
     document.getElementById('seedModal').style.display = 'none';
     tempSeedForCreation = null;
     
-    showToast(`✅ Wallet created! Address: ${address.substring(0, 16)}...`, "success");
-}
-
-function createWalletFromSeed(seedWords, password) {
-    if (!seedWords || seedWords.length !== 12) {
-        showToast("Invalid seed phrase - need 12 words", "error");
-        return false;
-    }
-    if (!password || password.length < 4) {
-        showToast("Password must be at least 4 characters", "error");
-        return false;
-    }
-    
-    const address = generateAddressFromSeed(seedWords);
-    const seedStr = seedWords.join(' ');
-    
-    wallet.encryptedSeed = encrypt(seedStr, password);
-    wallet.address = address;
-    wallet.balance = 0;
-    wallet.transactions = [];
-    wallet.stats = { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 };
-    wallet.zkStats = { privateTxCount: 0, totalPrivacyProtected: 0, proofsGenerated: 0 };
-    wallet.security = { 
-        twoFAEnabled: false, 
-        twoFASecret: null, 
-        backupCodes: [], 
-        lockTimeout: null, 
-        lastActivity: Date.now() 
-    };
-    wallet.stealthAddresses = [];
-    wallet.referralCode = generateReferralCode();
-    wallet.tokens = [];
-    
-    saveWallet();
-    updateUI();
-    updateSecurityBadge();
-    updateTokensUI();
-    
-    showToast(`✅ Wallet created! Address: ${address.substring(0, 16)}...`, "success");
-    return true;
+    showCongratulationsModal('create');
 }
 
 function importWalletFromSeed(seedStr, password) {
@@ -1490,11 +1869,8 @@ function importWalletFromSeed(seedStr, password) {
     wallet.tokens = [];
     
     saveWallet();
-    updateUI();
-    updateSecurityBadge();
-    updateTokensUI();
     
-    showToast(`✅ Wallet imported! Address: ${address.substring(0, 16)}...`, "success");
+    showCongratulationsModal('import');
     return true;
 }
 
@@ -2306,7 +2682,10 @@ const translations = {
         networkFee: "Network Fee", totalToPay: "Total to Pay", confirmPayment: "Confirm Payment",
         myTokens: "My Tokens", noTokens: "No tokens created yet. Click 'Create Token' to get started!",
         cancel: "Cancel", confirm: "Confirm",
-        historyTitle: "Transaction History", historySub: "All your BRD transactions"
+        historyTitle: "Transaction History", historySub: "All your BRD transactions",
+        privateKey: "Private Key", privateKeyWarning: "⚠️ WARNING: Never share your private key with anyone! Anyone with this key can access your funds.",
+        revealPrivateKey: "Reveal Private Key", hidePrivateKey: "Hide", copyPrivateKey: "Copy",
+        privateKeyRevealed: "Private key revealed! Copy it now."
     },
     pt: {
         mainTitle: "BRADICOIN", subtitle: "Carteira Cripto Segura", desc: "Criar · Importar · Stake · Ganhar",
@@ -2327,7 +2706,10 @@ const translations = {
         networkFee: "Taxa de Rede", totalToPay: "Total a Pagar", confirmPayment: "Confirmar Pagamento",
         myTokens: "Meus Tokens", noTokens: "Nenhum token criado ainda. Clique em 'Criar Token' para começar!",
         cancel: "Cancelar", confirm: "Confirmar",
-        historyTitle: "Histórico de Transações", historySub: "Todas as suas transações em BRD"
+        historyTitle: "Histórico de Transações", historySub: "Todas as suas transações em BRD",
+        privateKey: "Chave Privada", privateKeyWarning: "⚠️ AVISO: Nunca compartilhe sua chave privada com ninguém! Qualquer pessoa com esta chave pode acessar seus fundos.",
+        revealPrivateKey: "Revelar Chave Privada", hidePrivateKey: "Ocultar", copyPrivateKey: "Copiar",
+        privateKeyRevealed: "Chave privada revelada! Copie agora."
     },
     es: {
         mainTitle: "BRADICOIN", subtitle: "Billetera Cripto Segura", desc: "Crear · Importar · Stake · Ganar",
@@ -2348,7 +2730,10 @@ const translations = {
         networkFee: "Comisión de Red", totalToPay: "Total a Pagar", confirmPayment: "Confirmar Pago",
         myTokens: "Mis Tokens", noTokens: "No hay tokens creados aún. ¡Haz clic en 'Crear Token' para comenzar!",
         cancel: "Cancelar", confirm: "Confirmar",
-        historyTitle: "Historial de Transacciones", historySub: "Todas tus transacciones en BRD"
+        historyTitle: "Historial de Transacciones", historySub: "Todas tus transacciones en BRD",
+        privateKey: "Clave Privada", privateKeyWarning: "⚠️ ADVERTENCIA: ¡Nunca compartas tu clave privada con nadie! Cualquiera con esta clave puede acceder a tus fondos.",
+        revealPrivateKey: "Revelar Clave Privada", hidePrivateKey: "Ocultar", copyPrivateKey: "Copiar",
+        privateKeyRevealed: "¡Clave privada revelada! Cópiala ahora."
     },
     ar: {
         mainTitle: "برادي كوين", subtitle: "محفظة آمنة", desc: "إنشاء · استيراد · حصة · ربح",
@@ -2369,7 +2754,10 @@ const translations = {
         networkFee: "رسوم الشبكة", totalToPay: "الإجمالي للدفع", confirmPayment: "تأكيد الدفع",
         myTokens: "رموزي", noTokens: "لم يتم إنشاء رموز بعد. انقر فوق 'إنشاء رمز' للبدء!",
         cancel: "إلغاء", confirm: "تأكيد",
-        historyTitle: "سجل المعاملات", historySub: "جميع معاملات BRD الخاصة بك"
+        historyTitle: "سجل المعاملات", historySub: "جميع معاملات BRD الخاصة بك",
+        privateKey: "المفتاح الخاص", privateKeyWarning: "⚠️ تحذير: لا تشارك مفتاحك الخاص مع أي شخص! أي شخص لديه هذا المفتاح يمكنه الوصول إلى أموالك.",
+        revealPrivateKey: "كشف المفتاح الخاص", hidePrivateKey: "إخفاء", copyPrivateKey: "نسخ",
+        privateKeyRevealed: "تم كشف المفتاح الخاص! انسخه الآن."
     }
 };
 
@@ -2411,10 +2799,11 @@ function updateLanguage() {
         myTokensTitle: document.getElementById('myTokensTitle'),
         noTokensMsg: document.getElementById('noTokensMsg'),
         historyTitle: document.getElementById('historyTitle'),
-        historySub: document.getElementById('historySub')
+        historySub: document.getElementById('historySub'),
+        privateKeyWarning: document.getElementById('privateKeyWarning'),
+        revealPrivateKeyText: document.getElementById('revealPrivateKeyText')
     };
     
-    // Atualiza elementos
     if (elements.mainTitle) elements.mainTitle.innerText = t.mainTitle;
     if (elements.subtitle) elements.subtitle.innerText = t.subtitle;
     if (elements.desc) elements.desc.innerText = t.desc;
@@ -2450,7 +2839,9 @@ function updateLanguage() {
     if (elements.historyTitle) elements.historyTitle.innerText = t.historyTitle;
     if (elements.historySub) elements.historySub.innerText = t.historySub;
     
-    // Atualiza labels do Gas Fee no Send Modal
+    if (elements.privateKeyWarning) elements.privateKeyWarning.innerText = t.privateKeyWarning || elements.privateKeyWarning.innerText;
+    if (elements.revealPrivateKeyText) elements.revealPrivateKeyText.innerText = t.revealPrivateKey || 'Reveal Private Key';
+    
     const minSendLabel = document.getElementById('minSendLabel');
     if (minSendLabel) minSendLabel.innerText = t.minSend || "Minimum to send:";
     
@@ -2492,7 +2883,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('importGroup').style.display = 'none';
     }
     
-    // ===== BOTÃO CREATE WALLET =====
+    document.getElementById('congratsGoToDashboard').addEventListener('click', function() {
+        goToDashboardFromCongrats();
+    });
+    
     document.getElementById('createWalletBtn').addEventListener('click', function(e) {
         e.preventDefault();
         document.getElementById('unlockGroup').style.display = 'none';
@@ -2500,7 +2894,6 @@ document.addEventListener('DOMContentLoaded', function() {
         createWalletFlow();
     });
     
-    // ===== BOTÃO BACK TO LOGIN FROM SEED =====
     document.getElementById('backToLoginFromSeed').addEventListener('click', function(e) {
         e.preventDefault();
         document.getElementById('seedModal').style.display = 'none';
@@ -2511,7 +2904,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('importGroup').style.display = 'none';
     });
     
-    // ===== BOTÃO BACK TO LOGIN FROM IMPORT =====
     document.getElementById('backToLoginFromImport').addEventListener('click', function(e) {
         e.preventDefault();
         document.getElementById('importGroup').style.display = 'none';
@@ -2519,30 +2911,24 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('unlockGroup').style.display = 'none';
     });
     
-    // ===== BOTÃO IMPORT WALLET =====
     document.getElementById('importWalletBtn').addEventListener('click', function(e) {
         e.preventDefault();
         document.getElementById('unlockGroup').style.display = 'none';
         document.getElementById('importGroup').style.display = 'block';
     });
     
-    // ===== CONFIRMAR IMPORTAÇÃO =====
     document.getElementById('confirmImportBtn').addEventListener('click', function() {
         const seed = document.getElementById('importSeedInput').value;
         const password = document.getElementById('importPasswordInput').value;
         if (seed && password) {
             if (importWalletFromSeed(seed, password)) {
-                hideLoginAndShowDashboard();
-                updateUI();
-                updateSecurityBadge();
-                updateTokensUI();
+                // Congratulations modal will handle the rest
             }
         } else {
             showToast("Enter seed phrase and password", "error");
         }
     });
     
-    // ===== CONFIRMAR SEED =====
     document.getElementById('confirmSeedBtn').addEventListener('click', function(e) {
         e.preventDefault();
         const password = document.getElementById('walletPasswordInput').value;
@@ -2554,7 +2940,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // ===== COPY SEED =====
     document.getElementById('copySeedBtn').addEventListener('click', function() {
         const seedWords = tempSeedForCreation || [];
         if (seedWords.length === 12) {
@@ -2566,14 +2951,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // ===== UNLOCK WALLET =====
     document.getElementById('unlockWalletBtn').addEventListener('click', function() {
         const password = document.getElementById('unlockPasswordInput').value;
         const twoFACode = document.getElementById('unlock2FAInput').value;
         unlockWallet(password, twoFACode);
     });
     
-    // ===== ENTER KEY =====
     document.getElementById('unlockPasswordInput').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             document.getElementById('unlockWalletBtn').click();
@@ -2586,7 +2969,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // ===== LANGUAGE BUTTONS =====
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const lang = this.dataset.lang;
@@ -2594,7 +2976,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // ===== CLOSE MODALS =====
     document.querySelectorAll('.modal-overlay').forEach(modal => {
         modal.addEventListener('click', function(e) {
             if (e.target === this) {
@@ -2603,7 +2984,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // ===== COPY ADDRESS =====
     document.getElementById('copyAddressBtn').addEventListener('click', function() {
         if (wallet.address) {
             navigator.clipboard.writeText(wallet.address);
@@ -2611,7 +2991,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // ===== COPY REFERRAL =====
     document.getElementById('copyReferralBtn').addEventListener('click', function() {
         if (wallet.referralCode) {
             navigator.clipboard.writeText(wallet.referralCode);
@@ -2619,7 +2998,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // ===== LOGOUT =====
     document.getElementById('logoutBtn').addEventListener('click', function() {
         document.getElementById('confirmDialog').style.display = 'flex';
         document.getElementById('confirmDialogTitle').innerText = "Logout?";
@@ -2633,10 +3011,8 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     });
     
-    // ===== LOCK WALLET =====
     document.getElementById('lockWalletBtn').addEventListener('click', lockWalletNow);
     
-    // ===== SETTINGS =====
     document.getElementById('settingsBtn').addEventListener('click', function() {
         document.getElementById('settingsModal').style.display = 'flex';
     });
@@ -2644,7 +3020,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('settingsModal').style.display = 'none';
     });
     
-    // ===== REWARDS =====
     document.getElementById('rewardsBtn').addEventListener('click', function() {
         document.getElementById('rewardsModal').style.display = 'flex';
     });
@@ -2652,13 +3027,11 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('rewardsModal').style.display = 'none';
     });
     
-    // ===== ANALYTICS =====
     document.getElementById('analyticsBtn').addEventListener('click', showAnalytics);
     document.getElementById('closeAnalyticsModalBtn').addEventListener('click', function() {
         document.getElementById('analyticsModal').style.display = 'none';
     });
     
-    // ===== SEND =====
     document.getElementById('sendBtn').addEventListener('click', function() {
         document.getElementById('sendModal').style.display = 'flex';
     });
@@ -2666,7 +3039,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('sendModal').style.display = 'none';
     });
     
-    // ===== RECEIVE =====
     document.getElementById('receiveBtn').addEventListener('click', function() {
         if (wallet.address) {
             navigator.clipboard.writeText(wallet.address);
@@ -2676,7 +3048,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // ===== HISTORY =====
     document.getElementById('historyBtn').addEventListener('click', function() {
         showHistory();
     });
@@ -2684,7 +3055,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('historyModal').style.display = 'none';
     });
     
-    // ===== STAKE =====
     document.getElementById('stakeBtn').addEventListener('click', function() {
         const amount = parseFloat(document.getElementById('stakeAmount').value);
         if (!amount || amount <= 0) {
@@ -2694,10 +3064,8 @@ document.addEventListener('DOMContentLoaded', function() {
         stake(amount);
     });
     
-    // ===== UNSTAKE =====
     document.getElementById('unstakeBtn').addEventListener('click', unstake);
     
-    // ===== VIEW STAKE DETAILS =====
     document.getElementById('viewStakeDetailsBtn').addEventListener('click', function() {
         if (activeStake) {
             const reward = Date.now() >= activeStake.end ? activeStake.amount * 0.18 * (86400 / 31536000) : 0;
@@ -2715,7 +3083,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('stakeModal').style.display = 'none';
     });
     
-    // ===== ZK STATUS =====
     document.getElementById('zkStatusBtn').addEventListener('click', function() {
         document.getElementById('zkInfoModal').style.display = 'flex';
     });
@@ -2723,7 +3090,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('zkInfoModal').style.display = 'none';
     });
     
-    // ===== VIEW SEED =====
     document.getElementById('viewSeedModal').addEventListener('click', function() {
         document.getElementById('viewSeedModal').style.display = 'flex';
     });
@@ -2758,18 +3124,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // ===== STEALTH =====
     document.getElementById('stealthBtn').addEventListener('click', showStealthAddress);
     document.getElementById('closeStealthModalBtn').addEventListener('click', function() {
         document.getElementById('stealthModal').style.display = 'none';
     });
     
-    // ===== MIXER =====
     document.getElementById('closeMixerModalBtn').addEventListener('click', function() {
         document.getElementById('mixerModal').style.display = 'none';
     });
     
-    // ===== 2FA =====
     document.getElementById('verify2FABtn').addEventListener('click', function() {
         const code = document.getElementById('verify2FACode').value;
         if (verify2FA(code, wallet.security.twoFASecret)) {
@@ -2786,7 +3149,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('twoFAModal').style.display = 'none';
     });
     
-    // ===== ZK PRIVATE SEND =====
     document.getElementById('zkPrivateSendBtn').addEventListener('click', function() {
         const to = document.getElementById('sendTo').value;
         const amount = parseFloat(document.getElementById('sendAmount').value);
@@ -2867,7 +3229,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('zkSendModal').style.display = 'none';
     });
     
-    // ===== CONFIRM SEND =====
     document.getElementById('confirmSendBtn').addEventListener('click', function() {
         const to = document.getElementById('sendTo').value;
         const amount = parseFloat(document.getElementById('sendAmount').value);
@@ -2878,7 +3239,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!amount || amount <= 0) { showToast("Enter a valid amount", "error"); return; }
         if (!password) { showToast("Enter your password", "error"); return; }
         
-        // Verifica se o valor mínimo para enviar é respeitado
         if (amount < 0.17000000) {
             showToast(`Minimum amount to send is 0.17000000 BRD`, "error");
             return;
@@ -2931,7 +3291,6 @@ document.addEventListener('DOMContentLoaded', function() {
         showToast(`✅ Sent ${amount} BRD successfully!`, "success");
     });
     
-    // ===== CHECK BALANCE =====
     document.getElementById('checkChainBalanceBtn').addEventListener('click', function() {
         if (wallet.address) {
             showToast(`💰 Balance: ${wallet.balance.toFixed(8)} BRD`, "success");
@@ -2940,7 +3299,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // ===== AIRDROP =====
     document.getElementById('claimAirdropBtn').addEventListener('click', function() {
         const amount = 5 + Math.random() * 10;
         wallet.balance += amount;
@@ -2957,13 +3315,11 @@ document.addEventListener('DOMContentLoaded', function() {
         showToast(`🎁 Airdrop claimed! +${amount.toFixed(2)} BRD`, "success");
     });
     
-    // ===== CREATE TOKEN =====
     document.getElementById('createTokenBtn').addEventListener('click', openCreateTokenModal);
     document.getElementById('cancelCreateTokenBtn').addEventListener('click', function() {
         document.getElementById('createTokenModal').style.display = 'none';
     });
     
-    // ===== TOKEN LOGO =====
     document.getElementById('tokenLogo').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
@@ -2977,7 +3333,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // ===== CREATE TOKEN SUBMIT =====
     document.getElementById('createTokenSubmitBtn').addEventListener('click', function() {
         const name = document.getElementById('tokenName').value.trim();
         const symbol = document.getElementById('tokenSymbol').value.trim().toUpperCase();
@@ -3009,7 +3364,6 @@ document.addEventListener('DOMContentLoaded', function() {
         openLoanModal(tokenData);
     });
     
-    // ===== CONFIRM LOAN =====
     document.getElementById('confirmLoanBtn').addEventListener('click', confirmLoanPayment);
     document.getElementById('cancelLoanBtn').addEventListener('click', function() {
         document.getElementById('createLoanModal').style.display = 'none';
@@ -3022,7 +3376,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // ================================================================
 
 console.log("🚀 BradiCoin Secure Wallet Loaded");
-console.log("🔐 Security Features: 2FA, Auto-Lock, Rate Limiting");
+console.log("🔐 Security Features: 2FA, Auto-Lock, Rate Limiting, Private Key");
 console.log("🕵️ Privacy Features: ZK-SNARKs, Stealth Addresses, Mixer, Decoy TX");
 console.log("🪙 Token Features: Create your own tokens with payment");
 console.log("📚 Seed phrase uses " + WORD_LIST.length + " words from A-Z");
