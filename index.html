@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -56,6 +57,10 @@
     .cyber-btn.warning:hover { background: #ffaa00; color: #0a0f1e; }
     .cyber-btn.gold { border-color: #ffd700; }
     .cyber-btn.gold:hover { background: #ffd700; color: #0a0f1e; }
+    .cyber-btn.tip { border-color: #ff6b9d; }
+    .cyber-btn.tip:hover { background: #ff6b9d; color: #0a0f1e; }
+    .cyber-btn.marketplace { border-color: #ff6b6b; }
+    .cyber-btn.marketplace:hover { background: #ff6b6b; color: #0a0f1e; }
     .cyber-btn.small { padding: 0.3rem 0.8rem; font-size: 0.55rem; }
     .cyber-btn.back { border-color: #00f2ff; }
     .cyber-btn.back:hover { background: #00f2ff; color: #0a0f1e; }
@@ -253,6 +258,7 @@
     .tx-zk { color: #00f2ff; }
     .tx-stealth { color: #9b59b6; }
     .tx-decoy { color: #ff8800; }
+    .tx-tip { color: #ff6b9d; }
     
     .referral-box { background: #010518; border-radius: 1rem; padding: 0.6rem; margin-top: 0.5rem; border: 1px solid #ffd70033; }
     .referral-code { font-size: 0.7rem; color: #ffd700; font-family: monospace; }
@@ -585,6 +591,138 @@
       50% { opacity: 0.5; transform: scale(1.3); }
     }
     
+    /* ===== QR Code styles ===== */
+    #qrCodeContainer {
+      background: #fff;
+      padding: 0.8rem;
+      border-radius: 1rem;
+      margin: 0.5rem auto;
+      display: flex;
+      justify-content: center;
+      max-width: 200px;
+    }
+    #qrCodeContainer img, #qrCodeContainer canvas {
+      width: 160px !important;
+      height: 160px !important;
+    }
+
+    /* ===== Notification bell ===== */
+    .notification-bell {
+      position: relative;
+      cursor: pointer;
+      display: inline-block;
+    }
+    .notification-bell .badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #ff0055;
+      color: #fff;
+      border-radius: 50%;
+      padding: 0.1rem 0.4rem;
+      font-size: 0.4rem;
+      min-width: 16px;
+      text-align: center;
+      display: none;
+    }
+    .notification-bell .badge.show { display: block; }
+
+    /* ===== Marketplace styles ===== */
+    .marketplace-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .marketplace-grid::-webkit-scrollbar { width: 3px; }
+    .marketplace-grid::-webkit-scrollbar-thumb { background: #ff6b6b; border-radius: 2px; }
+    .marketplace-item {
+      background: #010518;
+      padding: 0.6rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(255, 107, 107, 0.2);
+      text-align: center;
+      transition: all 0.3s;
+    }
+    .marketplace-item:hover { border-color: #ff6b6b; transform: scale(1.02); }
+    .marketplace-item .mkt-name { font-size: 0.65rem; font-weight: 700; color: #ff6b6b; }
+    .marketplace-item .mkt-symbol { font-size: 0.5rem; color: #a855f7; }
+    .marketplace-item .mkt-supply { font-size: 0.45rem; opacity: 0.6; }
+    .marketplace-item .mkt-creator { font-size: 0.4rem; opacity: 0.5; word-break: break-all; }
+    .marketplace-empty {
+      text-align: center;
+      padding: 1.5rem;
+      opacity: 0.5;
+      font-size: 0.6rem;
+      color: #ff6b6b;
+    }
+
+    /* ===== TIPS SYSTEM STYLES ===== */
+    .tip-badge {
+      display: inline-block;
+      background: rgba(255, 107, 157, 0.15);
+      border: 1px solid #ff6b9d;
+      border-radius: 1rem;
+      padding: 0.1rem 0.6rem;
+      font-size: 0.4rem;
+      color: #ff6b9d;
+    }
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+    .tips-grid::-webkit-scrollbar { width: 3px; }
+    .tips-grid::-webkit-scrollbar-thumb { background: #ff6b9d; border-radius: 2px; }
+    .tip-item {
+      background: #010518;
+      padding: 0.5rem;
+      border-radius: 0.8rem;
+      border: 1px solid rgba(255, 107, 157, 0.15);
+      text-align: left;
+      font-size: 0.5rem;
+    }
+    .tip-item .tip-amount { color: #ff6b9d; font-weight: 700; }
+    .tip-item .tip-from { color: #a855f7; }
+    .tip-item .tip-message { color: #666; font-size: 0.45rem; margin-top: 0.1rem; }
+    .tip-item .tip-time { font-size: 0.4rem; opacity: 0.5; }
+    .tip-rank {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.5rem;
+      background: #010518;
+      border-radius: 0.5rem;
+      margin: 0.15rem 0;
+      border: 1px solid rgba(255, 107, 157, 0.1);
+      font-size: 0.5rem;
+    }
+    .tip-rank .rank-pos { font-weight: 700; color: #ffd700; min-width: 20px; }
+    .tip-rank .rank-addr { color: #a855f7; flex: 1; }
+    .tip-rank .rank-tips { color: #ff6b9d; font-weight: 700; }
+    .tip-rank .rank-medal { font-size: 0.7rem; }
+    .tip-amount-btn {
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid #ff6b9d33;
+      background: transparent;
+      color: #e0e5ff;
+      cursor: pointer;
+      font-size: 0.45rem;
+      transition: all 0.2s;
+      font-family: 'Orbitron', monospace;
+    }
+    .tip-amount-btn:hover, .tip-amount-btn.active {
+      background: #ff6b9d;
+      color: #0a0f1e;
+      border-color: #ff6b9d;
+    }
+
     @media (max-width: 768px) {
       .dashboard-grid { grid-template-columns: 1fr; }
       .top-bar { flex-direction: column; text-align: center; }
@@ -598,6 +736,8 @@
       .congrats-modal-content { padding: 1.5rem; }
       .congrats-icon { font-size: 3.5rem; padding: 1rem; }
       .private-key-actions { flex-direction: column; }
+      .marketplace-grid { grid-template-columns: 1fr 1fr; }
+      .tips-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -655,7 +795,7 @@
   </div>
 </div>
 
-<!-- ===== CONGRATULATIONS MODAL - SEM ANÉIS ===== -->
+<!-- ===== CONGRATULATIONS MODAL ===== -->
 <div id="congratsModal" class="modal-overlay" style="z-index: 3500;">
   <div class="congrats-modal-content">
     <div class="congrats-icon">
@@ -687,7 +827,6 @@
       <button id="importWalletBtn" class="cyber-btn"><i class="fas fa-key"></i> Import Wallet</button>
     </div>
     
-    <!-- Import Wallet Group -->
     <div id="importGroup" style="display:none; margin-top:1.5rem;">
       <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem;">
         <button id="backToLoginFromImport" class="cyber-btn back small" style="flex:1;"><i class="fas fa-arrow-left"></i> Back</button>
@@ -697,7 +836,6 @@
       <button id="confirmImportBtn" class="cyber-btn primary" style="margin-top:0.8rem; width:100%;"><i class="fas fa-check"></i> Import Wallet</button>
     </div>
     
-    <!-- Unlock Group -->
     <div id="unlockGroup" style="display:none; margin-top:1.5rem;">
       <input type="password" id="unlockPasswordInput" class="cyber-input" placeholder="Enter your wallet password">
       <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
@@ -1069,6 +1207,135 @@
   </div>
 </div>
 
+<!-- ===== RECEIVE MODAL COM QR CODE ===== -->
+<div id="receiveModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:500px;">
+    <i class="fas fa-arrow-down" style="font-size: 3rem; color: #00ff88;"></i>
+    <h2 style="color: #00ff88;">📥 Receive BRD</h2>
+    <p style="font-size:0.55rem; opacity:0.7; margin:0.3rem 0;">Scan the QR code below to receive payments</p>
+    
+    <div id="qrCodeContainer">
+      <div id="qrcode"></div>
+    </div>
+    
+    <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.3rem 0; border:1px solid #00ff8833;">
+      <p style="font-size:0.5rem; color:#00ff88;">📤 Your Address</p>
+      <div style="font-family:monospace; font-size:0.55rem; word-break:break-all;" id="receiveAddressDisplay">---</div>
+    </div>
+    
+    <div style="display:flex; gap:0.3rem; margin-top:0.3rem;">
+      <button id="copyReceiveAddressBtn" class="cyber-btn small" style="flex:1;"><i class="fas fa-copy"></i> Copy</button>
+      <button id="downloadQRBtn" class="cyber-btn success small" style="flex:1;"><i class="fas fa-download"></i> Download QR</button>
+    </div>
+    
+    <button id="closeReceiveModalBtn" class="cyber-btn primary" style="width:100%; margin-top:0.5rem;"><i class="fas fa-times"></i> Close</button>
+  </div>
+</div>
+
+<!-- ===== MARKETPLACE MODAL ===== -->
+<div id="marketplaceModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:700px;">
+    <i class="fas fa-store" style="font-size: 3rem; color: #ff6b6b;"></i>
+    <h2 style="color: #ff6b6b;">🛒 Token Marketplace</h2>
+    <p style="font-size:0.55rem; opacity:0.7; margin:0.3rem 0;">Discover tokens created by the BradiCoin community</p>
+    
+    <div style="display:flex; gap:0.3rem; margin-bottom:0.5rem;">
+      <input type="text" id="marketplaceSearch" class="cyber-input" placeholder="Search tokens..." style="font-size:0.55rem; padding:0.3rem; flex:1;">
+      <button id="marketplaceSearchBtn" class="cyber-btn small"><i class="fas fa-search"></i></button>
+    </div>
+    
+    <div id="marketplaceList" class="marketplace-grid">
+      <div class="marketplace-empty">🌐 No tokens in the marketplace yet. Create your first token!</div>
+    </div>
+    
+    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
+      <button id="refreshMarketplaceBtn" class="cyber-btn small" style="flex:1;"><i class="fas fa-sync-alt"></i> Refresh</button>
+      <button id="closeMarketplaceBtn" class="cyber-btn primary small" style="flex:1;"><i class="fas fa-times"></i> Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- ===== NOVO: TIPS SYSTEM MODALS ===== -->
+<!-- ================================================================ -->
+
+<!-- ===== TIP MODAL (Dar Gorjeta) ===== -->
+<div id="tipModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:500px;">
+    <i class="fas fa-heart" style="font-size: 3rem; color: #ff6b9d;"></i>
+    <h2 style="color: #ff6b9d;">💝 Send a Tip</h2>
+    <p style="font-size:0.55rem; opacity:0.7; margin:0.3rem 0;">Support creators with a tip in BRD</p>
+    
+    <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.3rem 0; border:1px solid #ff6b9d33;">
+      <p style="font-size:0.5rem; color:#ff6b9d;">👤 Creator</p>
+      <div style="font-family:monospace; font-size:0.55rem; word-break:break-all;" id="tipRecipientDisplay">---</div>
+    </div>
+    
+    <div style="margin:0.5rem 0;">
+      <p style="font-size:0.45rem; color:#666; text-align:left;">Choose amount</p>
+      <div style="display:flex; gap:0.3rem; flex-wrap:wrap; justify-content:center; margin:0.3rem 0;">
+        <button class="tip-amount-btn" data-amount="0.1">0.1 BRD</button>
+        <button class="tip-amount-btn" data-amount="0.5">0.5 BRD</button>
+        <button class="tip-amount-btn" data-amount="1">1 BRD</button>
+        <button class="tip-amount-btn" data-amount="5">5 BRD</button>
+        <button class="tip-amount-btn" data-amount="10">10 BRD</button>
+      </div>
+      <input type="number" id="tipAmount" class="cyber-input" placeholder="Custom amount" step="any" style="font-size:0.55rem; padding:0.3rem;">
+    </div>
+    
+    <input type="text" id="tipMessage" class="cyber-input" placeholder="Message (optional)" style="font-size:0.55rem; padding:0.3rem; margin:0.3rem 0;">
+    <input type="password" id="tipPassword" class="cyber-input" placeholder="Your wallet password" style="font-size:0.55rem; padding:0.3rem; margin:0.3rem 0;">
+    
+    <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ffaa0033; font-size:0.45rem;">
+      <span style="color:#ffaa00;">⛽ Gas Fee:</span> <span style="color:#a855f7;">0.05 BRD</span>
+    </div>
+    
+    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
+      <button id="confirmTipBtn" class="cyber-btn tip" style="flex:1;"><i class="fas fa-heart"></i> Send Tip</button>
+      <button id="cancelTipBtn" class="cyber-btn" style="flex:1;"><i class="fas fa-times"></i> Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TIPS DASHBOARD MODAL ===== -->
+<div id="tipsDashboardModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:700px;">
+    <i class="fas fa-gift" style="font-size: 3rem; color: #ff6b9d;"></i>
+    <h2 style="color: #ff6b9d;">💝 Tips Dashboard</h2>
+    <p style="font-size:0.55rem; opacity:0.7; margin:0.3rem 0;">Your tip statistics and history</p>
+    
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.3rem; margin:0.5rem 0;">
+      <div class="stat-item" style="border-color:#ff6b9d33;">
+        <div class="stat-value" id="tipsReceived" style="color:#ff6b9d;">0</div>
+        <div class="stat-label">Tips Received</div>
+      </div>
+      <div class="stat-item" style="border-color:#ff6b9d33;">
+        <div class="stat-value" id="tipsSent" style="color:#ff6b9d;">0</div>
+        <div class="stat-label">Tips Sent</div>
+      </div>
+      <div class="stat-item" style="border-color:#ff6b9d33;">
+        <div class="stat-value" id="tipsTotalEarned" style="color:#ff6b9d;">0</div>
+        <div class="stat-label">Total Earned (BRD)</div>
+      </div>
+    </div>
+    
+    <div style="margin:0.5rem 0;">
+      <p style="font-size:0.5rem; color:#ff6b9d; text-align:left;">🏆 Top Creators</p>
+      <div id="tipsRanking" style="max-height:150px; overflow-y:auto;"></div>
+    </div>
+    
+    <div style="margin:0.5rem 0;">
+      <p style="font-size:0.5rem; color:#ff6b9d; text-align:left;">📝 Your Tip History</p>
+      <div id="tipsHistory" style="max-height:150px; overflow-y:auto; font-size:0.5rem;"></div>
+    </div>
+    
+    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
+      <button id="refreshTipsBtn" class="cyber-btn small" style="flex:1;"><i class="fas fa-sync-alt"></i> Refresh</button>
+      <button id="closeTipsDashboardBtn" class="cyber-btn primary small" style="flex:1;"><i class="fas fa-times"></i> Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== MAIN DASHBOARD ===== -->
 <div id="mainDashboard" class="main-dashboard">
   <div class="container">
@@ -1080,13 +1347,22 @@
         <span class="notification-dot online" id="networkStatus"></span>
         <span class="zk-status active"><i class="fas fa-shield-alt"></i> ZK</span>
         <span class="security-badge secure" id="securityBadge"><i class="fas fa-lock"></i> Secure</span>
+        <span class="notification-bell" id="notificationBell" onclick="toggleNotifications()">
+          <i class="fas fa-bell" style="font-size:1rem; color:#ffd700;"></i>
+          <span class="badge" id="notifBadge">0</span>
+        </span>
+        <!-- ===== NOVO: Tip badge ===== -->
+        <span class="tip-badge"><i class="fas fa-heart"></i> Tips</span>
       </div>
       <div class="price-ticker">
         <span>BRD/USD <span id="priceDisplay">$10.00</span></span>
         <span>24h <span id="priceChange" style="color:#00ff88;">+2.5%</span></span>
       </div>
       <div class="wallet-actions">
+        <!-- ===== NOVO: Botão Tips Dashboard ===== -->
+        <button id="tipsDashboardBtn" class="cyber-btn tip small"><i class="fas fa-gift"></i> Tips</button>
         <button id="createTokenBtn" class="cyber-btn create-token small"><i class="fas fa-coins"></i> Token</button>
+        <button id="marketplaceBtn" class="cyber-btn marketplace small"><i class="fas fa-store"></i></button>
         <button id="lockWalletBtn" class="cyber-btn lock small"><i class="fas fa-lock"></i> Lock</button>
         <button id="analyticsBtn" class="cyber-btn analytics small"><i class="fas fa-chart-line"></i></button>
         <button id="settingsBtn" class="cyber-btn settings small"><i class="fas fa-cog"></i></button>
@@ -1181,6 +1457,33 @@
       <div id="tokensContainer" style="margin-top:0.5rem;">
         <p style="font-size:0.6rem; opacity:0.5; text-align:center;" id="noTokensMsg">No tokens created yet. Click "Create Token" to get started!</p>
         <div id="tokensList" class="tokens-grid"></div>
+      </div>
+    </div>
+
+    <!-- ===== NOVO: Tips Card no Dashboard ===== -->
+    <div class="neon-card" style="margin-top:1.5rem; border-color:#ff6b9d33;">
+      <h3 style="font-size:0.9rem;"><i class="fas fa-heart" style="color:#ff6b9d;"></i> <span style="color:#ff6b9d;">Creator Tips</span></h3>
+      <div style="display:flex; gap:0.5rem; margin:0.3rem 0; flex-wrap:wrap;">
+        <div class="stat-item" style="flex:1; border-color:#ff6b9d33;">
+          <div class="stat-value" id="tipsReceivedCount" style="color:#ff6b9d; font-size:0.8rem;">0</div>
+          <div class="stat-label">Tips Received</div>
+        </div>
+        <div class="stat-item" style="flex:1; border-color:#ff6b9d33;">
+          <div class="stat-value" id="tipsEarnedDisplay" style="color:#ff6b9d; font-size:0.8rem;">0</div>
+          <div class="stat-label">BRD Earned</div>
+        </div>
+        <div class="stat-item" style="flex:1; border-color:#ff6b9d33;">
+          <div class="stat-value" id="tipsSentCount" style="color:#ff6b9d; font-size:0.8rem;">0</div>
+          <div class="stat-label">Tips Sent</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:0.3rem; margin-top:0.3rem;">
+        <input type="text" id="tipCreatorAddress" class="cyber-input" placeholder="Creator address to tip..." style="font-size:0.5rem; padding:0.3rem; flex:1;">
+        <button id="quickTipBtn" class="cyber-btn tip small"><i class="fas fa-heart"></i> Tip</button>
+        <button id="viewTipsDashboardBtn" class="cyber-btn small"><i class="fas fa-chart-bar"></i> Stats</button>
+      </div>
+      <div style="font-size:0.45rem; opacity:0.5; margin-top:0.3rem; text-align:center;">
+        💝 Support creators in the BradiCoin ecosystem with tips
       </div>
     </div>
 
@@ -1299,7 +1602,7 @@
 
     <footer>
       Non-Custodial · 18% APR · BradiCoin Ecosystem
-      <br><span style="font-size:0.45rem;">© 2026 BradiCoin. 🔐 ZK-SNARK Privacy | 🕵️ Stealth | 🔄 Mixer</span>
+      <br><span style="font-size:0.45rem;">© 2026 BradiCoin. 🔐 ZK-SNARK Privacy | 🕵️ Stealth | 🔄 Mixer | 🛒 Marketplace | 💝 Tips</span>
     </footer>
   </div>
 </div>
@@ -1561,13 +1864,24 @@ let wallet = {
     },
     stealthAddresses: [],
     referralCode: 'BRD-XXXX',
-    tokens: []
+    tokens: [],
+    marketplace: { listedTokens: [] },
+    notifications: [],
+    // ===== NOVO: Tips System =====
+    tips: {
+        received: [], // tips que recebeu
+        sent: [], // tips que enviou
+        totalReceived: 0,
+        totalSent: 0,
+        tipsEarned: 0
+    }
 };
 
 let activeStake = null;
 let tempSeedForCreation = null;
 let isLocked = false;
 let currentLang = 'en';
+let tipRecipientAddress = '';
 
 // ================================================================
 // ==================== HELPERS ===================================
@@ -1778,6 +2092,7 @@ function goToDashboardFromCongrats() {
     updateUI();
     updateSecurityBadge();
     updateTokensUI();
+    updateTipsUI();
     
     const type = document.getElementById('congratsModal').dataset.type || 'create';
     if (type === 'create') {
@@ -1830,6 +2145,10 @@ function finalizeWalletCreation(password) {
     wallet.stealthAddresses = [];
     wallet.referralCode = generateReferralCode();
     wallet.tokens = [];
+    wallet.marketplace = { listedTokens: [] };
+    wallet.notifications = [];
+    // ===== NOVO: Inicializar tips =====
+    wallet.tips = { received: [], sent: [], totalReceived: 0, totalSent: 0, tipsEarned: 0 };
     
     saveWallet();
     document.getElementById('seedModal').style.display = 'none';
@@ -1867,6 +2186,9 @@ function importWalletFromSeed(seedStr, password) {
     wallet.stealthAddresses = [];
     wallet.referralCode = generateReferralCode();
     wallet.tokens = [];
+    wallet.marketplace = { listedTokens: [] };
+    wallet.notifications = [];
+    wallet.tips = { received: [], sent: [], totalReceived: 0, totalSent: 0, tipsEarned: 0 };
     
     saveWallet();
     
@@ -1898,6 +2220,7 @@ function unlockWallet(password, twoFACode) {
     updateUI();
     updateSecurityBadge();
     updateTokensUI();
+    updateTipsUI();
     showToast("🔓 Wallet unlocked!", "success");
     return true;
 }
@@ -1920,7 +2243,10 @@ function saveWallet() {
             security: wallet.security,
             stealthAddresses: wallet.stealthAddresses,
             referralCode: wallet.referralCode,
-            tokens: wallet.tokens
+            tokens: wallet.tokens,
+            marketplace: wallet.marketplace,
+            notifications: wallet.notifications,
+            tips: wallet.tips
         };
         localStorage.setItem('bradicoin_wallet', JSON.stringify(data));
     } catch(e) {
@@ -1935,6 +2261,9 @@ function loadWallet() {
             const parsed = JSON.parse(data);
             wallet = { ...wallet, ...parsed };
             if (!wallet.tokens) wallet.tokens = [];
+            if (!wallet.marketplace) wallet.marketplace = { listedTokens: [] };
+            if (!wallet.notifications) wallet.notifications = [];
+            if (!wallet.tips) wallet.tips = { received: [], sent: [], totalReceived: 0, totalSent: 0, tipsEarned: 0 };
             return true;
         }
     } catch(e) {
@@ -2032,6 +2361,7 @@ function updateUI() {
                 const isZK = tx.type === 'zk_private';
                 const isDeposit = tx.type === 'deposit';
                 const isToken = tx.type === 'token_created';
+                const isTip = tx.type === 'tip_sent' || tx.type === 'tip_received';
                 let txClass = 'tx-out';
                 let icon = '📤';
                 let label = 'Transfer';
@@ -2039,6 +2369,7 @@ function updateUI() {
                 else if (isAirdrop) { txClass = 'tx-in'; icon = '🎁'; label = 'Airdrop'; }
                 else if (isDeposit) { txClass = 'tx-in'; icon = '💰'; label = 'Deposit'; }
                 else if (isToken) { txClass = 'tx-in'; icon = '🪙'; label = 'Token Created'; }
+                else if (isTip) { txClass = 'tx-tip'; icon = '💝'; label = tx.type === 'tip_sent' ? 'Tip Sent' : 'Tip Received'; }
                 
                 return `<div class="tx-item">
                     <div>
@@ -2052,6 +2383,9 @@ function updateUI() {
             }).join('');
         }
     }
+    
+    updateNotificationBadge();
+    updateTipsUI();
 }
 
 function updateSecurityBadge() {
@@ -2063,6 +2397,180 @@ function updateSecurityBadge() {
         badge.className = 'security-badge warning';
         badge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 2FA Off';
     }
+}
+
+// ================================================================
+// ==================== TIPS SYSTEM FUNCTIONS =====================
+// ================================================================
+
+function openTipModal(recipient) {
+    if (!recipient) {
+        const input = document.getElementById('tipCreatorAddress');
+        recipient = input ? input.value.trim() : '';
+    }
+    
+    if (!recipient) {
+        showToast("Enter a creator address to tip", "error");
+        return;
+    }
+    
+    if (recipient === wallet.address) {
+        showToast("You cannot tip yourself!", "error");
+        return;
+    }
+    
+    tipRecipientAddress = recipient;
+    document.getElementById('tipRecipientDisplay').innerText = recipient;
+    document.getElementById('tipAmount').value = '';
+    document.getElementById('tipMessage').value = '';
+    document.getElementById('tipPassword').value = '';
+    document.getElementById('tipModal').style.display = 'flex';
+    
+    // Highlight selected amount
+    document.querySelectorAll('.tip-amount-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+}
+
+function closeTipModal() {
+    document.getElementById('tipModal').style.display = 'none';
+    tipRecipientAddress = '';
+}
+
+function sendTip() {
+    const recipient = tipRecipientAddress;
+    const amount = parseFloat(document.getElementById('tipAmount').value);
+    const message = document.getElementById('tipMessage').value.trim();
+    const password = document.getElementById('tipPassword').value;
+    
+    if (!recipient) {
+        showToast("Invalid recipient", "error");
+        return;
+    }
+    
+    if (!amount || amount <= 0) {
+        showToast("Enter a valid amount", "error");
+        return;
+    }
+    
+    if (!password) {
+        showToast("Enter your wallet password", "error");
+        return;
+    }
+    
+    const decrypted = decrypt(wallet.encryptedSeed, password);
+    if (!decrypted) {
+        showToast("Wrong password!", "error");
+        return;
+    }
+    
+    const fee = 0.05;
+    const totalCost = amount + fee;
+    
+    if (totalCost > wallet.balance) {
+        showToast(`Insufficient balance! Need ${totalCost.toFixed(8)} BRD`, "error");
+        return;
+    }
+    
+    // Deduct from balance
+    wallet.balance -= totalCost;
+    wallet.stats.feesPaid += fee;
+    wallet.stats.totalTx += 1;
+    
+    // Record tip sent
+    if (!wallet.tips) wallet.tips = { received: [], sent: [], totalReceived: 0, totalSent: 0, tipsEarned: 0 };
+    wallet.tips.sent.push({
+        to: recipient,
+        amount: amount,
+        message: message || '💝 Thank you!',
+        time: new Date().toISOString()
+    });
+    wallet.tips.totalSent += amount;
+    
+    // Add to transactions
+    wallet.transactions.unshift({
+        id: Date.now(),
+        type: 'tip_sent',
+        to: recipient,
+        amount: amount,
+        fee: fee,
+        time: new Date().toISOString(),
+        message: message || '💝 Tip sent'
+    });
+    
+    // ===== NOTIFICATION: Tip sent =====
+    addNotification(`💝 You sent ${amount} BRD tip to ${recipient.substring(0, 10)}...`, 'success');
+    sendPushNotification('Tip Sent!', `You sent ${amount} BRD to ${recipient.substring(0, 10)}...`);
+    
+    saveWallet();
+    updateUI();
+    closeTipModal();
+    document.getElementById('tipCreatorAddress').value = '';
+    
+    showToast(`💝 Tip of ${amount} BRD sent successfully!`, "success");
+}
+
+function updateTipsUI() {
+    if (!wallet.tips) wallet.tips = { received: [], sent: [], totalReceived: 0, totalSent: 0, tipsEarned: 0 };
+    
+    const receivedCount = document.getElementById('tipsReceivedCount');
+    const earnedDisplay = document.getElementById('tipsEarnedDisplay');
+    const sentCount = document.getElementById('tipsSentCount');
+    
+    if (receivedCount) receivedCount.innerText = (wallet.tips.received || []).length;
+    if (earnedDisplay) earnedDisplay.innerText = (wallet.tips.totalReceived || 0).toFixed(4);
+    if (sentCount) sentCount.innerText = (wallet.tips.sent || []).length;
+}
+
+function showTipsDashboard() {
+    const tips = wallet.tips || { received: [], sent: [], totalReceived: 0, totalSent: 0, tipsEarned: 0 };
+    
+    document.getElementById('tipsReceived').innerText = (tips.received || []).length;
+    document.getElementById('tipsSent').innerText = (tips.sent || []).length;
+    document.getElementById('tipsTotalEarned').innerText = (tips.totalReceived || 0).toFixed(4);
+    
+    // Render ranking (simulated with sample data)
+    const rankingContainer = document.getElementById('tipsRanking');
+    const sampleCreators = [
+        { addr: 'Br' + 'A'.repeat(20) + '123', tips: 25.5 },
+        { addr: 'Br' + 'B'.repeat(20) + '456', tips: 18.2 },
+        { addr: 'Br' + 'C'.repeat(20) + '789', tips: 12.8 },
+        { addr: 'Br' + 'D'.repeat(20) + 'ABC', tips: 9.4 },
+        { addr: 'Br' + 'E'.repeat(20) + 'DEF', tips: 5.1 },
+    ];
+    
+    rankingContainer.innerHTML = sampleCreators.map((c, i) => `
+        <div class="tip-rank">
+            <span class="rank-pos">#${i + 1}</span>
+            <span class="rank-medal">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '⭐'}</span>
+            <span class="rank-addr">${c.addr.substring(0, 12)}...</span>
+            <span class="rank-tips">${c.tips} BRD</span>
+            <button onclick="openTipModal('${c.addr}')" class="cyber-btn tip small" style="font-size:0.35rem;padding:0.1rem 0.3rem;"><i class="fas fa-heart"></i></button>
+        </div>
+    `).join('');
+    
+    // Render tip history
+    const historyContainer = document.getElementById('tipsHistory');
+    const allTips = [...(tips.received || []), ...(tips.sent || [])].sort((a, b) => new Date(b.time) - new Date(a.time));
+    
+    if (allTips.length === 0) {
+        historyContainer.innerHTML = '<p style="opacity:0.5;text-align:center;padding:0.5rem;">No tips yet</p>';
+    } else {
+        historyContainer.innerHTML = allTips.slice(0, 20).map(t => {
+            const isReceived = t.type === 'received' || (t.to === wallet.address);
+            const icon = isReceived ? '📥' : '📤';
+            const color = isReceived ? '#00ff88' : '#ff6b9d';
+            const label = isReceived ? 'Received from' : 'Sent to';
+            const addr = isReceived ? (t.from || t.to) : t.to;
+            return `<div style="display:flex;justify-content:space-between;padding:0.2rem 0;border-bottom:1px solid rgba(255,107,157,0.1);">
+                <span>${icon} ${label} ${addr.substring(0, 10)}...</span>
+                <span style="color:${color};">${t.amount} BRD ${t.message ? `💬 "${t.message}"` : ''}</span>
+                <span style="font-size:0.4rem;opacity:0.5;">${new Date(t.time).toLocaleDateString()}</span>
+            </div>`;
+        }).join('');
+    }
+    
+    document.getElementById('tipsDashboardModal').style.display = 'flex';
 }
 
 // ================================================================
@@ -2082,6 +2590,7 @@ function showHistory() {
             const isDeposit = tx.type === 'deposit';
             const isToken = tx.type === 'token_created';
             const isSent = tx.type === 'sent';
+            const isTip = tx.type === 'tip_sent' || tx.type === 'tip_received';
             
             let icon = '📤';
             let typeLabel = 'Transfer';
@@ -2092,11 +2601,12 @@ function showHistory() {
             else if (isDeposit) { icon = '💰'; typeLabel = 'Deposit'; color = '#00ff88'; }
             else if (isToken) { icon = '🪙'; typeLabel = 'Token Created'; color = '#00d4ff'; }
             else if (isSent) { icon = '📤'; typeLabel = 'Sent'; color = '#ff4466'; }
+            else if (isTip) { icon = '💝'; typeLabel = tx.type === 'tip_sent' ? 'Tip Sent' : 'Tip Received'; color = '#ff6b9d'; }
             
             let extraInfo = '';
             if (tx.to) extraInfo += ` to ${tx.to.substring(0, 12)}...`;
             if (tx.tokenName) extraInfo += ` | ${tx.tokenName} (${tx.tokenSymbol})`;
-            if (tx.message) extraInfo += ` | ${tx.message}`;
+            if (tx.message) extraInfo += ` | "${tx.message}"`;
             
             return `<div class="history-item">
                 <div>
@@ -2140,6 +2650,7 @@ function updateTokensUI() {
                 <div style="font-size:0.4rem;color:#ffd700;">Created: ${new Date(token.createdAt).toLocaleDateString()}</div>
             </div>
             <button onclick="deleteToken(${index})" class="cyber-btn danger small" style="font-size:0.4rem;padding:0.1rem 0.4rem;"><i class="fas fa-trash"></i></button>
+            <button onclick="listTokenOnMarketplace(${index})" class="cyber-btn marketplace small" style="font-size:0.4rem;padding:0.1rem 0.4rem;"><i class="fas fa-store"></i></button>
         </div>
     `).join('');
 }
@@ -2239,6 +2750,13 @@ function confirmLoanPayment() {
     pendingTokenData.id = 'token_' + Date.now();
     wallet.tokens.push(pendingTokenData);
     
+    if (!wallet.marketplace) wallet.marketplace = { listedTokens: [] };
+    wallet.marketplace.listedTokens.push({
+        ...pendingTokenData,
+        creator: wallet.address,
+        listedAt: Date.now()
+    });
+    
     wallet.transactions.unshift({
         id: Date.now(),
         type: 'token_created',
@@ -2250,6 +2768,9 @@ function confirmLoanPayment() {
         message: `Created token ${pendingTokenData.name} (${pendingTokenData.symbol})`
     });
     
+    addNotification(`🚀 Token "${pendingTokenData.name}" (${pendingTokenData.symbol}) created and listed on marketplace!`);
+    sendPushNotification('Token Created!', `Your token ${pendingTokenData.name} (${pendingTokenData.symbol}) is now live!`);
+    
     saveWallet();
     updateUI();
     updateTokensUI();
@@ -2258,7 +2779,7 @@ function confirmLoanPayment() {
     const tokenName = pendingTokenData.name;
     pendingTokenData = null;
     
-    showToast(`✅ Token "${tokenName}" created successfully!`, "success");
+    showToast(`✅ Token "${tokenName}" created and listed on marketplace!`, "success");
 }
 
 // ================================================================
@@ -2441,9 +2962,10 @@ function updateAnalytics() {
                 const isAirdrop = tx.type === 'airdrop';
                 const isDeposit = tx.type === 'deposit';
                 const isToken = tx.type === 'token_created';
-                const icon = isZK ? '🔐' : (isAirdrop ? '🎁' : (isDeposit ? '💰' : (isToken ? '🪙' : '📤')));
-                const color = isZK ? '#00f2ff' : (isAirdrop ? '#ffd700' : (isDeposit ? '#00ff88' : (isToken ? '#00d4ff' : '#ff6b6b')));
-                const type = isZK ? 'ZK-Private' : (isAirdrop ? 'Airdrop' : (isDeposit ? 'Deposit' : (isToken ? 'Token Created' : 'Transfer')));
+                const isTip = tx.type === 'tip_sent' || tx.type === 'tip_received';
+                const icon = isZK ? '🔐' : (isAirdrop ? '🎁' : (isDeposit ? '💰' : (isToken ? '🪙' : (isTip ? '💝' : '📤'))));
+                const color = isZK ? '#00f2ff' : (isAirdrop ? '#ffd700' : (isDeposit ? '#00ff88' : (isToken ? '#00d4ff' : (isTip ? '#ff6b9d' : '#ff6b6b'))));
+                const type = isZK ? 'ZK-Private' : (isAirdrop ? 'Airdrop' : (isDeposit ? 'Deposit' : (isToken ? 'Token Created' : (isTip ? 'Tip' : 'Transfer'))));
                 return `<div style="display:flex; justify-content:space-between; padding:0.15rem 0; border-bottom:1px solid rgba(168,85,247,0.1); font-size:0.5rem;">
                     <span>${icon} ${type}</span>
                     <span style="color:${color};">${tx.amount} BRD</span>
@@ -2474,7 +2996,7 @@ function exportAnalyticsCSV() {
     let csv = 'Date,Type,Amount,Fee,Status\n';
     txs.forEach(tx => {
         const date = new Date(tx.time).toLocaleDateString();
-        const type = tx.type === 'zk_private' ? 'ZK-Private' : (tx.type === 'airdrop' ? 'Airdrop' : (tx.type === 'deposit' ? 'Deposit' : (tx.type === 'token_created' ? 'Token Created' : 'Transfer')));
+        const type = tx.type === 'zk_private' ? 'ZK-Private' : (tx.type === 'airdrop' ? 'Airdrop' : (tx.type === 'deposit' ? 'Deposit' : (tx.type === 'token_created' ? 'Token Created' : (tx.type === 'tip_sent' ? 'Tip Sent' : (tx.type === 'tip_received' ? 'Tip Received' : 'Transfer')))));
         csv += `${date},${type},${tx.amount},${tx.fee || 0},Completed\n`;
     });
     
@@ -2500,6 +3022,8 @@ function exportAnalyticsData() {
         stats: wallet.stats,
         zkStats: wallet.zkStats,
         tokens: wallet.tokens,
+        marketplace: wallet.marketplace,
+        tips: wallet.tips,
         exportDate: new Date().toISOString()
     };
     
@@ -2645,6 +3169,8 @@ function exportWalletData() {
         security: wallet.security,
         referralCode: wallet.referralCode,
         tokens: wallet.tokens,
+        marketplace: wallet.marketplace,
+        tips: wallet.tips,
         exportDate: new Date().toISOString()
     };
     const json = JSON.stringify(data, null, 2);
@@ -2656,6 +3182,209 @@ function exportWalletData() {
     a.click();
     URL.revokeObjectURL(url);
     showToast("✅ Wallet data exported!", "success");
+}
+
+// ================================================================
+// ==================== MARKETPLACE FUNÇÕES =======================
+// ================================================================
+
+function listTokenOnMarketplace(index) {
+    if (!wallet.tokens[index]) {
+        showToast("Token not found", "error");
+        return;
+    }
+    
+    const token = wallet.tokens[index];
+    if (!wallet.marketplace) wallet.marketplace = { listedTokens: [] };
+    
+    const exists = wallet.marketplace.listedTokens.some(t => t.id === token.id);
+    if (exists) {
+        showToast("Token already listed on marketplace", "info");
+        return;
+    }
+    
+    wallet.marketplace.listedTokens.push({
+        ...token,
+        creator: wallet.address,
+        listedAt: Date.now()
+    });
+    
+    saveWallet();
+    updateTokensUI();
+    addNotification(`🛒 Token "${token.name}" listed on marketplace!`);
+    sendPushNotification('Token Listed!', `Your token ${token.name} is now on the marketplace!`);
+    showToast(`✅ Token "${token.name}" listed on marketplace!`, "success");
+}
+
+function showMarketplace() {
+    renderMarketplace();
+    document.getElementById('marketplaceModal').style.display = 'flex';
+}
+
+function renderMarketplace(search = '') {
+    const container = document.getElementById('marketplaceList');
+    let tokens = wallet.marketplace?.listedTokens || [];
+    
+    if (tokens.length === 0 && wallet.address) {
+        const sampleTokens = [
+            { name: 'BradiCoin Gold', symbol: 'BCG', supply: 10000, creator: 'Br' + '0'.repeat(20) + 'ABC', logo: null, id: 'sample1', createdAt: Date.now() - 86400000 },
+            { name: 'CyberDollar', symbol: 'CYD', supply: 500000, creator: 'Br' + '0'.repeat(20) + 'DEF', logo: null, id: 'sample2', createdAt: Date.now() - 172800000 },
+            { name: 'NeoToken', symbol: 'NEO', supply: 100000, creator: 'Br' + '0'.repeat(20) + 'GHI', logo: null, id: 'sample3', createdAt: Date.now() - 259200000 }
+        ];
+        tokens = sampleTokens;
+        wallet.marketplace.listedTokens = sampleTokens;
+        saveWallet();
+    }
+    
+    if (search) {
+        const s = search.toLowerCase();
+        tokens = tokens.filter(t => 
+            t.name.toLowerCase().includes(s) || 
+            t.symbol.toLowerCase().includes(s)
+        );
+    }
+    
+    if (tokens.length === 0) {
+        container.innerHTML = '<div class="marketplace-empty">🌐 No tokens found in the marketplace</div>';
+        return;
+    }
+    
+    container.innerHTML = tokens.map(token => `
+        <div class="marketplace-item">
+            ${token.logo ? `<img src="${token.logo}" alt="${token.name}" style="width:40px;height:40px;border-radius:0.5rem;object-fit:cover;margin:0 auto;">` : `<div style="width:40px;height:40px;border-radius:0.5rem;background:linear-gradient(135deg,#ff6b6b,#a855f7);display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:1rem;">🪙</div>`}
+            <div class="mkt-name">${token.name}</div>
+            <div class="mkt-symbol">${token.symbol}</div>
+            <div class="mkt-supply">Supply: ${token.supply.toLocaleString()}</div>
+            <div class="mkt-creator">👤 ${(token.creator || 'Unknown').substring(0, 10)}...</div>
+            <button onclick="showToast('🛒 Token details: ${token.name}', 'info')" class="cyber-btn marketplace small" style="font-size:0.35rem;padding:0.1rem 0.3rem;margin-top:0.2rem;width:100%;">View Details</button>
+        </div>
+    `).join('');
+}
+
+function refreshMarketplace() {
+    renderMarketplace(document.getElementById('marketplaceSearch').value);
+    showToast("🔄 Marketplace refreshed!", "success");
+}
+
+// ================================================================
+// ==================== NOTIFICAÇÕES ==============================
+// ================================================================
+
+function addNotification(message, type = 'info') {
+    if (!wallet.notifications) wallet.notifications = [];
+    wallet.notifications.unshift({
+        id: Date.now(),
+        message: message,
+        type: type,
+        time: new Date().toISOString(),
+        read: false
+    });
+    
+    if (wallet.notifications.length > 50) {
+        wallet.notifications = wallet.notifications.slice(0, 50);
+    }
+    
+    saveWallet();
+    updateNotificationBadge();
+}
+
+function updateNotificationBadge() {
+    const badge = document.getElementById('notifBadge');
+    const unread = (wallet.notifications || []).filter(n => !n.read).length;
+    if (badge) {
+        if (unread > 0) {
+            badge.innerText = unread > 9 ? '9+' : unread;
+            badge.classList.add('show');
+        } else {
+            badge.classList.remove('show');
+        }
+    }
+}
+
+function toggleNotifications() {
+    const notifs = wallet.notifications || [];
+    if (notifs.length === 0) {
+        showToast("🔔 No notifications", "info");
+        return;
+    }
+    
+    let msg = '🔔 Notifications:\n\n';
+    notifs.slice(0, 10).forEach(n => {
+        const icon = n.type === 'success' ? '✅' : (n.type === 'error' ? '❌' : 'ℹ️');
+        const date = new Date(n.time).toLocaleDateString() + ' ' + new Date(n.time).toLocaleTimeString();
+        msg += `${icon} ${n.message}\n   ${date}\n\n`;
+    });
+    
+    notifs.forEach(n => n.read = true);
+    saveWallet();
+    updateNotificationBadge();
+    
+    alert(msg);
+}
+
+function sendPushNotification(title, body) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(title, { 
+            body: body, 
+            icon: '🚀',
+            badge: '📱'
+        });
+    } else if ('Notification' in window && Notification.permission !== 'denied') {
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                new Notification(title, { body: body, icon: '🚀' });
+            }
+        });
+    } else {
+        showToast(`🔔 ${title}: ${body}`, "info");
+    }
+}
+
+// ================================================================
+// ==================== QR CODE FUNCTIONS =========================
+// ================================================================
+
+let qrCodeInstance = null;
+
+function showReceiveModal() {
+    const address = wallet.address || '---';
+    document.getElementById('receiveAddressDisplay').innerText = address;
+    
+    const qrContainer = document.getElementById('qrcode');
+    qrContainer.innerHTML = '';
+    
+    if (address && address !== '---') {
+        try {
+            qrCodeInstance = new QRCode(qrContainer, {
+                text: address,
+                width: 160,
+                height: 160,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        } catch(e) {
+            qrContainer.innerHTML = '<div style="color:#666;font-size:0.5rem;">⚠️ QR Code error</div>';
+        }
+    } else {
+        qrContainer.innerHTML = '<div style="color:#666;font-size:0.5rem;">No wallet loaded</div>';
+    }
+    
+    document.getElementById('receiveModal').style.display = 'flex';
+}
+
+function downloadQR() {
+    const qrContainer = document.getElementById('qrcode');
+    const canvas = qrContainer.querySelector('canvas');
+    if (canvas) {
+        const link = document.createElement('a');
+        link.download = `bradicoin-qr-${wallet.address.substring(0, 8)}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        showToast("📥 QR Code downloaded!", "success");
+    } else {
+        showToast("No QR code to download", "error");
+    }
 }
 
 // ================================================================
@@ -3041,12 +3770,21 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.getElementById('receiveBtn').addEventListener('click', function() {
         if (wallet.address) {
-            navigator.clipboard.writeText(wallet.address);
-            showToast("Address copied to clipboard!", "success");
+            showReceiveModal();
         } else {
             showToast("No wallet loaded", "error");
         }
     });
+    document.getElementById('closeReceiveModalBtn').addEventListener('click', function() {
+        document.getElementById('receiveModal').style.display = 'none';
+    });
+    document.getElementById('copyReceiveAddressBtn').addEventListener('click', function() {
+        if (wallet.address) {
+            navigator.clipboard.writeText(wallet.address);
+            showToast("Address copied!", "success");
+        }
+    });
+    document.getElementById('downloadQRBtn').addEventListener('click', downloadQR);
     
     document.getElementById('historyBtn').addEventListener('click', function() {
         showHistory();
@@ -3312,6 +4050,8 @@ document.addEventListener('DOMContentLoaded', function() {
         saveWallet();
         updateUI();
         updateAnalytics();
+        addNotification(`🎁 Airdrop claimed! +${amount.toFixed(2)} BRD`, 'success');
+        sendPushNotification('Airdrop Claimed!', `You received ${amount.toFixed(2)} BRD!`);
         showToast(`🎁 Airdrop claimed! +${amount.toFixed(2)} BRD`, "success");
     });
     
@@ -3369,6 +4109,61 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('createLoanModal').style.display = 'none';
         pendingTokenData = null;
     });
+    
+    // ===== NOVO: Tips System Event Listeners =====
+    document.getElementById('tipsDashboardBtn').addEventListener('click', showTipsDashboard);
+    document.getElementById('closeTipsDashboardBtn').addEventListener('click', function() {
+        document.getElementById('tipsDashboardModal').style.display = 'none';
+    });
+    document.getElementById('refreshTipsBtn').addEventListener('click', function() {
+        updateTipsUI();
+        showToast("🔄 Tips refreshed!", "success");
+    });
+    
+    document.getElementById('quickTipBtn').addEventListener('click', function() {
+        const addr = document.getElementById('tipCreatorAddress').value.trim();
+        if (addr) {
+            openTipModal(addr);
+        } else {
+            showToast("Enter a creator address", "error");
+        }
+    });
+    
+    document.getElementById('viewTipsDashboardBtn').addEventListener('click', showTipsDashboard);
+    
+    // Tip amount buttons
+    document.querySelectorAll('.tip-amount-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.tip-amount-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('tipAmount').value = this.dataset.amount;
+        });
+    });
+    
+    document.getElementById('confirmTipBtn').addEventListener('click', sendTip);
+    document.getElementById('cancelTipBtn').addEventListener('click', closeTipModal);
+    
+    // Enter key on tip amount field
+    document.getElementById('tipAmount').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('confirmTipBtn').click();
+        }
+    });
+    
+    // ===== NOVO: Marketplace Event Listeners =====
+    document.getElementById('marketplaceBtn').addEventListener('click', showMarketplace);
+    document.getElementById('closeMarketplaceBtn').addEventListener('click', function() {
+        document.getElementById('marketplaceModal').style.display = 'none';
+    });
+    document.getElementById('refreshMarketplaceBtn').addEventListener('click', refreshMarketplace);
+    document.getElementById('marketplaceSearchBtn').addEventListener('click', function() {
+        renderMarketplace(document.getElementById('marketplaceSearch').value);
+    });
+    document.getElementById('marketplaceSearch').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            renderMarketplace(this.value);
+        }
+    });
 });
 
 // ================================================================
@@ -3379,6 +4174,10 @@ console.log("🚀 BradiCoin Secure Wallet Loaded");
 console.log("🔐 Security Features: 2FA, Auto-Lock, Rate Limiting, Private Key");
 console.log("🕵️ Privacy Features: ZK-SNARKs, Stealth Addresses, Mixer, Decoy TX");
 console.log("🪙 Token Features: Create your own tokens with payment");
+console.log("📱 New: QR Code - Easy receive payments!");
+console.log("🛒 New: Token Marketplace - Discover community tokens!");
+console.log("🔔 New: Push Notifications - Stay informed!");
+console.log("💝 New: Tips System - Support creators with BRD tips!");
 console.log("📚 Seed phrase uses " + WORD_LIST.length + " words from A-Z");
 
 setInterval(() => {
