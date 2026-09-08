@@ -749,6 +749,11 @@
   <button class="lang-btn" data-lang="pt">PT</button>
   <button class="lang-btn" data-lang="es">ES</button>
   <button class="lang-btn" data-lang="ar">AR</button>
+  <button class="lang-btn" data-lang="de">DE</button>
+  <button class="lang-btn" data-lang="it">IT</button>
+  <button class="lang-btn" data-lang="fr">FR</button>
+  <button class="lang-btn" data-lang="ru">RU</button>
+  <button class="lang-btn" data-lang="ko">KO</button>
 </div>
 
 <!-- ===== CONFIRM DIALOG ===== -->
@@ -1336,6 +1341,142 @@
   </div>
 </div>
 
+<!-- ================================================================ -->
+<!-- ===== NFT SYSTEM MODALS ===== -->
+<!-- ================================================================ -->
+
+<!-- ===== CREATE NFT MODAL ===== -->
+<div id="createNFTModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:600px;">
+    <i class="fas fa-image" style="font-size: 3rem; color: #ff6b6b;"></i>
+    <h2 id="createNFTTitle" style="color: #ff6b6b;">🎨 Create NFT</h2>
+    <p id="createNFTSub" style="font-size:0.55rem; opacity:0.7;">Mint your own NFT on BradiCoin</p>
+    
+    <div style="text-align:left; margin-top:0.5rem;">
+      <label style="font-size:0.55rem; opacity:0.7;" id="nftTitleLabel">NFT Title *</label>
+      <input type="text" id="nftTitle" class="cyber-input" placeholder="My Awesome NFT" style="font-size:0.6rem; padding:0.4rem; margin:0.2rem 0;">
+      
+      <label style="font-size:0.55rem; opacity:0.7;" id="nftDescLabel">Description (optional)</label>
+      <textarea id="nftDescription" class="cyber-input" placeholder="Describe your NFT..." style="font-size:0.6rem; padding:0.4rem; margin:0.2rem 0; min-height:60px; resize:vertical;"></textarea>
+      
+      <label style="font-size:0.55rem; opacity:0.7;" id="nftPriceLabel">Price (BRD) *</label>
+      <input type="number" id="nftPrice" class="cyber-input" placeholder="0.50" step="any" style="font-size:0.6rem; padding:0.4rem; margin:0.2rem 0;">
+      
+      <label style="font-size:0.55rem; opacity:0.7;" id="nftImageLabel">NFT Image * (min 200x200)</label>
+      <div class="token-preview" id="nftPreview">
+        <span class="placeholder">🖼️ 200x200 min</span>
+      </div>
+      <input type="file" id="nftImage" class="cyber-input file-input" accept="image/*" style="font-size:0.55rem; padding:0.3rem;">
+      <p style="font-size:0.45rem; color:#666; margin:0.2rem 0;" id="nftImageHint">📏 Minimum size: 200 x 200 pixels</p>
+    </div>
+    
+    <!-- Payment info -->
+    <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.5rem 0; border:1px solid #ff6b6b33;">
+      <div style="display:flex; justify-content:space-between; font-size:0.55rem;">
+        <span style="color:#ff6b6b;">💰 Minting Fee</span>
+        <span style="color:#00ff88;">0.120000 BRD</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.45rem; color:#666;">
+        <span>≈ $1.20 USD</span>
+        <span id="nftNetworkFee">⛽ Network fee: 0.005 BRD</span>
+      </div>
+    </div>
+    
+    <input type="password" id="nftPassword" class="cyber-input" placeholder="Your wallet password" style="font-size:0.6rem; padding:0.4rem; margin:0.3rem 0;">
+    
+    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
+      <button id="createNFTSubmitBtn" class="cyber-btn" style="flex:1; border-color:#ff6b6b; color:#ff6b6b;"><i class="fas fa-image"></i> <span id="createNFTBtnText">Create NFT</span></button>
+      <button id="cancelCreateNFTBtn" class="cyber-btn" style="flex:1;"><i class="fas fa-times"></i> Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NFT PAYMENT MODAL ===== -->
+<div id="nftPaymentModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:500px;">
+    <i class="fas fa-image" style="font-size: 3rem; color: #ffd700;"></i>
+    <h2 style="color: #ffd700;">💰 NFT Minting Payment</h2>
+    <p style="font-size:0.55rem; opacity:0.7;">Complete payment to mint your NFT</p>
+    
+    <div style="background:#010518; padding:0.8rem; border-radius:1rem; margin:0.5rem 0; border:1px solid #ffd70033; text-align:left;">
+      <div style="display:flex; justify-content:space-between; font-size:0.55rem; padding:0.2rem 0;">
+        <span style="color:#ff6b6b;">🎨 NFT</span>
+        <span style="color:#00f2ff;" id="nftPaymentTitle">---</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.55rem; padding:0.2rem 0;">
+        <span style="color:#ff6b6b;">💰 Price</span>
+        <span style="color:#00ff88;" id="nftPaymentPrice">0</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.55rem; padding:0.2rem 0;">
+        <span style="color:#ff6b6b;">⛽ Network Fee</span>
+        <span style="color:#ffaa00;" id="nftPaymentFee">0.005 BRD</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.55rem; padding:0.2rem 0; border-top:1px solid #ffd70033; margin-top:0.2rem; padding-top:0.3rem;">
+        <span style="color:#ffd700; font-weight:700;">Total</span>
+        <span style="color:#ffd700; font-weight:700;" id="nftPaymentTotal">0.125000 BRD</span>
+      </div>
+    </div>
+    
+    <input type="password" id="nftPaymentPassword" class="cyber-input" placeholder="Your wallet password" style="font-size:0.6rem; padding:0.4rem; margin:0.3rem 0;">
+    
+    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
+      <button id="confirmNFTPaymentBtn" class="cyber-btn gold" style="flex:1;"><i class="fas fa-check-circle"></i> <span id="confirmNFTText">Confirm Payment</span></button>
+      <button id="cancelNFTPaymentBtn" class="cyber-btn" style="flex:1;"><i class="fas fa-times"></i> Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NFT DETAIL MODAL ===== -->
+<div id="nftDetailModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:550px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+      <h2 style="color:#ff6b6b;" id="nftDetailTitle">🎨 NFT</h2>
+      <button id="closeNFTDetailBtn" class="cyber-btn small" style="font-size:0.5rem; padding:0.2rem 0.8rem;"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div id="nftDetailContent" style="text-align:center;">
+      <div style="width:200px; height:200px; border-radius:1rem; margin:0 auto; border:2px solid #ff6b6b; overflow:hidden; background:#010518; display:flex; align-items:center; justify-content:center;">
+        <img id="nftDetailImage" src="" alt="NFT" style="width:100%; height:100%; object-fit:cover; display:none;">
+        <span id="nftDetailPlaceholder" style="color:#666; font-size:1rem;">🖼️</span>
+      </div>
+      <h3 id="nftDetailName" style="color:#00f2ff; margin:0.5rem 0 0.2rem;">---</h3>
+      <p id="nftDetailDesc" style="font-size:0.55rem; opacity:0.7; margin:0.2rem 0;">---</p>
+      <div style="display:flex; justify-content:center; gap:0.5rem; margin:0.3rem 0;">
+        <span style="font-size:0.55rem; color:#ffd700;">💰 Price: <span id="nftDetailPrice">0</span> BRD</span>
+        <span style="font-size:0.45rem; color:#666;">🆔 <span id="nftDetailId">---</span></span>
+      </div>
+      <div style="font-size:0.45rem; color:#666;">👤 Owner: <span id="nftDetailOwner">---</span></div>
+      
+      <div style="margin-top:0.5rem; display:flex; gap:0.3rem;">
+        <button id="nftSendBtn" class="cyber-btn small" style="flex:1; border-color:#ff6b6b; color:#ff6b6b;"><i class="fas fa-paper-plane"></i> Send NFT</button>
+        <button id="nftCloseDetailBtn" class="cyber-btn primary small" style="flex:1;"><i class="fas fa-times"></i> Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SEND NFT MODAL ===== -->
+<div id="sendNFTModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:500px;">
+    <i class="fas fa-paper-plane" style="font-size: 3rem; color: #ff6b6b;"></i>
+    <h2 style="color: #ff6b6b;">📤 Send NFT</h2>
+    <p style="font-size:0.55rem; opacity:0.7;">Transfer NFT to another BradiCoin wallet</p>
+    
+    <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.3rem 0; border:1px solid #ff6b6b33;">
+      <p style="font-size:0.5rem; color:#ff6b6b;">🎨 NFT</p>
+      <div style="font-family:monospace; font-size:0.6rem; color:#00f2ff;" id="sendNFTTitle">---</div>
+    </div>
+    
+    <input type="text" id="sendNFTRecipient" class="cyber-input" placeholder="Recipient BradiCoin address" style="font-size:0.55rem; padding:0.3rem; margin:0.3rem 0;">
+    <input type="password" id="sendNFTPassword" class="cyber-input" placeholder="Your wallet password" style="font-size:0.55rem; padding:0.3rem; margin:0.3rem 0;">
+    
+    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
+      <button id="confirmSendNFTBtn" class="cyber-btn" style="flex:1; border-color:#ff6b6b; color:#ff6b6b;"><i class="fas fa-check"></i> Send NFT</button>
+      <button id="cancelSendNFTBtn" class="cyber-btn" style="flex:1;"><i class="fas fa-times"></i> Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== MAIN DASHBOARD ===== -->
 <div id="mainDashboard" class="main-dashboard">
   <div class="container">
@@ -1437,6 +1578,7 @@
           <button id="historyBtn" class="cyber-btn small"><i class="fas fa-history"></i> History</button>
           <button id="zkPrivateSendBtn" class="cyber-btn zk small"><i class="fas fa-shield-alt"></i> Private</button>
           <button id="stealthBtn" class="cyber-btn anon small"><i class="fas fa-mask"></i> Stealth</button>
+          <button id="createNFTBtn" class="cyber-btn small" style="border-color:#ff6b6b; color:#ff6b6b;"><i class="fas fa-image"></i> NFT</button>
         </div>
         <div class="referral-box" style="padding:0.4rem;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -1459,6 +1601,18 @@
         <div id="tokensList" class="tokens-grid"></div>
       </div>
     </div>
+
+    <!-- ===== MY NFTS CARD ===== -->
+<div class="neon-card" style="margin-top:1.5rem; border-color:#ff6b6b33;">
+  <h3 style="font-size:0.9rem;"><i class="fas fa-image" style="color:#ff6b6b;"></i> <span style="color:#ff6b6b;" id="myNFTsTitle">My NFTs</span></h3>
+  <div style="display:flex; gap:0.5rem; margin:0.5rem 0;">
+    <button id="createNFTBtnDashboard" class="cyber-btn" style="border-color:#ff6b6b; color:#ff6b6b; flex:1;"><i class="fas fa-plus-circle"></i> <span id="createNFTBtnTextDashboard">Create NFT</span></button>
+  </div>
+  <div id="nftsContainer" style="margin-top:0.5rem;">
+    <p style="font-size:0.6rem; opacity:0.5; text-align:center;" id="noNFTsMsg">No NFTs created yet. Click "Create NFT" to get started!</p>
+    <div id="nftsList" class="nfts-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:0.5rem;"></div>
+  </div>
+</div>
 
     <!-- ===== NOVO: Tips Card no Dashboard ===== -->
     <div class="neon-card" style="margin-top:1.5rem; border-color:#ff6b9d33;">
@@ -2093,7 +2247,8 @@ function goToDashboardFromCongrats() {
     updateSecurityBadge();
     updateTokensUI();
     updateTipsUI();
-    
+    updateNFTsUI();
+  
     const type = document.getElementById('congratsModal').dataset.type || 'create';
     if (type === 'create') {
         showToast("🎉 Wallet created successfully!", "success");
@@ -2264,6 +2419,7 @@ function loadWallet() {
             if (!wallet.marketplace) wallet.marketplace = { listedTokens: [] };
             if (!wallet.notifications) wallet.notifications = [];
             if (!wallet.tips) wallet.tips = { received: [], sent: [], totalReceived: 0, totalSent: 0, tipsEarned: 0 };
+            if (!wallet.nfts) wallet.nfts = [];
             return true;
         }
     } catch(e) {
@@ -2386,6 +2542,7 @@ function updateUI() {
     
     updateNotificationBadge();
     updateTipsUI();
+
 }
 
 function updateSecurityBadge() {
@@ -2497,8 +2654,8 @@ function sendTip() {
         time: new Date().toISOString(),
         message: message || '💝 Tip sent'
     });
-    
-    // ===== NOTIFICATION: Tip sent =====
+
+      // ===== NOTIFICATION: Tip sent =====
     addNotification(`💝 You sent ${amount} BRD tip to ${recipient.substring(0, 10)}...`, 'success');
     sendPushNotification('Tip Sent!', `You sent ${amount} BRD to ${recipient.substring(0, 10)}...`);
     
@@ -3487,7 +3644,127 @@ const translations = {
         privateKey: "المفتاح الخاص", privateKeyWarning: "⚠️ تحذير: لا تشارك مفتاحك الخاص مع أي شخص! أي شخص لديه هذا المفتاح يمكنه الوصول إلى أموالك.",
         revealPrivateKey: "كشف المفتاح الخاص", hidePrivateKey: "إخفاء", copyPrivateKey: "نسخ",
         privateKeyRevealed: "تم كشف المفتاح الخاص! انسخه الآن."
-    }
+    },
+  de: {
+    mainTitle: "BRADICOIN", subtitle: "Sichere Krypto-Wallet", desc: "Erstellen · Importieren · Stake · Verdienen",
+    createBtn: "Wallet erstellen", importBtn: "Wallet importieren", unlockBtn: "Wallet entsperren",
+    logout: "Abmelden", sendBrd: "BRD senden", airdrop: "Airdrop", rewards: "Belohnungen",
+    settings: "Einstellungen", analytics: "Analysen", copyAddress: "Kopieren", checkChain: "Überprüfen",
+    stakeBtn: "Stake 24h", unstakeBtn: "Auszahlen", receive: "Empfangen", history: "Verlauf",
+    seedModalTitle: "⚠️ BEWAHREN SIE IHREN SEED-PHRASE AUF", seedModalWarning: "Dies ist der EINZIGE Weg, um Ihre Wallet wiederherzustellen!",
+    walletInfo: "Ihre Wallet-Adresse wird automatisch generiert",
+    gasFee: "Gas-Gebühr: 0.15 BRD", minSend: "Mindestbetrag zum Senden:", networkFee: "Netzwerkgebühr pro Transaktion",
+    yesLogout: "Ja", noCancel: "Nein",
+    back: "Zurück", backToLogin: "Zurück zum Login",
+    createToken: "Token erstellen", createTokenTitle: "🚀 Token erstellen", createTokenSub: "Erstellen Sie Ihren eigenen Token auf BradiCoin",
+    tokenName: "Token-Name", tokenSymbol: "Token-Symbol", totalSupply: "Gesamtangebot",
+    tokenLogo: "Token-Logo (200x200)", imageSize: "Bildgröße: 200 x 200 Pixel empfohlen",
+    createLoan: "Darlehen / Zahlung erstellen", loanSub: "Schließen Sie die Zahlung ab, um die Tokenerstellung abzuschließen",
+    pricePerToken: "Preis pro Token", totalPrice: "Gesamtpreis (USD)", amountInBrd: "Betrag in BRD",
+    networkFee: "Netzwerkgebühr", totalToPay: "Gesamt zu zahlen", confirmPayment: "Zahlung bestätigen",
+    myTokens: "Meine Token", noTokens: "Noch keine Token erstellt. Klicken Sie auf 'Token erstellen', um zu beginnen!",
+    cancel: "Abbrechen", confirm: "Bestätigen",
+    historyTitle: "Transaktionsverlauf", historySub: "Alle Ihre BRD-Transaktionen",
+    privateKey: "Privatschlüssel", privateKeyWarning: "⚠️ WARNUNG: Geben Sie Ihren Privatschlüssel niemals an Dritte weiter! Jeder mit diesem Schlüssel kann auf Ihre Gelder zugreifen.",
+    revealPrivateKey: "Privatschlüssel anzeigen", hidePrivateKey: "Ausblenden", copyPrivateKey: "Kopieren",
+    privateKeyRevealed: "Privatschlüssel angezeigt! Jetzt kopieren."
+},
+it: {
+    mainTitle: "BRADICOIN", subtitle: "Portafoglio Crypto Sicuro", desc: "Crea · Importa · Stake · Guadagna",
+    createBtn: "Crea Portafoglio", importBtn: "Importa Portafoglio", unlockBtn: "Sblocca",
+    logout: "Esci", sendBrd: "Invia BRD", airdrop: "Airdrop", rewards: "Ricompense",
+    settings: "Impostazioni", analytics: "Analisi", copyAddress: "Copia", checkChain: "Verifica",
+    stakeBtn: "Stake 24h", unstakeBtn: "Ritira", receive: "Ricevi", history: "Cronologia",
+    seedModalTitle: "⚠️ SALVA LA TUA FRASE SEMILLA", seedModalWarning: "Questo è l'UNICO modo per recuperare il tuo portafoglio!",
+    walletInfo: "Il tuo indirizzo verrà generato automaticamente",
+    gasFee: "Commissione Gas: 0.15 BRD", minSend: "Minimo per inviare:", networkFee: "Commissione applicata ad ogni transazione",
+    yesLogout: "Sì", noCancel: "No",
+    back: "Indietro", backToLogin: "Torna al Login",
+    createToken: "Crea Token", createTokenTitle: "🚀 Crea Token", createTokenSub: "Crea il tuo token su BradiCoin",
+    tokenName: "Nome del Token", tokenSymbol: "Simbolo del Token", totalSupply: "Fornitura Totale",
+    tokenLogo: "Logo del Token (200x200)", imageSize: "Dimensioni immagine: 200 x 200 pixel consigliate",
+    createLoan: "Crea Prestito / Pagamento", loanSub: "Completa il pagamento per finalizzare la creazione del token",
+    pricePerToken: "Prezzo per Token", totalPrice: "Prezzo Totale (USD)", amountInBrd: "Importo in BRD",
+    networkFee: "Commissione di Rete", totalToPay: "Totale da Pagare", confirmPayment: "Conferma Pagamento",
+    myTokens: "I Miei Token", noTokens: "Nessun token creato ancora. Clicca su 'Crea Token' per iniziare!",
+    cancel: "Annulla", confirm: "Conferma",
+    historyTitle: "Cronologia Transazioni", historySub: "Tutte le tue transazioni in BRD",
+    privateKey: "Chiave Privata", privateKeyWarning: "⚠️ AVVISO: Non condividere mai la tua chiave privata con nessuno! Chiunque abbia questa chiave può accedere ai tuoi fondi.",
+    revealPrivateKey: "Mostra Chiave Privata", hidePrivateKey: "Nascondi", copyPrivateKey: "Copia",
+    privateKeyRevealed: "Chiave privata rivelata! Copiala ora."
+},
+fr: {
+    mainTitle: "BRADICOIN", subtitle: "Portefeuille Crypto Sécurisé", desc: "Créer · Importer · Stake · Gagner",
+    createBtn: "Créer un Portefeuille", importBtn: "Importer un Portefeuille", unlockBtn: "Déverrouiller",
+    logout: "Déconnexion", sendBrd: "Envoyer BRD", airdrop: "Airdrop", rewards: "Récompenses",
+    settings: "Paramètres", analytics: "Analyses", copyAddress: "Copier", checkChain: "Vérifier",
+    stakeBtn: "Stake 24h", unstakeBtn: "Retirer", receive: "Recevoir", history: "Historique",
+    seedModalTitle: "⚠️ ENREGISTREZ VOTRE PHRASE DE RÉCUPÉRATION", seedModalWarning: "C'est le SEUL moyen de récupérer votre portefeuille!",
+    walletInfo: "Votre adresse sera générée automatiquement",
+    gasFee: "Frais de Gas: 0.15 BRD", minSend: "Minimum à envoyer:", networkFee: "Frais appliqués à chaque transaction",
+    yesLogout: "Oui", noCancel: "Non",
+    back: "Retour", backToLogin: "Retour à la Connexion",
+    createToken: "Créer un Jeton", createTokenTitle: "🚀 Créer un Jeton", createTokenSub: "Créez votre propre jeton sur BradiCoin",
+    tokenName: "Nom du Jeton", tokenSymbol: "Symbole du Jeton", totalSupply: "Offre Totale",
+    tokenLogo: "Logo du Jeton (200x200)", imageSize: "Taille d'image: 200 x 200 pixels recommandée",
+    createLoan: "Créer un Prêt / Paiement", loanSub: "Effectuez le paiement pour finaliser la création du jeton",
+    pricePerToken: "Prix par Jeton", totalPrice: "Prix Total (USD)", amountInBrd: "Montant en BRD",
+    networkFee: "Frais de Réseau", totalToPay: "Total à Payer", confirmPayment: "Confirmer le Paiement",
+    myTokens: "Mes Jetons", noTokens: "Aucun jeton créé encore. Cliquez sur 'Créer un Jeton' pour commencer!",
+    cancel: "Annuler", confirm: "Confirmer",
+    historyTitle: "Historique des Transactions", historySub: "Toutes vos transactions en BRD",
+    privateKey: "Clé Privée", privateKeyWarning: "⚠️ AVERTISSEMENT: Ne partagez jamais votre clé privée avec qui que ce soit! Toute personne ayant cette clé peut accéder à vos fonds.",
+    revealPrivateKey: "Révéler la Clé Privée", hidePrivateKey: "Masquer", copyPrivateKey: "Copier",
+    privateKeyRevealed: "Clé privée révélée! Copiez-la maintenant."
+},
+ru: {
+    mainTitle: "BRADICOIN", subtitle: "Безопасный крипто-кошелек", desc: "Создать · Импортировать · Ставка · Заработать",
+    createBtn: "Создать кошелек", importBtn: "Импортировать кошелек", unlockBtn: "Разблокировать",
+    logout: "Выйти", sendBrd: "Отправить BRD", airdrop: "Airdrop", rewards: "Награды",
+    settings: "Настройки", analytics: "Аналитика", copyAddress: "Копировать", checkChain: "Проверить",
+    stakeBtn: "Ставка 24ч", unstakeBtn: "Вывести", receive: "Получить", history: "История",
+    seedModalTitle: "⚠️ СОХРАНИТЕ СВОЮ СИД-ФРАЗУ", seedModalWarning: "Это ЕДИНСТВЕННЫЙ способ восстановить ваш кошелек!",
+    walletInfo: "Ваш адрес будет сгенерирован автоматически",
+    gasFee: "Комиссия за газ: 0.15 BRD", minSend: "Минимум для отправки:", networkFee: "Комиссия за каждую транзакцию",
+    yesLogout: "Да", noCancel: "Нет",
+    back: "Назад", backToLogin: "Назад к входу",
+    createToken: "Создать токен", createTokenTitle: "🚀 Создать токен", createTokenSub: "Создайте свой собственный токен на BradiCoin",
+    tokenName: "Название токена", tokenSymbol: "Символ токена", totalSupply: "Общее предложение",
+    tokenLogo: "Логотип токена (200x200)", imageSize: "Размер изображения: 200 x 200 пикселей рекомендуется",
+    createLoan: "Создать займ / платеж", loanSub: "Завершите платеж для создания токена",
+    pricePerToken: "Цена за токен", totalPrice: "Общая цена (USD)", amountInBrd: "Сумма в BRD",
+    networkFee: "Комиссия сети", totalToPay: "Итого к оплате", confirmPayment: "Подтвердить платеж",
+    myTokens: "Мои токены", noTokens: "Токены еще не созданы. Нажмите 'Создать токен', чтобы начать!",
+    cancel: "Отмена", confirm: "Подтвердить",
+    historyTitle: "История транзакций", historySub: "Все ваши транзакции в BRD",
+    privateKey: "Приватный ключ", privateKeyWarning: "⚠️ ПРЕДУПРЕЖДЕНИЕ: Никогда не передавайте свой приватный ключ никому! Любой, у кого есть этот ключ, может получить доступ к вашим средствам.",
+    revealPrivateKey: "Показать приватный ключ", hidePrivateKey: "Скрыть", copyPrivateKey: "Копировать",
+    privateKeyRevealed: "Приватный ключ показан! Скопируйте его сейчас."
+},
+ko: {
+    mainTitle: "BRADICOIN", subtitle: "안전한 암호화폐 지갑", desc: "생성 · 가져오기 · 스테이킹 · 수익",
+    createBtn: "지갑 생성", importBtn: "지갑 가져오기", unlockBtn: "잠금 해제",
+    logout: "로그아웃", sendBrd: "BRD 보내기", airdrop: "에어드랍", rewards: "보상",
+    settings: "설정", analytics: "분석", copyAddress: "복사", checkChain: "확인",
+    stakeBtn: "24시간 스테이킹", unstakeBtn: "출금", receive: "받기", history: "내역",
+    seedModalTitle: "⚠️ 시드 프레이즈를 저장하세요", seedModalWarning: "이것이 지갑을 복구할 수 있는 유일한 방법입니다!",
+    walletInfo: "지갑 주소가 자동으로 생성됩니다",
+    gasFee: "가스 수수료: 0.15 BRD", minSend: "최소 전송 금액:", networkFee: "모든 거래에 적용되는 네트워크 수수료",
+    yesLogout: "예", noCancel: "아니오",
+    back: "뒤로", backToLogin: "로그인으로 돌아가기",
+    createToken: "토큰 생성", createTokenTitle: "🚀 토큰 생성", createTokenSub: "BradiCoin에서 나만의 토큰을 만드세요",
+    tokenName: "토큰 이름", tokenSymbol: "토큰 심볼", totalSupply: "총 공급량",
+    tokenLogo: "토큰 로고 (200x200)", imageSize: "이미지 크기: 200 x 200 픽셀 권장",
+    createLoan: "대출 / 결제 생성", loanSub: "토큰 생성을 완료하려면 결제를 완료하세요",
+    pricePerToken: "토큰당 가격", totalPrice: "총 가격 (USD)", amountInBrd: "BRD 금액",
+    networkFee: "네트워크 수수료", totalToPay: "총 결제 금액", confirmPayment: "결제 확인",
+    myTokens: "내 토큰", noTokens: "아직 생성된 토큰이 없습니다. '토큰 생성'을 클릭하여 시작하세요!",
+    cancel: "취소", confirm: "확인",
+    historyTitle: "거래 내역", historySub: "모든 BRD 거래 내역",
+    privateKey: "개인 키", privateKeyWarning: "⚠️ 경고: 개인 키를 절대 공유하지 마세요! 이 키를 가진 사람은 누구나 자금에 접근할 수 있습니다.",
+    revealPrivateKey: "개인 키 표시", hidePrivateKey: "숨기기", copyPrivateKey: "복사",
+    privateKeyRevealed: "개인 키가 표시되었습니다! 지금 복사하세요."
+}
 };
 
 function updateLanguage() {
@@ -4109,47 +4386,112 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('createLoanModal').style.display = 'none';
         pendingTokenData = null;
     });
+
+  // ================================================================
+// ===== NFT EVENT LISTENERS =====
+// ================================================================
+document.getElementById('createNFTBtn').addEventListener('click', openCreateNFTModal);
+document.getElementById('createNFTBtnDashboard').addEventListener('click', openCreateNFTModal);
+document.getElementById('cancelCreateNFTBtn').addEventListener('click', closeCreateNFTModal);
+
+document.getElementById('createNFTSubmitBtn').addEventListener('click', function() {
+    const title = document.getElementById('nftTitle').value.trim();
+    const description = document.getElementById('nftDescription').value.trim();
+    const price = parseFloat(document.getElementById('nftPrice').value);
+    const password = document.getElementById('nftPassword').value;
     
-    // ===== NOVO: Tips System Event Listeners =====
-    document.getElementById('tipsDashboardBtn').addEventListener('click', showTipsDashboard);
-    document.getElementById('closeTipsDashboardBtn').addEventListener('click', function() {
-        document.getElementById('tipsDashboardModal').style.display = 'none';
-    });
-    document.getElementById('refreshTipsBtn').addEventListener('click', function() {
-        updateTipsUI();
-        showToast("🔄 Tips refreshed!", "success");
-    });
+    if (!title) {
+        showToast("Enter an NFT title", "error");
+        return;
+    }
     
-    document.getElementById('quickTipBtn').addEventListener('click', function() {
-        const addr = document.getElementById('tipCreatorAddress').value.trim();
-        if (addr) {
-            openTipModal(addr);
-        } else {
-            showToast("Enter a creator address", "error");
-        }
-    });
+    if (!price || price <= 0) {
+        showToast("Enter a valid price", "error");
+        return;
+    }
     
-    document.getElementById('viewTipsDashboardBtn').addEventListener('click', showTipsDashboard);
+    if (!nftImageDataUrl) {
+        showToast("Upload an image (min 200x200)", "error");
+        return;
+    }
     
-    // Tip amount buttons
-    document.querySelectorAll('.tip-amount-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.tip-amount-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            document.getElementById('tipAmount').value = this.dataset.amount;
-        });
-    });
+    if (!password) {
+        showToast("Enter your wallet password", "error");
+        return;
+    }
     
-    document.getElementById('confirmTipBtn').addEventListener('click', sendTip);
-    document.getElementById('cancelTipBtn').addEventListener('click', closeTipModal);
+    const decrypted = decrypt(wallet.encryptedSeed, password);
+    if (!decrypted) {
+        showToast("Wrong password!", "error");
+        return;
+    }
     
-    // Enter key on tip amount field
-    document.getElementById('tipAmount').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            document.getElementById('confirmTipBtn').click();
-        }
-    });
+    const total = price + 0.005;
+    if (total > wallet.balance) {
+        showToast(`Insufficient balance! Need ${total.toFixed(6)} BRD`, "error");
+        return;
+    }
     
+    const nftData = {
+        title: title,
+        description: description || '',
+        price: price,
+        image: nftImageDataUrl
+    };
+    
+    openNFTPaymentModal(nftData);
+});
+
+document.getElementById('confirmNFTPaymentBtn').addEventListener('click', confirmNFTPayment);
+document.getElementById('cancelNFTPaymentBtn').addEventListener('click', function() {
+    document.getElementById('nftPaymentModal').style.display = 'none';
+    pendingNFTData = null;
+});
+
+document.getElementById('closeNFTDetailBtn').addEventListener('click', function() {
+    document.getElementById('nftDetailModal').style.display = 'none';
+});
+document.getElementById('nftCloseDetailBtn').addEventListener('click', function() {
+    document.getElementById('nftDetailModal').style.display = 'none';
+});
+
+document.getElementById('nftSendBtn').addEventListener('click', function() {
+    if (selectedNFTForSend !== null) {
+        document.getElementById('nftDetailModal').style.display = 'none';
+        openSendNFT(selectedNFTForSend);
+    }
+});
+
+document.getElementById('confirmSendNFTBtn').addEventListener('click', confirmSendNFT);
+document.getElementById('cancelSendNFTBtn').addEventListener('click', function() {
+    document.getElementById('sendNFTModal').style.display = 'none';
+    selectedNFTForSend = null;
+});
+
+// ===== NFT IMAGE HANDLING =====
+document.getElementById('nftImage').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const img = new Image();
+        const reader = new FileReader();
+        
+        reader.onload = function(event) {
+            img.onload = function() {
+                if (img.width < 200 || img.height < 200) {
+                    showToast(`Image too small! ${img.width}x${img.height} - minimum 200x200`, "error");
+                    document.getElementById('nftImage').value = '';
+                    document.getElementById('nftPreview').innerHTML = '<span class="placeholder">🖼️ 200x200 min</span>';
+                    return;
+                }
+                nftImageDataUrl = event.target.result;
+                document.getElementById('nftPreview').innerHTML = `<img src="${event.target.result}" alt="NFT" style="width:100%; height:100%; object-fit:cover;">`;
+                showToast(`✅ Image loaded: ${img.width}x${img.height}`, "success");
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});
     // ===== NOVO: Marketplace Event Listeners =====
     document.getElementById('marketplaceBtn').addEventListener('click', showMarketplace);
     document.getElementById('closeMarketplaceBtn').addEventListener('click', function() {
