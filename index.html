@@ -846,6 +846,18 @@
       <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
         <input type="text" id="unlock2FAInput" class="cyber-input" placeholder="2FA Code (if enabled)" style="flex:1; font-size:0.6rem;">
       </div>
+      
+      <!-- ===== SEÇÃO DE BIOMETRIA ===== -->
+  <div id="biometricContainer" style="display:none; margin:0.5rem 0;">
+    <button id="biometricLoginBtn" class="cyber-btn success" style="width:100%; font-size:0.65rem; padding:0.6rem;">
+      <i class="fas fa-fingerprint" style="font-size:1.2rem;"></i> 
+      <span id="biometricLoginText">🔐 Login with Fingerprint</span>
+    </button>
+    <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.3rem; justify-content:center;">
+      <span style="font-size:0.45rem; opacity:0.5;">👆 Use your fingerprint or continue with password</span>
+      <span class="biometric-status" id="biometricStatus" style="font-size:0.4rem; color:#00ff88;">● Ready</span>
+    </div>
+  </div>
       <button id="unlockWalletBtn" class="cyber-btn primary" style="margin-top:0.8rem; width:100%;"><i class="fas fa-unlock-alt"></i> Unlock Wallet</button>
       <p style="font-size:0.55rem; margin-top:0.5rem; opacity:0.6;">🔐 Your keys, your crypto. 2FA available</p>
     </div>
@@ -861,6 +873,18 @@
     <div class="seed-phrase-box" id="modalSeedPhrase"></div>
     <p id="walletInfoText">Your wallet address will be generated automatically</p>
     <input type="password" id="walletPasswordInput" class="cyber-input" placeholder="Create a password for your wallet" style="margin:0.5rem 0;">
+    
+    <!-- ================================================================ -->
+    <!-- ===== BIOMETRIA TOGGLE ===== -->
+    <!-- ================================================================ -->
+    <div style="display:flex; align-items:center; gap:0.5rem; margin:0.5rem 0; justify-content:center; flex-wrap:wrap;">
+      <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.55rem; cursor:pointer;">
+        <input type="checkbox" id="enableBiometric" style="accent-color:#00ff88; width:18px; height:18px; cursor:pointer;">
+        <span id="biometricToggleText">🔐 Enable Fingerprint Login (optional)</span>
+      </label>
+      <span id="biometricSupportBadge" style="font-size:0.4rem; padding:0.1rem 0.5rem; border-radius:1rem; background:#00ff8822; border:1px solid #00ff88; color:#00ff88; display:none;">✅ Supported</span>
+    </div>
+    
     <button id="copySeedBtn" class="cyber-btn" style="width:100%; margin-bottom: 0.5rem;"><i class="fas fa-copy"></i> Copy Seed Phrase</button>
     <button id="confirmSeedBtn" class="cyber-btn primary" style="width:100%;"><i class="fas fa-check-circle"></i> I Have Saved My Seed Phrase</button>
     <button id="backToLoginFromSeed" class="cyber-btn back" style="width:100%; margin-top:0.5rem;"><i class="fas fa-arrow-left"></i> Back to Login</button>
@@ -977,6 +1001,7 @@
     <h2 style="color: #ffaa00;">🔐 View Seed Phrase</h2>
     <p style="color: #ff0055; font-size: 0.8rem; margin: 0.5rem 0;">⚠️ WARNING: Never share your seed phrase with anyone!</p>
     <input type="password" id="viewSeedPassword" class="cyber-input" placeholder="Enter your wallet password" style="margin:0.5rem 0;">
+    
     <button id="revealSeedBtn" class="cyber-btn warning" style="width:100%;"><i class="fas fa-unlock"></i> Reveal Seed Phrase</button>
     <div id="revealedSeedContainer" style="display:none; margin-top:1rem;">
       <div class="seed-phrase-box" id="revealedSeedPhrase"></div>
@@ -2344,9 +2369,22 @@ function importWalletFromSeed(seedStr, password) {
     wallet.marketplace = { listedTokens: [] };
     wallet.notifications = [];
     wallet.tips = { received: [], sent: [], totalReceived: 0, totalSent: 0, tipsEarned: 0 };
+    wallet.nfts = [];
+    
+    // ===== REGISTRA BIOMETRIA SE ATIVADO =====
+    const enableBiometric = document.getElementById('enableBiometric')?.checked || false;
+    if (enableBiometric && isBiometricSupported()) {
+        const userId = address;
+        const userName = 'BradiCoin User';
+        registerBiometric(userId, userName).then(success => {
+            if (success) {
+                localStorage.setItem('bradicoin_biometric_password', password);
+                showToast("🔐 Fingerprint login enabled!", "success");
+            }
+        });
+    }
     
     saveWallet();
-    
     showCongratulationsModal('import');
     return true;
 }
@@ -2356,20 +2394,30 @@ function unlockWallet(password, twoFACode) {
         showToast("No wallet found", "error");
         return false;
     }
-    
+
+    // Primeiro verifica se a senha está correta
     const decrypted = decrypt(wallet.encryptedSeed, password);
     if (!decrypted) {
         showToast("Wrong password!", "error");
         return false;
     }
     
+    // Verifica 2FA se ativado
     if (wallet.security.twoFAEnabled) {
         if (!twoFACode || !verify2FA(twoFACode, wallet.security.twoFASecret)) {
             showToast("Invalid 2FA code!", "error");
             return false;
         }
     }
-    
+
+    // ===== SÓ DEPOIS DE VALIDAR A SENHA, SALVA PARA BIOMETRIA =====
+    if (isBiometricSupported()) {
+        const isEnabled = localStorage.getItem('bradicoin_biometric_enabled') === 'true';
+        if (isEnabled) {
+            localStorage.setItem('bradicoin_biometric_password', password);
+        }
+    }
+
     isLocked = false;
     hideLoginAndShowDashboard();
     updateUI();
@@ -2401,7 +2449,8 @@ function saveWallet() {
             tokens: wallet.tokens,
             marketplace: wallet.marketplace,
             notifications: wallet.notifications,
-            tips: wallet.tips
+            tips: wallet.tips,
+            nfts: wallet.nfts
         };
         localStorage.setItem('bradicoin_wallet', JSON.stringify(data));
     } catch(e) {
@@ -4387,6 +4436,91 @@ document.addEventListener('DOMContentLoaded', function() {
         pendingTokenData = null;
     });
 
+    // ================================================================
+    // ===== INICIALIZA BIOMETRIA =====
+    // ================================================================
+    setTimeout(() => {
+        setupBiometric();
+        updateBiometricUI();
+    }, 500);
+
+    // ================================================================
+    // ===== BIOMETRIC LOGIN EVENT =====
+    // ================================================================
+    document.getElementById('biometricLoginBtn').addEventListener('click', async function() {
+        const isEnabled = localStorage.getItem('bradicoin_biometric_enabled') === 'true';
+        const hasCredential = localStorage.getItem('bradicoin_biometric_id');
+        const hasWallet = wallet && wallet.encryptedSeed;
+        
+        if (!hasWallet) {
+            showToast("No wallet loaded", "error");
+            return;
+        }
+
+        // Se não estiver configurado, tenta configurar
+        if (!isEnabled || !hasCredential) {
+            const userId = wallet.address || 'bradicoin_user';
+            const userName = 'BradiCoin User';
+            const registered = await registerBiometric(userId, userName);
+            if (registered) {
+                const passwordInput = document.getElementById('unlockPasswordInput');
+                if (passwordInput && passwordInput.value) {
+                    localStorage.setItem('bradicoin_biometric_password', passwordInput.value);
+                }
+                setupBiometric();
+                updateBiometricUI();
+                showToast("✅ Fingerprint configured! Try again to login.", "success");
+            }
+            return;
+        }
+
+        // Tenta autenticar com biometria
+        const authenticated = await authenticateWithBiometric();
+        if (authenticated) {
+            let password = localStorage.getItem('bradicoin_biometric_password');
+            
+            if (password) {
+                const unlocked = unlockWallet(password, '');
+                if (unlocked) {
+                    showToast("🔓 Wallet unlocked with fingerprint!", "success");
+                    return;
+                } else {
+                    showToast("Please enter your password to complete login", "warning");
+                    document.getElementById('unlockPasswordInput').focus();
+                    return;
+                }
+            } else {
+                const passwordInput = document.getElementById('unlockPasswordInput');
+                if (passwordInput && passwordInput.value) {
+                    const unlocked = unlockWallet(passwordInput.value, '');
+                    if (unlocked) {
+                        localStorage.setItem('bradicoin_biometric_password', passwordInput.value);
+                        showToast("🔓 Wallet unlocked with fingerprint!", "success");
+                    }
+                } else {
+                    showToast("Please enter your password first", "error");
+                    document.getElementById('unlockPasswordInput').focus();
+                }
+            }
+        }
+    });
+
+    // ===== NOVO: Marketplace Event Listeners =====
+    document.getElementById('marketplaceBtn').addEventListener('click', showMarketplace);
+    document.getElementById('closeMarketplaceBtn').addEventListener('click', function() {
+        document.getElementById('marketplaceModal').style.display = 'none';
+    });
+    document.getElementById('refreshMarketplaceBtn').addEventListener('click', refreshMarketplace);
+    document.getElementById('marketplaceSearchBtn').addEventListener('click', function() {
+        renderMarketplace(document.getElementById('marketplaceSearch').value);
+    });
+    document.getElementById('marketplaceSearch').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            renderMarketplace(this.value);
+        }
+    });
+});
+
   // ================================================================
 // ===== NFT EVENT LISTENERS =====
 // ================================================================
@@ -4507,6 +4641,215 @@ document.getElementById('nftImage').addEventListener('change', function(e) {
         }
     });
 });
+
+// ================================================================
+// ==================== BIOMETRIA (FINGERPRINT) ==================
+// ================================================================
+
+// Verifica se o dispositivo suporta biometria
+function isBiometricSupported() {
+    if (window.PublicKeyCredential) {
+        return true;
+    }
+    if ('biometric' in navigator || 'fingerprint' in navigator) {
+        return true;
+    }
+    return false;
+}
+
+// Verifica se há credenciais biométricas salvas
+async function hasBiometricCredential() {
+    try {
+        if (!window.PublicKeyCredential) return false;
+        const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+        return available;
+    } catch(e) {
+        console.log('Biometric check error:', e);
+        return false;
+    }
+}
+
+// Registra biometria
+async function registerBiometric(userId, userName) {
+    try {
+        if (!window.PublicKeyCredential) {
+            showToast("Biometric not supported on this browser", "error");
+            return false;
+        }
+
+        const challenge = new Uint8Array(32);
+        crypto.getRandomValues(challenge);
+
+        const publicKeyCredentialCreationOptions = {
+            challenge: challenge,
+            rp: {
+                name: "BradiCoin Wallet",
+                id: window.location.hostname || "bradicoin.com"
+            },
+            user: {
+                id: new TextEncoder().encode(userId),
+                name: userName || "BradiCoin User",
+                displayName: userName || "BradiCoin User"
+            },
+            pubKeyCredParams: [
+                { type: "public-key", alg: -7 },
+                { type: "public-key", alg: -257 }
+            ],
+            authenticatorSelection: {
+                authenticatorAttachment: "platform",
+                userVerification: "required"
+            },
+            timeout: 60000,
+            attestation: "none"
+        };
+
+        const credential = await navigator.credentials.create({
+            publicKey: publicKeyCredentialCreationOptions
+        });
+
+        if (credential) {
+            const credentialId = btoa(String.fromCharCode.apply(null, new Uint8Array(credential.rawId)));
+            localStorage.setItem('bradicoin_biometric_id', credentialId);
+            localStorage.setItem('bradicoin_biometric_enabled', 'true');
+            
+            showToast("✅ Fingerprint registered successfully!", "success");
+            return true;
+        }
+        return false;
+    } catch(e) {
+        console.error('Biometric registration error:', e);
+        showToast("Failed to register fingerprint: " + e.message, "error");
+        return false;
+    }
+}
+
+// Autentica com biometria
+async function authenticateWithBiometric() {
+    try {
+        if (!window.PublicKeyCredential) {
+            showToast("Biometric not supported", "error");
+            return false;
+        }
+
+        const credentialId = localStorage.getItem('bradicoin_biometric_id');
+        if (!credentialId) {
+            showToast("No biometric registered", "error");
+            return false;
+        }
+
+        const rawId = Uint8Array.from(atob(credentialId), c => c.charCodeAt(0));
+        const challenge = new Uint8Array(32);
+        crypto.getRandomValues(challenge);
+
+        const publicKeyCredentialRequestOptions = {
+            challenge: challenge,
+            allowCredentials: [{
+                id: rawId,
+                type: "public-key"
+            }],
+            timeout: 60000,
+            userVerification: "required"
+        };
+
+        const assertion = await navigator.credentials.get({
+            publicKey: publicKeyCredentialRequestOptions
+        });
+
+        if (assertion) {
+            return true;
+        }
+        return false;
+    } catch(e) {
+        console.error('Biometric auth error:', e);
+        if (e.name === 'NotAllowedError') {
+            showToast("Biometric cancelled or failed", "error");
+        } else {
+            showToast("Biometric error: " + e.message, "error");
+        }
+        return false;
+    }
+}
+
+// Configura a interface de biometria
+async function setupBiometric() {
+    const container = document.getElementById('biometricContainer');
+    const statusBadge = document.getElementById('biometricStatus');
+    const biometricBtn = document.getElementById('biometricLoginBtn');
+    const textSpan = document.getElementById('biometricLoginText');
+    
+    if (!container) return;
+
+    const supported = isBiometricSupported();
+    const hasCredential = await hasBiometricCredential();
+    const isEnabled = localStorage.getItem('bradicoin_biometric_enabled') === 'true';
+    const hasWallet = wallet && wallet.encryptedSeed;
+
+    if (supported && isEnabled && hasCredential && hasWallet) {
+        container.style.display = 'block';
+        if (statusBadge) {
+            statusBadge.textContent = '● Ready';
+            statusBadge.style.color = '#00ff88';
+        }
+        if (biometricBtn) {
+            biometricBtn.disabled = false;
+            biometricBtn.style.opacity = '1';
+            biometricBtn.className = 'cyber-btn success';
+        }
+        if (textSpan) {
+            textSpan.textContent = '🔐 Login with Fingerprint';
+        }
+    } else if (supported && hasWallet) {
+        container.style.display = 'block';
+        if (statusBadge) {
+            statusBadge.textContent = '● Setup available';
+            statusBadge.style.color = '#ffc800';
+        }
+        if (biometricBtn) {
+            biometricBtn.className = 'cyber-btn warning';
+        }
+        if (textSpan) {
+            textSpan.textContent = '⚙️ Setup Fingerprint Login';
+        }
+    } else {
+        container.style.display = 'none';
+    }
+
+    // Atualiza badge no seed modal
+    const supportBadge = document.getElementById('biometricSupportBadge');
+    if (supportBadge) {
+        if (supported) {
+            supportBadge.style.display = 'inline-block';
+        } else {
+            supportBadge.style.display = 'none';
+        }
+    }
+}
+
+// Atualiza UI de biometria
+function updateBiometricUI() {
+    const isEnabled = localStorage.getItem('bradicoin_biometric_enabled') === 'true';
+    const btn = document.getElementById('biometricLoginBtn');
+    const text = document.getElementById('biometricLoginText');
+    const statusBadge = document.getElementById('biometricStatus');
+    
+    if (btn && text) {
+        if (isEnabled) {
+            text.textContent = '🔐 Login with Fingerprint';
+            btn.className = 'cyber-btn success';
+            if (statusBadge) {
+                statusBadge.textContent = '● Ready';
+                statusBadge.style.color = '#00ff88';
+            }
+        } else {
+            text.textContent = '⚙️ Setup Fingerprint Login';
+            btn.className = 'cyber-btn warning';
+            if (statusBadge) {
+                statusBadge.textContent = '● Setup available';
+                statusBadge.style.color = '#ffc800';
+            }
+        }
+    }
+}
 
 // ================================================================
 // ==================== INICIALIZAÇÃO =============================
