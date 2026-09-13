@@ -1685,8 +1685,7 @@
           </div>
         </div>
       </div>
-      
-      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #9b59b633;">
+            <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #9b59b633;">
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
           <span id="decoyLabel">🕵️ Decoy Mode</span>
           <div>
@@ -1696,7 +1695,7 @@
         </div>
       </div>
       
-      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ff005533;">
+       <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ff005533;">
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
           <span id="boobyLabel">💣 Booby Traps</span>
           <div>
@@ -1783,6 +1782,131 @@
 </div>
 
 <script>
+
+// ================================================================
+// ============ STORAGE HÍBRIDO (IndexedDB + RAM cache) ===========
+// ================================================================
+const storage = (() => {
+    const DB_NAME = 'bradicoin_db';
+    const DB_VERSION = 1;
+    const STORE_NAME = 'keyval';
+
+    let db = null;
+    let cache = {};          // cache síncrono em memória
+    let ready = false;       // IndexedDB carregado?
+    let pending = [];        // fila de operações até o DB abrir
+    let useIndexedDB = true; // fallback se falhar
+
+    // ---- Fallback em memória pura ----
+    function memoryFallback() {
+        useIndexedDB = false;
+        ready = true;
+        console.warn('⚠️ IndexedDB indisponível — usando memória (dados NÃO persistem)');
+    }
+
+    // ---- Abre o IndexedDB ----
+    function openDB() {
+        return new Promise((resolve) => {
+            if (!window.indexedDB) return resolve(null);
+            try {
+                const req = indexedDB.open(DB_NAME, DB_VERSION);
+                req.onupgradeneeded = (e) => {
+                    const d = e.target.result;
+                    if (!d.objectStoreNames.contains(STORE_NAME)) {
+                        d.createObjectStore(STORE_NAME);
+                    }
+                };
+                req.onsuccess = (e) => resolve(e.target.result);
+                req.onerror = () => resolve(null);
+                req.onblocked = () => resolve(null);
+            } catch (_) {
+                resolve(null);
+            }
+        });
+    }
+
+    // ---- Carrega tudo do IndexedDB pra RAM ----
+    async function hydrate() {
+        db = await openDB();
+        if (!db) return memoryFallback();
+
+        try {
+            const tx = db.transaction(STORE_NAME, 'readonly');
+            const store = tx.objectStore(STORE_NAME);
+            const keysReq = store.getAllKeys();
+            const valsReq = store.getAll();
+
+            await new Promise((res, rej) => {
+                tx.oncomplete = res;
+                tx.onerror = rej;
+            });
+
+            const keys = keysReq.result || [];
+            const vals = valsReq.result || [];
+            keys.forEach((k, i) => { cache[k] = vals[i]; });
+            ready = true;
+        } catch (err) {
+            console.warn('Erro ao hidratar IndexedDB:', err);
+            memoryFallback();
+        }
+    }
+
+    // ---- Persiste uma chave no IndexedDB (background) ----
+    function persist(key, value) {
+        if (!useIndexedDB || !db) return;
+        try {
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            const store = tx.objectStore(STORE_NAME);
+            if (value === null || value === undefined) {
+                store.delete(key);
+            } else {
+                store.put(value, key);
+            }
+        } catch (err) {
+            console.warn('Erro ao gravar no IndexedDB:', err);
+        }
+    }
+
+    // ---- API pública (síncrona, igual ao localStorage) ----
+    return {
+        getItem(key) {
+            return Object.prototype.hasOwnProperty.call(cache, key)
+                ? cache[key]
+                : null;
+        },
+        setItem(key, value) {
+            const v = String(value);
+            cache[key] = v;
+            if (ready) persist(key, v);
+            else pending.push([key, v]);
+        },
+        removeItem(key) {
+            delete cache[key];
+            if (ready) persist(key, null);
+            else pending.push([key, null]);
+        },
+              clear() {
+            cache = {};
+            pending = [];
+            if (db) {
+                try {
+                    db.transaction(STORE_NAME, 'readwrite')
+                      .objectStore(STORE_NAME).clear();
+                } catch (_) {}
+            }
+        },
+        // ---- Espera o DB estar pronto ----
+        async ready() {
+            await hydrate();
+            // aplica operações que chegaram antes do DB abrir
+            pending.forEach(([k, v]) => persist(k, v));
+            pending = [];
+        },
+        // ---- Debug ----
+        _debug() { return { ready, useIndexedDB, keys: Object.keys(cache) }; }
+    };
+})();
+
 // ================================================================
 // ==================== SISTEMA DE SEED PHRASE ====================
 // ================================================================
@@ -2010,13 +2134,8 @@ function generateSeedPhrase() {
 
 function generateAddressFromSeed(seed) {
     const seedStr = seed.join(' ');
-    let hash = 0;
-    for (let i = 0; i < seedStr.length; i++) {
-        hash = ((hash << 5) - hash) + seedStr.charCodeAt(i);
-        hash |= 0;
-    }
-    const hex = Math.abs(hash).toString(16).padStart(40, '0');
-    return `Br${hex.substring(0, 36)}`;
+    const hash = CryptoJS.SHA256(seedStr).toString();
+    return `Br${hash.substring(0, 38)}`;
 }
 
 // ================================================================
@@ -2064,6 +2183,7 @@ let qrCodeInstance = null;
 let nftImageDataUrl = null;
 let pendingNFTData = null;
 let selectedNFTForSend = null;
+let decoyModeActive = false;
 
 // ================================================================
 // ==================== HELPERS ===================================
@@ -2247,7 +2367,7 @@ function finalizeWalletCreation(password) {
         const userName = 'BradiCoin User';
         registerBiometric(userId, userName).then(success => {
             if (success) {
-                localStorage.setItem('bradicoin_biometric_password', password);
+                // 🔐 SECURITY: NUNCA salvar a senha em localStorage — apenas o ID biométrico WebAuthn fica salvo
                 showToast("🔐 " + (translations[currentLang]?.biometricEnabled || "Fingerprint login enabled!"), "success");
             }
         });
@@ -2294,7 +2414,7 @@ function importWalletFromSeed(seedStr, password) {
         const userName = 'BradiCoin User';
         registerBiometric(userId, userName).then(success => {
             if (success) {
-                localStorage.setItem('bradicoin_biometric_password', password);
+                // 🔐 SECURITY: senha não é salva — usuário digitará a cada login
                 showToast("🔐 " + (translations[currentLang]?.biometricEnabled || "Fingerprint login enabled!"), "success");
             }
         });
@@ -2324,10 +2444,12 @@ function unlockWallet(password, twoFACode) {
         }
     }
 
-    if (isBiometricSupported()) {
-        const isEnabled = localStorage.getItem('bradicoin_biometric_enabled') === 'true';
+           if (isBiometricSupported()) {
+        // 🔐 SECURITY: verificamos se o biométrico está habilitado,
+        // mas NÃO salvamos a senha — só o ID WebAuthn fica em disco.
+        const isEnabled = storage.getItem('bradicoin_biometric_enabled') === 'true';
         if (isEnabled) {
-            localStorage.setItem('bradicoin_biometric_password', password);
+            // (nada a fazer aqui — apenas registro de que está ativo)
         }
     }
 
@@ -2366,7 +2488,7 @@ function saveWallet() {
             tips: wallet.tips,
             nfts: wallet.nfts
         };
-        localStorage.setItem('bradicoin_wallet', JSON.stringify(data));
+        storage.setItem('bradicoin_wallet', JSON.stringify(data));
     } catch(e) {
         console.error('Save wallet error:', e);
     }
@@ -2374,7 +2496,7 @@ function saveWallet() {
 
 function loadWallet() {
     try {
-        const data = localStorage.getItem('bradicoin_wallet');
+        const data = storage.getItem('bradicoin_wallet');
         if (data) {
             const parsed = JSON.parse(data);
             wallet = { ...wallet, ...parsed };
@@ -4945,7 +5067,8 @@ const translations = {
 };
 
 function updateLanguage() {
-    const t = translations[currentLang];
+    // Fallback: se faltar uma chave no idioma atual, usa a do inglês
+    const t = Object.assign({}, translations.en, translations[currentLang] || {});
     if (!t) return;
     
     // Map all translatable elements
@@ -5264,38 +5387,22 @@ function updateLanguage() {
     
     // Update all mapped elements
     for (const [key, el] of Object.entries(elements)) {
-        if (el && t[key] !== undefined) {
-            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-                el.placeholder = t[key];
-            } else if (el.tagName === 'BUTTON' && el.querySelector('span')) {
-                // For buttons with nested spans, update the span content
-                const span = el.querySelector('span');
-                if (span) {
-                    span.innerText = t[key];
-                } else {
-                    el.innerText = t[key];
-                }
-            } else if (el.tagName === 'H1' || el.tagName === 'H2' || el.tagName === 'H3' || el.tagName === 'H4') {
+        if (!el || t[key] === undefined) continue;
+        
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+            // Inputs: só troca o placeholder
+            el.placeholder = t[key];
+        } else {
+            // Todos os outros: procura um <span> interno (preserva <i>)
+            const span = el.querySelector('span');
+            if (span) {
+                span.innerText = t[key];
+            } else {
                 el.innerText = t[key];
-            } else if (el.tagName === 'P' || el.tagName === 'LABEL') {
-                el.innerText = t[key];
-            } else if (el.tagName === 'SPAN') {
-                el.innerText = t[key];
-            } else if (el.tagName === 'DIV') {
-                el.innerText = t[key];
-            } else if (el.tagName === 'BUTTON') {
-                // For buttons without nested spans
-                const existingIcon = el.querySelector('i');
-                if (existingIcon) {
-                    const iconHTML = existingIcon.outerHTML;
-                    el.innerHTML = iconHTML + ' ' + t[key];
-                } else {
-                    el.innerText = t[key];
-                }
             }
         }
     }
-    
+  
     // Update special elements that need extra handling
     const unlockBtnText = document.getElementById('unlockBtnText');
     if (unlockBtnText) unlockBtnText.innerText = t.unlockBtn || 'Unlock Wallet';
@@ -5417,7 +5524,7 @@ function updateLanguage() {
 
 function setLanguage(lang) {
     currentLang = lang;
-    localStorage.setItem('bradicoin_lang', lang);
+    storage.setItem('bradicoin_lang', lang);
     updateLanguage();
 }
 
@@ -5485,8 +5592,8 @@ async function registerBiometric(userId, userName) {
 
         if (credential) {
             const credentialId = btoa(String.fromCharCode.apply(null, new Uint8Array(credential.rawId)));
-            localStorage.setItem('bradicoin_biometric_id', credentialId);
-            localStorage.setItem('bradicoin_biometric_enabled', 'true');
+            storage.setItem('bradicoin_biometric_id', credentialId);
+            storage.setItem('bradicoin_biometric_enabled', 'true');
             
             showToast("✅ " + (translations[currentLang]?.biometricRegistered || "Fingerprint registered successfully!"), "success");
             return true;
@@ -5506,7 +5613,7 @@ async function authenticateWithBiometric() {
             return false;
         }
 
-        const credentialId = localStorage.getItem('bradicoin_biometric_id');
+        const credentialId = storage.getItem('bradicoin_biometric_id');
         if (!credentialId) {
             showToast(translations[currentLang]?.noBiometricRegistered || "No biometric registered", "error");
             return false;
@@ -5555,7 +5662,7 @@ async function setupBiometric() {
 
     const supported = isBiometricSupported();
     const hasCredential = await hasBiometricCredential();
-    const isEnabled = localStorage.getItem('bradicoin_biometric_enabled') === 'true';
+    const isEnabled = storage.getItem('bradicoin_biometric_enabled') === 'true';
     const hasWallet = wallet && wallet.encryptedSeed;
 
     if (supported && isEnabled && hasCredential && hasWallet) {
@@ -5600,7 +5707,7 @@ async function setupBiometric() {
 }
 
 function updateBiometricUI() {
-    const isEnabled = localStorage.getItem('bradicoin_biometric_enabled') === 'true';
+    const isEnabled = storage.getItem('bradicoin_biometric_enabled') === 'true';
     const btn = document.getElementById('biometricLoginBtn');
     const text = document.getElementById('biometricLoginText');
     const statusBadge = document.getElementById('biometricStatus');
@@ -5628,10 +5735,13 @@ function updateBiometricUI() {
 // ==================== EVENT LISTENERS ===========================
 // ================================================================
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    // ⏳ Espera o IndexedDB hidratar o cache em RAM ANTES de qualquer leitura
+    await storage.ready();
+
     const hasWallet = loadWallet();
     
-    const savedLang = localStorage.getItem('bradicoin_lang');
+    const savedLang = storage.getItem('bradicoin_lang');
     if (savedLang) {
         currentLang = savedLang;
     }
@@ -5656,8 +5766,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ===== BIOMETRIC LOGIN =====
     document.getElementById('biometricLoginBtn').addEventListener('click', async function() {
-        const isEnabled = localStorage.getItem('bradicoin_biometric_enabled') === 'true';
-        const hasCredential = localStorage.getItem('bradicoin_biometric_id');
+        const isEnabled = storage.getItem('bradicoin_biometric_enabled') === 'true';
+        const hasCredential = storage.getItem('bradicoin_biometric_id');
         const hasWallet = wallet && wallet.encryptedSeed;
         
         if (!hasWallet) {
@@ -5665,15 +5775,12 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        if (!isEnabled || !hasCredential) {
-            const userId = wallet.address || 'bradicoin_user';
-            const userName = 'BradiCoin User';
-            const registered = await registerBiometric(userId, userName);
-            if (registered) {
-                const passwordInput = document.getElementById('unlockPasswordInput');
-                if (passwordInput && passwordInput.value) {
-                    localStorage.setItem('bradicoin_biometric_password', passwordInput.value);
-                }
+       if (!isEnabled || !hasCredential) {
+    const userId = wallet.address || 'bradicoin_user';
+    const userName = 'BradiCoin User';
+    const registered = await registerBiometric(userId, userName);
+    if (registered) {
+        // 🔐 SECURITY: senha não é salva — usuário digitará a cada login
                 setupBiometric();
                 updateBiometricUI();
                 showToast("✅ " + (translations[currentLang]?.biometricConfigured || "Fingerprint configured! Try again to login."), "success");
@@ -5683,7 +5790,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const authenticated = await authenticateWithBiometric();
         if (authenticated) {
-            let password = localStorage.getItem('bradicoin_biometric_password');
+            let password = null; // 🔐 SECURITY: senha nunca é salva — usuário precisa digitar
             
             if (password) {
                 const unlocked = unlockWallet(password, '');
@@ -5700,7 +5807,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (passwordInput && passwordInput.value) {
                     const unlocked = unlockWallet(passwordInput.value, '');
                     if (unlocked) {
-                        localStorage.setItem('bradicoin_biometric_password', passwordInput.value);
+                       // 🔐 SECURITY: não salvar senha 
                         showToast("🔓 " + (translations[currentLang]?.walletUnlockedBiometric || "Wallet unlocked with fingerprint!"), "success");
                     }
                 } else {
@@ -6424,6 +6531,324 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('revealPrivateKeyBtn').innerHTML = '<i class="fas fa-unlock-alt"></i> ' + (translations[currentLang]?.revealPrivateKey || 'Reveal Private Key');
         document.getElementById('privateKeyPassword').value = '';
     });
+
+
+    // ================================================================
+    // ============ INNOVATIVE FEATURES — EVENT LISTENERS ============
+    // ================================================================
+
+    // Estado local para essas features
+    let burnerWallet = null;
+    let whitelist = JSON.parse(storage.getItem('bradicoin_whitelist') || '[]');
+    let shadowMirrors = JSON.parse(storage.getItem('bradicoin_shadows') || '[]');
+    let ephemeralKey = null;
+    let gaslessMode = false;
+    let deadManSwitch = JSON.parse(storage.getItem('bradicoin_deadman') || 'null');
+    let securityAlerts = JSON.parse(storage.getItem('bradicoin_alerts') || '[]');
+    
+    function saveWhitelist() { storage.setItem('bradicoin_whitelist', JSON.stringify(whitelist)); }
+    function saveShadows() { storage.setItem('bradicoin_shadows', JSON.stringify(shadowMirrors)); }
+    function saveDeadMan() { storage.setItem('bradicoin_deadman', JSON.stringify(deadManSwitch)); }
+    function saveAlerts() { storage.setItem('bradicoin_alerts', JSON.stringify(securityAlerts)); }
+
+    function renderWhitelist() {
+        const el = document.getElementById('whitelistDisplay');
+        const count = document.getElementById('whitelistCount');
+        if (count) count.innerText = whitelist.length;
+        if (!el) return;
+        if (whitelist.length === 0) {
+            el.innerHTML = '<span style="opacity:0.4;">No whitelisted addresses</span>';
+            return;
+        }
+        el.innerHTML = whitelist.map((addr, i) =>
+            `<div style="display:flex;justify-content:space-between;padding:0.1rem 0;border-bottom:1px solid #ff005522;">
+                <span style="color:#ff6b6b;">${addr.substring(0,14)}...</span>
+                <span onclick="window._removeWhitelist(${i})" style="cursor:pointer;color:#ff0055;">✕</span>
+            </div>`
+        ).join('');
+    }
+
+    window._removeWhitelist = function(i) {
+        whitelist.splice(i, 1);
+        saveWhitelist();
+        renderWhitelist();
+        showToast("🗑️ Address removed from whitelist", "info");
+    };
+
+    function renderShadows() {
+        const el = document.getElementById('shadowList');
+        if (!el) return;
+        if (shadowMirrors.length === 0) {
+            el.innerHTML = '<span style="opacity:0.4;">No shadow mirrors configured</span>';
+            return;
+        }
+        el.innerHTML = shadowMirrors.map((s, i) =>
+            `<div style="display:flex;justify-content:space-between;padding:0.1rem 0;border-bottom:1px solid #00f2ff22;">
+                <span style="color:#00f2ff;">🌐 ${s.label}</span>
+                <span style="opacity:0.5;">${s.lastSync ? new Date(s.lastSync).toLocaleDateString() : 'never'}</span>
+            </div>`
+        ).join('');
+    }
+
+    function renderAlerts() {
+        const el = document.getElementById('securityAlerts');
+        const badge = document.getElementById('alertBadge');
+        if (badge) {
+            if (securityAlerts.length > 0) {
+                badge.style.display = 'inline-block';
+                badge.innerText = securityAlerts.length;
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        if (!el) return;
+        if (securityAlerts.length === 0) {
+            el.innerHTML = '<span style="opacity:0.4;">No security alerts</span>';
+            return;
+        }
+        el.innerHTML = securityAlerts.map(a =>
+            `<div style="padding:0.15rem 0;border-bottom:1px solid #a855f722;color:#ffaa00;">
+                ⚠️ ${a.msg} <span style="opacity:0.5;font-size:0.35rem;">${new Date(a.time).toLocaleTimeString()}</span>
+            </div>`
+        ).join('');
+    }
+
+    function addSecurityAlert(msg) {
+        securityAlerts.unshift({ msg, time: Date.now() });
+        if (securityAlerts.length > 20) securityAlerts = securityAlerts.slice(0, 20);
+        saveAlerts();
+        renderAlerts();
+    }
+
+    // 🔥 BURNER WALLET
+    const createBurnerBtn = document.getElementById('createBurnerBtn');
+    const destroyBurnerBtn = document.getElementById('destroyBurnerBtn');
+    if (createBurnerBtn) {
+        createBurnerBtn.addEventListener('click', function() {
+            if (burnerWallet) { showToast("🔥 Burner already active", "info"); return; }
+            const burnerSeed = generateSeedPhrase();
+            burnerWallet = {
+                address: generateAddressFromSeed(burnerSeed),
+                balance: 0,
+                createdAt: Date.now()
+            };
+            document.getElementById('burnerStatus').innerHTML = '🔥 <span id="burnerStatusText">Active</span>';
+            showToast(`🔥 Burner wallet created: ${burnerWallet.address.substring(0, 12)}...`, "success");
+            addSecurityAlert("Burner wallet created");
+        });
+    }
+    if (destroyBurnerBtn) {
+        destroyBurnerBtn.addEventListener('click', function() {
+            if (!burnerWallet) { showToast("No burner wallet active", "error"); return; }
+            const addr = burnerWallet.address;
+            burnerWallet = null;
+            document.getElementById('burnerStatus').innerHTML = '💤 <span id="burnerStatusText">No burner active</span>';
+            showToast(`🔥 Burner wallet destroyed: ${addr.substring(0, 12)}...`, "info");
+            addSecurityAlert("Burner wallet destroyed");
+        });
+    }
+
+       // 🕵️ DECOY MODE
+    const decoyToggleBtn = document.getElementById('decoyToggleBtn');
+    if (decoyToggleBtn) {
+        decoyToggleBtn.addEventListener('click', function() {
+            decoyModeActive = !decoyModeActive;  
+            const badge = document.getElementById('decoyBadgeText');
+            const balanceEl = document.getElementById('balance');
+            const usdEl = document.getElementById('usdBalance');
+                if (decoyModeActive) {
+                if (badge) badge.innerText = "Decoy Balance";
+                if (balanceEl) balanceEl.innerText = "0.00000000";
+                if (usdEl) usdEl.innerText = "$0.00 USD";
+                showToast("🕵️ Decoy mode ON — showing fake balance", "info");
+                addSecurityAlert("Decoy mode activated");
+            } else {
+                if (badge) badge.innerText = "Real Balance";
+                updateUI();
+                showToast("👁️ Decoy mode OFF — showing real balance", "success");
+                addSecurityAlert("Decoy mode deactivated");
+            }
+        });
+    }
+  
+    // 💣 BOOBY TRAPS (WHITELIST)
+    const addWhitelistBtn = document.getElementById('addWhitelistBtn');
+    if (addWhitelistBtn) {
+        addWhitelistBtn.addEventListener('click', function() {
+            const addr = prompt("Enter address to whitelist:");
+            if (!addr || addr.trim().length < 10) {
+                showToast("Invalid address", "error");
+                return;
+            }
+            if (whitelist.includes(addr.trim())) {
+                showToast("Address already whitelisted", "info");
+                return;
+            }
+            whitelist.push(addr.trim());
+            saveWhitelist();
+            renderWhitelist();
+            showToast("✅ Address added to whitelist", "success");
+            addSecurityAlert("Whitelist updated");
+        });
+    }
+
+    // 💀 DEAD MAN'S SWITCH
+    const deadManBtn = document.getElementById('deadManBtn');
+    if (deadManBtn) {
+        deadManBtn.addEventListener('click', function() {
+            if (deadManSwitch) {
+                const confirm = window.confirm(`Dead Man's Switch is active.\nInheritor: ${deadManSwitch.inheritor}\nDays: ${deadManSwitch.days}\n\nDeactivate?`);
+                if (confirm) {
+                    deadManSwitch = null;
+                    saveDeadMan();
+                    document.getElementById('deadManStatus').innerHTML = '❌ <span id="deadManStatusText">Not configured</span>';
+                    showToast("💀 Dead Man's Switch deactivated", "info");
+                }
+                return;
+            }
+            const inheritor = prompt("Enter inheritor wallet address:");
+            if (!inheritor || inheritor.trim().length < 10) {
+                showToast("Invalid inheritor address", "error");
+                return;
+            }
+            const days = parseInt(prompt("Enter inactivity days (e.g. 30):") || "0");
+            if (!days || days < 1) {
+                showToast("Invalid number of days", "error");
+                return;
+            }
+            deadManSwitch = { inheritor: inheritor.trim(), days, configuredAt: Date.now() };
+            saveDeadMan();
+            document.getElementById('deadManStatus').innerHTML = '✅ <span id="deadManStatusText">Active</span>';
+            showToast(`💀 Dead Man's Switch set: ${days} days`, "success");
+            addSecurityAlert("Dead Man's Switch configured");
+        });
+    }
+
+    // 🌐 SHADOW MIRROR
+    const addShadowBtn = document.getElementById('addShadowBtn');
+    const syncShadowBtn = document.getElementById('syncShadowBtn');
+    if (addShadowBtn) {
+        addShadowBtn.addEventListener('click', function() {
+            const label = prompt("Enter a label for this shadow mirror (e.g. 'Phone', 'Tablet'):");
+            if (!label || label.trim().length < 2) {
+                showToast("Invalid label", "error");
+                return;
+            }
+            shadowMirrors.push({ label: label.trim(), lastSync: null, id: Date.now() });
+            saveShadows();
+            renderShadows();
+            showToast(`🌐 Shadow mirror "${label}" added`, "success");
+        });
+    }
+    if (syncShadowBtn) {
+        syncShadowBtn.addEventListener('click', function() {
+            if (shadowMirrors.length === 0) {
+                showToast("No shadow mirrors to sync", "error");
+                return;
+            }
+            shadowMirrors.forEach(s => s.lastSync = Date.now());
+            saveShadows();
+            renderShadows();
+            showToast("🔄 All shadow mirrors synced!", "success");
+        });
+    }
+
+    // 🔑 EPHEMERAL KEYS
+    const genEphemeralBtn = document.getElementById('genEphemeralBtn');
+    if (genEphemeralBtn) {
+        genEphemeralBtn.addEventListener('click', function() {
+            ephemeralKey = '0x' + CryptoJS.lib.WordArray.random(32).toString();
+            const shortKey = ephemeralKey.substring(0, 18) + '...';
+            document.getElementById('ephemeralStatus').innerHTML = `🔑 <span id="ephemeralStatusText">${shortKey}</span>`;
+            showToast("🔑 Ephemeral key generated (valid 5 min)", "success");
+            addSecurityAlert("Ephemeral key generated");
+            setTimeout(() => {
+                ephemeralKey = null;
+                document.getElementById('ephemeralStatus').innerHTML = '🔑 <span id="ephemeralStatusText">Expired</span>';
+                showToast("🔑 Ephemeral key expired", "info");
+            }, 5 * 60 * 1000);
+        });
+    }
+
+    // ⛽ GASLESS MODE
+    const gaslessToggleBtn = document.getElementById('gaslessToggleBtn');
+    if (gaslessToggleBtn) {
+        gaslessToggleBtn.addEventListener('click', function() {
+            gaslessMode = !gaslessMode;
+            const gasLabel = document.getElementById('gaslessGasLabel');
+            if (gaslessMode) {
+                if (gasLabel) gasLabel.innerText = "Gas sponsored";
+                showToast("⛽ Gasless mode ON — fees sponsored", "success");
+                addSecurityAlert("Gasless mode enabled");
+            } else {
+                if (gasLabel) gasLabel.innerText = "Gas: 0.15 BRD";
+                showToast("⛽ Gasless mode OFF", "info");
+            }
+        });
+    }
+
+    // 🔐 ZK-PROOF VERIFIER
+    const verifyProofBtn = document.getElementById('verifyProofBtn');
+    if (verifyProofBtn) {
+        verifyProofBtn.addEventListener('click', function() {
+            const history = document.getElementById('zkProofHistory');
+            const fakeProof = '0x' + CryptoJS.lib.WordArray.random(32).toString();
+            const valid = Math.random() > 0.2;
+            const icon = valid ? '✅' : '❌';
+            const color = valid ? '#00ff88' : '#ff4466';
+            const entry = `<div style="padding:0.1rem 0;border-bottom:1px solid #00ff8822;">
+                <span style="color:${color};">${icon} Proof ${fakeProof.substring(0, 12)}... ${valid ? 'VALID' : 'INVALID'}</span>
+            </div>`;
+            if (history) history.innerHTML = entry + history.innerHTML;
+            showToast(valid ? "✅ Proof verified!" : "❌ Proof invalid!", valid ? "success" : "error");
+            if (!valid) addSecurityAlert("Invalid ZK proof detected");
+        });
+    }
+
+    // 🧹 SWEEP & DESTROY
+    const sweepDestroyBtn = document.getElementById('sweepDestroyBtn');
+    if (sweepDestroyBtn) {
+        sweepDestroyBtn.addEventListener('click', function() {
+            const confirm = window.confirm(
+                "⚠️ WARNING: SWEEP & DESTROY\n\n" +
+                "This will:\n" +
+                "• Move all funds to a safe address\n" +
+                "• Destroy all local wallet data\n" +
+                "• Clear all tokens, NFTs and history\n\n" +
+                "This CANNOT be undone!\n\nContinue?"
+            );
+            if (!confirm) return;
+            const doubleConfirm = prompt("Type 'DESTROY' to confirm:");
+            if (doubleConfirm !== 'DESTROY') {
+                showToast("Sweep cancelled", "info");
+                return;
+            }
+            storage.clear();
+            showToast("🧹 Wallet swept & destroyed", "success");
+            setTimeout(() => location.reload(), 1500);
+        });
+    }
+
+    // 🔔 SECURITY ALERTS — CLEAR
+    const clearAlertsBtn = document.getElementById('clearAlertsBtn');
+    if (clearAlertsBtn) {
+        clearAlertsBtn.addEventListener('click', function() {
+            securityAlerts = [];
+            saveAlerts();
+            renderAlerts();
+            showToast("🔔 Security alerts cleared", "info");
+        });
+    }
+
+    // Inicializar renderizações
+    renderWhitelist();
+    renderShadows();
+    renderAlerts();
+
+    if (deadManSwitch) {
+        const el = document.getElementById('deadManStatus');
+        if (el) el.innerHTML = '✅ <span id="deadManStatusText">Active</span>';
+    }
 });
 
 // ================================================================
@@ -6443,7 +6868,9 @@ console.log("📚 Seed phrase uses " + WORD_LIST.length + " words from A-Z");
 console.log("🌍 9 Languages supported: EN, PT, ES, AR, DE, IT, FR, RU, KO");
 
 setInterval(() => {
-    updateUI();
+    if (!decoyModeActive) {
+        updateUI();
+    }
     updateAnalytics();
 }, 5000);
 
