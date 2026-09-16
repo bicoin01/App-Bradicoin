@@ -6,8 +6,9 @@
   <title>BradiCoin | Secure Crypto Wallet</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/elliptic@6.5.4/lib/elliptic.js"></script>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/otpauth@9.2.2/dist/otpauth.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -1782,6 +1783,347 @@
 </div>
 
 <script>
+// ================================================================
+// ============ CONFIGURAÇÃO DA API — BACKEND =====================
+// ================================================================
+const API_BASE = 'https://SUA-URL.onrender.com';  // ⚠️ TROQUE PELA SUA URL
+const API_URL = `${API_BASE}/api/v1`;
+
+let authToken = localStorage.getItem('bradicoin_token') || null;
+let currentUser = null;
+let socket = null;
+let wsConnected = false;
+
+console.log('🌐 API configurada:', API_BASE);
+
+// ================================================================
+// ============ API CLIENT — CHAMADAS AO BACKEND ==================
+// ================================================================
+async function apiCall(endpoint, options = {}) {
+    const url = `${API_URL}${endpoint}`;
+    const config = {
+        method: options.method || 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {}),
+            ...(options.headers || {})
+        }
+    };
+    if (options.body) {
+        config.body = JSON.stringify(options.body);
+    }
+
+    try {
+        const response = await fetch(url, config);
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            // Se 401, token expirou → desloga
+            if (response.status === 401 && authToken) {
+                logoutLocal();
+                showToast('Sessão expirada. Faça login novamente.', 'error');
+            }
+            throw new Error(data.error || `Erro HTTP ${response.status}`);
+        }
+        return data;
+    } catch (err) {
+        console.error(`❌ API ${endpoint}:`, err.message);
+        throw err;
+    }
+}
+
+// ================================================================
+// ============ WEBSOCKET — TEMPO REAL ============================
+// ================================================================
+function connectWebSocket() {
+    if (!authToken) return;
+    if (socket && socket.connected) return;
+
+    try {
+        socket = io(API_BASE, {
+            auth: { token: authToken },
+            transports: ['websocket', 'polling']
+        });
+
+        socket.on('connect', () => {
+            wsConnected = true;
+            console.log('✅ WebSocket conectado');
+        });
+
+        socket.on('disconnect', () => {
+            wsConnected = false;
+            console.log('❌ WebSocket desconectado');
+        });
+
+        socket.on('blockchain:init', (info) => {
+            console.log('📊 Blockchain info:', info);
+        });
+
+        socket.on('block:mined', (block) => {
+            console.log('⛏️ Novo bloco:', block);
+            if (wallet && wallet.address) {
+                syncBalance().catch(() => {});
+            }
+        });
+
+        socket.on('transaction:new', (tx) => {
+            if (tx.to === wallet.address || tx.from === wallet.address) {
+                showToast(`📥 Nova transação: ${tx.amount} BRD`, 'info');
+                syncBalance().catch(() => {});
+            }
+        });
+
+        socket.on('connect_error', (err) => {
+            console.warn('⚠️ WS erro:', err.message);
+        });
+    } catch (err) {
+        console.warn('⚠️ Falha ao conectar WebSocket:', err);
+    }
+}
+
+// ================================================================
+// ============ GERAR PAR DE CHAVES REAL (secp256k1) ==============
+// ================================================================
+function generateKeyPairFromSeed(seedWords) {
+    if (typeof elliptic === 'undefined') {
+        throw new Error('Biblioteca elliptic não carregou. Recarregue a página.');
+    }
+    const EC = elliptic.ec;
+    const ec = new EC('secp256k1');
+
+    const seedStr = seedWords.join(' ');
+    const privateKeyHex = CryptoJS.SHA256(seedStr).toString();
+    const keyPair = ec.keyFromPrivate(privateKeyHex);
+    const publicKeyHex = keyPair.getPublic('hex');
+
+    // Endereço = Br + SHA256(publicKey) primeiros 38 chars
+    const addrHash = CryptoJS.SHA256(publicKeyHex).toString();
+    const address = 'Br' + addrHash.substring(0, 38);
+
+    return {
+        privateKey: privateKeyHex,
+        publicKey: publicKeyHex,
+        address: address
+    };
+}
+
+// ================================================================
+// ============ ASSINAR TRANSAÇÃO =================================
+// ================================================================
+function signTransaction(txData, privateKeyHex) {
+    if (typeof elliptic === 'undefined') {
+        throw new Error('Biblioteca elliptic não carregou.');
+    }
+    const EC = elliptic.ec;
+    const ec = new EC('secp256k1');
+    const keyPair = ec.keyFromPrivate(privateKeyHex);
+
+    // Ordena os campos para garantir hash consistente
+    const msg = JSON.stringify({
+        fromAddress: txData.fromAddress,
+        toAddress: txData.toAddress,
+        amount: txData.amount.toString(),
+        fee: (txData.fee || '0').toString(),
+        nonce: txData.nonce,
+        timestamp: txData.timestamp,
+        type: txData.type || 'transfer'
+    });
+
+    const msgHash = CryptoJS.SHA256(msg).toString();
+    const signature = keyPair.sign(msgHash);
+    return signature.toDER('hex');
+}
+
+// ================================================================
+// ============ LOGIN / CADASTRO / LOGOUT =========================
+// ================================================================
+async function doRegister(email, password, username) {
+    const data = await apiCall('/auth/register', {
+        method: 'POST',
+        body: { email, password, username }
+    });
+    
+    authToken = data.data.token;
+    localStorage.setItem('bradicoin_token', authToken);
+    currentUser = data.data.user;
+    
+    showToast(`🎉 Conta criada! Bem-vindo, ${currentUser.username}`, 'success');
+    connectWebSocket();
+    
+    // Se já tem carteira local, sincroniza; senão, pede pra criar
+    if (wallet && wallet.address) {
+        await registerWalletOnBackend();
+        hideLoginAndShowDashboard();
+        updateUI();
+    } else {
+        // Fecha a tela de auth e volta para "criar carteira"
+        document.getElementById('authGroup').style.display = 'none';
+        showToast('Agora crie sua carteira', 'info');
+    }
+}
+
+async function doLogin(email, password, twoFACode) {
+    const data = await apiCall('/auth/login', {
+        method: 'POST',
+        body: { email, password, twoFACode: twoFACode || undefined }
+    });
+    
+    if (data.requires2FA) {
+        throw new Error('Código 2FA obrigatório');
+    }
+    
+    authToken = data.data.token;
+    localStorage.setItem('bradicoin_token', authToken);
+    currentUser = data.data.user;
+    
+    showToast(`✅ Bem-vindo de volta, ${currentUser.username}!`, 'success');
+    connectWebSocket();
+    
+    // Carrega carteira do backend
+    await loadWalletFromBackend();
+    
+    hideLoginAndShowDashboard();
+    updateUI();
+    syncBalance().catch(() => {});
+}
+
+function logoutLocal() {
+    authToken = null;
+    currentUser = null;
+    localStorage.removeItem('bradicoin_token');
+    if (socket) {
+        socket.disconnect();
+        socket = null;
+    }
+}
+
+async function doLogout() {
+    try {
+        if (authToken) {
+            await apiCall('/auth/logout', { method: 'POST' });
+        }
+    } catch (err) {
+        console.warn('Erro no logout remoto:', err.message);
+    }
+    logoutLocal();
+    showLoginScreen();
+    showToast('👋 Logout realizado', 'info');
+}
+
+// ================================================================
+// ============ WALLET NO BACKEND =================================
+// ================================================================
+async function registerWalletOnBackend() {
+    if (!authToken) throw new Error('Não autenticado');
+    if (!wallet.address || !wallet.publicKey) throw new Error('Carteira sem chave pública');
+
+    try {
+        const data = await apiCall('/wallet/register', {
+            method: 'POST',
+            body: {
+                address: wallet.address,
+                publicKey: wallet.publicKey
+            }
+        });
+        console.log('✅ Carteira registrada no backend:', data);
+        return data;
+    } catch (err) {
+        // Se já registrada, ignora
+        if (err.message.includes('já') || err.message.includes('duplicate')) {
+            console.log('ℹ️ Carteira já registrada no backend');
+            return null;
+        }
+        throw err;
+    }
+}
+
+async function loadWalletFromBackend() {
+    if (!authToken) return;
+    try {
+        const data = await apiCall('/wallet/me');
+        if (data.data) {
+            // Backend tem carteira: carrega endereço
+            if (!wallet.address) {
+                wallet.address = data.data.address;
+                wallet.publicKey = data.data.publicKey;
+                wallet.balance = parseFloat(data.data.balance || 0);
+                saveWallet();
+            }
+        }
+    } catch (err) {
+        console.warn('Sem carteira no backend:', err.message);
+    }
+}
+
+async function syncBalance() {
+    if (!authToken || !wallet.address) return;
+    try {
+        const data = await apiCall(`/wallet/balance/${wallet.address}`);
+        const newBalance = parseFloat(data.data.balance || 0);
+        if (newBalance !== wallet.balance) {
+            wallet.balance = newBalance;
+            saveWallet();
+            updateUI();
+        }
+    } catch (err) {
+        console.warn('Erro ao sincronizar saldo:', err.message);
+    }
+}
+
+async function syncHistory() {
+    if (!authToken || !wallet.address) return;
+    try {
+        const data = await apiCall(`/wallet/history/${wallet.address}?limit=50`);
+        wallet.transactions = data.data.transactions || [];
+        saveWallet();
+        updateUI();
+    } catch (err) {
+        console.warn('Erro ao sincronizar histórico:', err.message);
+    }
+}
+
+// ================================================================
+// ============ ENVIAR TRANSAÇÃO REAL =============================
+// ================================================================
+async function submitTransaction(toAddress, amount, fee, password) {
+    if (!authToken) throw new Error('Você precisa estar logado');
+    if (!wallet.encryptedSeed) throw new Error('Carteira não carregada');
+
+    // 1. Descriptografa seed → deriva privateKey
+    const seedStr = decrypt(wallet.encryptedSeed, password);
+    if (!seedStr) throw new Error('Senha incorreta');
+
+    const seedWords = seedStr.split(' ');
+    const keyPair = generateKeyPairFromSeed(seedWords);
+
+    // 2. Pega nonce atual do backend
+    const nonceData = await apiCall(`/wallet/nonce/${wallet.address}`);
+    const nonce = nonceData.data.nonce;
+
+    // 3. Monta TX
+    const timestamp = Date.now();
+    const txData = {
+        fromAddress: wallet.address,
+        toAddress,
+        amount: amount.toString(),
+        fee: (fee || '0').toString(),
+        nonce,
+        timestamp,
+        type: 'transfer'
+    };
+
+    // 4. Assina
+    txData.signature = signTransaction(txData, keyPair.privateKey);
+    txData.publicKey = keyPair.publicKey;
+
+    // 5. Envia
+    const result = await apiCall('/transaction/submit', {
+        method: 'POST',
+        body: txData
+    });
+
+    return result;
+}
 
 // ================================================================
 // ============ STORAGE HÍBRIDO (IndexedDB + RAM cache) ===========
@@ -2124,10 +2466,11 @@ const WORD_LIST = [
 // ================================================================
 
 function generateSeedPhrase() {
-    let words = [];
+    const words = [];
+    const entropy = new Uint32Array(12);
+    crypto.getRandomValues(entropy);  // ✅ CRIPTOGRAFICAMENTE SEGURO
     for (let i = 0; i < 12; i++) {
-        const randomIndex = Math.floor(Math.random() * WORD_LIST.length);
-        words.push(WORD_LIST[randomIndex]);
+        words.push(WORD_LIST[entropy[i] % WORD_LIST.length]);
     }
     return words;
 }
@@ -2333,21 +2676,31 @@ function createWalletFlow() {
     document.getElementById('walletPasswordInput').value = '';
 }
 
-function finalizeWalletCreation(password) {
+async function finalizeWalletCreation(password) {
     if (!tempSeedForCreation) {
-        showToast(translations[currentLang]?.noSeedGenerated || "No seed phrase generated", "error");
+        showToast("No seed phrase generated", "error");
         return;
     }
     if (!password || password.length < 4) {
-        showToast(translations[currentLang]?.passwordMinLength || "Password must be at least 4 characters", "error");
+        showToast("Password must be at least 4 characters", "error");
         return;
     }
     
-    const address = generateAddressFromSeed(tempSeedForCreation);
+    // 1. Gera par de chaves REAL (secp256k1)
+    let keyPair;
+    try {
+        keyPair = generateKeyPairFromSeed(tempSeedForCreation);
+    } catch (err) {
+        showToast('Erro ao gerar chaves: ' + err.message, 'error');
+        return;
+    }
+    
     const seedStr = tempSeedForCreation.join(' ');
     
+    // 2. Popula wallet
     wallet.encryptedSeed = encrypt(seedStr, password);
-    wallet.address = address;
+    wallet.address = keyPair.address;
+    wallet.publicKey = keyPair.publicKey;
     wallet.balance = 0;
     wallet.transactions = [];
     wallet.stats = { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 };
@@ -2363,38 +2716,51 @@ function finalizeWalletCreation(password) {
     
     const enableBiometric = document.getElementById('enableBiometric')?.checked || false;
     if (enableBiometric && isBiometricSupported()) {
-        const userId = address;
-        const userName = 'BradiCoin User';
-        registerBiometric(userId, userName).then(success => {
-            if (success) {
-                // 🔐 SECURITY: NUNCA salvar a senha em localStorage — apenas o ID biométrico WebAuthn fica salvo
-                showToast("🔐 " + (translations[currentLang]?.biometricEnabled || "Fingerprint login enabled!"), "success");
-            }
+        registerBiometric(keyPair.address, 'BradiCoin User').then(success => {
+            if (success) showToast("🔐 Fingerprint login enabled!", "success");
         });
     }
     
     saveWallet();
+    
+    // 3. Se estiver logado, registra no backend
+    if (authToken) {
+        try {
+            await registerWalletOnBackend();
+            showToast("☁️ Carteira salva no servidor", "success");
+        } catch (err) {
+            showToast('Erro ao registrar no servidor: ' + err.message, 'warning');
+        }
+    }
+    
     document.getElementById('seedModal').style.display = 'none';
     tempSeedForCreation = null;
     
     showCongratulationsModal('create');
 }
 
-function importWalletFromSeed(seedStr, password) {
+async function importWalletFromSeed(seedStr, password) {
     const words = seedStr.trim().toLowerCase().split(/\s+/);
     if (words.length !== 12) {
-        showToast(translations[currentLang]?.invalidSeed || "Invalid seed phrase - need 12 words", "error");
+        showToast("Invalid seed phrase - need 12 words", "error");
         return false;
     }
     if (!password || password.length < 4) {
-        showToast(translations[currentLang]?.passwordMinLength || "Password must be at least 4 characters", "error");
+        showToast("Password must be at least 4 characters", "error");
         return false;
     }
     
-    const address = generateAddressFromSeed(words);
+    let keyPair;
+    try {
+        keyPair = generateKeyPairFromSeed(words);
+    } catch (err) {
+        showToast('Erro ao gerar chaves: ' + err.message, 'error');
+        return false;
+    }
     
     wallet.encryptedSeed = encrypt(seedStr, password);
-    wallet.address = address;
+    wallet.address = keyPair.address;
+    wallet.publicKey = keyPair.publicKey;
     wallet.balance = 0;
     wallet.transactions = [];
     wallet.stats = { totalTx: 0, feesPaid: 0, airdropsClaimed: 0, totalRewards: 0 };
@@ -2410,17 +2776,22 @@ function importWalletFromSeed(seedStr, password) {
     
     const enableBiometric = document.getElementById('enableBiometric')?.checked || false;
     if (enableBiometric && isBiometricSupported()) {
-        const userId = address;
-        const userName = 'BradiCoin User';
-        registerBiometric(userId, userName).then(success => {
-            if (success) {
-                // 🔐 SECURITY: senha não é salva — usuário digitará a cada login
-                showToast("🔐 " + (translations[currentLang]?.biometricEnabled || "Fingerprint login enabled!"), "success");
-            }
+        registerBiometric(keyPair.address, 'BradiCoin User').then(success => {
+            if (success) showToast("🔐 Fingerprint login enabled!", "success");
         });
     }
     
     saveWallet();
+    
+    if (authToken) {
+        try {
+            await registerWalletOnBackend();
+            showToast("☁️ Carteira importada e salva no servidor", "success");
+        } catch (err) {
+            showToast('Erro ao registrar no servidor: ' + err.message, 'warning');
+        }
+    }
+    
     showCongratulationsModal('import');
     return true;
 }
@@ -5822,7 +6193,88 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.getElementById('congratsGoToDashboard').addEventListener('click', function() {
         goToDashboardFromCongrats();
     });
+
+    // ===== TELA DE LOGIN/CADASTRO =====
+let authMode = 'login';
+
+document.getElementById('loginAccountBtn').addEventListener('click', function() {
+    document.getElementById('unlockGroup').style.display = 'none';
+    document.getElementById('importGroup').style.display = 'none';
+    document.getElementById('authGroup').style.display = 'block';
+    setAuthMode('login');
+});
+
+document.getElementById('authBackBtn').addEventListener('click', function() {
+    document.getElementById('authGroup').style.display = 'none';
+});
+
+document.getElementById('tabLogin').addEventListener('click', () => setAuthMode('login'));
+document.getElementById('tabRegister').addEventListener('click', () => setAuthMode('register'));
+
+function setAuthMode(mode) {
+    authMode = mode;
+    const isLogin = mode === 'login';
+    document.getElementById('tabLogin').className = isLogin ? 'cyber-btn primary small' : 'cyber-btn small';
+    document.getElementById('tabRegister').className = isLogin ? 'cyber-btn small' : 'cyber-btn primary small';
+    document.getElementById('authUsername').style.display = isLogin ? 'none' : 'block';
+    document.getElementById('authSubmitText').innerText = isLogin ? 'Entrar' : 'Criar Conta';
+    document.getElementById('authStatus').innerText = '';
+}
+
+document.getElementById('authSubmitBtn').addEventListener('click', async function() {
+    const email = document.getElementById('authEmail').value.trim();
+    const username = document.getElementById('authUsername').value.trim();
+    const password = document.getElementById('authPassword').value;
+    const twoFACode = document.getElementById('auth2FACode').value.trim();
+    const statusEl = document.getElementById('authStatus');
     
+    if (!email || !password) {
+        statusEl.innerText = '❌ Email e senha são obrigatórios';
+        statusEl.style.color = '#ff0055';
+        return;
+    }
+    
+    statusEl.innerText = '⏳ Processando...';
+    statusEl.style.color = '#00f2ff';
+    
+    try {
+        if (authMode === 'register') {
+            if (!username) throw new Error('Username obrigatório');
+            if (password.length < 10) throw new Error('Senha deve ter 10+ caracteres');
+            await doRegister(email, password, username);
+        } else {
+            await doLogin(email, password, twoFACode);
+        }
+        
+        statusEl.innerText = '✅ Sucesso!';
+        statusEl.style.color = '#00ff88';
+        document.getElementById('authGroup').style.display = 'none';
+        
+        document.getElementById('authEmail').value = '';
+        document.getElementById('authUsername').value = '';
+        document.getElementById('authPassword').value = '';
+        document.getElementById('auth2FACode').value = '';
+        
+    } catch (err) {
+        statusEl.innerText = '❌ ' + err.message;
+        statusEl.style.color = '#ff0055';
+    }
+});
+
+// ===== AUTO-LOGIN se já tem token salvo =====
+if (authToken) {
+    (async () => {
+        try {
+            const data = await apiCall('/auth/me');
+            currentUser = data.data.user;
+            console.log('✅ Sessão restaurada:', currentUser.username);
+            connectWebSocket();
+        } catch (err) {
+            console.log('Token inválido, limpando...');
+            logoutLocal();
+        }
+    })();
+}
     document.getElementById('createWalletBtn').addEventListener('click', function(e) {
         e.preventDefault();
         document.getElementById('unlockGroup').style.display = 'none';
