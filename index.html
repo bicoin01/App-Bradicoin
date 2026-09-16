@@ -2014,6 +2014,8 @@ async function doLogin(email, password, twoFACode) {
     hideLoginAndShowDashboard();
     updateUI();
     syncBalance().catch(() => {});
+
+  loadAirdropInfo().catch(() => {});
 }
 
 function logoutLocal() {
@@ -2111,6 +2113,31 @@ async function syncHistory() {
     }
 }
 
+// ================================================================
+// ============ AIRDROP INFO — CONSULTA PERIÓDICA =================
+// ================================================================
+async function loadAirdropInfo() {
+    if (!authToken) return;
+    try {
+        const res = await apiCall('/airdrop/info');
+        const btn = document.getElementById('claimAirdropBtn');
+        if (!btn || !res?.data) return;
+
+        const { available, amount, nextClaimAt, alreadyClaimed } = res.data;
+
+        if (alreadyClaimed && nextClaimAt) {
+            const when = new Date(nextClaimAt);
+            btn.title = `Próximo airdrop: ${when.toLocaleString()}`;
+            btn.style.opacity = '0.6';
+        } else if (available) {
+            btn.title = `Disponível: ${amount} BRD`;
+            btn.style.opacity = '1';
+        }
+    } catch (err) {
+        console.warn('Sem info de airdrop:', err.message);
+    }
+}
+  
 // ================================================================
 // ============ ENVIAR TRANSAÇÃO REAL =============================
 // ================================================================
@@ -6721,23 +6748,89 @@ document.getElementById('confirmSendBtn').addEventListener('click', async functi
         }
     });
     
-    document.getElementById('claimAirdropBtn').addEventListener('click', function() {
-        const amount = 5 + Math.random() * 10;
-        wallet.balance += amount;
-        wallet.stats.airdropsClaimed += 1;
+document.getElementById('claimAirdropBtn').addEventListener('click', async function() {
+    // ===== 1. VALIDAÇÕES =====
+    if (!authToken) {
+        showToast('🔒 Faça login para resgatar o airdrop', 'warning');
+        return;
+    }
+    if (!wallet.address) {
+        showToast('👛 Crie ou importe uma carteira primeiro', 'error');
+        return;
+    }
+
+    // ===== 2. BLOQUEIA BOTÃO (evita duplo clique) =====
+    const btn = this;
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resgatando...';
+
+    try {
+        // ===== 3. CHAMA A API REAL =====
+        const res = await apiCall('/airdrop/claim', {
+            method: 'POST',
+            body: {
+                address: wallet.address
+            }
+        });
+
+        // ===== 4. VALIDA RESPOSTA =====
+        if (!res || !res.success) {
+            throw new Error(res?.error || 'Resposta inválida do servidor');
+        }
+
+        const amount = parseFloat(res.data?.amount ?? res.data?.value ?? 0);
+        const txHash = res.data?.txHash || res.data?.transactionHash || null;
+        const newBalance = res.data?.newBalance;
+
+        // ===== 5. ATUALIZA ESTADO LOCAL =====
+        if (newBalance !== undefined) {
+            wallet.balance = parseFloat(newBalance);
+        }
+        wallet.stats.airdropsClaimed = (wallet.stats.airdropsClaimed || 0) + 1;
         wallet.transactions.unshift({
             id: Date.now(),
             type: 'airdrop',
             amount: amount,
+            txHash: txHash,
             time: new Date().toISOString()
         });
+
         saveWallet();
         updateUI();
         updateAnalytics();
-        addNotification(`🎁 ${translations[currentLang]?.airdropClaimed || 'Airdrop claimed!'} +${amount.toFixed(2)} BRD`, 'success');
-        sendPushNotification(translations[currentLang]?.airdropClaimed || 'Airdrop Claimed!', `${translations[currentLang]?.youReceived || 'You received'} ${amount.toFixed(2)} BRD!`);
-        showToast(`🎁 ${translations[currentLang]?.airdropClaimed || 'Airdrop claimed!'} +${amount.toFixed(2)} BRD`, "success");
-    });
+
+        // ===== 6. NOTIFICAÇÕES =====
+        addNotification(`🎁 Airdrop de ${amount.toFixed(2)} BRD creditado!`, 'success');
+        sendPushNotification('Airdrop Resgatado!', `Você recebeu ${amount.toFixed(2)} BRD`);
+        showToast(`🎁 +${amount.toFixed(2)} BRD creditado${txHash ? ' | TX: ' + txHash.substring(0, 10) + '...' : ''}`, 'success');
+
+        // ===== 7. SINCRONIZA COM A BLOCKCHAIN =====
+        syncBalance().catch(() => {});
+        syncHistory().catch(() => {});
+
+    } catch (err) {
+        console.error('❌ Airdrop error:', err);
+
+        // ===== 8. TRATA ERROS REAIS =====
+        const msg = (err.message || '').toLowerCase();
+        if (msg.includes('já') || msg.includes('already') || msg.includes('claimed')) {
+            showToast('✅ Você já resgatou o airdrop', 'info');
+        } else if (msg.includes('401') || msg.includes('unauthorized')) {
+            showToast('🔒 Sessão expirada. Faça login novamente.', 'error');
+        } else if (msg.includes('not found') || msg.includes('404')) {
+            showToast('⚠️ Rota de airdrop não encontrada na API', 'error');
+        } else if (msg.includes('network') || msg.includes('failed to fetch')) {
+            showToast('🌐 Sem conexão com a API. Tente novamente.', 'error');
+        } else {
+            showToast('❌ ' + err.message, 'error');
+        }
+    } finally {
+        // ===== 9. REABILITA BOTÃO SEMPRE =====
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+    }
+});
     
     document.getElementById('createTokenBtn').addEventListener('click', openCreateTokenModal);
     document.getElementById('cancelCreateTokenBtn').addEventListener('click', function() {
