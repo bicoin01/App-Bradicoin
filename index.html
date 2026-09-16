@@ -6624,57 +6624,46 @@ if (authToken) {
         document.getElementById('zkSendModal').style.display = 'none';
     });
     
-    document.getElementById('confirmSendBtn').addEventListener('click', function() {
-        const to = document.getElementById('sendTo').value;
-        const amount = parseFloat(document.getElementById('sendAmount').value);
-        const password = document.getElementById('sendPassword').value;
-        const isZK = document.getElementById('zkPrivateSend')?.checked || false;
+document.getElementById('confirmSendBtn').addEventListener('click', async function() {
+    const to = document.getElementById('sendTo').value.trim();
+    const amount = parseFloat(document.getElementById('sendAmount').value);
+    const password = document.getElementById('sendPassword').value;
+    const isZK = document.getElementById('zkPrivateSend')?.checked || false;
+    
+    // Validações
+    if (!to) { showToast("Digite o endereço de destino", "error"); return; }
+    if (!amount || amount <= 0) { showToast("Digite um valor válido", "error"); return; }
+    if (!password) { showToast("Digite sua senha", "error"); return; }
+    
+    if (amount < 0.17000000) {
+        showToast(`Mínimo para enviar: 0.17000000 BRD`, "error");
+        return;
+    }
+    
+    // Modo ZK (continua local por enquanto)
+    if (isZK) {
+        document.getElementById('zkSenderAddress').innerText = wallet.address || '---';
+        document.getElementById('zkRecipientAddress').innerText = to;
+        document.getElementById('zkAmountDisplay').innerText = amount;
+        document.getElementById('zkSendModal').style.display = 'flex';
+        return;
+    }
+    
+    // Se não está logado, avisa
+    if (!authToken) {
+        showToast('Você não está logado. Faça login para enviar transações reais.', 'warning');
+        return;
+    }
+    
+    // ⭐ AQUI: chama a API real do backend
+    try {
+        showToast('⏳ Assinando e enviando transação...', 'info');
         
-        if (!to) { showToast(translations[currentLang]?.enterRecipientAddress || "Enter recipient address", "error"); return; }
-        if (!amount || amount <= 0) { showToast(translations[currentLang]?.enterValidAmount || "Enter a valid amount", "error"); return; }
-        if (!password) { showToast(translations[currentLang]?.enterPassword || "Enter your password", "error"); return; }
+        const result = await submitTransaction(to, amount, '0.15', password);
         
-        if (amount < 0.17000000) {
-            showToast(`${translations[currentLang]?.minSend || "Minimum amount to send"} 0.17000000 BRD`, "error");
-            return;
-        }
+        showToast(`✅ Transação enviada com sucesso!`, 'success');
         
-        if (isZK) {
-            document.getElementById('zkSenderAddress').innerText = wallet.address || '---';
-            document.getElementById('zkRecipientAddress').innerText = to;
-            document.getElementById('zkAmountDisplay').innerText = amount;
-            document.getElementById('zkSendModal').style.display = 'flex';
-            return;
-        }
-        
-        const decrypted = decrypt(wallet.encryptedSeed, password);
-        if (!decrypted) {
-            showToast(translations[currentLang]?.wrongPassword || "Wrong password!", "error");
-            return;
-        }
-        
-        const totalCost = amount + 0.15;
-        if (totalCost > wallet.balance) {
-            showToast(translations[currentLang]?.insufficientBalance || "Insufficient balance", "error");
-            return;
-        }
-        
-        wallet.balance -= totalCost;
-        wallet.stats.feesPaid += 0.15;
-        wallet.stats.totalTx += 1;
-        
-        wallet.transactions.unshift({
-            id: Date.now(),
-            type: 'sent',
-            to: to,
-            amount: amount,
-            fee: 0.15,
-            time: new Date().toISOString()
-        });
-        
-        saveWallet();
-        updateUI();
-        updateAnalytics();
+        // Fecha o modal e limpa
         document.getElementById('sendModal').style.display = 'none';
         document.getElementById('sendTo').value = '';
         document.getElementById('sendAmount').value = '';
@@ -6683,8 +6672,17 @@ if (authToken) {
         document.getElementById('stealthSend').checked = false;
         document.getElementById('decoySend').checked = false;
         document.getElementById('mixerSend').checked = false;
-        showToast(`✅ ${translations[currentLang]?.sentSuccessfully || 'Sent'} ${amount} BRD ${translations[currentLang]?.successfully || 'successfully!'}`, "success");
-    });
+        
+        // Sincroniza saldo e histórico do backend
+        setTimeout(() => {
+            syncBalance().catch(() => {});
+            syncHistory().catch(() => {});
+        }, 2000);
+        
+    } catch (err) {
+        showToast('❌ ' + err.message, 'error');
+    }
+});
     
     document.getElementById('checkChainBalanceBtn').addEventListener('click', function() {
         if (wallet.address) {
