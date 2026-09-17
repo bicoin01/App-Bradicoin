@@ -1923,7 +1923,7 @@ function generateKeyPairFromSeed(seedWords) {
     const seedStr = seedWords.join(' ');
     const privateKeyHex = CryptoJS.SHA256(seedStr).toString();
     const keyPair = ec.keyFromPrivate(privateKeyHex);
-    const publicKeyHex = keyPair.getPublic('hex');
+    const publicKeyHex = keyPair.getPublic(true, 'hex');
 
     // Endereço = Br + SHA256(publicKey) primeiros 38 chars
     const addrHash = CryptoJS.SHA256(publicKeyHex).toString();
@@ -2795,7 +2795,11 @@ async function finalizeWalletCreation(password) {
     
     document.getElementById('seedModal').style.display = 'none';
     tempSeedForCreation = null;
-    
+
+if (authToken) {
+        loadAirdropInfo().catch(() => {});
+    }
+  
     showCongratulationsModal('create');
 }
 
@@ -2851,7 +2855,11 @@ async function importWalletFromSeed(seedStr, password) {
             showToast('Erro ao registrar no servidor: ' + err.message, 'warning');
         }
     }
-    
+
+    if (authToken) {
+        loadAirdropInfo().catch(() => {});
+  }
+  
     showCongratulationsModal('import');
     return true;
 }
