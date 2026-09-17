@@ -1815,7 +1815,7 @@
 // ================================================================
 // ============ CONFIGURAÇÃO DA API — BACKEND =====================
 // ================================================================
-const API_BASE = 'https://SUA-URL.onrender.com';  // ⚠️ TROQUE PELA SUA URL
+const API_BASE = 'https://bradicoin-api.onrender.com';
 const API_URL = `${API_BASE}/api/v1`;
 
 let authToken = localStorage.getItem('bradicoin_token') || null;
@@ -1947,22 +1947,26 @@ function signTransaction(txData, privateKeyHex) {
     const ec = new EC('secp256k1');
     const keyPair = ec.keyFromPrivate(privateKeyHex);
 
-    // Ordena os campos para garantir hash consistente
-    const msg = JSON.stringify({
-        fromAddress: txData.fromAddress,
-        toAddress: txData.toAddress,
-        amount: txData.amount.toString(),
-        fee: (txData.fee || '0').toString(),
-        nonce: txData.nonce,
-        timestamp: txData.timestamp,
-        type: txData.type || 'transfer'
-    });
+    // ⚠️ MESMA string do backend (transactions.js → buildSignableMessage)
+    const msg = [
+        txData.fromAddress,
+        txData.toAddress,
+        txData.amount.toString(),
+        (txData.fee || '0').toString(),
+        txData.nonce.toString(),
+        txData.timestamp,
+        txData.type || 'transfer'
+    ].join('|');
 
-    const msgHash = CryptoJS.SHA256(msg).toString();
-    const signature = keyPair.sign(msgHash);
+    // ⚠️ Backend usa SHA256 puro
+    const msgHashHex = CryptoJS.SHA256(msg).toString();
+
+    // ⚠️ Assinatura determinística
+    const signature = keyPair.sign(msgHashHex, { canonical: true });
+
     return signature.toDER('hex');
 }
-
+  
 // ================================================================
 // ============ LOGIN / CADASTRO / LOGOUT =========================
 // ================================================================
@@ -6192,58 +6196,57 @@ document.addEventListener('DOMContentLoaded', async function() {
     }, 500);
 
     // ===== BIOMETRIC LOGIN =====
-    document.getElementById('biometricLoginBtn').addEventListener('click', async function() {
-        const isEnabled = storage.getItem('bradicoin_biometric_enabled') === 'true';
-        const hasCredential = storage.getItem('bradicoin_biometric_id');
-        const hasWallet = wallet && wallet.encryptedSeed;
-        
-        if (!hasWallet) {
-            showToast(translations[currentLang]?.noWalletLoaded || "No wallet loaded", "error");
-            return;
-        }
+document.getElementById('biometricLoginBtn').addEventListener('click', async function() {
+    const isEnabled = storage.getItem('bradicoin_biometric_enabled') === 'true';
+    const hasCredential = storage.getItem('bradicoin_biometric_id');
+    const hasWallet = wallet && wallet.encryptedSeed;
 
-       if (!isEnabled || !hasCredential) {
-    const userId = wallet.address || 'bradicoin_user';
-    const userName = 'BradiCoin User';
-    const registered = await registerBiometric(userId, userName);
-    if (registered) {
-        // 🔐 SECURITY: senha não é salva — usuário digitará a cada login
-                setupBiometric();
-                updateBiometricUI();
-                showToast("✅ " + (translations[currentLang]?.biometricConfigured || "Fingerprint configured! Try again to login."), "success");
-            }
-            return;
-        }
+    // ===== 1. SEM CARTEIRA =====
+    if (!hasWallet) {
+        showToast(translations[currentLang]?.noWalletLoaded || "No wallet loaded", "error");
+        return;
+    }
 
-        const authenticated = await authenticateWithBiometric();
-        if (authenticated) {
-            let password = null; // 🔐 SECURITY: senha nunca é salva — usuário precisa digitar
-            
-            if (password) {
-                const unlocked = unlockWallet(password, '');
-                if (unlocked) {
-                    showToast("🔓 " + (translations[currentLang]?.walletUnlockedBiometric || "Wallet unlocked with fingerprint!"), "success");
-                    return;
-                } else {
-                    showToast(translations[currentLang]?.enterPasswordToComplete || "Please enter your password to complete login", "warning");
-                    document.getElementById('unlockPasswordInput').focus();
-                    return;
-                }
-            } else {
-                const passwordInput = document.getElementById('unlockPasswordInput');
-                if (passwordInput && passwordInput.value) {
-                    const unlocked = unlockWallet(passwordInput.value, '');
-                    if (unlocked) {
-                       // 🔐 SECURITY: não salvar senha 
-                        showToast("🔓 " + (translations[currentLang]?.walletUnlockedBiometric || "Wallet unlocked with fingerprint!"), "success");
-                    }
-                } else {
-                    showToast(translations[currentLang]?.enterPasswordFirst || "Please enter your password first", "error");
-                    document.getElementById('unlockPasswordInput').focus();
-                }
-            }
+    // ===== 2. AINDA NÃO CONFIGUROU → registra agora =====
+    if (!isEnabled || !hasCredential) {
+        const userId = wallet.address || 'bradicoin_user';
+        const userName = 'BradiCoin User';
+        const registered = await registerBiometric(userId, userName);
+
+        if (registered) {
+            // 🔐 SECURITY: senha não é salva — usuário digitará a cada login
+            setupBiometric();
+            updateBiometricUI();
+            showToast(
+                "✅ " + (translations[currentLang]?.biometricConfigured || "Fingerprint configured! Try again to login."),
+                "success"
+            );
         }
-    });
+        return;
+    }
+
+    // ===== 3. JÁ CONFIGURADO → autentica =====
+    const authenticated = await authenticateWithBiometric();
+    if (!authenticated) return;
+
+    // 🔐 SECURITY: senha nunca é salva — usuário precisa digitar
+    const passwordInput = document.getElementById('unlockPasswordInput');
+    if (passwordInput && passwordInput.value) {
+        const unlocked = unlockWallet(passwordInput.value, '');
+        if (unlocked) {
+            showToast(
+                "🔓 " + (translations[currentLang]?.walletUnlockedBiometric || "Wallet unlocked with fingerprint!"),
+                "success"
+            );
+        }
+    } else {
+        showToast(
+            translations[currentLang]?.enterPasswordFirst || "Please enter your password first",
+            "error"
+        );
+        document.getElementById('unlockPasswordInput').focus();
+    }
+});
 
     // ===== EVENTOS PRINCIPAIS =====
     document.getElementById('congratsGoToDashboard').addEventListener('click', function() {
