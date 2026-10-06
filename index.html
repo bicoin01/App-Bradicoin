@@ -1163,12 +1163,12 @@
   <div class="modal-content">
     <h2><i class="fas fa-layer-group"></i> <span id="stakeDetailTitle">Staking Details</span></h2>
     <div id="stakeDetailContent" style="margin:0.5rem 0; text-align:left; font-size:0.7rem;">
-      <p><strong id="stakeLockLabel">Lock Period:</strong> 24 Hours</p>
-      <p><strong id="stakeAprLabel">APR:</strong> 18%</p>
-      <p><strong id="stakeMinLabel">Minimum Stake:</strong> 1 BRD</p>
-      <p><strong id="stakeYourLabel">Your Stake:</strong> <span id="stakeDetailAmount">0</span> BRD</p>
-      <p><strong id="stakeRewardLabel">Reward:</strong> <span id="stakeDetailReward">0</span> BRD</p>
-      <p><strong id="stakeStatusLabel">Status:</strong> <span id="stakeDetailStatus">No active stake</span></p>
+      <p><strong id="stakeLockLabel">Pool:</strong> ---</p>
+      <p><strong id="stakeAprLabel">APR:</strong> 20%</p>
+      <p><strong id="stakeMinLabel">Stake Mínimo:</strong> 1 BRD</p>
+      <p><strong id="stakeYourLabel">Seu Stake:</strong> <span id="stakeDetailAmount">0</span> BRD</p>
+      <p><strong id="stakeRewardLabel">Recompensa:</strong> <span id="stakeDetailReward">0</span> BRD</p>
+      <p><strong id="stakeStatusLabel">Status:</strong> <span id="stakeDetailStatus">Sem stake ativo</span></p>
     </div>
     <button id="closeStakeModalBtn" class="cyber-btn primary" style="width:100%;"><span id="closeStakeText">Close</span></button>
   </div>
@@ -1634,20 +1634,25 @@
         <h3 style="font-size:0.9rem;"><i class="fas fa-layer-group"></i> <span id="stakingTitle">Staking Pool</span></h3>
         <div class="staking-pool" style="padding:0.8rem;">
           <div style="display:flex; justify-content:space-between; font-size:0.7rem;">
-            <strong id="lockPeriodLabel">24 HOURS LOCK</strong>
-            <span style="color:#00ff88;">18% APR</span>
+            <strong id="lockPeriodLabel">Escolha o pool</strong>
+            <span style="color:#00ff88;">20% APR</span>
           </div>
-          <div style="font-size:0.6rem; margin:0.3rem 0;" id="stakeMinInfo">⚡ <span id="stakeMinText">Min</span>: 1 BRD | 📈 18% <span id="annualLabel">annual</span></div>
-          <input type="number" id="stakeAmount" class="cyber-input" placeholder="Amount to stake" step="any" style="font-size:0.6rem; padding:0.4rem;">
-          <button id="stakeBtn" class="cyber-btn primary" style="width:100%; margin-top:0.3rem; font-size:0.6rem; padding:0.4rem;"><i class="fas fa-lock"></i> <span id="stakeBtnLabel">Stake 24h</span></button>
+          <div style="font-size:0.6rem; margin:0.3rem 0;" id="stakeMinInfo">⚡ <span id="stakeMinText">Mín</span>: 1 BRD | 📈 20% <span id="annualLabel">anual</span></div>
+          <select id="stakePoolSelect" class="cyber-input" style="font-size:0.6rem; padding:0.4rem; margin-bottom:0.3rem;">
+            <option value="24h">📅 24 Hours (min 1 BRD)</option>
+            <option value="7d">📆 7 Days (min 10 BRD)</option>
+            <option value="30d">🗓️ 30 Days (min 100 BRD)</option>
+          </select>
+          <input type="number" id="stakeAmount" class="cyber-input" placeholder="Quantidade para stake" step="any" style="font-size:0.6rem; padding:0.4rem;">
+          <button id="stakeBtn" class="cyber-btn primary" style="width:100%; margin-top:0.3rem; font-size:0.6rem; padding:0.4rem;"><i class="fas fa-lock"></i> <span id="stakeBtnLabel">Fazer Stake</span></button>
         </div>
-        <div id="stakeInfo" class="staking-timer" style="font-size:0.55rem;">💎 <span id="noActiveStake">No active stake</span></div>
+        <div id="stakeInfo" class="staking-timer" style="font-size:0.55rem;">💎 <span id="noActiveStake">Sem stake ativo</span></div>
         <div style="display:flex; gap:0.3rem;">
-          <button id="unstakeBtn" class="cyber-btn success small" style="flex:1;"><i class="fas fa-unlock-alt"></i> <span id="unstakeBtnLabel">Unstake</span></button>
-          <button id="viewStakeDetailsBtn" class="cyber-btn small" style="flex:1;"><i class="fas fa-info-circle"></i> <span id="detailsBtnLabel">Details</span></button>
+          <button id="unstakeBtn" class="cyber-btn success small" style="flex:1;"><i class="fas fa-unlock-alt"></i> <span id="unstakeBtnLabel">Resgatar</span></button>
+          <button id="viewStakeDetailsBtn" class="cyber-btn small" style="flex:1;"><i class="fas fa-info-circle"></i> <span id="detailsBtnLabel">Detalhes</span></button>
         </div>
         <div style="margin-top:0.3rem; font-size:0.5rem; opacity:0.6; text-align:center;">
-          <span id="totalStakedLabel">Total Staked</span>: <span id="totalStaked">0</span> BRD
+          <span id="totalStakedLabel">Total em Stake</span>: <span id="totalStaked">0</span> BRD
         </div>
       </div>
 
@@ -1841,6 +1846,9 @@
 const API_BASE = 'https://bradicoin-api.onrender.com';
 const API_URL = `${API_BASE}/api/v1`;
 
+// ⏱️ FASE 2A: Timeout padrão para chamadas HTTP
+const API_TIMEOUT_MS = 15000;
+
 let authToken = localStorage.getItem('bradicoin_token') || null;
 let currentUser = null;
 let socket = null;
@@ -1853,13 +1861,19 @@ console.log('🌐 API configurada:', API_BASE);
 // ================================================================
 async function apiCall(endpoint, options = {}) {
     const url = `${API_URL}${endpoint}`;
+    const timeoutMs = options.timeoutMs ?? API_TIMEOUT_MS;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
     const config = {
         method: options.method || 'GET',
         headers: {
             'Content-Type': 'application/json',
             ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {}),
             ...(options.headers || {})
-        }
+        },
+        signal: controller.signal
     };
     if (options.body) {
         config.body = JSON.stringify(options.body);
@@ -1870,17 +1884,28 @@ async function apiCall(endpoint, options = {}) {
         const data = await response.json().catch(() => ({}));
 
         if (!response.ok) {
-            // Se 401, token expirou → desloga
             if (response.status === 401 && authToken) {
                 logoutLocal();
                 showToast('Sessão expirada. Faça login novamente.', 'error');
             }
-            throw new Error(data.error || `Erro HTTP ${response.status}`);
+            const errMsg = data.error || data.message || `Erro HTTP ${response.status}`;
+            const err = new Error(errMsg);
+            err.status = response.status;
+            err.data = data;
+            throw err;
         }
         return data;
     } catch (err) {
+        if (err.name === 'AbortError') {
+            console.error(`⏱️ API ${endpoint}: timeout após ${timeoutMs}ms`);
+            const timeoutErr = new Error('Servidor demorou demais. Tente novamente.');
+            timeoutErr.code = 'TIMEOUT';
+            throw timeoutErr;
+        }
         console.error(`❌ API ${endpoint}:`, err.message);
         throw err;
+    } finally {
+        clearTimeout(timeoutId);
     }
 }
 
@@ -3040,17 +3065,28 @@ function updateUI() {
     
     const stakeInfoEl = document.getElementById('stakeInfo');
     if (stakeInfoEl) {
-        if (activeStake && activeStake.end > Date.now()) {
-            const remaining = activeStake.end - Date.now();
+        // ✅ FASE 2A: usa os campos do backend (isReady, progress, timeRemaining, expectedReward)
+        if (activeStake && activeStake.isReady === false) {
+            // Stake ativo, ainda bloqueado
+            const remaining = activeStake.timeRemaining || 0;
             const hours = Math.floor(remaining / 3600000);
             const mins = Math.floor((remaining % 3600000) / 60000);
-            const progress = ((Date.now() - activeStake.start) / 86400000) * 100;
-            const reward = activeStake.amount * 0.18 * ((Date.now() - activeStake.start) / 31536000000);
-            stakeInfoEl.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width:${Math.min(progress, 100)}%"></div></div>⏱️ ${hours}h ${mins}m left | ${translations[currentLang]?.reward || 'Reward'}: ${reward.toFixed(4)} BRD`;
-        } else if (activeStake && activeStake.end <= Date.now()) {
-            stakeInfoEl.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>✅ ${translations[currentLang]?.matured || 'MATURED!'} ${translations[currentLang]?.clickUnstake || 'Click UNSTAKE.'}`;
+            const progress = activeStake.progress || 0;
+            const expectedReward = parseFloat(activeStake.expectedReward || '0');
+            stakeInfoEl.innerHTML = `
+                <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(progress, 100)}%"></div></div>
+                ⏱️ ${hours}h ${mins}m restantes | ${translations[currentLang]?.reward || 'Reward'}: ${expectedReward.toFixed(4)} BRD | Pool: ${activeStake.pool || '—'} (${activeStake.apr || 0}% APR)
+            `;
+        } else if (activeStake && activeStake.isReady === true) {
+            // Pronto pra resgatar
+            const expectedReward = parseFloat(activeStake.expectedReward || '0');
+            stakeInfoEl.innerHTML = `
+                <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+                ✅ ${translations[currentLang]?.matured || 'MADURO!'} ${translations[currentLang]?.clickUnstake || 'Clique em UNSTAKE.'} (+${expectedReward.toFixed(4)} BRD)
+            `;
         } else {
-            stakeInfoEl.innerHTML = `💎 ${translations[currentLang]?.noActiveStake || 'No active stake. Stake 1+ BRD for 24h at 18% APR.'}`;
+            // Sem stake ativo
+            stakeInfoEl.innerHTML = `💎 ${translations[currentLang]?.noActiveStake || 'Sem stake ativo. Faça stake de 1+ BRD (24h/7d/30d a 20% APR).'}`;
         }
     }
     
@@ -3552,58 +3588,157 @@ function generateZKProof(sender, recipient, amount, commitment, nullifier) {
 }
 
 // ================================================================
-// ==================== STAKING FUNÇÕES ===========================
+// ============ STAKING ==========
 // ================================================================
 
-function stake(amount) {
-    if (amount < 1) { 
-        showToast(translations[currentLang]?.minStake || "Minimum stake is 1 BRD", 'error'); 
-        return; 
+// Cache local dos pools (carregado do backend)
+let stakingPools = null;
+// Cache do stake ativo (sincronizado do backend)
+let activeStake = null;
+
+// ---------- CARREGAR POOLS ----------
+async function loadStakingPools() {
+    if (!authToken) return null;
+    try {
+        const res = await apiCall('/reserve-staking/pools');
+        stakingPools = res.data.pools || [];
+        console.log('📋 Pools carregados:', stakingPools);
+        return stakingPools;
+    } catch (err) {
+        console.warn('Erro ao carregar pools:', err.message);
+        return null;
     }
-    if (amount > (wallet.balance || 0)) { 
-        showToast(translations[currentLang]?.insufficientBalance || "Insufficient balance", 'error'); 
-        return; 
-    }
-    if (activeStake && activeStake.end > Date.now()) { 
-        showToast(translations[currentLang]?.activeStakeExists || "Active stake exists", 'error'); 
-        return; 
-    }
-    
-    if (activeStake && activeStake.end <= Date.now()) {
-        const reward = activeStake.amount * 0.18 * (86400 / 31536000);
-        wallet.balance += activeStake.amount + reward;
-        wallet.stats.totalRewards += reward;
-    }
-    
-    activeStake = {
-        amount: amount,
-        end: Date.now() + 86400000,
-        period: 86400,
-        start: Date.now()
-    };
-    wallet.balance -= amount;
-    saveWallet();
-    updateUI();
-    showToast(`🔒 ${translations[currentLang]?.staked || 'Staked'} ${amount} BRD ${translations[currentLang]?.for24h || 'for 24h at 18% APR'}`, "success");
 }
 
-function unstake() {
-    if (!activeStake) { 
-        showToast(translations[currentLang]?.noActiveStake || "No active stake", 'error'); 
-        return; 
+// ---------- CARREGAR STAKE ATIVO ----------
+async function loadActiveStake() {
+    if (!authToken) return null;
+    try {
+        const res = await apiCall('/reserve-staking/active');
+        activeStake = res.data.active || null;
+        console.log('💎 Stake ativo:', activeStake);
+        return activeStake;
+    } catch (err) {
+        console.warn('Erro ao carregar stake ativo:', err.message);
+        activeStake = null;
+        return null;
     }
-    if (Date.now() < activeStake.end) {
-        const hours = Math.floor((activeStake.end - Date.now()) / 3600000);
-        showToast(`${translations[currentLang]?.stakeLocked || 'Stake locked for'} ${hours} ${translations[currentLang]?.moreHours || 'more hours'}`, 'info');
-        return;
+}
+
+// ---------- CRIAR STAKE ----------
+async function stake(amount, poolKey = '24h') {
+    // ✅ FASE 2A: bloqueia em modo decoy
+    if (decoyModeActive) {
+        showToast('🕵️ Desative o modo decoy antes de fazer stake', 'error');
+        return false;
     }
-    const reward = activeStake.amount * 0.18 * (86400 / 31536000);
-    wallet.balance += activeStake.amount + reward;
-    wallet.stats.totalRewards += reward;
-    activeStake = null;
-    saveWallet();
-    updateUI();
-    showToast(`✅ ${translations[currentLang]?.unstaked || 'Unstaked!'} +${reward.toFixed(4)} BRD ${translations[currentLang]?.reward || 'reward'}`, "success");
+    if (!authToken) {
+        showToast('🔒 Faça login para fazer stake', 'warning');
+        return false;
+    }
+    if (!wallet.address) {
+        showToast('👛 Crie ou importe uma carteira primeiro', 'error');
+        return false;
+    }
+
+    const amountNum = parseFloat(amount);
+    if (!Number.isFinite(amountNum) || amountNum <= 0) {
+        showToast(translations[currentLang]?.enterValidAmount || "Digite um valor válido", 'error');
+        return false;
+    }
+
+    // Valida min/max do pool local (antes de chamar o backend)
+    if (stakingPools) {
+        const pool = stakingPools.find(p => p.key === poolKey);
+        if (pool) {
+            const min = parseFloat(pool.minStake || '0');
+            const max = parseFloat(pool.maxStake || '0');
+            if (amountNum < min) {
+                showToast(`❌ Mínimo para ${pool.name}: ${min} BRD`, 'error');
+                return false;
+            }
+            if (amountNum > max) {
+                showToast(`❌ Máximo para ${pool.name}: ${max} BRD`, 'error');
+                return false;
+            }
+        }
+    }
+
+    try {
+        showToast('⏳ Criando stake...', 'info');
+        const res = await apiCall('/reserve-staking/stake', {
+            method: 'POST',
+            body: {
+                amount: amountNum.toString(),
+                poolKey
+            }
+        });
+
+        // Atualiza cache local
+        activeStake = res.data.stake;
+
+        // Sincroniza saldo com backend
+        syncBalance().catch(() => {});
+
+        updateUI();
+        const poolName = stakingPools?.find(p => p.key === poolKey)?.name || poolKey;
+        showToast(`🔒 Stake de ${amountNum} BRD criado no pool ${poolName}`, 'success');
+        return true;
+    } catch (err) {
+        console.error('Erro no stake:', err);
+        showToast('❌ ' + err.message, 'error');
+        return false;
+    }
+}
+
+// ---------- RESGATAR STAKE ----------
+async function unstake() {
+    // ✅ FASE 2A: bloqueia em modo decoy
+    if (decoyModeActive) {
+        showToast('🕵️ Desative o modo decoy antes de resgatar', 'error');
+        return false;
+    }
+    if (!authToken) {
+        showToast('🔒 Faça login para resgatar', 'warning');
+        return false;
+    }
+    if (!activeStake) {
+        showToast(translations[currentLang]?.noActiveStake || "Sem stake ativo", 'error');
+        return false;
+    }
+
+    // Verifica se já está maduro
+    if (activeStake.isReady === false) {
+        const remaining = activeStake.timeRemaining || 0;
+        const hours = Math.floor(remaining / 3600000);
+        const mins = Math.floor((remaining % 3600000) / 60000);
+        showToast(`⏳ Stake ainda bloqueado. Faltam ${hours}h ${mins}m`, 'info');
+        return false;
+    }
+
+    try {
+        showToast('⏳ Resgatando stake...', 'info');
+        const res = await apiCall('/reserve-staking/unstake', {
+            method: 'POST'
+        });
+
+        const reward = parseFloat(res.data.reward || '0');
+        const total = parseFloat(res.data.totalReturn || '0');
+
+        // Limpa cache
+        activeStake = null;
+
+        // Sincroniza saldo
+        syncBalance().catch(() => {});
+
+        updateUI();
+        showToast(`✅ Unstake realizado! +${total.toFixed(4)} BRD creditado (reward: ${reward.toFixed(4)})`, 'success');
+        return true;
+    } catch (err) {
+        console.error('Erro no unstake:', err);
+        showToast('❌ ' + err.message, 'error');
+        return false;
+    }
 }
 
 // ================================================================
