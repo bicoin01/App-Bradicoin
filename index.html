@@ -2036,6 +2036,12 @@ async function doRegister(email, password, username) {
         await registerWalletOnBackend();
         hideLoginAndShowDashboard();
         updateUI();
+
+        // ✅ BLOCO 7: carrega pools + stake ativo após registro
+        await hydrateStakeUI();
+        syncBalance().catch(() => {});
+        syncHistory().catch(() => {});
+        loadAirdropInfo().catch(() => {});
     } else {
         // Fecha a tela de auth e volta para "criar carteira"
         document.getElementById('authGroup').style.display = 'none';
@@ -2067,6 +2073,8 @@ async function doLogin(email, password, twoFACode) {
     updateUI();
     syncBalance().catch(() => {});
 
+  await hydrateStakeUI();
+  syncHistory().catch(() => {});
   loadAirdropInfo().catch(() => {});
 }
 
@@ -2635,6 +2643,7 @@ let nftImageDataUrl = null;
 let pendingNFTData = null;
 let selectedNFTForSend = null;
 let decoyModeActive = false;
+let realBalanceBackup = null;
 
 // ================================================================
 // ==================== HELPERS ===================================
@@ -3040,8 +3049,13 @@ function updateUI() {
     const zkPrivacyEl = document.getElementById('zkPrivacyAmount');
     const zkProofCountEl = document.getElementById('zkProofCount');
     
-    if (balanceEl) balanceEl.innerText = (wallet.balance || 0).toFixed(8);
-    if (usdBalanceEl) usdBalanceEl.innerText = `$${((wallet.balance || 0) * 10).toFixed(2)} USD`;
+    if (decoyModeActive) {
+        if (balanceEl) balanceEl.innerText = "0.00000000";
+        if (usdBalanceEl) usdBalanceEl.innerText = "$0.00 USD";
+    } else {
+        if (balanceEl) balanceEl.innerText = (wallet.balance || 0).toFixed(8);
+        if (usdBalanceEl) usdBalanceEl.innerText = `$${((wallet.balance || 0) * 10).toFixed(2)} USD`;
+    }
     if (addressEl) addressEl.innerText = wallet.address || "—";
     if (totalTxEl) totalTxEl.innerText = (wallet.transactions || []).length;
     if (stakedEl) stakedEl.innerText = activeStake ? activeStake.amount.toFixed(2) : "0";
@@ -3593,8 +3607,6 @@ function generateZKProof(sender, recipient, amount, commitment, nullifier) {
 
 // Cache local dos pools (carregado do backend)
 let stakingPools = null;
-// Cache do stake ativo (sincronizado do backend)
-let activeStake = null;
 
 // ---------- CARREGAR POOLS ----------
 async function loadStakingPools() {
@@ -3623,6 +3635,43 @@ async function loadActiveStake() {
         activeStake = null;
         return null;
     }
+}
+
+// ---------- HIDRATAR UI DE STAKING ----------
+async function hydrateStakeUI() {
+    if (!authToken) return;
+
+    // 1. Carrega os pools
+    await loadStakingPools();
+
+    // 2. Popula o <select> dinamicamente
+    const select = document.getElementById('stakePoolSelect');
+    if (select && Array.isArray(stakingPools) && stakingPools.length > 0) {
+        select.innerHTML = '';
+        stakingPools.forEach(pool => {
+            const opt = document.createElement('option');
+            opt.value = pool.key;
+            const icon = pool.key === '24h' ? '📅'
+                       : pool.key === '7d'  ? '📆'
+                       : pool.key === '30d' ? '🗓️' : '💎';
+            opt.textContent = `${icon} ${pool.name || pool.key} (min ${pool.minStake || '?'} BRD)`;
+            select.appendChild(opt);
+        });
+        console.log('✅ <select> de pools populado:', stakingPools.map(p => p.key));
+
+        // Atualiza labels de APR/mínimo da UI (primeiro pool por padrão)
+        const first = stakingPools[0];
+        const aprLabel = document.getElementById('stakeAprLabel');
+        if (aprLabel && first.apr) aprLabel.innerText = 'APR: ' + first.apr + '%';
+        const minInfo = document.getElementById('stakeMinText');
+        if (minInfo && first.minStake) minInfo.innerText = 'Mín: ' + first.minStake + ' BRD';
+    }
+
+    // 3. Carrega o stake ativo
+    await loadActiveStake();
+
+    // 4. Atualiza a UI com o stake carregado
+    updateUI();
 }
 
 // ---------- CRIAR STAKE ----------
@@ -4396,13 +4445,26 @@ function sendPushNotification(title, body) {
 // ================================================================
 // ==================== QR CODE FUNCTIONS =========================
 // ================================================================
-
 function showReceiveModal() {
     const address = wallet.address || '---';
     document.getElementById('receiveAddressDisplay').innerText = address;
     
     const qrContainer = document.getElementById('qrcode');
+    if (!qrContainer) {
+        console.error('❌ Container #qrcode não encontrado');
+        return;
+    }
+    
+    // ✅ CORREÇÃO: limpa container e força remoção de canvas/img antigos
     qrContainer.innerHTML = '';
+    
+    // ✅ CORREÇÃO: verifica se a biblioteca QRCode carregou
+    if (typeof QRCode === 'undefined') {
+        qrContainer.innerHTML = '<div style="color:#ff4466;font-size:0.5rem;padding:1rem;text-align:center;">⚠️ Biblioteca QRCode não carregou.<br>Verifique sua conexão.</div>';
+        console.warn('⚠️ QRCode library não disponível');
+        document.getElementById('receiveModal').style.display = 'flex';
+        return;
+    }
     
     if (address && address !== '---') {
         try {
@@ -4415,7 +4477,8 @@ function showReceiveModal() {
                 correctLevel: QRCode.CorrectLevel.H
             });
         } catch(e) {
-            qrContainer.innerHTML = '<div style="color:#666;font-size:0.5rem;">⚠️ QR Code error</div>';
+            console.error('❌ Erro ao gerar QR Code:', e);
+            qrContainer.innerHTML = '<div style="color:#ff4466;font-size:0.5rem;">⚠️ QR Code error: ' + e.message + '</div>';
         }
     } else {
         qrContainer.innerHTML = '<div style="color:#666;font-size:0.5rem;">' + (translations[currentLang]?.noWalletLoaded || 'No wallet loaded') + '</div>';
@@ -6494,6 +6557,11 @@ if (authToken) {
             currentUser = data.data.user;
             console.log('✅ Sessão restaurada:', currentUser.username);
             connectWebSocket();
+
+            await hydrateStakeUI();
+            syncBalance().catch(() => {});
+            syncHistory().catch(() => {});
+            loadAirdropInfo().catch(() => {});
         } catch (err) {
             console.log('Token inválido, limpando...');
             logoutLocal();
@@ -6651,11 +6719,11 @@ if (authToken) {
     });
     
     document.getElementById('receiveBtn').addEventListener('click', function() {
-        if (wallet.address) {
-            showReceiveModal();
-        } else {
-            showToast(translations[currentLang]?.noWalletLoaded || "No wallet loaded", "error");
-        }
+    if (wallet.address) {
+        showReceiveModal();
+    } else {
+        showToast(translations[currentLang]?.noWalletLoaded || "No wallet loaded", "error");
+    }
     });
     document.getElementById('closeReceiveModalBtn').addEventListener('click', function() {
         document.getElementById('receiveModal').style.display = 'none';
@@ -6675,27 +6743,86 @@ if (authToken) {
         document.getElementById('historyModal').style.display = 'none';
     });
     
-    document.getElementById('stakeBtn').addEventListener('click', function() {
+    document.getElementById('stakeBtn').addEventListener('click', async function() {
         const amount = parseFloat(document.getElementById('stakeAmount').value);
+        const poolKey = document.getElementById('stakePoolSelect')?.value || '24h';
+
         if (!amount || amount <= 0) {
-            showToast(translations[currentLang]?.enterValidAmount || "Enter a valid amount", "error");
+            showToast(translations[currentLang]?.enterValidAmount || "Digite um valor válido", "error");
             return;
         }
-        stake(amount);
+
+        // Valida min/max do pool ANTES de chamar o backend (feedback rápido)
+        if (stakingPools) {
+            const pool = stakingPools.find(p => p.key === poolKey);
+            if (pool) {
+                const min = parseFloat(pool.minStake || '0');
+                const max = parseFloat(pool.maxStake || '0');
+                if (amount < min) {
+                    showToast(`❌ Mínimo para ${pool.name}: ${min} BRD`, 'error');
+                    return;
+                }
+                if (amount > max) {
+                    showToast(`❌ Máximo para ${pool.name}: ${max} BRD`, 'error');
+                    return;
+                }
+            }
+        }
+
+        // Chama função async com await
+        const btn = this;
+        const originalHTML = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+
+        try {
+            await stake(amount, poolKey);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+        }
     });
     
-    document.getElementById('unstakeBtn').addEventListener('click', unstake);
+    document.getElementById('unstakeBtn').addEventListener('click', async function() {
+        const btn = this;
+        const originalHTML = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+
+        try {
+            await unstake();
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+        }
+    });
     
     document.getElementById('viewStakeDetailsBtn').addEventListener('click', function() {
         if (activeStake) {
-            const reward = Date.now() >= activeStake.end ? activeStake.amount * 0.18 * (86400 / 31536000) : 0;
-            document.getElementById('stakeDetailAmount').innerText = activeStake.amount.toFixed(2);
+            // ✅ FASE 2A: usa dados do backend
+            const amount = parseFloat(activeStake.amount || 0);
+            const reward = parseFloat(activeStake.expectedReward || 0);
+            const status = activeStake.isReady
+                ? "✅ " + (translations[currentLang]?.matured || "Matured")
+                : "🔒 " + (translations[currentLang]?.locked || "Locked");
+
+            document.getElementById('stakeDetailAmount').innerText = amount.toFixed(2);
             document.getElementById('stakeDetailReward').innerText = reward.toFixed(4);
-            document.getElementById('stakeDetailStatus').innerText = Date.now() >= activeStake.end ? "✅ " + (translations[currentLang]?.matured || "Matured") : "🔒 " + (translations[currentLang]?.locked || "Locked");
+            document.getElementById('stakeDetailStatus').innerText = status;
+
+            // Atualiza label do pool e APR (se os elementos existirem)
+            const poolEl = document.getElementById('stakeLockLabel');
+            if (poolEl && activeStake.pool) {
+                poolEl.innerText = 'Pool: ' + activeStake.pool;
+            }
+            const aprEl = document.getElementById('stakeAprLabel');
+            if (aprEl && activeStake.apr) {
+                aprEl.innerText = 'APR: ' + activeStake.apr + '%';
+            }
         } else {
             document.getElementById('stakeDetailAmount').innerText = "0";
             document.getElementById('stakeDetailReward').innerText = "0";
-            document.getElementById('stakeDetailStatus').innerText = translations[currentLang]?.noActiveStake || "No active stake";
+            document.getElementById('stakeDetailStatus').innerText = translations[currentLang]?.noActiveStake || "Sem stake ativo";
         }
         document.getElementById('stakeModal').style.display = 'flex';
     });
@@ -6710,8 +6837,10 @@ if (authToken) {
         document.getElementById('zkInfoModal').style.display = 'none';
     });
     
-    document.getElementById('viewSeedModal').addEventListener('click', function() {
-        document.getElementById('viewSeedModal').style.display = 'flex';
+    document.getElementById('viewSeedModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        this.style.display = 'none';
+    }
     });
     document.getElementById('closeViewSeedModalBtn').addEventListener('click', function() {
         document.getElementById('viewSeedModal').style.display = 'none';
@@ -7393,11 +7522,14 @@ document.getElementById('claimAirdropBtn').addEventListener('click', async funct
     const decoyToggleBtn = document.getElementById('decoyToggleBtn');
     if (decoyToggleBtn) {
         decoyToggleBtn.addEventListener('click', function() {
-            decoyModeActive = !decoyModeActive;  
+            decoyModeActive = !decoyModeActive;
             const badge = document.getElementById('decoyBadgeText');
             const balanceEl = document.getElementById('balance');
             const usdEl = document.getElementById('usdBalance');
-                if (decoyModeActive) {
+            
+            if (decoyModeActive) {
+                // ✅ BLOCO 6: guarda saldo real antes de esconder
+                realBalanceBackup = wallet.balance;
                 if (badge) badge.innerText = "Decoy Balance";
                 if (balanceEl) balanceEl.innerText = "0.00000000";
                 if (usdEl) usdEl.innerText = "$0.00 USD";
@@ -7405,6 +7537,11 @@ document.getElementById('claimAirdropBtn').addEventListener('click', async funct
                 addSecurityAlert("Decoy mode activated");
             } else {
                 if (badge) badge.innerText = "Real Balance";
+                // ✅ BLOCO 6: restaura saldo real se necessário
+                if (realBalanceBackup !== null) {
+                    wallet.balance = realBalanceBackup;
+                    realBalanceBackup = null;
+                }
                 updateUI();
                 showToast("👁️ Decoy mode OFF — showing real balance", "success");
                 addSecurityAlert("Decoy mode deactivated");
@@ -7608,12 +7745,34 @@ console.log("🎨 NFT System - Mint and trade NFTs!");
 console.log("📚 Seed phrase uses " + WORD_LIST.length + " words from A-Z");
 console.log("🌍 9 Languages supported: EN, PT, ES, AR, DE, IT, FR, RU, KO");
 
+// ✅ BLOCO 7: refresh da UI a cada 5s (saldo, analytics)
 setInterval(() => {
     if (!decoyModeActive) {
         updateUI();
     }
     updateAnalytics();
 }, 5000);
+
+setInterval(async () => {
+    if (!authToken || !wallet.address) return;
+    if (decoyModeActive) return;
+
+    const dashboard = document.getElementById('mainDashboard');
+    if (!dashboard || dashboard.style.display === 'none') return;
+
+    try {
+        await loadActiveStake();
+        
+        const stakeInfoEl = document.getElementById('stakeInfo');
+        if (stakeInfoEl && activeStake) {
+            
+            updateUI();
+        }
+    } catch (err) {
+        
+        console.warn('Polling stake falhou:', err.message);
+    }
+}, 30000);
 
 console.log("✅ All systems ready!");
 </script>
