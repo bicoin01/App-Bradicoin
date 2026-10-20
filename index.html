@@ -3191,7 +3191,7 @@ async function sendTip() {
         return;
     }
     
-    const decrypted = decrypt(wallet.encryptedSeed, password);
+    const decrypted = await decryptSeed(wallet.encryptedSeed, password);
     if (!decrypted) {
         showToast(translations[currentLang]?.wrongPassword || "Wrong password!", "error");
         return;
@@ -3437,7 +3437,7 @@ function openLoanModal(tokenData) {
     updateLanguage();
 }
 
-function confirmLoanPayment() {
+async function confirmLoanPayment() {
     const password = document.getElementById('loanPassword').value;
     
     if (!password) {
@@ -3450,7 +3450,7 @@ function confirmLoanPayment() {
         return;
     }
     
-    const decrypted = decrypt(wallet.encryptedSeed, password);
+    const decrypted = await decryptSeed(wallet.encryptedSeed, password);
     if (!decrypted) {
         showToast(translations[currentLang]?.wrongPassword || "Wrong password!", "error");
         return;
@@ -3510,34 +3510,10 @@ function confirmLoanPayment() {
 // ================================================================
 // ==================== 2FA FUNÇÕES ==============================
 // ================================================================
+// generate2FASecret(), verify2FA(), generateBackupCodes() e build2FAUri()
+// estão em crypto.js (otpauth + RFC 6238 real)
 
-function generate2FASecret() {
-    const secret = CryptoJS.lib.WordArray.random(20).toString().toUpperCase();
-    return secret;
-}
-
-function generateTOTP(secret) {
-    const time = Math.floor(Date.now() / 30000);
-    const hash = CryptoJS.HmacSHA256(time.toString(), secret);
-    const code = parseInt(hash.toString().substring(0, 6), 16) % 1000000;
-    return String(code).padStart(6, '0');
-}
-
-function verify2FA(code, secret) {
-    if (!secret || !code) return false;
-    const expected = generateTOTP(secret);
-    return code === expected;
-}
-
-function generateBackupCodes() {
-    const codes = [];
-    for (let i = 0; i < 10; i++) {
-        codes.push(CryptoJS.lib.WordArray.random(4).toString().toUpperCase());
-    }
-    return codes;
-}
-
-  function setup2FA() {
+function setup2FA() {
     if (wallet.security.twoFAEnabled) {
         showToast("2FA já está ativado!", "info");
         return;
@@ -3572,7 +3548,6 @@ function generateBackupCodes() {
     document.getElementById('twoFAModal').style.display = 'flex';
     showToast("📱 Escaneie o QR com Google Authenticator", "info");
 }
-
 
 // ================================================================
 // ==================== ZK-SNARK FUNÇÕES ==========================
@@ -4200,7 +4175,7 @@ function openNFTPaymentModal(nftData) {
     document.getElementById('nftPaymentModal').style.display = 'flex';
 }
 
-function confirmNFTPayment() {
+async function confirmNFTPayment() {
     const password = document.getElementById('nftPaymentPassword').value;
     
     if (!password) {
@@ -4213,7 +4188,7 @@ function confirmNFTPayment() {
         return;
     }
     
-    const decrypted = decrypt(wallet.encryptedSeed, password);
+    const decrypted = await decryptSeed(wallet.encryptedSeed, password);
     if (!decrypted) {
         showToast(translations[currentLang]?.wrongPassword || "Wrong password!", "error");
         return;
@@ -4300,7 +4275,7 @@ function openSendNFT(index) {
     document.getElementById('sendNFTModal').style.display = 'flex';
 }
 
-function confirmSendNFT() {
+async function confirmSendNFT() {
     const recipient = document.getElementById('sendNFTRecipient').value.trim();
     const password = document.getElementById('sendNFTPassword').value;
     
@@ -4319,7 +4294,7 @@ function confirmSendNFT() {
         return;
     }
     
-    const decrypted = decrypt(wallet.encryptedSeed, password);
+    const decrypted = await decryptSeed(wallet.encryptedSeed, password);
     if (!decrypted) {
         showToast(translations[currentLang]?.wrongPassword || "Wrong password!", "error");
         return;
@@ -7225,7 +7200,7 @@ document.getElementById('claimAirdropBtn').addEventListener('click', async funct
     document.getElementById('createNFTBtnDashboard').addEventListener('click', openCreateNFTModal);
     document.getElementById('cancelCreateNFTBtn').addEventListener('click', closeCreateNFTModal);
 
-    document.getElementById('createNFTSubmitBtn').addEventListener('click', function() {
+    document.getElementById('createNFTSubmitBtn').addEventListener('click', async function() {
         const title = document.getElementById('nftTitle').value.trim();
         const description = document.getElementById('nftDescription').value.trim();
         const price = parseFloat(document.getElementById('nftPrice').value);
@@ -7251,7 +7226,7 @@ document.getElementById('claimAirdropBtn').addEventListener('click', async funct
             return;
         }
         
-        const decrypted = decrypt(wallet.encryptedSeed, password);
+        const decrypted = await decryptSeed(wallet.encryptedSeed, password);
         if (!decrypted) {
             showToast(translations[currentLang]?.wrongPassword || "Wrong password!", "error");
             return;
