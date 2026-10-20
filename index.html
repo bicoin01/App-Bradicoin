@@ -2941,8 +2941,17 @@ function showLoginScreen() {
     
     const unlockGroup = document.getElementById('unlockGroup');
     const importGroup = document.getElementById('importGroup');
-    if (unlockGroup) unlockGroup.style.display = wallet.encryptedSeed ? 'block' : 'none';
+    const biometricContainer = document.getElementById('biometricContainer');
+    const hasWallet = wallet && wallet.encryptedSeed;
+    
+    if (unlockGroup) unlockGroup.style.display = hasWallet ? 'block' : 'none';
     if (importGroup) importGroup.style.display = 'none';
+    
+    // ✅ Biometria: só mostra se tem wallet E biometria configurada
+    if (biometricContainer) {
+        const isEnabled = storage.getItem('bradicoin_biometric_enabled') === 'true';
+        biometricContainer.style.display = (hasWallet && isEnabled) ? 'block' : 'none';
+    }
 }
 
 function hideLoginAndShowDashboard() {
@@ -6337,14 +6346,16 @@ document.addEventListener('DOMContentLoaded', async function() {
     updateLanguage();
     
     if (hasWallet && wallet.encryptedSeed) {
-        showLoginScreen();
-        document.getElementById('unlockGroup').style.display = 'block';
-        document.getElementById('importGroup').style.display = 'none';
+    showLoginScreen();
+    // ✅ Se biometria está configurada, mostra o botão
+    setupBiometric().catch(() => {});
     } else {
-        document.getElementById('loginScreen').style.display = 'flex';
-        document.getElementById('mainDashboard').style.display = 'none';
-        document.getElementById('unlockGroup').style.display = 'none';
-        document.getElementById('importGroup').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('mainDashboard').style.display = 'none';
+    document.getElementById('unlockGroup').style.display = 'none';
+    document.getElementById('importGroup').style.display = 'none';
+    const bc = document.getElementById('biometricContainer');
+    if (bc) bc.style.display = 'none';
     }
     
     // ===== BIOMETRIC LOGIN =====
@@ -6799,9 +6810,6 @@ if (authToken) {
         document.getElementById('twoFAModal').style.display = 'none';
     });
      
-        const privateKey = wallet.encryptedSeed ? '0x' + CryptoJS.SHA256(wallet.encryptedSeed).toString().substring(0, 32) : '0x0000';
-        const salt = CryptoJS.lib.WordArray.random(32).toString();
-  
         if (password && wallet.encryptedSeed) {
             const decrypted = decrypt(wallet.encryptedSeed, password);
             if (decrypted) {
