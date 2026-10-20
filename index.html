@@ -6187,98 +6187,146 @@ async function hasBiometricCredential() {
 async function registerBiometric(userId, userName) {
     try {
         if (!window.PublicKeyCredential) {
-            showToast(translations[currentLang]?.biometricNotSupported || "Biometric not supported on this browser", "error");
+            showToast("Biometria não suportada", "error");
+            return false;
+        }
+        if (location.protocol === 'file:') {
+            showToast("Biometria só funciona em https ou localhost", "error");
             return false;
         }
 
-        const challenge = new Uint8Array(32);
-        crypto.getRandomValues(challenge);
+        let walletPassword = document.getElementById('unlockPasswordInput')?.value
+                          || document.getElementById('walletPasswordInput')?.value
+                          || '';
+        if (!walletPassword) {
+            walletPassword = prompt("Digite a senha da carteira (1 vez):");
+            if (!walletPassword) return false;
+        }
 
-        const publicKeyCredentialCreationOptions = {
-            challenge: challenge,
-            rp: {
-                name: "BradiCoin Wallet",
-                id: window.location.hostname || "bradicoin.com"
-            },
-            user: {
-                id: new TextEncoder().encode(userId),
-                name: userName || "BradiCoin User",
-                displayName: userName || "BradiCoin User"
-            },
-            pubKeyCredParams: [
-                { type: "public-key", alg: -7 },
-                { type: "public-key", alg: -257 }
-            ],
-            authenticatorSelection: {
-                authenticatorAttachment: "platform",
-                userVerification: "required"
-            },
-            timeout: 60000,
-            attestation: "none"
-        };
+        const testSeed = await decryptSeed(wallet.encryptedSeed, walletPassword);
+        if (!testSeed) {
+            showToast("Senha incorreta", "error");
+            return false;
+        }
 
+        const challenge = crypto.getRandomValues(new Uint8Array(32));
         const credential = await navigator.credentials.create({
-            publicKey: publicKeyCredentialCreationOptions
+            publicKey: {
+                challenge,
+                rp: { name: "BradiCoin Wallet", id: location.hostname || "localhost" },
+                user: {
+                    id: new TextEncoder().encode(userId || 'bradicoin_user'),
+                    name: userName || "BradiCoin User",
+                    displayName: userName || "BradiCoin User"
+                },
+                pubKeyCredParams: [
+                    { type: "public-key", alg: -7 },
+                    { type: "public-key", alg: -257 }
+                ],
+                authenticatorSelection: {
+                    authenticatorAttachment: "platform",
+                    userVerification: "required"
+                },
+                timeout: 60000,
+                attestation: "none"
+            }
         });
 
-        if (credential) {
-            const credentialId = btoa(String.fromCharCode.apply(null, new Uint8Array(credential.rawId)));
-            storage.setItem('bradicoin_biometric_id', credentialId);
-            storage.setItem('bradicoin_biometric_enabled', 'true');
-            
-            showToast("✅ " + (translations[currentLang]?.biometricRegistered || "Fingerprint registered successfully!"), "success");
-            return true;
+        if (!credential) {
+            showToast("Biometria cancelada", "error");
+            return false;
         }
-        return false;
-    } catch(e) {
-        console.error('Biometric registration error:', e);
-        showToast((translations[currentLang]?.biometricRegisterFailed || "Failed to register fingerprint: ") + e.message, "error");
+
+        const credentialId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+        storage.setItem('bradicoin_biometric_id', credentialId);
+        storage.setItem('bradicoin_biometric_enabled', 'true');
+
+        const masterPw = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+            .map(b => b.toString(16).padStart(2, '0')).join('');
+
+        const encryptedUserPw = await encryptSeed(walletPassword, masterPw);
+        storage.setItem('bradicoin_biometric_master', encryptedUserPw);
+
+        const deviceKey = await crypto.subtle.digest('SHA-256',
+            new TextEncoder().encode(navigator.userAgent + location.hostname));
+        const deviceKeyB64 = btoa(String.fromCharCode(...new Uint8Array(deviceKey)));
+        const masterPwEncrypted = await encryptSeed(masterPw, deviceKeyB64);
+        storage.setItem('bradicoin_biometric_key', masterPwEncrypted);
+
+        showToast("Biometria ativada!", "success");
+        return true;
+    } catch (err) {
+        console.error('registerBiometric:', err);
+        if (err.name === 'NotAllowedError') showToast("Biometria cancelada", "error");
+        else if (err.name === 'InvalidStateError') showToast("Biometria já registrada", "warning");
+        else showToast("Erro: " + err.message, "error");
         return false;
     }
 }
 
 async function authenticateWithBiometric() {
     try {
-        if (!window.PublicKeyCredential) {
-            showToast(translations[currentLang]?.biometricNotSupported || "Biometric not supported", "error");
+        if (!window.PublicKeyCredential) return false;
+        if (location.protocol === 'file:') {
+            showToast("Biometria só funciona em https ou localhost", "error");
             return false;
         }
 
-        const credentialId = storage.getItem('bradicoin_biometric_id');
-        if (!credentialId) {
-            showToast(translations[currentLang]?.noBiometricRegistered || "No biometric registered", "error");
+        const credentialIdB64 = storage.getItem('bradicoin_biometric_id');
+        const masterPwEncrypted = storage.getItem('bradicoin_biometric_key');
+        const encryptedUserPw = storage.getItem('bradicoin_biometric_master');
+        if (!credentialIdB64 || !masterPwEncrypted || !encryptedUserPw) {
+            showToast("Biometria não configurada", "warning");
             return false;
         }
 
-        const rawId = Uint8Array.from(atob(credentialId), c => c.charCodeAt(0));
-        const challenge = new Uint8Array(32);
-        crypto.getRandomValues(challenge);
+        const deviceKey = await crypto.subtle.digest('SHA-256',
+            new TextEncoder().encode(navigator.userAgent + location.hostname));
+        const deviceKeyB64 = btoa(String.fromCharCode(...new Uint8Array(deviceKey)));
+        const masterPw = await decryptSeed(masterPwEncrypted, deviceKeyB64);
+        if (!masterPw) {
+            showToast("Chave corrompida. Reconfigure.", "error");
+            return false;
+        }
 
-        const publicKeyCredentialRequestOptions = {
-            challenge: challenge,
-            allowCredentials: [{
-                id: rawId,
-                type: "public-key"
-            }],
-            timeout: 60000,
-            userVerification: "required"
-        };
-
+        const rawId = Uint8Array.from(atob(credentialIdB64), c => c.charCodeAt(0));
+        const challenge = crypto.getRandomValues(new Uint8Array(32));
         const assertion = await navigator.credentials.get({
-            publicKey: publicKeyCredentialRequestOptions
+            publicKey: {
+                challenge,
+                allowCredentials: [{ id: rawId, type: 'public-key' }],
+                timeout: 60000,
+                userVerification: 'required'
+            }
         });
+        if (!assertion) return false;
 
-        if (assertion) {
-            return true;
+        const userPassword = await decryptSeed(encryptedUserPw, masterPw);
+        if (!userPassword) {
+            showToast("Erro ao recuperar senha", "error");
+            return false;
         }
-        return false;
-    } catch(e) {
-        console.error('Biometric auth error:', e);
-        if (e.name === 'NotAllowedError') {
-            showToast(translations[currentLang]?.biometricCancelled || "Biometric cancelled or failed", "error");
-        } else {
-            showToast((translations[currentLang]?.biometricError || "Biometric error: ") + e.message, "error");
+
+        isLocked = false;
+        unlockGuard.reset();
+        hideLoginAndShowDashboard();
+        updateUI();
+        updateSecurityBadge();
+        updateTokensUI();
+        updateTipsUI();
+        updateNFTsUI();
+
+        if (authToken) {
+            hydrateStakeUI();
+            syncBalance().catch(() => {});
+            syncHistory().catch(() => {});
         }
+        showToast("Login com biometria OK!", "success");
+        return true;
+    } catch (err) {
+        console.error('authenticateWithBiometric:', err);
+        if (err.name === 'NotAllowedError') showToast("Biometria cancelada", "info");
+        else showToast("Erro: " + err.message, "error");
         return false;
     }
 }
@@ -6389,63 +6437,42 @@ document.addEventListener('DOMContentLoaded', async function() {
         document.getElementById('importGroup').style.display = 'none';
     }
     
-    // ===== BIOMETRIA SETUP =====
-    setTimeout(() => {
-        setupBiometric();
-        updateBiometricUI();
-    }, 500);
-
     // ===== BIOMETRIC LOGIN =====
-document.getElementById('biometricLoginBtn').addEventListener('click', async function() {
-    const isEnabled = storage.getItem('bradicoin_biometric_enabled') === 'true';
-    const hasCredential = storage.getItem('bradicoin_biometric_id');
-    const hasWallet = wallet && wallet.encryptedSeed;
+    document.getElementById('biometricLoginBtn').addEventListener('click', async function() {
+  const isEnabled = storage.getItem('bradicoin_biometric_enabled') === 'true';
+  const hasWallet = wallet && wallet.encryptedSeed;
 
-    // ===== 1. SEM CARTEIRA =====
-    if (!hasWallet) {
-        showToast(translations[currentLang]?.noWalletLoaded || "No wallet loaded", "error");
-        return;
+  // ===== 1. SEM WALLET =====
+  if (!hasWallet) {
+    showToast("👛 Crie ou importe uma carteira primeiro", "error");
+    return;
+  }
+
+  // ===== 2. AINDA NÃO CONFIGUROU → registra =====
+  if (!isEnabled) {
+    const userId = wallet.address || 'bradicoin_user';
+    const userName = currentUser?.username || 'BradiCoin User';
+    const registered = await registerBiometric(userId, userName);
+
+    if (registered) {
+      setupBiometric();
+      updateBiometricUI();
     }
+    return;
+  }
 
-    // ===== 2. AINDA NÃO CONFIGUROU → registra agora =====
-    if (!isEnabled || !hasCredential) {
-        const userId = wallet.address || 'bradicoin_user';
-        const userName = 'BradiCoin User';
-        const registered = await registerBiometric(userId, userName);
+  // ===== 3. JÁ CONFIGURADO → login com o dedo =====
+  const btn = this;
+  const originalHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Aguardando biometria...';
 
-        if (registered) {
-            // 🔐 SECURITY: senha não é salva — usuário digitará a cada login
-            setupBiometric();
-            updateBiometricUI();
-            showToast(
-                "✅ " + (translations[currentLang]?.biometricConfigured || "Fingerprint configured! Try again to login."),
-                "success"
-            );
-        }
-        return;
-    }
-
-    // ===== 3. JÁ CONFIGURADO → autentica =====
-    const authenticated = await authenticateWithBiometric();
-    if (!authenticated) return;
-
-    // 🔐 SECURITY: senha nunca é salva — usuário precisa digitar
-    const passwordInput = document.getElementById('unlockPasswordInput');
-    if (passwordInput && passwordInput.value) {
-        const unlocked = unlockWallet(passwordInput.value, '');
-        if (unlocked) {
-            showToast(
-                "🔓 " + (translations[currentLang]?.walletUnlockedBiometric || "Wallet unlocked with fingerprint!"),
-                "success"
-            );
-        }
-    } else {
-        showToast(
-            translations[currentLang]?.enterPasswordFirst || "Please enter your password first",
-            "error"
-        );
-        document.getElementById('unlockPasswordInput').focus();
-    }
+  try {
+    await authenticateWithBiometric();
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalHTML;
+  }
 });
 
     // ===== EVENTOS PRINCIPAIS =====
