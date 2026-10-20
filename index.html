@@ -100,8 +100,6 @@
     .cyber-btn.back:hover { background: #00f2ff; color: #0a0f1e; }
     .cyber-btn.settings { border-color: #6c63ff; }
     .cyber-btn.settings:hover { background: #6c63ff; color: #0a0f1e; }
-    .cyber-btn.zk { border-color: #00ff88; }
-    .cyber-btn.zk:hover { background: #00ff88; color: #0a0f1e; }
     .cyber-btn.analytics { border-color: #ff6b6b; }
     .cyber-btn.analytics:hover { background: #ff6b6b; color: #0a0f1e; }
     .cyber-btn.lock { border-color: #ff8800; }
@@ -298,8 +296,6 @@
     .referral-code { font-size: 0.7rem; color: #ffd700; font-family: monospace; }
     
     .zk-status { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 1rem; font-size: 0.5rem; }
-    .zk-status.active { background: #00ff8822; color: #00ff88; border: 1px solid #00ff88; }
-    .zk-status.pending { background: #ffaa0022; color: #ffaa00; border: 1px solid #ffaa00; }
     
     .security-badge {
       display: inline-block;
@@ -349,14 +345,6 @@
       margin-top: 1rem;
     }
     .settings-grid .cyber-btn { font-size: 0.5rem; padding: 0.4rem; justify-content: center; }
-    
-    .zk-proof-display {
-      background: #010518; padding: 0.8rem; border-radius: 1rem; margin: 0.5rem 0;
-      border: 1px solid #00ff88; font-size: 0.55rem; word-break: break-all;
-      max-height: 150px; overflow-y: auto;
-    }
-    .zk-proof-display::-webkit-scrollbar { width: 3px; }
-    .zk-proof-display::-webkit-scrollbar-thumb { background: #00ff88; border-radius: 2px; }
     
     .confirm-dialog {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -985,9 +973,6 @@
     <input type="password" id="sendPassword" class="cyber-input" placeholder="Wallet Password" style="margin:0.3rem 0;">
     
     <div style="margin:0.3rem 0; display:grid; grid-template-columns:1fr 1fr; gap:0.3rem; text-align:left; font-size:0.6rem;">
-      <label style="display:flex; align-items:center; gap:0.3rem; color:#00ff88;">
-        <input type="checkbox" id="zkPrivateSend" style="accent-color:#00ff88;"> <span id="zkLabel">ZK-SNARK Privacy</span>
-      </label>
       <label style="display:flex; align-items:center; gap:0.3rem; color:#9b59b6;">
         <input type="checkbox" id="stealthSend" style="accent-color:#9b59b6;"> <span id="stealthLabel">Stealth Address</span>
       </label>
@@ -1018,32 +1003,7 @@
 
 <!-- ===== ZK PRIVATE SEND MODAL ===== -->
 <div id="zkSendModal" class="modal-overlay">
-  <div class="modal-content">
-    <i class="fas fa-shield-alt" style="font-size: 3rem; color: #00ff88;"></i>
     <h2 style="color: #00ff88;">🔐 ZK-SNARK Private Send</h2>
-    <p style="font-size:0.6rem; opacity:0.7;" id="zkDesc">Zero-Knowledge Proof protects your transaction privacy</p>
-    <div style="text-align:left; margin:0.5rem 0; font-size:0.65rem;">
-      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.2rem 0;">
-        <strong>📤 <span id="zkSenderLabel">Sender</span>:</strong> <span id="zkSenderAddress">---</span>
-      </div>
-      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.2rem 0;">
-        <strong>📥 <span id="zkRecipientLabel">Recipient</span>:</strong> <span id="zkRecipientAddress">---</span>
-      </div>
-      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.2rem 0;">
-        <strong>💰 <span id="zkAmountLabel">Amount</span>:</strong> <span id="zkAmountDisplay">0</span> BRD
-      </div>
-      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.2rem 0;">
-        <strong>🔑 <span id="zkCommitmentLabel">Commitment</span>:</strong> <span id="zkCommitment" style="font-size:0.5rem; word-break:break-all;">---</span>
-      </div>
-      <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.2rem 0;">
-        <strong>🔐 <span id="zkNullifierLabel">Nullifier</span>:</strong> <span id="zkNullifier" style="font-size:0.5rem; word-break:break-all;">---</span>
-      </div>
-    </div>
-    <div class="zk-proof-display" id="zkProofDisplay"><span style="color:#00ff88;">⏳ <span id="zkGeneratingText">Generating ZK-SNARK proof...</span></span></div>
-    <button id="zkConfirmSendBtn" class="cyber-btn success" style="width:100%; margin-top:0.3rem;"><i class="fas fa-check-circle"></i> <span id="zkConfirmText">Confirm Private Send</span></button>
-    <button id="zkCancelSendBtn" class="cyber-btn" style="width:100%; margin-top:0.3rem;"><i class="fas fa-times"></i> <span id="zkCancelText">Cancel</span></button>
-  </div>
-</div>
 
 <!-- ===== 2FA SETUP MODAL ===== -->
 <div id="twoFAModal" class="modal-overlay">
@@ -1301,17 +1261,6 @@
 
 <!-- ===== ZK INFO MODAL ===== -->
 <div id="zkInfoModal" class="modal-overlay">
-  <div class="modal-content">
-    <i class="fas fa-shield-alt" style="font-size: 3rem; color: #00ff88;"></i>
-    <h2 style="color: #00ff88;" id="zkInfoTitle">🔐 ZK-SNARK Status</h2>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.3rem; margin:0.5rem 0;">
-      <div class="stat-item"><div class="stat-value" id="zkPrivateTxCount">0</div><div class="stat-label" id="zkInfoPrivateLabel">Private TX</div></div>
-      <div class="stat-item"><div class="stat-value" id="zkPrivacyAmount">0</div><div class="stat-label" id="zkInfoPrivacyLabel">Privacy Protected</div></div>
-      <div class="stat-item"><div class="stat-value" id="zkProofCount">0</div><div class="stat-label" id="zkInfoProofLabel">ZK-Proofs</div></div>
-      <div class="stat-item"><div class="stat-value" id="zkActiveStatus">✓ Active</div><div class="stat-label" id="zkInfoStatusLabel">Status</div></div>
-    </div>
-    <button id="closeZkInfoModalBtn" class="cyber-btn primary" style="width:100%;"><span id="closeZkInfoText">Close</span></button>
-  </div>
 </div>
 
 <!-- ===== RECEIVE MODAL COM QR CODE ===== -->
@@ -1579,7 +1528,6 @@
         <h1 id="dashboardTitle" style="font-size:1.2rem;">BRADICOIN</h1>
         <span class="network-badge"><i class="fas fa-link"></i> <span id="networkLabel">Mainnet</span></span>
         <span class="notification-dot online" id="networkStatus"></span>
-        <span class="zk-status active"><i class="fas fa-shield-alt"></i> ZK</span>
         <span class="security-badge secure" id="securityBadge"><i class="fas fa-lock"></i> <span id="securityLabel">Secure</span></span>
         <span class="notification-bell" id="notificationBell" onclick="toggleNotifications()">
           <i class="fas fa-bell" style="font-size:1rem; color:#ffd700;"></i>
@@ -1619,8 +1567,6 @@
             <div class="stat-label" id="stakedLabel">Staked</div>
           </div>
           <div class="stat-item" style="flex:1; padding:0.4rem;">
-            <div class="stat-value" id="zkTxCount" style="font-size:0.8rem;">0</div>
-            <div class="stat-label" id="zkTxLabel">ZK TX</div>
           </div>
         </div>
         <label style="font-size:0.6rem;" id="walletAddressLabel">Your Wallet Address</label>
@@ -1633,7 +1579,6 @@
         <div style="background:#010518; padding:0.4rem; border-radius:1rem; margin-top:0.5rem; font-size:0.5rem; display:flex; justify-content:space-between;">
           <span>🔐 <span id="encryptedLabel">Encrypted</span></span>
           <span id="walletStatus">● <span id="onlineLabel">Online</span></span>
-          <span><i class="fas fa-shield-alt"></i> <span id="zkReadyLabel">ZK Ready</span></span>
         </div>
       </div>
 
@@ -1793,8 +1738,6 @@
         <div id="shadowList" style="font-size:0.4rem; max-height:60px; overflow-y:auto; margin-top:0.2rem;"></div>
       </div>
       
-      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #00ff8833;">
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
           <span id="ephemeralLabel">🔑 Ephemeral Keys</span>
           <div>
             <span id="ephemeralStatus" style="font-size:0.4rem;">🔑 <span id="ephemeralStatusText">No key</span></span>
@@ -1816,9 +1759,6 @@
       <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #00ff8833;">
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
           <span id="zkVerifyLabel">🔐 ZK-Proof Verifier</span>
-          <button id="verifyProofBtn" class="cyber-btn zk small" style="font-size:0.4rem; padding:0.1rem 0.4rem;"><span id="zkVerifyBtnText">Verify</span></button>
-        </div>
-        <div id="zkProofHistory" style="font-size:0.4rem; max-height:40px; overflow-y:auto; margin-top:0.2rem;"></div>
       </div>
       
       <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ff005533;">
@@ -3025,9 +2965,6 @@ function updateUI() {
     const totalFeesEl = document.getElementById('totalFeesPaid');
     const totalAirdropsEl = document.getElementById('totalAirdrops');
     const totalRewardsEl = document.getElementById('totalStakedRewards');
-    const zkPrivateTxEl = document.getElementById('zkPrivateTxCount');
-    const zkPrivacyEl = document.getElementById('zkPrivacyAmount');
-    const zkProofCountEl = document.getElementById('zkProofCount');
     
     if (decoyModeActive) {
         if (balanceEl) balanceEl.innerText = "0.00000000";
@@ -3039,16 +2976,12 @@ function updateUI() {
     if (addressEl) addressEl.innerText = wallet.address || "—";
     if (totalTxEl) totalTxEl.innerText = (wallet.transactions || []).length;
     if (stakedEl) stakedEl.innerText = activeStake ? activeStake.amount.toFixed(2) : "0";
-    if (zkTxEl) zkTxEl.innerText = (wallet.zkStats?.privateTxCount || 0);
     if (referralEl) referralEl.innerText = wallet.referralCode || generateReferralCode();
     if (totalStakedEl) totalStakedEl.innerText = activeStake ? activeStake.amount.toFixed(2) : "0";
     if (totalTxCountEl) totalTxCountEl.innerText = (wallet.stats?.totalTx || 0);
     if (totalFeesEl) totalFeesEl.innerText = (wallet.stats?.feesPaid || 0).toFixed(2);
     if (totalAirdropsEl) totalAirdropsEl.innerText = (wallet.stats?.airdropsClaimed || 0);
     if (totalRewardsEl) totalRewardsEl.innerText = (wallet.stats?.totalRewards || 0).toFixed(4);
-    if (zkPrivateTxEl) zkPrivateTxEl.innerText = (wallet.zkStats?.privateTxCount || 0);
-    if (zkPrivacyEl) zkPrivacyEl.innerText = (wallet.zkStats?.totalPrivacyProtected || 0).toFixed(2);
-    if (zkProofCountEl) zkProofCountEl.innerText = (wallet.zkStats?.proofsGenerated || 0);
     
     const change = (Math.random() * 6) - 3;
     const priceChangeEl = document.getElementById('priceChange');
@@ -3091,14 +3024,12 @@ function updateUI() {
         } else {
             txContainer.innerHTML = wallet.transactions.slice(0, 8).map(tx => {
                 const isAirdrop = tx.type === 'airdrop';
-                const isZK = tx.type === 'zk_private';
                 const isDeposit = tx.type === 'deposit';
                 const isToken = tx.type === 'token_created';
                 const isTip = tx.type === 'tip_sent' || tx.type === 'tip_received';
                 let txClass = 'tx-out';
                 let icon = '📤';
                 let label = translations[currentLang]?.transfer || 'Transfer';
-                if (isZK) { txClass = 'tx-zk'; icon = '🔐'; label = translations[currentLang]?.zkPrivate || 'ZK-Private'; }
                 else if (isAirdrop) { txClass = 'tx-in'; icon = '🎁'; label = translations[currentLang]?.airdrop || 'Airdrop'; }
                 else if (isDeposit) { txClass = 'tx-in'; icon = '💰'; label = translations[currentLang]?.deposit || 'Deposit'; }
                 else if (isToken) { txClass = 'tx-in'; icon = '🪙'; label = translations[currentLang]?.tokenCreated || 'Token Created'; }
@@ -3313,7 +3244,6 @@ function showHistory() {
     } else {
         historyList.innerHTML = txs.map(tx => {
             const isAirdrop = tx.type === 'airdrop';
-            const isZK = tx.type === 'zk_private';
             const isDeposit = tx.type === 'deposit';
             const isToken = tx.type === 'token_created';
             const isSent = tx.type === 'sent';
@@ -3323,7 +3253,6 @@ function showHistory() {
             let typeLabel = translations[currentLang]?.transfer || 'Transfer';
             let color = '#ff4466';
             
-            if (isZK) { icon = '🔐'; typeLabel = translations[currentLang]?.zkPrivate || 'ZK-Private'; color = '#00f2ff'; }
             else if (isAirdrop) { icon = '🎁'; typeLabel = translations[currentLang]?.airdrop || 'Airdrop'; color = '#ffd700'; }
             else if (isDeposit) { icon = '💰'; typeLabel = translations[currentLang]?.deposit || 'Deposit'; color = '#00ff88'; }
             else if (isToken) { icon = '🪙'; typeLabel = translations[currentLang]?.tokenCreated || 'Token Created'; color = '#00d4ff'; }
@@ -3554,23 +3483,6 @@ function setup2FA() {
 // ================================================================
 
 function generateZKCommitment(privateKey, amount, salt) {
-    const hash = CryptoJS.SHA256(privateKey + amount.toString() + salt).toString();
-    return '0x' + hash.substring(0, 64);
-}
-
-function generateZKNullifier(privateKey, commitment) {
-    const hash = CryptoJS.SHA256(privateKey + commitment).toString();
-    return '0x' + hash.substring(0, 64);
-}
-
-function generateZKProof(sender, recipient, amount, commitment, nullifier) {
-    return {
-        a: ['0x' + CryptoJS.SHA256(sender + amount).toString().substring(0, 64)],
-        b: ['0x' + CryptoJS.SHA256(recipient + amount).toString().substring(0, 64)],
-        c: ['0x' + CryptoJS.SHA256(commitment + nullifier).toString().substring(0, 64)],
-        input: [commitment, nullifier, '0x' + CryptoJS.SHA256(amount.toString()).toString().substring(0, 64)]
-    };
-}
 
 // ================================================================
 // ============ STAKING ==========
@@ -3780,7 +3692,6 @@ function updateAnalytics() {
         }
         volume += tx.amount || 0;
         fees += tx.fee || 0;
-        if (tx.type === 'zk_private') zkCount++;
     });
     
     const analyticsTotalTx = document.getElementById('analyticsTotalTx');
@@ -3808,14 +3719,13 @@ function updateAnalytics() {
         } else {
             const recent = txs.slice(0, 8);
             timeline.innerHTML = recent.map(tx => {
-                const isZK = tx.type === 'zk_private';
                 const isAirdrop = tx.type === 'airdrop';
                 const isDeposit = tx.type === 'deposit';
                 const isToken = tx.type === 'token_created';
                 const isTip = tx.type === 'tip_sent' || tx.type === 'tip_received';
-                const icon = isZK ? '🔐' : (isAirdrop ? '🎁' : (isDeposit ? '💰' : (isToken ? '🪙' : (isTip ? '💝' : '📤'))));
-                const color = isZK ? '#00f2ff' : (isAirdrop ? '#ffd700' : (isDeposit ? '#00ff88' : (isToken ? '#00d4ff' : (isTip ? '#ff6b9d' : '#ff6b6b'))));
-                const type = isZK ? (translations[currentLang]?.zkPrivate || 'ZK-Private') : (isAirdrop ? (translations[currentLang]?.airdrop || 'Airdrop') : (isDeposit ? (translations[currentLang]?.deposit || 'Deposit') : (isToken ? (translations[currentLang]?.tokenCreated || 'Token Created') : (isTip ? (translations[currentLang]?.tip || 'Tip') : (translations[currentLang]?.transfer || 'Transfer')))));
+                const icon = isAirdrop ? '🎁' : (isDeposit ? '💰' : (isToken ? '🪙' : (isTip ? '💝' : '📤')));
+                const color = isAirdrop ? '#ffd700' : (isDeposit ? '#00ff88' : (isToken ? '#00d4ff' : (isTip ? '#ff6b9d' : '#ff6b6b')));
+                const type = isAirdrop ? (translations[currentLang]?.airdrop || 'Airdrop') : (isDeposit ? (translations[currentLang]?.deposit || 'Deposit') : (isToken ? (translations[currentLang]?.tokenCreated || 'Token Created') : (isTip ? (translations[currentLang]?.tip || 'Tip') : (translations[currentLang]?.transfer || 'Transfer'))));
                 return `<div style="display:flex; justify-content:space-between; padding:0.15rem 0; border-bottom:1px solid rgba(168,85,247,0.1); font-size:0.5rem;">
                     <span>${icon} ${type}</span>
                     <span style="color:${color};">${tx.amount} BRD</span>
@@ -6827,14 +6737,7 @@ if (authToken) {
     document.getElementById('closeStakeModalBtn').addEventListener('click', function() {
         document.getElementById('stakeModal').style.display = 'none';
     });
-    
-    document.getElementById('zkStatusBtn').addEventListener('click', function() {
-        document.getElementById('zkInfoModal').style.display = 'flex';
-    });
-    document.getElementById('closeZkInfoModalBtn').addEventListener('click', function() {
-        document.getElementById('zkInfoModal').style.display = 'none';
-    });
-    
+     
     document.getElementById('viewSeedModal').addEventListener('click', function(e) {
     if (e.target === this) {
         this.style.display = 'none';
@@ -6895,43 +6798,10 @@ if (authToken) {
     document.getElementById('close2FAModalBtn').addEventListener('click', function() {
         document.getElementById('twoFAModal').style.display = 'none';
     });
-    
-    document.getElementById('zkPrivateSendBtn').addEventListener('click', function() {
-        const to = document.getElementById('sendTo').value;
-        const amount = parseFloat(document.getElementById('sendAmount').value);
-        if (!to) { showToast(translations[currentLang]?.enterRecipientAddress || "Enter recipient address", "error"); return; }
-        if (!amount || amount <= 0) { showToast(translations[currentLang]?.enterValidAmount || "Enter a valid amount", "error"); return; }
-        
-        document.getElementById('zkSenderAddress').innerText = wallet.address || '---';
-        document.getElementById('zkRecipientAddress').innerText = to;
-        document.getElementById('zkAmountDisplay').innerText = amount;
-        
+     
         const privateKey = wallet.encryptedSeed ? '0x' + CryptoJS.SHA256(wallet.encryptedSeed).toString().substring(0, 32) : '0x0000';
         const salt = CryptoJS.lib.WordArray.random(32).toString();
-        const commitment = generateZKCommitment(privateKey, amount, salt);
-        const nullifier = generateZKNullifier(privateKey, commitment);
-        
-        document.getElementById('zkCommitment').innerText = commitment;
-        document.getElementById('zkNullifier').innerText = nullifier;
-        
-        const proof = generateZKProof(wallet.address, to, amount, commitment, nullifier);
-        document.getElementById('zkProofDisplay').innerHTML = `
-            <div style="color:#00ff88;">✅ ZK-SNARK Proof Generated</div>
-            <div style="font-size:0.5rem; margin-top:0.2rem; word-break:break-all;">
-                <div>a: ${proof.a[0].substring(0, 20)}...</div>
-                <div>b: ${proof.b[0].substring(0, 20)}...</div>
-                <div>c: ${proof.c[0].substring(0, 20)}...</div>
-            </div>
-        `;
-        
-        document.getElementById('zkSendModal').style.display = 'flex';
-    });
-    
-    document.getElementById('zkConfirmSendBtn').addEventListener('click', function() {
-        const to = document.getElementById('zkRecipientAddress').innerText;
-        const amount = parseFloat(document.getElementById('zkAmountDisplay').innerText);
-        const password = document.getElementById('sendPassword').value;
-        
+  
         if (password && wallet.encryptedSeed) {
             const decrypted = decrypt(wallet.encryptedSeed, password);
             if (decrypted) {
@@ -6973,14 +6843,12 @@ if (authToken) {
     });
     
     document.getElementById('zkCancelSendBtn').addEventListener('click', function() {
-        document.getElementById('zkSendModal').style.display = 'none';
     });
     
 document.getElementById('confirmSendBtn').addEventListener('click', async function() {
     const to = document.getElementById('sendTo').value.trim();
     const amount = parseFloat(document.getElementById('sendAmount').value);
     const password = document.getElementById('sendPassword').value;
-    const isZK = document.getElementById('zkPrivateSend')?.checked || false;
     
     // Validações
     if (!to) { showToast("Digite o endereço de destino", "error"); return; }
@@ -6993,13 +6861,6 @@ document.getElementById('confirmSendBtn').addEventListener('click', async functi
     }
     
     // Modo ZK (continua local por enquanto)
-    if (isZK) {
-        document.getElementById('zkSenderAddress').innerText = wallet.address || '---';
-        document.getElementById('zkRecipientAddress').innerText = to;
-        document.getElementById('zkAmountDisplay').innerText = amount;
-        document.getElementById('zkSendModal').style.display = 'flex';
-        return;
-    }
     
     // Se não está logado, avisa
     if (!authToken) {
@@ -7020,7 +6881,6 @@ document.getElementById('confirmSendBtn').addEventListener('click', async functi
         document.getElementById('sendTo').value = '';
         document.getElementById('sendAmount').value = '';
         document.getElementById('sendPassword').value = '';
-        document.getElementById('zkPrivateSend').checked = false;
         document.getElementById('stealthSend').checked = false;
         document.getElementById('decoySend').checked = false;
         document.getElementById('mixerSend').checked = false;
@@ -7663,24 +7523,6 @@ document.getElementById('claimAirdropBtn').addEventListener('click', async funct
         });
     }
 
-    // 🔐 ZK-PROOF VERIFIER
-    const verifyProofBtn = document.getElementById('verifyProofBtn');
-    if (verifyProofBtn) {
-        verifyProofBtn.addEventListener('click', function() {
-            const history = document.getElementById('zkProofHistory');
-            const fakeProof = '0x' + CryptoJS.lib.WordArray.random(32).toString();
-            const valid = Math.random() > 0.2;
-            const icon = valid ? '✅' : '❌';
-            const color = valid ? '#00ff88' : '#ff4466';
-            const entry = `<div style="padding:0.1rem 0;border-bottom:1px solid #00ff8822;">
-                <span style="color:${color};">${icon} Proof ${fakeProof.substring(0, 12)}... ${valid ? 'VALID' : 'INVALID'}</span>
-            </div>`;
-            if (history) history.innerHTML = entry + history.innerHTML;
-            showToast(valid ? "✅ Proof verified!" : "❌ Proof invalid!", valid ? "success" : "error");
-            if (!valid) addSecurityAlert("Invalid ZK proof detected");
-        });
-    }
-
     // 🧹 SWEEP & DESTROY
     const sweepDestroyBtn = document.getElementById('sweepDestroyBtn');
     if (sweepDestroyBtn) {
@@ -7733,7 +7575,7 @@ document.getElementById('claimAirdropBtn').addEventListener('click', async funct
 
 console.log("🚀 BradiCoin Secure Wallet Loaded");
 console.log("🔐 Security Features: 2FA, Auto-Lock, Rate Limiting, Private Key");
-console.log("🕵️ Privacy Features: ZK-SNARKs, Stealth Addresses, Mixer, Decoy TX");
+console.log("🕵️ Privacy Features: Stealth Addresses, Mixer, Decoy TX");
 console.log("🪙 Token Features: Create your own tokens with payment");
 console.log("📱 QR Code - Easy receive payments!");
 console.log("🛒 Token Marketplace - Discover community tokens!");
