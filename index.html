@@ -9,6 +9,14 @@
   
   <!-- ===== BIBLIOTECAS ===== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/elliptic@6.5.4/lib/elliptic.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/otpauth@9.2.2/dist/otpauth.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bip39@3.1.0/src/index.min.js"></script>
+
+  <!-- ===== CRIPTOGRAFIA DO BRADICOIN ===== -->
+  <script src="./crypto.js"></script>
   
   <!-- ✅ ELLIPTIC com fallback triplo (resolve o problema) -->
   <script src="https://cdn.jsdelivr.net/npm/elliptic@6.5.4/lib/elliptic.min.js"></script>
@@ -2206,7 +2214,7 @@ async function submitTransaction(toAddress, amount, fee, password) {
     if (!wallet.encryptedSeed) throw new Error('Carteira não carregada');
 
     // 1. Descriptografa seed → deriva privateKey
-    const seedStr = decrypt(wallet.encryptedSeed, password);
+    const seedStr = await decryptSeed(wallet.encryptedSeed, password);
     if (!seedStr) throw new Error('Senha incorreta');
 
     const seedWords = seedStr.split(' ');
@@ -2581,16 +2589,10 @@ const WORD_LIST = [
 // ==================== FUNÇÕES DE SEED ===========================
 // ================================================================
 
-function generateSeedPhrase() {
-    const words = [];
-    const entropy = new Uint32Array(12);
-    crypto.getRandomValues(entropy);  // ✅ CRIPTOGRAFICAMENTE SEGURO
-    for (let i = 0; i < 12; i++) {
-        words.push(WORD_LIST[entropy[i] % WORD_LIST.length]);
-    }
-    return words;
-}
+// generateSeedPhrase() agora vem de crypto.js (BIP39)
+// generateKeyPairFromSeed() agora vem de crypto.js
 
+// Stub usado pelo Burner Wallet
 function generateAddressFromSeed(seed) {
     const seedStr = seed.join(' ');
     const hash = CryptoJS.SHA256(seedStr).toString();
@@ -2648,40 +2650,8 @@ let realBalanceBackup = null;
 // ================================================================
 // ==================== HELPERS ===================================
 // ================================================================
-
-function encrypt(data, pass) { 
-    return CryptoJS.AES.encrypt(data, pass).toString(); 
-}
-
-function decrypt(encrypted, pass) {
-    try {
-        const bytes = CryptoJS.AES.decrypt(encrypted, pass);
-        return bytes.toString(CryptoJS.enc.Utf8) || null;
-    } catch(e) { 
-        return null; 
-    }
-}
-
-function generateReferralCode() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code = 'BRD-';
-    for(let i = 0; i < 4; i++) {
-        code += chars[Math.floor(Math.random() * chars.length)];
-    }
-    return code;
-}
-
-function showToast(msg, type = "info") {
-    const toast = document.createElement('div');
-    toast.style.cssText = `position:fixed; bottom:20px; right:20px; background:${type === "error" ? "#ff0055" : type === "success" ? "#00ff88" : "#a855f7"}; color:#0a0f1e; padding:0.6rem 1.2rem; border-radius:2rem; font-family:Orbitron; z-index:9999; animation:fadeInOut 3s ease; font-weight:bold; font-size:0.7rem; max-width:90%;`;
-    toast.innerText = msg;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-}
-
-function getCurrentTimestamp() {
-    return new Date().toISOString();
-}
+// encrypt() e decrypt() foram substituídas por encryptSeed() e decryptSeed()
+// (async, PBKDF2 + AES-GCM, definidas em crypto.js)
 
 // ================================================================
 // ==================== PRIVATE KEY FUNCTIONS =====================
@@ -2795,11 +2765,13 @@ function createWalletFlow() {
 
 async function finalizeWalletCreation(password) {
     if (!tempSeedForCreation) {
-        showToast("No seed phrase generated", "error");
+        showToast("Nenhuma seed gerada", "error");
         return;
     }
-    if (!password || password.length < 4) {
-        showToast("Password must be at least 4 characters", "error");
+    
+    const pwCheck = validatePasswordStrength(password);
+    if (!pwCheck.ok) {
+        showToast("❌ " + pwCheck.reason, "error");
         return;
     }
     
@@ -2815,7 +2787,7 @@ async function finalizeWalletCreation(password) {
     const seedStr = tempSeedForCreation.join(' ');
     
     // 2. Popula wallet
-    wallet.encryptedSeed = encrypt(seedStr, password);
+    wallet.encryptedSeed = await encryptSeed(seedStr, password);
     wallet.address = keyPair.address;
     wallet.publicKey = keyPair.publicKey;
     wallet.balance = 0;
@@ -2862,12 +2834,16 @@ if (authToken) {
 
 async function importWalletFromSeed(seedStr, password) {
     const words = seedStr.trim().toLowerCase().split(/\s+/);
-    if (words.length !== 12) {
-        showToast("Invalid seed phrase - need 12 words", "error");
+    
+    // ✅ Validação BIP39 real (com checksum)
+    if (!validateSeedPhrase(words)) {
+        showToast("❌ Frase seed inválida (BIP39). Verifique as 12 palavras.", "error");
         return false;
     }
-    if (!password || password.length < 4) {
-        showToast("Password must be at least 4 characters", "error");
+    
+    const pwCheck = validatePasswordStrength(password);
+    if (!pwCheck.ok) {
+        showToast("❌ " + pwCheck.reason, "error");
         return false;
     }
     
@@ -2879,7 +2855,7 @@ async function importWalletFromSeed(seedStr, password) {
         return false;
     }
     
-    wallet.encryptedSeed = encrypt(seedStr, password);
+    wallet.encryptedSeed = await encryptSeed(seedStr, password);
     wallet.address = keyPair.address;
     wallet.publicKey = keyPair.publicKey;
     wallet.balance = 0;
@@ -2921,34 +2897,38 @@ async function importWalletFromSeed(seedStr, password) {
     return true;
 }
 
-function unlockWallet(password, twoFACode) {
+async function unlockWallet(password, twoFACode) {
     if (!wallet.encryptedSeed) {
-        showToast(translations[currentLang]?.noWalletFound || "No wallet found", "error");
+        showToast("Nenhuma carteira encontrada", "error");
+        return false;
+    }
+    
+    const guard = unlockGuard.canTry();
+    if (!guard.ok) {
+        showToast("🔒 " + guard.reason, "error");
+        return false;
+    }
+    
+    if (!password || password.length < 8) {
+        showToast("Senha deve ter no mínimo 8 caracteres", "error");
         return false;
     }
 
-    const decrypted = decrypt(wallet.encryptedSeed, password);
+    const decrypted = await decryptSeed(wallet.encryptedSeed, password);
     if (!decrypted) {
-        showToast(translations[currentLang]?.wrongPassword || "Wrong password!", "error");
+        const fail = unlockGuard.registerFail();
+        showToast("🔒 " + fail.reason, "error");
         return false;
     }
     
     if (wallet.security.twoFAEnabled) {
         if (!twoFACode || !verify2FA(twoFACode, wallet.security.twoFASecret)) {
-            showToast(translations[currentLang]?.invalid2FA || "Invalid 2FA code!", "error");
+            showToast("❌ Código 2FA inválido", "error");
             return false;
         }
     }
 
-           if (isBiometricSupported()) {
-        // 🔐 SECURITY: verificamos se o biométrico está habilitado,
-        // mas NÃO salvamos a senha — só o ID WebAuthn fica em disco.
-        const isEnabled = storage.getItem('bradicoin_biometric_enabled') === 'true';
-        if (isEnabled) {
-            // (nada a fazer aqui — apenas registro de que está ativo)
-        }
-    }
-
+    unlockGuard.reset();
     isLocked = false;
     hideLoginAndShowDashboard();
     updateUI();
@@ -2956,7 +2936,7 @@ function unlockWallet(password, twoFACode) {
     updateTokensUI();
     updateTipsUI();
     updateNFTsUI();
-    showToast("🔓 " + (translations[currentLang]?.walletUnlocked || "Wallet unlocked!"), "success");
+    showToast("🔓 Carteira desbloqueada!", "success");
     return true;
 }
 
@@ -3190,7 +3170,7 @@ function closeTipModal() {
     tipRecipientAddress = '';
 }
 
-function sendTip() {
+async function sendTip() {
     const recipient = tipRecipientAddress;
     const amount = parseFloat(document.getElementById('tipAmount').value);
     const message = document.getElementById('tipMessage').value.trim();
@@ -3557,9 +3537,9 @@ function generateBackupCodes() {
     return codes;
 }
 
-function setup2FA() {
+  function setup2FA() {
     if (wallet.security.twoFAEnabled) {
-        showToast(translations[currentLang]?.twoFAAlreadyEnabled || "2FA already enabled!", "info");
+        showToast("2FA já está ativado!", "info");
         return;
     }
     
@@ -3569,14 +3549,30 @@ function setup2FA() {
     wallet.security.twoFASecret = secret;
     wallet.security.backupCodes = backupCodes;
     
+    // ✅ Gera QR real com otpauth://
+    const label = currentUser?.email || (wallet.address ? wallet.address.substring(0, 12) : 'user');
+    const otpauthUri = build2FAUri(secret, label);
+    
+    const qrContainer = document.getElementById('qrCodeDisplay');
+    qrContainer.innerHTML = '';
+    new QRCode(qrContainer, {
+        text: otpauthUri,
+        width: 150,
+        height: 150,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+    });
+    
     document.getElementById('twoFASecret').innerText = secret;
     document.getElementById('backupCodesDisplay').innerHTML = backupCodes.map(c => 
         `<span style="background:#010518; padding:0.2rem 0.4rem; border:1px solid #ffd70033; border-radius:0.3rem;">${c}</span>`
     ).join('');
     
     document.getElementById('twoFAModal').style.display = 'flex';
-    showToast("📱 " + (translations[currentLang]?.scanQR || "Scan QR code with Google Authenticator"), "info");
+    showToast("📱 Escaneie o QR com Google Authenticator", "info");
 }
+
 
 // ================================================================
 // ==================== ZK-SNARK FUNÇÕES ==========================
@@ -6630,10 +6626,10 @@ if (authToken) {
         }
     });
     
-    document.getElementById('unlockWalletBtn').addEventListener('click', function() {
+    document.getElementById('unlockWalletBtn').addEventListener('click', async function() {
         const password = document.getElementById('unlockPasswordInput').value;
         const twoFACode = document.getElementById('unlock2FAInput').value;
-        unlockWallet(password, twoFACode);
+        await unlockWallet(password, twoFACode);
     });
     
     document.getElementById('unlockPasswordInput').addEventListener('keypress', function(e) {
@@ -6845,15 +6841,15 @@ if (authToken) {
     document.getElementById('closeViewSeedModalBtn').addEventListener('click', function() {
         document.getElementById('viewSeedModal').style.display = 'none';
     });
-    document.getElementById('revealSeedBtn').addEventListener('click', function() {
+    document.getElementById('revealSeedBtn').addEventListener('click', async function() {
         const password = document.getElementById('viewSeedPassword').value;
         if (!password) {
-            showToast(translations[currentLang]?.enterPassword || "Enter password", "error");
+            showToast("Digite sua senha", "error");
             return;
         }
-        const decrypted = decrypt(wallet.encryptedSeed, password);
+        const decrypted = await decryptSeed(wallet.encryptedSeed, password);
         if (!decrypted) {
-            showToast(translations[currentLang]?.wrongPassword || "Wrong password!", "error");
+            showToast("Senha incorreta", "error");
             return;
         }
         const words = decrypted.split(' ');
@@ -7344,21 +7340,21 @@ document.getElementById('claimAirdropBtn').addEventListener('click', async funct
     });
 
     // ===== PRIVATE KEY MODAL =====
-    document.getElementById('revealPrivateKeyBtn').addEventListener('click', function() {
+    document.getElementById('revealPrivateKeyBtn').addEventListener('click', async function() {
         const password = document.getElementById('privateKeyPassword').value;
         if (!password) {
-            showToast(translations[currentLang]?.enterWalletPassword || "Enter your wallet password", "error");
+            showToast("Digite sua senha", "error");
             return;
         }
         
         if (!wallet.encryptedSeed) {
-            showToast(translations[currentLang]?.noWalletFound || "No wallet found", "error");
+            showToast("Nenhuma carteira", "error");
             return;
         }
         
-        const decryptedSeed = decrypt(wallet.encryptedSeed, password);
+        const decryptedSeed = await decryptSeed(wallet.encryptedSeed, password);
         if (!decryptedSeed) {
-            showToast(translations[currentLang]?.wrongPassword || "Wrong password!", "error");
+            showToast("Senha incorreta", "error");
             return;
         }
         
