@@ -3039,7 +3039,7 @@ function updateUI() {
                 let txClass = 'tx-out';
                 let icon = '📤';
                 let label = translations[currentLang]?.transfer || 'Transfer';
-                else if (isAirdrop) { txClass = 'tx-in'; icon = '🎁'; label = translations[currentLang]?.airdrop || 'Airdrop'; }
+                if (isAirdrop) { txClass = 'tx-in'; icon = '🎁'; label = translations[currentLang]?.airdrop || 'Airdrop'; }
                 else if (isDeposit) { txClass = 'tx-in'; icon = '💰'; label = translations[currentLang]?.deposit || 'Deposit'; }
                 else if (isToken) { txClass = 'tx-in'; icon = '🪙'; label = translations[currentLang]?.tokenCreated || 'Token Created'; }
                 else if (isTip) { txClass = 'tx-tip'; icon = '💝'; label = tx.type === 'tip_sent' ? (translations[currentLang]?.tipSent || 'Tip Sent') : (translations[currentLang]?.tipReceived || 'Tip Received'); }
@@ -3262,7 +3262,7 @@ function showHistory() {
             let typeLabel = translations[currentLang]?.transfer || 'Transfer';
             let color = '#ff4466';
             
-            else if (isAirdrop) { icon = '🎁'; typeLabel = translations[currentLang]?.airdrop || 'Airdrop'; color = '#ffd700'; }
+            if (isAirdrop) { icon = '🎁'; typeLabel = translations[currentLang]?.airdrop || 'Airdrop'; color = '#ffd700'; }
             else if (isDeposit) { icon = '💰'; typeLabel = translations[currentLang]?.deposit || 'Deposit'; color = '#00ff88'; }
             else if (isToken) { icon = '🪙'; typeLabel = translations[currentLang]?.tokenCreated || 'Token Created'; color = '#00d4ff'; }
             else if (isSent) { icon = '📤'; typeLabel = translations[currentLang]?.sent || 'Sent'; color = '#ff4466'; }
