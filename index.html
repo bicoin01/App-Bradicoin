@@ -9,12 +9,9 @@
   
   <!-- ===== BIBLIOTECAS ===== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/elliptic@6.5.4/lib/elliptic.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/elliptic@6.5.4/dist/elliptic.min.js"></script>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/otpauth@9.2.2/dist/otpauth.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bip39@3.1.0/src/index.min.js"></script>
-
   <!-- ===== CRIPTOGRAFIA DO BRADICOIN ===== -->
   <script src="./crypto.js"></script>
     
@@ -2638,43 +2635,6 @@ function goToDashboardFromCongrats() {
 }
 
 // ================================================================
-// ==================== UNLOCK GUARD ==============================
-// Rate limiting para tentativas de senha errada
-// ================================================================
-const unlockGuard = (() => {
-    const MAX_TRIES = 5;
-    const LOCK_MS = 5 * 60 * 1000; // 5 minutos
-    let tries = 0;
-    let lockedUntil = 0;
-
-    function reset() {
-        tries = 0;
-        lockedUntil = 0;
-    }
-
-    function canTry() {
-        const now = Date.now();
-        if (now < lockedUntil) {
-            const waitSec = Math.ceil((lockedUntil - now) / 1000);
-            return { ok: false, reason: `Bloqueado. Tente novamente em ${waitSec}s` };
-        }
-        return { ok: true };
-    }
-
-    function registerFail() {
-        tries++;
-        if (tries >= MAX_TRIES) {
-            lockedUntil = Date.now() + LOCK_MS;
-            tries = 0;
-            return { ok: false, reason: `Muitas tentativas. Bloqueado por 5 minutos.` };
-        }
-        return { ok: false, reason: `Senha incorreta (${tries}/${MAX_TRIES})` };
-    }
-
-    return { reset, canTry, registerFail };
-})();
-
-// ================================================================
 // ==================== FUNÇÕES DE WALLET =========================
 // ================================================================
 
@@ -3471,12 +3431,6 @@ function setup2FA() {
     document.getElementById('twoFAModal').style.display = 'flex';
     showToast("📱 Escaneie o QR com Google Authenticator", "info");
 }
-
-// ================================================================
-// ==================== ZK-SNARK FUNÇÕES ==========================
-// ================================================================
-
-function generateZKCommitment(privateKey, amount, salt) {
 
 // ================================================================
 // ============ STAKING ==========
