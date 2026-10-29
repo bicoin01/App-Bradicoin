@@ -17,27 +17,7 @@
 
   <!-- ===== CRIPTOGRAFIA DO BRADICOIN ===== -->
   <script src="./crypto.js"></script>
-  
-  <!-- ✅ ELLIPTIC com fallback triplo (resolve o problema) -->
-  <script src="https://cdn.jsdelivr.net/npm/elliptic@6.5.4/lib/elliptic.min.js"></script>
-  <script>
-    if (typeof elliptic === 'undefined') {
-      document.write('<script src="https://unpkg.com/elliptic@6.5.4/lib/elliptic.min.js"><\/script>');
-    }
-  </script>
-  <script>
-    if (typeof elliptic === 'undefined') {
-      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/elliptic/6.5.4/elliptic.min.js"><\/script>');
-    }
-  </script>
-  <script>
-    // ✅ Correção final: alguns builds UMD expõem elliptic.ec dentro de window.elliptic
-    // Se ainda não estiver disponível, criamos um stub para não quebrar o resto do app
-    if (typeof elliptic === 'undefined') {
-      console.warn('⚠️ elliptic não carregou de nenhuma CDN — verifique bloqueador de anúncios');
-    }
-  </script>
-   
+    
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -868,34 +848,7 @@
       <button id="createWalletBtn" class="cyber-btn primary"><i class="fas fa-plus-circle"></i> <span id="createWalletBtnText">Create Wallet</span></button>
       <button id="importWalletBtn" class="cyber-btn"><i class="fas fa-key"></i> <span id="importWalletBtnText">Import Wallet</span></button>
     </div>
-
-    <!-- Botão Login / Criar Conta -->
-<button id="loginAccountBtn" class="cyber-btn" style="margin-top:1rem; width:100%;">
-  <i class="fas fa-user"></i> <span>Login / Criar Conta</span>
-</button>
-
-<!-- Grupo de Autenticação (inicialmente escondido) -->
-<div id="authGroup" style="display:none; margin-top:1rem;">
-  <button id="authBackBtn" class="cyber-btn back small" style="width:100%; margin-bottom:0.5rem;">
-    <i class="fas fa-arrow-left"></i> Voltar
-  </button>
-
-  <div style="display:flex; gap:0.3rem; margin-bottom:0.5rem;">
-    <button id="tabLogin" class="cyber-btn primary small" style="flex:1;">Entrar</button>
-    <button id="tabRegister" class="cyber-btn small" style="flex:1;">Criar Conta</button>
-  </div>
-
-  <input type="email" id="authEmail" class="cyber-input" placeholder="Email" style="margin-bottom:0.3rem;">
-  <input type="text" id="authUsername" class="cyber-input" placeholder="Username" style="margin-bottom:0.3rem; display:none;">
-  <input type="password" id="authPassword" class="cyber-input" placeholder="Senha" style="margin-bottom:0.3rem;">
-  <input type="text" id="auth2FACode" class="cyber-input" placeholder="Código 2FA (se ativado)" style="margin-bottom:0.3rem;">
-
-  <button id="authSubmitBtn" class="cyber-btn primary" style="width:100%;">
-    <i class="fas fa-sign-in-alt"></i> <span id="authSubmitText">Entrar</span>
-  </button>
-  <p id="authStatus" style="font-size:0.6rem; margin-top:0.5rem;"></p>
-</div>
-    
+  
     <div id="importGroup" style="display:none; margin-top:1.5rem;">
       <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem;">
         <button id="backToLoginFromImport" class="cyber-btn back small" style="flex:1;"><i class="fas fa-arrow-left"></i> <span id="backImportText">Back</span></button>
@@ -1108,6 +1061,7 @@
       <button class="cyber-btn settings" onclick="showViewSeedModal()"><i class="fas fa-eye"></i> <span id="settingsViewSeed">View Seed Phrase</span></button>
       <button class="cyber-btn private-key" onclick="showPrivateKeyModal()"><i class="fas fa-key"></i> <span id="settingsPrivateKey">Private Key</span></button>
       <button class="cyber-btn settings" onclick="setup2FA()"><i class="fas fa-shield-alt"></i> <span id="settings2FA">Setup 2FA</span></button>
+      <button class="cyber-btn success" onclick="setupBiometricFromSettings()"><i class="fas fa-fingerprint"></i> <span id="settingsBiometric">Enable Biometrics</span></button>
       <button class="cyber-btn anon" onclick="showStealthAddress()"><i class="fas fa-mask"></i> <span id="settingsStealth">Stealth Address</span></button>
       <button class="cyber-btn warning" onclick="showMixerUI()"><i class="fas fa-random"></i> <span id="settingsMixer">Mixer</span></button>
       <button class="cyber-btn settings" onclick="exportWalletData()"><i class="fas fa-download"></i> <span id="settingsExport">Export Wallet</span></button>
@@ -1730,6 +1684,8 @@
         <div id="shadowList" style="font-size:0.4rem; max-height:60px; overflow-y:auto; margin-top:0.2rem;"></div>
       </div>
       
+      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #9b59b633;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
           <span id="ephemeralLabel">🔑 Ephemeral Keys</span>
           <div>
             <span id="ephemeralStatus" style="font-size:0.4rem;">🔑 <span id="ephemeralStatusText">No key</span></span>
@@ -2680,6 +2636,43 @@ function goToDashboardFromCongrats() {
         showToast("🎉 " + (translations[currentLang]?.walletImported || "Wallet imported successfully!"), "success");
     }
 }
+
+// ================================================================
+// ==================== UNLOCK GUARD ==============================
+// Rate limiting para tentativas de senha errada
+// ================================================================
+const unlockGuard = (() => {
+    const MAX_TRIES = 5;
+    const LOCK_MS = 5 * 60 * 1000; // 5 minutos
+    let tries = 0;
+    let lockedUntil = 0;
+
+    function reset() {
+        tries = 0;
+        lockedUntil = 0;
+    }
+
+    function canTry() {
+        const now = Date.now();
+        if (now < lockedUntil) {
+            const waitSec = Math.ceil((lockedUntil - now) / 1000);
+            return { ok: false, reason: `Bloqueado. Tente novamente em ${waitSec}s` };
+        }
+        return { ok: true };
+    }
+
+    function registerFail() {
+        tries++;
+        if (tries >= MAX_TRIES) {
+            lockedUntil = Date.now() + LOCK_MS;
+            tries = 0;
+            return { ok: false, reason: `Muitas tentativas. Bloqueado por 5 minutos.` };
+        }
+        return { ok: false, reason: `Senha incorreta (${tries}/${MAX_TRIES})` };
+    }
+
+    return { reset, canTry, registerFail };
+})();
 
 // ================================================================
 // ==================== FUNÇÕES DE WALLET =========================
@@ -6321,6 +6314,70 @@ function updateBiometricUI() {
     }
 }
 
+/* ================================================================
+ * Biometric setup — called from Settings button
+ * ================================================================ */
+async function setupBiometricFromSettings() {
+    if (!wallet || !wallet.encryptedSeed) {
+        showToast('👛 Create or import a wallet first', 'error');
+        return;
+    }
+
+    if (!isBiometricSupported()) {
+        showToast('❌ Biometrics not supported on this device', 'error');
+        return;
+    }
+
+    const hasPlatform = await hasBiometricCredential();
+    if (!hasPlatform) {
+        showToast('❌ No biometrics enrolled on device (enable in system settings)', 'error');
+        return;
+    }
+
+    const isEnabled = storage.getItem('bradicoin_biometric_enabled') === 'true';
+
+    if (isEnabled) {
+        if (window.confirm('🔐 Biometrics already ENABLED.\n\nDisable?')) {
+            storage.removeItem('bradicoin_biometric_id');
+            storage.removeItem('bradicoin_biometric_key');
+            storage.removeItem('bradicoin_biometric_master');
+            storage.removeItem('bradicoin_biometric_enabled');
+            updateBiometricUI();
+            refreshSettingsBiometricLabel();
+            showToast('🔓 Biometrics disabled', 'info');
+        }
+        return;
+    }
+
+    const pwd = prompt('Enter wallet password to enable biometrics:');
+    if (!pwd) return;
+
+    const seedStr = await decryptSeed(wallet.encryptedSeed, pwd);
+    if (!seedStr) {
+        showToast('❌ Wrong password', 'error');
+        return;
+    }
+
+    const success = await registerBiometric(
+        wallet.address || 'bradicoin_user',
+        currentUser?.username || 'BradiCoin User'
+    );
+
+    if (success) {
+        updateBiometricUI();
+        refreshSettingsBiometricLabel();
+        showToast('✅ Biometrics enabled!', 'success');
+    }
+}
+
+/* Update the Settings biometric button label */
+function refreshSettingsBiometricLabel() {
+    const span = document.getElementById('settingsBiometric');
+    if (!span) return;
+    const isEnabled = storage.getItem('bradicoin_biometric_enabled') === 'true';
+    span.textContent = isEnabled ? '✅ Biometrics Enabled' : 'Enable Biometrics';
+}
+
 // ================================================================
 // ==================== EVENT LISTENERS ===========================
 // ================================================================
@@ -6392,74 +6449,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.getElementById('congratsGoToDashboard').addEventListener('click', function() {
         goToDashboardFromCongrats();
     });
-
-    // ===== TELA DE LOGIN/CADASTRO =====
-let authMode = 'login';
-
-document.getElementById('loginAccountBtn').addEventListener('click', function() {
-    document.getElementById('unlockGroup').style.display = 'none';
-    document.getElementById('importGroup').style.display = 'none';
-    document.getElementById('authGroup').style.display = 'block';
-    setAuthMode('login');
-});
-
-document.getElementById('authBackBtn').addEventListener('click', function() {
-    document.getElementById('authGroup').style.display = 'none';
-});
-
-document.getElementById('tabLogin').addEventListener('click', () => setAuthMode('login'));
-document.getElementById('tabRegister').addEventListener('click', () => setAuthMode('register'));
-
-function setAuthMode(mode) {
-    authMode = mode;
-    const isLogin = mode === 'login';
-    document.getElementById('tabLogin').className = isLogin ? 'cyber-btn primary small' : 'cyber-btn small';
-    document.getElementById('tabRegister').className = isLogin ? 'cyber-btn small' : 'cyber-btn primary small';
-    document.getElementById('authUsername').style.display = isLogin ? 'none' : 'block';
-    document.getElementById('authSubmitText').innerText = isLogin ? 'Entrar' : 'Criar Conta';
-    document.getElementById('authStatus').innerText = '';
-}
-
-document.getElementById('authSubmitBtn').addEventListener('click', async function() {
-    const email = document.getElementById('authEmail').value.trim();
-    const username = document.getElementById('authUsername').value.trim();
-    const password = document.getElementById('authPassword').value;
-    const twoFACode = document.getElementById('auth2FACode').value.trim();
-    const statusEl = document.getElementById('authStatus');
     
-    if (!email || !password) {
-        statusEl.innerText = '❌ Email e senha são obrigatórios';
-        statusEl.style.color = '#ff0055';
-        return;
-    }
-    
-    statusEl.innerText = '⏳ Processando...';
-    statusEl.style.color = '#00f2ff';
-    
-    try {
-        if (authMode === 'register') {
-            if (!username) throw new Error('Username obrigatório');
-            if (password.length < 10) throw new Error('Senha deve ter 10+ caracteres');
-            await doRegister(email, password, username);
-        } else {
-            await doLogin(email, password, twoFACode);
-        }
-        
-        statusEl.innerText = '✅ Sucesso!';
-        statusEl.style.color = '#00ff88';
-        document.getElementById('authGroup').style.display = 'none';
-        
-        document.getElementById('authEmail').value = '';
-        document.getElementById('authUsername').value = '';
-        document.getElementById('authPassword').value = '';
-        document.getElementById('auth2FACode').value = '';
-        
-    } catch (err) {
-        statusEl.innerText = '❌ ' + err.message;
-        statusEl.style.color = '#ff0055';
-    }
-});
-
 // ===== AUTO-LOGIN se já tem token salvo =====
 if (authToken) {
     (async () => {
@@ -6604,7 +6594,8 @@ if (authToken) {
     document.getElementById('lockWalletBtn').addEventListener('click', lockWalletNow);
     
     document.getElementById('settingsBtn').addEventListener('click', function() {
-        document.getElementById('settingsModal').style.display = 'flex';
+    document.getElementById('settingsModal').style.display = 'flex';
+    refreshSettingsBiometricLabel();
     });
     document.getElementById('closeSettingsModalBtn').addEventListener('click', function() {
         document.getElementById('settingsModal').style.display = 'none';
@@ -6798,50 +6789,7 @@ if (authToken) {
             showToast("❌ " + (translations[currentLang]?.invalid2FA || "Invalid 2FA code!"), "error");
         }
     });
-      
-        if (password && wallet.encryptedSeed) {
-            const decrypted = decrypt(wallet.encryptedSeed, password);
-            if (decrypted) {
-                const totalCost = amount + 0.15;
-                if (totalCost <= wallet.balance) {
-                    wallet.balance -= totalCost;
-                    wallet.stats.feesPaid += 0.15;
-                    wallet.zkStats.privateTxCount += 1;
-                    wallet.zkStats.totalPrivacyProtected += amount;
-                    wallet.zkStats.proofsGenerated += 1;
-                    
-                    wallet.transactions.unshift({
-                        id: Date.now(),
-                        type: 'zk_private',
-                        to: to,
-                        amount: amount,
-                        fee: 0.15,
-                        time: new Date().toISOString()
-                    });
-                    
-                    saveWallet();
-                    updateUI();
-                    updateAnalytics();
-                    document.getElementById('zkSendModal').style.display = 'none';
-                    document.getElementById('sendModal').style.display = 'none';
-                    document.getElementById('sendTo').value = '';
-                    document.getElementById('sendAmount').value = '';
-                    document.getElementById('sendPassword').value = '';
-                    showToast(`🔐 ${translations[currentLang]?.privateTxSent || 'Private TX sent!'} ${amount} BRD`, "success");
-                } else {
-                    showToast(translations[currentLang]?.insufficientBalance || "Insufficient balance", "error");
-                }
-            } else {
-                showToast(translations[currentLang]?.wrongPassword || "Wrong password!", "error");
-            }
-        } else {
-            showToast(translations[currentLang]?.enterPassword || "Enter password", "error");
-        }
-    });
-    
-    document.getElementById('zkCancelSendBtn').addEventListener('click', function() {
-    });
-    
+
 document.getElementById('confirmSendBtn').addEventListener('click', async function() {
     const to = document.getElementById('sendTo').value.trim();
     const amount = parseFloat(document.getElementById('sendAmount').value);
