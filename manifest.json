@@ -1,21 +1,37 @@
 {
+  "id": "/",
   "name": "Bradicoin Wallet",
   "short_name": "Bradicoin",
-  "description": "Bradicoin Cryptocurrency Wallet",
-  "start_url": "/App-Bradicoin/",
+  "description": "Bradicoin Cryptocurrency Wallet — secure, non-custodial, privacy-focused.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
   "theme_color": "#00ffff",
   "background_color": "#001233",
+  "categories": ["finance", "utilities"],
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "logo-small.png",
+      "src": "./logo-small.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "logo-bradicoin.png",
+      "src": "./logo-bradicoin.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./logo-bradicoin.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
