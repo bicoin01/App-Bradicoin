@@ -37,11 +37,7 @@
       console.warn('⚠️ elliptic não carregou de nenhuma CDN — verifique bloqueador de anúncios');
     }
   </script>
-  
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/otpauth@9.2.2/dist/otpauth.min.js"></script>
-  
+   
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -1000,10 +996,6 @@
     <button id="closeHistoryBtn" class="cyber-btn primary" style="width:100%; margin-top:1rem;"><i class="fas fa-times"></i> <span id="closeHistoryText">Close</span></button>
   </div>
 </div>
-
-<!-- ===== ZK PRIVATE SEND MODAL ===== -->
-<div id="zkSendModal" class="modal-overlay">
-    <h2 style="color: #00ff88;">🔐 ZK-SNARK Private Send</h2>
 
 <!-- ===== 2FA SETUP MODAL ===== -->
 <div id="twoFAModal" class="modal-overlay">
@@ -6806,10 +6798,7 @@ if (authToken) {
             showToast("❌ " + (translations[currentLang]?.invalid2FA || "Invalid 2FA code!"), "error");
         }
     });
-    document.getElementById('close2FAModalBtn').addEventListener('click', function() {
-        document.getElementById('twoFAModal').style.display = 'none';
-    });
-     
+      
         if (password && wallet.encryptedSeed) {
             const decrypted = decrypt(wallet.encryptedSeed, password);
             if (decrypted) {
