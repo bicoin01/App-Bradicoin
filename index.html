@@ -9,6 +9,8 @@
   <meta name="apple-mobile-web-app-title" content="BradiCoin">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./logo-small.png">
   <title>BradiCoin | Secure Crypto Wallet</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"></noscript>
@@ -7706,6 +7708,104 @@ setInterval(async () => {
 }, 30000);
 
 console.log("✅ All systems ready!");
+
+// ================================================================
+// ============ PWA — SERVICE WORKER + INSTALL PROMPT ============
+// ================================================================
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then((reg) => {
+        console.log('✅ Service Worker registrado:', reg.scope);
+
+        // Detecta nova versão disponível
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker?.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              showToast('🔄 Nova versão disponível! Recarregando...', 'info');
+              setTimeout(() => window.location.reload(), 1500);
+            }
+          });
+        });
+      })
+      .catch((err) => console.warn('❌ Service Worker falhou:', err));
+  });
+}
+
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  console.log('📱 App pode ser instalado');
+
+  if (!document.getElementById('pwaInstallBtn')) {
+    const btn = document.createElement('button');
+    btn.id = 'pwaInstallBtn';
+    btn.innerHTML = '<i class="fas fa-download"></i> Install App';
+    btn.style.cssText = `
+      position: fixed;
+      bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+      right: 15px;
+      z-index: 9999;
+      padding: 0.7rem 1.2rem;
+      background: linear-gradient(135deg, #a855f7, #00f2ff);
+      color: #0a0f1e;
+      border: none;
+      border-radius: 2rem;
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      font-size: 0.75rem;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(168, 85, 247, 0.5);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      animation: pulseInstall 2s infinite;
+    `;
+    document.body.appendChild(btn);
+
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes pulseInstall {
+        0%, 100% { box-shadow: 0 0 25px rgba(168, 85, 247, 0.5); }
+        50% { box-shadow: 0 0 40px rgba(0, 242, 255, 0.7); }
+      }
+      #pwaInstallBtn:hover { transform: scale(1.05); }
+    `;
+    document.head.appendChild(style);
+
+    btn.addEventListener('click', async () => {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      const { outcome } = await deferredInstallPrompt.userChoice;
+      console.log('Instalação:', outcome);
+      if (outcome === 'accepted') {
+        showToast('🎉 App instalado! Procure o ícone na tela inicial.', 'success');
+      }
+      deferredInstallPrompt = null;
+      btn.remove();
+    });
+  }
+});
+
+window.addEventListener('appinstalled', () => {
+  console.log('✅ App instalado com sucesso');
+  showToast('🎉 BradiCoin instalado! Abra pelo ícone na tela inicial.', 'success');
+  document.getElementById('pwaInstallBtn')?.remove();
+});
+
+if (window.matchMedia('(display-mode: standalone)').matches) {
+  console.log('📱 Rodando como app instalado');
+  document.getElementById('pwaInstallBtn')?.remove();
+}
+
+</script>
+</body>
+</html>
 </script>
 </body>
 </html>
