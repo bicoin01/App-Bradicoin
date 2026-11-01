@@ -6,6 +6,10 @@
   <title>Bradicoin Wallet Generator | Create Millions of BRD Wallets</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <!-- ✅ CORREÇÃO 1: crypto.js para gerar chaves REAIS -->
+  <script src="./crypto.js"></script>
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -209,7 +213,7 @@
         <tbody id="walletTableBody">
           <tr><td colspan="4" style="text-align: center;">No wallets generated yet. Click "Generate Wallets" to start.</td></tr>
         </tbody>
-       </table>
+      </table>
     </div>
   </div>
   
@@ -220,47 +224,53 @@
 
 <script>
   // ==================== BRADICOIN WALLET GENERATOR ====================
-  // Word list for 12-word seed phrase (BIP39-like)
-  const wordList = [
-    "abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract", "absurd", "abuse",
-    "access", "accident", "account", "accuse", "achieve", "acid", "acoustic", "acquire", "across", "act",
-    "action", "actor", "actress", "actual", "adapt", "add", "addict", "address", "adjust", "admit",
-    "adult", "advance", "advice", "aerobic", "affair", "afford", "afraid", "africa", "after", "again",
-    "age", "agent", "agree", "ahead", "aim", "air", "airport", "aisle", "alarm", "album", "alcohol",
-    "alert", "alien", "all", "alley", "allow", "almost", "alone", "alpha", "already", "also", "alter",
-    "always", "amazing", "among", "amount", "amuse", "angel", "anger", "angle", "angry", "animal",
-    "ankle", "announce", "annual", "another", "answer", "antenna", "antique", "anxiety", "any", "apart",
-    "apology", "appear", "apple", "approve", "april", "arch", "arctic", "area", "arena", "argue", "arm"
-  ];
-  
+  // ✅ CORREÇÃO 2: usa a WORD_LIST completa (2048 palavras) do crypto.js
+  const wordList = (window.WORD_LIST && window.WORD_LIST.length > 1000)
+    ? window.WORD_LIST
+    : (function () {
+        console.error('⚠️ WORD_LIST completa não encontrada. Verifique se crypto.js carregou.');
+        return ['abandon', 'ability', 'able', 'about']; // fallback mínimo
+      })();
+
   let allWallets = [];
   let isGenerating = false;
   let generationStartTime = 0;
-  
-  // Generate random 12-word seed phrase
+
+  // ✅ CORREÇÃO 3: gera seed BIP39 VÁLIDA (checksum + crypto.getRandomValues)
   function generateSeedPhrase() {
-    const words = [];
-    for(let i = 0; i < 12; i++) {
-      words.push(wordList[Math.floor(Math.random() * wordList.length)]);
+    let attempts = 0;
+    let words = [];
+    while (attempts < 200) {
+      words = [];
+      const random = new Uint32Array(12);
+      crypto.getRandomValues(random);              // ✅ seguro
+      for (let i = 0; i < 12; i++) {
+        words.push(wordList[random[i] % wordList.length]);
+      }
+      // Se validateSeedPhrase existir (do crypto.js), valida checksum
+      if (typeof validateSeedPhrase !== 'function' || validateSeedPhrase(words)) {
+        return words.join(' ');
+      }
+      attempts++;
     }
+    // Fallback (não deve acontecer com 2048 palavras)
     return words.join(' ');
   }
-  
-  // Generate BRD wallet address (must start with "Br")
-  function generateWalletAddress(index) {
-    const chars = '0123456789abcdef';
-    let randomPart = '';
-    for(let i = 0; i < 40; i++) {
-      randomPart += chars[Math.floor(Math.random() * 16)];
+
+  // ✅ CORREÇÃO 4: deriva endereço REAL da seed (igual ao index.html)
+  function generateWalletAddress(seedPhrase) {
+    if (typeof generateKeyPairFromSeed !== 'function') {
+      throw new Error('crypto.js não carregou — não é possível derivar endereço real');
     }
-    const uniqueSuffix = index.toString(16).padStart(8, '0');
-    return `Br${randomPart.substring(0, 32)}${uniqueSuffix}`;
+    const words = seedPhrase.split(' ');
+    const keyPair = generateKeyPairFromSeed(words);
+    return keyPair.address;   // já vem como "Br..."
   }
-  
-  // Generate a single wallet with unique index
+
+  // ✅ CORREÇÃO 5: gera carteira completa (seed válida + endereço REAL)
   function generateSingleWallet(index) {
-    const address = generateWalletAddress(index);
-    const seedPhrase = generateSeedPhrase();
+    const seedPhrase = generateSeedPhrase();          // BIP39 válida
+    const address = generateWalletAddress(seedPhrase); // derivado da seed
     return {
       id: index,
       address: address,
@@ -268,54 +278,58 @@
       createdAt: new Date().toISOString()
     };
   }
-  
+
   // Batch generation with async/await to prevent UI freezing
   async function generateWalletsBatch(count, batchSize, onProgress) {
     const newWallets = [];
     const totalBatches = Math.ceil(count / batchSize);
     let generated = 0;
-    
-    for(let batch = 0; batch < totalBatches; batch++) {
+
+    for (let batch = 0; batch < totalBatches; batch++) {
       const batchStartIndex = allWallets.length + generated;
       const batchEnd = Math.min(batchStartIndex + batchSize, batchStartIndex + (count - generated));
       const batchCount = batchEnd - batchStartIndex;
-      
-      for(let i = 0; i < batchCount; i++) {
-        const wallet = generateSingleWallet(batchStartIndex + i);
-        newWallets.push(wallet);
+
+      for (let i = 0; i < batchCount; i++) {
+        try {
+          const wallet = generateSingleWallet(batchStartIndex + i);
+          newWallets.push(wallet);
+        } catch (err) {
+          console.error('Erro ao gerar carteira ' + (batchStartIndex + i) + ':', err);
+        }
         generated++;
-        
-        if(generated % 100 === 0 || generated === count) {
-          if(onProgress) onProgress(generated, count);
+
+        if (generated % 50 === 0 || generated === count) {
+          if (onProgress) onProgress(generated, count);
           await new Promise(resolve => setTimeout(resolve, 0));
         }
       }
-      
-      if(onProgress) onProgress(generated, count);
+
+      if (onProgress) onProgress(generated, count);
       await new Promise(resolve => setTimeout(resolve, 5));
     }
-    
+
     return newWallets;
   }
-  
+
   // Load saved wallets from localStorage
   function loadWalletsFromStorage() {
     const saved = localStorage.getItem('bradicoin_generated_wallets');
-    if(saved) {
+    if (saved) {
       try {
         allWallets = JSON.parse(saved);
         renderWalletTable();
         updateStats();
-      } catch(e) { console.error(e); }
+      } catch (e) { console.error(e); }
     }
   }
-  
+
   // Save wallets to localStorage
   function saveWalletsToStorage() {
     localStorage.setItem('bradicoin_generated_wallets', JSON.stringify(allWallets));
     updateStats();
   }
-  
+
   // Update statistics display
   function updateStats() {
     document.getElementById('totalWallets').innerText = allWallets.length.toLocaleString();
@@ -323,13 +337,13 @@
     const batchSize = parseInt(document.getElementById('batchSizeInput').value) || 1000;
     document.getElementById('batchSize').innerText = batchSize.toLocaleString();
   }
-  
+
   // Copy to clipboard helper
-  window.copyToClipboard = function(text) {
+  window.copyToClipboard = function (text) {
     navigator.clipboard.writeText(text);
     showToast('Copied to clipboard!');
   };
-  
+
   function showToast(message) {
     const toast = document.createElement('div');
     toast.style.position = 'fixed';
@@ -346,21 +360,21 @@
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 2000);
   }
-  
+
   // Render wallet table
   function renderWalletTable() {
     const tbody = document.getElementById('walletTableBody');
     const displayCountSpan = document.getElementById('displayCount');
     displayCountSpan.innerText = `(${allWallets.length.toLocaleString()})`;
-    
-    if(allWallets.length === 0) {
+
+    if (allWallets.length === 0) {
       tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No wallets generated yet. Click "Generate Wallets" to start.</td></tr>';
       return;
     }
-    
+
     // Show last 100 wallets for performance
     const displayWallets = allWallets.slice(-100).reverse();
-    tbody.innerHTML = displayWallets.map((wallet, idx) => `
+    tbody.innerHTML = displayWallets.map((wallet) => `
       <tr>
         <td>${wallet.id + 1}</td>
         <td style="font-family: monospace; font-size:0.8rem;">${wallet.address}</td>
@@ -369,59 +383,69 @@
       </tr>
     `).join('');
   }
-  
+
   // Generation progress handler
   async function startGeneration() {
-    if(isGenerating) {
+    if (isGenerating) {
       showToast("Generation already in progress!");
       return;
     }
-    
+
     const count = parseInt(document.getElementById('generateCount').value);
     const batchSize = parseInt(document.getElementById('batchSizeInput').value);
-    
-    if(isNaN(count) || count <= 0 || count > 5000000) {
+
+    if (isNaN(count) || count <= 0 || count > 5000000) {
       showToast("Please enter a valid number (1 to 5,000,000)");
       return;
     }
-    
-    if(isNaN(batchSize) || batchSize < 10) {
+
+    if (isNaN(batchSize) || batchSize < 10) {
       showToast("Batch size must be at least 10");
       return;
     }
-    
+
+    // Verifica pré-requisitos do crypto.js
+    if (typeof generateKeyPairFromSeed !== 'function') {
+      showToast("❌ crypto.js não carregou. Verifique se o arquivo está na pasta.");
+      return;
+    }
+    if (wordList.length < 1000) {
+      showToast("❌ WORD_LIST incompleta. Verifique crypto.js.");
+      return;
+    }
+
     isGenerating = true;
     generationStartTime = performance.now();
     const startBtn = document.getElementById('startGenerateBtn');
     const progressFill = document.getElementById('progressFill');
     const progressStatus = document.getElementById('progressStatus');
-    
+
     startBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Generating...';
     startBtn.disabled = true;
-    
+
     const onProgress = (generated, total) => {
       const percent = (generated / total) * 100;
       progressFill.style.width = `${percent}%`;
       progressStatus.innerText = `Generated ${generated.toLocaleString()} of ${total.toLocaleString()} wallets (${percent.toFixed(1)}%)`;
-      
+
       const elapsed = (performance.now() - generationStartTime) / 1000;
-      if(elapsed > 0) {
+      if (elapsed > 0) {
         const speed = generated / elapsed;
         document.getElementById('generationSpeed').innerText = Math.round(speed);
       }
     };
-    
+
     try {
       const newWallets = await generateWalletsBatch(count, batchSize, onProgress);
       allWallets.push(...newWallets);
       saveWalletsToStorage();
       renderWalletTable();
       updateStats();
-      
+
       const totalTime = ((performance.now() - generationStartTime) / 1000).toFixed(2);
       progressStatus.innerText = `✅ Completed! Generated ${newWallets.length.toLocaleString()} wallets in ${totalTime} seconds. Total wallets: ${allWallets.length.toLocaleString()}`;
       showToast(`Successfully generated ${newWallets.length.toLocaleString()} BRD wallets!`);
-    } catch(err) {
+    } catch (err) {
       console.error(err);
       progressStatus.innerText = `❌ Error: ${err.message}`;
       showToast("Generation error: " + err.message);
@@ -431,10 +455,10 @@
       startBtn.disabled = false;
     }
   }
-  
+
   // Clear all wallets
   function clearAllWallets() {
-    if(confirm(`⚠️ Are you sure you want to delete ALL ${allWallets.length.toLocaleString()} wallets? This action cannot be undone.`)) {
+    if (confirm(`⚠️ Are you sure you want to delete ALL ${allWallets.length.toLocaleString()} wallets? This action cannot be undone.`)) {
       allWallets = [];
       localStorage.removeItem('bradicoin_generated_wallets');
       renderWalletTable();
@@ -444,14 +468,14 @@
       showToast(`Cleared all wallets`);
     }
   }
-  
+
   // Export functions
   function exportJSON() {
     const data = JSON.stringify(allWallets, null, 2);
     downloadFile(data, 'bradicoin_wallets.json', 'application/json');
     showToast('Exported as JSON');
   }
-  
+
   function exportCSV() {
     const headers = ['ID', 'Wallet Address', 'Seed Phrase', 'Created At'];
     const rows = allWallets.map(w => [w.id, w.address, w.seedPhrase, w.createdAt]);
@@ -459,7 +483,7 @@
     downloadFile(csvContent, 'bradicoin_wallets.csv', 'text/csv');
     showToast('Exported as CSV');
   }
-  
+
   function exportTXT() {
     let content = '# BRADICOIN WALLETS EXPORT\n';
     content += `# Total Wallets: ${allWallets.length}\n`;
@@ -474,13 +498,13 @@
     downloadFile(content, 'bradicoin_wallets.txt', 'text/plain');
     showToast('Exported as TXT');
   }
-  
+
   function copyAllToClipboard() {
     const content = allWallets.map(w => `${w.address} | ${w.seedPhrase}`).join('\n');
     navigator.clipboard.writeText(content);
     showToast(`Copied ${allWallets.length} wallets to clipboard!`);
   }
-  
+
   function downloadFile(content, filename, mimeType) {
     const blob = new Blob([content], { type: mimeType });
     const link = document.createElement('a');
@@ -489,7 +513,7 @@
     link.click();
     URL.revokeObjectURL(link.href);
   }
-  
+
   // Event Listeners
   document.getElementById('startGenerateBtn').onclick = startGeneration;
   document.getElementById('clearAllBtn').onclick = clearAllWallets;
@@ -497,27 +521,47 @@
   document.getElementById('exportCSVBtn').onclick = exportCSV;
   document.getElementById('exportTXTBtn').onclick = exportTXT;
   document.getElementById('copyAllBtn').onclick = copyAllToClipboard;
-  
+
   document.getElementById('batchSizeInput').onchange = () => {
     const val = parseInt(document.getElementById('batchSizeInput').value);
-    if(!isNaN(val)) document.getElementById('batchSize').innerText = val.toLocaleString();
+    if (!isNaN(val)) document.getElementById('batchSize').innerText = val.toLocaleString();
   };
-  
+
   // Load saved wallets on startup
   loadWalletsFromStorage();
-  
-  // Generate 10 sample wallets on first load if empty
-  if(allWallets.length === 0) {
-    setTimeout(async () => {
-      const sampleWallets = [];
-      for(let i = 0; i < 10; i++) {
-        sampleWallets.push(generateSingleWallet(i));
+
+  // ✅ Verifica dependências ao carregar
+  window.addEventListener('load', () => {
+    console.log('📋 WORD_LIST:', wordList.length, 'palavras');
+    console.log('🔑 generateKeyPairFromSeed:', typeof generateKeyPairFromSeed);
+    console.log('🛡️ validateSeedPhrase:', typeof validateSeedPhrase);
+
+    if (wordList.length < 1000) {
+      console.error('❌ WORD_LIST incompleta — verifique se crypto.js carregou corretamente.');
+    }
+    if (typeof generateKeyPairFromSeed !== 'function') {
+      console.error('❌ generateKeyPairFromSeed não encontrado — verifique crypto.js.');
+    }
+  });
+
+  // Generate 3 sample wallets on first load if empty (apenas para testar)
+  if (allWallets.length === 0) {
+    setTimeout(() => {
+      try {
+        if (typeof generateKeyPairFromSeed === 'function' && wordList.length > 1000) {
+          const sampleWallets = [];
+          for (let i = 0; i < 3; i++) {
+            sampleWallets.push(generateSingleWallet(i));
+          }
+          allWallets = sampleWallets;
+          saveWalletsToStorage();
+          renderWalletTable();
+          updateStats();
+          document.getElementById('progressStatus').innerText = '✅ 3 sample wallets created! Click "Generate Wallets" to create millions more.';
+        }
+      } catch (err) {
+        console.error('Erro ao gerar amostras:', err);
       }
-      allWallets = sampleWallets;
-      saveWalletsToStorage();
-      renderWalletTable();
-      updateStats();
-      document.getElementById('progressStatus').innerText = '✅ 10 sample wallets created! Click "Generate Wallets" to create millions more.';
     }, 500);
   }
 </script>
