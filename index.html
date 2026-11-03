@@ -1838,6 +1838,72 @@ window.WORD_LIST = WORD_LIST
   </div>
 </div>
 
+<!-- ===== BUY BRADICOIN MODAL ===== -->
+<div id="buyBradicoinModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:560px;">
+    <i class="fas fa-shopping-cart" style="font-size:3rem; color:#ffd700;"></i>
+    <h2 style="color:#ffd700;" id="buyModalTitle">🛒 Buy Bradicoin</h2>
+    <p style="font-size:0.55rem; opacity:0.7; margin:0.3rem 0;" id="buyModalSub">Select a payment method and amount</p>
+
+    <!-- SELECT MOEDA -->
+    <div style="text-align:left; margin-top:0.8rem;">
+      <label style="font-size:0.55rem; opacity:0.7; color:#a855f7;" id="buyCurrencyLabel">💰 Payment Currency</label>
+      <select id="buyCurrencySelect" class="cyber-input" style="font-size:0.65rem; padding:0.5rem; margin:0.2rem 0;">
+        <option value="BTC">₿ Bitcoin (BTC)</option>
+        <option value="ETH">Ξ Ethereum (ETH)</option>
+        <option value="SOL">◎ Solana (SOL)</option>
+        <option value="BNB">◈ Binance Coin (BNB)</option>
+        <option value="USDT">₮ Tether (USDT)</option>
+      </select>
+    </div>
+
+    <!-- WALLET DE ORIGEM (do usuário) -->
+    <div style="text-align:left; margin-top:0.5rem;">
+      <label style="font-size:0.55rem; opacity:0.7; color:#a855f7;" id="buyFromWalletLabel">📤 Your Sender Wallet</label>
+      <input type="text" id="buyFromWallet" class="cyber-input" placeholder="Your BTC/ETH/SOL/BNB/USDT wallet address" style="font-size:0.6rem; padding:0.5rem; margin:0.2rem 0;">
+    </div>
+
+    <!-- WALLET BRADICOIN (recebe) -->
+    <div style="text-align:left; margin-top:0.5rem;">
+      <label style="font-size:0.55rem; opacity:0.7; color:#00ff88;" id="buyToWalletLabel">📥 Your BradiCoin Wallet (receive)</label>
+      <input type="text" id="buyToWallet" class="cyber-input" placeholder="Your BradiCoin wallet" readonly style="font-size:0.6rem; padding:0.5rem; margin:0.2rem 0; border-color:#00ff88; background:#010518; color:#00ff88; cursor:not-allowed;">
+      <p style="font-size:0.45rem; color:#666; margin:0.1rem 0;" id="buyToWalletHint">🔒 Auto-filled from your wallet</p>
+    </div>
+
+    <!-- VALOR EM BRD -->
+    <div style="text-align:left; margin-top:0.5rem;">
+      <label style="font-size:0.55rem; opacity:0.7; color:#ffd700;" id="buyAmountLabel">💎 Amount in BRD</label>
+      <input type="number" id="buyAmountBrd" class="cyber-input" placeholder="0.00" step="any" style="font-size:0.65rem; padding:0.5rem; margin:0.2rem 0; border-color:#ffd700;">
+    </div>
+
+    <!-- RESUMO -->
+    <div id="buySummary" style="background:#010518; padding:0.8rem; border-radius:1rem; margin:0.7rem 0; border:1px solid #ffd70033; text-align:left; display:none;">
+      <div style="display:flex; justify-content:space-between; font-size:0.55rem; padding:0.15rem 0;">
+        <span style="color:#a855f7;" id="sumCurrencyLabel">Currency</span>
+        <span style="color:#00f2ff;" id="sumCurrency">—</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.55rem; padding:0.15rem 0;">
+        <span style="color:#a855f7;" id="sumAmountLabel">You buy</span>
+        <span style="color:#ffd700; font-weight:700;" id="sumAmountBrd">0 BRD</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.5rem; padding:0.15rem 0; border-top:1px solid #a855f733; margin-top:0.3rem; padding-top:0.3rem;">
+        <span style="color:#666;" id="sumToLabel">Receiving on</span>
+        <span style="color:#00ff88; font-family:monospace; font-size:0.45rem; word-break:break-all; max-width:60%; text-align:right;" id="sumToWallet">—</span>
+      </div>
+    </div>
+
+    <!-- BOTÕES -->
+    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
+      <button id="buyModalOkBtn" class="cyber-btn gold" style="flex:1; background: linear-gradient(135deg, #ffd700, #ffaa00); color:#0a0f1e; border:none; font-weight:700;">
+        <i class="fas fa-check-circle"></i> <span id="buyModalOkText">OK — Confirm</span>
+      </button>
+      <button id="buyModalCancelBtn" class="cyber-btn" style="flex:1;">
+        <i class="fas fa-times"></i> <span id="buyModalCancelText">Cancel</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== MAIN DASHBOARD ===== -->
 <div id="mainDashboard" class="main-dashboard">
   <div class="container">
@@ -1859,6 +1925,7 @@ window.WORD_LIST = WORD_LIST
         <span>24h <span id="priceChange" style="color:#00ff88;">+2.5%</span></span>
       </div>
       <div class="wallet-actions">
+        <button id="buyBradicoinBtn" class="cyber-btn gold small" style="background: linear-gradient(135deg, #ffd700, #ffaa00); color: #0a0f1e; border: none; font-weight: 700;"><i class="fas fa-shopping-cart"></i> <span id="buyBradicoinBtnLabel">Buy Bradicoin</span></button>
         <button id="tipsDashboardBtn" class="cyber-btn tip small"><i class="fas fa-gift"></i> <span id="tipsDashBtnLabel">Tips</span></button>
         <button id="createTokenBtn" class="cyber-btn create-token small"><i class="fas fa-coins"></i> <span id="tokenBtnLabel">Token</span></button>
         <button id="marketplaceBtn" class="cyber-btn marketplace small"><i class="fas fa-store"></i></button>
@@ -3459,8 +3526,7 @@ function updateTokensUI() {
         </div>
     `).join('');
 }
-
-function deleteToken(index) {
+   function deleteToken(index) {
     if (!wallet.tokens[index]) return;
     document.getElementById('confirmDialog').style.display = 'flex';
     document.getElementById('confirmDialogTitle').innerText = translations[currentLang]?.deleteToken || "Delete Token?";
@@ -3476,6 +3542,7 @@ function deleteToken(index) {
         document.getElementById('confirmDialog').style.display = 'none';
     };
 }
+
 
 // ================================================================
 // ==================== CREATE TOKEN FLOW =========================
@@ -4466,6 +4533,34 @@ function sendPushNotification(title, body) {
 }
 
 // ================================================================
+// ============ BUY BRADICOIN — MODAL =============================
+// ================================================================
+function showBuyBradicoinModal() {
+    // 1. Verifica wallet
+    if (!wallet || !wallet.address) {
+        showToast('👛 Create or import a wallet first', 'error');
+        return;
+    }
+
+    // 2. Pré-preenche a wallet BradiCoin (recebe)
+    const toInput = document.getElementById('buyToWallet');
+    if (toInput) toInput.value = wallet.address;
+
+    // 3. Limpa os campos
+    const fromInput = document.getElementById('buyFromWallet');
+    const amountInput = document.getElementById('buyAmountBrd');
+    if (fromInput) fromInput.value = '';
+    if (amountInput) amountInput.value = '';
+    document.getElementById('buyCurrencySelect').value = 'BTC';
+
+    // 4. Esconde resumo
+    document.getElementById('buySummary').style.display = 'none';
+
+    // 5. Abre o modal
+    document.getElementById('buyBradicoinModal').style.display = 'flex';
+}
+
+// ================================================================
 // ==================== QR CODE FUNCTIONS =========================
 // ================================================================
 function showReceiveModal() {
@@ -4808,6 +4903,22 @@ const translations = {
         activeStakeExists: "Stake ativo existe", staked: "Em stake", for24h: "por 24h a 18% APR",
         stakeLocked: "Stake bloqueado por", moreHours: "horas", unstaked: "Retirado!",
         twoFAActive: "2FA Ativo", twoFAOff: "2FA Desativado"
+        buyBradicoinBtn: "Comprar Bradicoin",
+        buyModalTitle: "🛒 Comprar Bradicoin",
+        buyModalSub: "Selecione o método de pagamento e o valor",
+        buyCurrencyLabel: "💰 Moeda de Pagamento",
+        buyFromWalletLabel: "📤 Sua Carteira de Origem",
+        buyFromWalletPlaceholder: "Sua carteira BTC/ETH/SOL/BNB/USDT",
+        buyToWalletLabel: "📥 Sua Carteira BradiCoin (receber)",
+        buyToWalletPlaceholder: "Sua carteira BradiCoin",
+        buyToWalletHint: "🔒 Preenchida automaticamente com sua carteira",
+        buyAmountLabel: "💎 Valor em BRD",
+        buyAmountPlaceholder: "0,00",
+        buySumCurrencyLabel: "Moeda",
+        buySumAmountLabel: "Você compra",
+        buySumToLabel: "Recebendo em",
+        buyModalOkText: "OK — Confirmar",
+        buyModalCancelText: "Cancelar",
     },
     es: {
         mainTitle: "BRADICOIN", subtitle: "Billetera Cripto Segura", desc: "Crear · Importar · Stake · Ganar",
@@ -4942,6 +5053,22 @@ const translations = {
         activeStakeExists: "Stake activo existe", staked: "En stake", for24h: "por 24h al 18% APR",
         stakeLocked: "Stake bloqueado por", moreHours: "horas", unstaked: "¡Retirado!",
         twoFAActive: "2FA Activo", twoFAOff: "2FA Desactivado"
+        buyBradicoinBtn: "Comprar Bradicoin",
+        buyModalTitle: "🛒 Comprar Bradicoin",
+        buyModalSub: "Selecciona el método de pago y el monto",
+        buyCurrencyLabel: "💰 Moneda de Pago",
+        buyFromWalletLabel: "📤 Tu Billetera de Origen",
+        buyFromWalletPlaceholder: "Tu billetera BTC/ETH/SOL/BNB/USDT",
+        buyToWalletLabel: "📥 Tu Billetera BradiCoin (recibir)",
+        buyToWalletPlaceholder: "Tu billetera BradiCoin",
+        buyToWalletHint: "🔒 Completada automáticamente con tu billetera",
+        buyAmountLabel: "💎 Monto en BRD",
+        buyAmountPlaceholder: "0,00",
+        buySumCurrencyLabel: "Moneda",
+        buySumAmountLabel: "Tú compras",
+        buySumToLabel: "Recibiendo en",
+        buyModalOkText: "OK — Confirmar",
+        buyModalCancelText: "Cancelar",
     },
     ar: {
         mainTitle: "برادي كوين", subtitle: "محفظة آمنة", desc: "إنشاء · استيراد · حصة · ربح",
@@ -5076,6 +5203,22 @@ const translations = {
         activeStakeExists: "يوجد حجز نشط", staked: "محجوز", for24h: "لمدة 24 ساعة بمعدل 18% APR",
         stakeLocked: "الحجز مقفل لمدة", moreHours: "ساعات", unstaked: "تم السحب!",
         twoFAActive: "2FA نشط", twoFAOff: "2FA غير نشط"
+        buyBradicoinBtn: "شراء براديكوين",
+        buyModalTitle: "🛒 شراء براديكوين",
+        buyModalSub: "اختر طريقة الدفع والمبلغ",
+        buyCurrencyLabel: "💰 عملة الدفع",
+        buyFromWalletLabel: "📤 محفظة الإرسال",
+        buyFromWalletPlaceholder: "محفظتك BTC/ETH/SOL/BNB/USDT",
+        buyToWalletLabel: "📥 محفظة براديكوين (استلام)",
+        buyToWalletPlaceholder: "محفظة براديكوين الخاصة بك",
+        buyToWalletHint: "🔒 تم ملؤها تلقائيًا من محفظتك",
+        buyAmountLabel: "💎 المبلغ بـ BRD",
+        buyAmountPlaceholder: "0.00",
+        buySumCurrencyLabel: "العملة",
+        buySumAmountLabel: "أنت تشتري",
+        buySumToLabel: "الاستلام في",
+        buyModalOkText: "موافق — تأكيد",
+        buyModalCancelText: "إلغاء",
     },
     de: {
         mainTitle: "BRADICOIN", subtitle: "Sichere Krypto-Wallet", desc: "Erstellen · Importieren · Stake · Verdienen",
@@ -5210,6 +5353,22 @@ const translations = {
         activeStakeExists: "Aktiver Stake vorhanden", staked: "Eingesetzt", for24h: "für 24h bei 18% APR",
         stakeLocked: "Stake gesperrt für", moreHours: "Stunden", unstaked: "Ausgezahlt!",
         twoFAActive: "2FA Aktiv", twoFAOff: "2FA Inaktiv"
+        buyBradicoinBtn: "Bradicoin kaufen",
+        buyModalTitle: "🛒 Bradicoin kaufen",
+        buyModalSub: "Zahlungsmethode und Betrag auswählen",
+        buyCurrencyLabel: "💰 Zahlungswährung",
+        buyFromWalletLabel: "📤 Ihre Absender-Wallet",
+        buyFromWalletPlaceholder: "Ihre BTC/ETH/SOL/BNB/USDT-Wallet",
+        buyToWalletLabel: "📥 Ihre BradiCoin-Wallet (empfangen)",
+        buyToWalletPlaceholder: "Ihre BradiCoin-Wallet",
+        buyToWalletHint: "🔒 Automatisch aus Ihrer Wallet ausgefüllt",
+        buyAmountLabel: "💎 Betrag in BRD",
+        buyAmountPlaceholder: "0,00",
+        buySumCurrencyLabel: "Währung",
+        buySumAmountLabel: "Sie kaufen",
+        buySumToLabel: "Empfang auf",
+        buyModalOkText: "OK — Bestätigen",
+        buyModalCancelText: "Abbrechen",
     },
     it: {
         mainTitle: "BRADICOIN", subtitle: "Portafoglio Crypto Sicuro", desc: "Crea · Importa · Stake · Guadagna",
@@ -5344,6 +5503,22 @@ const translations = {
         activeStakeExists: "Stake attivo esistente", staked: "In stake", for24h: "per 24h al 18% APR",
         stakeLocked: "Stake bloccato per", moreHours: "ore", unstaked: "Ritirato!",
         twoFAActive: "2FA Attivo", twoFAOff: "2FA Disattivato"
+        buyBradicoinBtn: "Acquista Bradicoin",
+        buyModalTitle: "🛒 Acquista Bradicoin",
+        buyModalSub: "Seleziona il metodo di pagamento e l'importo",
+        buyCurrencyLabel: "💰 Valuta di Pagamento",
+        buyFromWalletLabel: "📤 Il Tuo Portafoglio di Origine",
+        buyFromWalletPlaceholder: "Il tuo portafoglio BTC/ETH/SOL/BNB/USDT",
+        buyToWalletLabel: "📥 Il Tuo Portafoglio BradiCoin (ricevi)",
+        buyToWalletPlaceholder: "Il tuo portafoglio BradiCoin",
+        buyToWalletHint: "🔒 Compilato automaticamente dal tuo portafoglio",
+        buyAmountLabel: "💎 Importo in BRD",
+        buyAmountPlaceholder: "0,00",
+        buySumCurrencyLabel: "Valuta",
+        buySumAmountLabel: "Tu acquisti",
+        buySumToLabel: "Ricezione su",
+        buyModalOkText: "OK — Conferma",
+        buyModalCancelText: "Annulla",
     },
     fr: {
         mainTitle: "BRADICOIN", subtitle: "Portefeuille Crypto Sécurisé", desc: "Créer · Importer · Stake · Gagner",
@@ -5478,6 +5653,22 @@ const translations = {
         activeStakeExists: "Stake actif existant", staked: "En stake", for24h: "pendant 24h à 18% APR",
         stakeLocked: "Stake verrouillé pour", moreHours: "heures", unstaked: "Retiré!",
         twoFAActive: "2FA Actif", twoFAOff: "2FA Désactivé"
+        buyBradicoinBtn: "Acheter Bradicoin",
+        buyModalTitle: "🛒 Acheter Bradicoin",
+        buyModalSub: "Sélectionnez le mode de paiement et le montant",
+        buyCurrencyLabel: "💰 Devise de Paiement",
+        buyFromWalletLabel: "📤 Votre Portefeuille d'Origine",
+        buyFromWalletPlaceholder: "Votre portefeuille BTC/ETH/SOL/BNB/USDT",
+        buyToWalletLabel: "📥 Votre Portefeuille BradiCoin (recevoir)",
+        buyToWalletPlaceholder: "Votre portefeuille BradiCoin",
+        buyToWalletHint: "🔒 Rempli automatiquement depuis votre portefeuille",
+        buyAmountLabel: "💎 Montant en BRD",
+        buyAmountPlaceholder: "0,00",
+        buySumCurrencyLabel: "Devise",
+        buySumAmountLabel: "Vous achetez",
+        buySumToLabel: "Réception sur",
+        buyModalOkText: "OK — Confirmer",
+        buyModalCancelText: "Annuler",
     },
     ru: {
         mainTitle: "BRADICOIN", subtitle: "Безопасный крипто-кошелек", desc: "Создать · Импортировать · Ставка · Заработать",
@@ -5612,6 +5803,22 @@ const translations = {
         activeStakeExists: "Активная ставка существует", staked: "В ставке", for24h: "на 24ч под 18% годовых",
         stakeLocked: "Ставка заблокирована на", moreHours: "часов", unstaked: "Выведено!",
         twoFAActive: "2FA Активна", twoFAOff: "2FA Неактивна"
+        buyBradicoinBtn: "Купить Bradicoin",
+        buyModalTitle: "🛒 Купить Bradicoin",
+        buyModalSub: "Выберите способ оплаты и сумму",
+        buyCurrencyLabel: "💰 Валюта платежа",
+        buyFromWalletLabel: "📤 Ваш кошелек-отправитель",
+        buyFromWalletPlaceholder: "Ваш кошелек BTC/ETH/SOL/BNB/USDT",
+        buyToWalletLabel: "📥 Ваш кошелек BradiCoin (получение)",
+        buyToWalletPlaceholder: "Ваш кошелек BradiCoin",
+        buyToWalletHint: "🔒 Заполнено автоматически из вашего кошелька",
+        buyAmountLabel: "💎 Сумма в BRD",
+        buyAmountPlaceholder: "0,00",
+        buySumCurrencyLabel: "Валюта",
+        buySumAmountLabel: "Вы покупаете",
+        buySumToLabel: "Получение на",
+        buyModalOkText: "ОК — Подтвердить",
+        buyModalCancelText: "Отмена",
     },
     ko: {
         mainTitle: "BRADICOIN", subtitle: "안전한 암호화폐 지갑", desc: "생성 · 가져오기 · 스테이킹 · 수익",
@@ -5746,6 +5953,22 @@ const translations = {
         activeStakeExists: "활성 스테이킹이 존재합니다", staked: "스테이킹됨", for24h: "24시간 동안 18% APR",
         stakeLocked: "스테이킹 잠금 시간", moreHours: "시간", unstaked: "출금 완료!",
         twoFAActive: "2FA 활성", twoFAOff: "2FA 비활성"
+        buyBradicoinBtn: "브래디코인 구매",
+        buyModalTitle: "🛒 브래디코인 구매",
+        buyModalSub: "결제 수단과 금액을 선택하세요",
+        buyCurrencyLabel: "💰 결제 화폐",
+        buyFromWalletLabel: "📤 보내는 지갑",
+        buyFromWalletPlaceholder: "BTC/ETH/SOL/BNB/USDT 지갑 주소",
+        buyToWalletLabel: "📥 브래디코인 지갑 (받기)",
+        buyToWalletPlaceholder: "브래디코인 지갑",
+        buyToWalletHint: "🔒 지갑에서 자동으로 채워짐",
+        buyAmountLabel: "💎 BRD 금액",
+        buyAmountPlaceholder: "0.00",
+        buySumCurrencyLabel: "화폐",
+        buySumAmountLabel: "구매 금액",
+        buySumToLabel: "수신 지갑",
+        buyModalOkText: "OK — 확인",
+        buyModalCancelText: "취소",
     }
 };
 
@@ -6064,8 +6287,20 @@ function updateLanguage() {
         tipsDashBtnLabel: document.getElementById('tipsDashBtnLabel'),
         tokenBtnLabel: document.getElementById('tokenBtnLabel'),
         lockBtnLabel: document.getElementById('lockBtnLabel'),
-        // Top bar
-        // Already mapped above
+        buyBradicoinBtnLabel: document.getElementById('buyBradicoinBtnLabel'),
+        buyModalTitle: document.getElementById('buyModalTitle'),
+        buyModalSub: document.getElementById('buyModalSub'),
+        buyCurrencyLabel: document.getElementById('buyCurrencyLabel'),
+        buyFromWalletLabel: document.getElementById('buyFromWalletLabel'),
+        buyToWalletLabel: document.getElementById('buyToWalletLabel'),
+        buyToWalletHint: document.getElementById('buyToWalletHint'),
+        buyAmountLabel: document.getElementById('buyAmountLabel'),
+        buySumCurrencyLabel: document.getElementById('sumCurrencyLabel'),
+        buySumAmountLabel: document.getElementById('sumAmountLabel'),
+        buySumToLabel: document.getElementById('sumToLabel'),
+        buyModalOkText: document.getElementById('buyModalOkText'),
+        buyModalCancelText: document.getElementById('buyModalCancelText'),
+    
     };
     
     // Update all mapped elements
@@ -6738,7 +6973,68 @@ if (authToken) {
             document.getElementById('confirmDialog').style.display = 'none';
         };
     });
-    
+
+        const buyBradicoinBtn = document.getElementById('buyBradicoinBtn');
+        if (buyBradicoinBtn) {
+            buyBradicoinBtn.addEventListener('click', showBuyBradicoinModal);
+        }
+
+// ===== Listeners do modal Buy =====
+document.getElementById('buyModalCancelBtn').addEventListener('click', function() {
+    document.getElementById('buyBradicoinModal').style.display = 'none';
+});
+
+document.getElementById('buyCurrencySelect').addEventListener('change', function() {
+    // Se tiver resumo visível, atualiza
+    const summary = document.getElementById('buySummary');
+    if (summary.style.display === 'block') {
+        const sumCurrency = document.getElementById('sumCurrency');
+        sumCurrency.innerText = this.value;
+    }
+});
+
+document.getElementById('buyModalOkBtn').addEventListener('click', function() {
+    // 1. Lê os valores
+    const currency = document.getElementById('buyCurrencySelect').value;
+    const fromWallet = document.getElementById('buyFromWallet').value.trim();
+    const toWallet = document.getElementById('buyToWallet').value.trim();
+    const amountBrd = parseFloat(document.getElementById('buyAmountBrd').value);
+
+    // 2. Validações
+    if (!fromWallet || fromWallet.length < 20) {
+        showToast('📤 Enter a valid sender wallet address', 'error');
+        document.getElementById('buyFromWallet').focus();
+        return;
+    }
+    if (!toWallet || toWallet.length < 20) {
+        showToast('📥 BradiCoin wallet is missing', 'error');
+        return;
+    }
+    if (!amountBrd || amountBrd <= 0) {
+        showToast('💎 Enter a valid BRD amount', 'error');
+        document.getElementById('buyAmountBrd').focus();
+        return;
+    }
+
+    // 3. Preenche o resumo
+    document.getElementById('sumCurrency').innerText = currency;
+    document.getElementById('sumAmountBrd').innerText = amountBrd.toLocaleString() + ' BRD';
+    document.getElementById('sumToWallet').innerText = toWallet;
+    document.getElementById('buySummary').style.display = 'block';
+
+    // 4. Feedback
+    showToast(`✅ Order prepared: ${amountBrd} BRD paying with ${currency}`, 'success');
+
+    // 5. Próximo passo (quando integrar backend):
+    //    Aqui você chama a API de compra, ex:
+    //    await apiCall('/buy', { method: 'POST', body: { currency, fromWallet, toWallet, amountBrd } });
+    //
+    //    Por enquanto, apenas fecha o modal após 1.5s:
+    setTimeout(() => {
+        document.getElementById('buyBradicoinModal').style.display = 'none';
+        showToast(`🎉 Buy request submitted! You'll receive ${amountBrd} BRD soon.`, 'success');
+    }, 1500);
+});
     document.getElementById('lockWalletBtn').addEventListener('click', lockWalletNow);
     
     document.getElementById('settingsBtn').addEventListener('click', function() {
