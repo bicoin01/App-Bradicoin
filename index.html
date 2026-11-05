@@ -2415,8 +2415,9 @@ async function doRegister(email, password, username) {
         syncHistory().catch(() => {});
         loadAirdropInfo().catch(() => {});
     } else {
-        // Fecha a tela de auth e volta para "criar carteira"
-        document.getElementById('authGroup').style.display = 'none';
+         // Fecha a tela de auth e volta para "criar carteira"
+        const importGroup = document.getElementById('importGroup');
+        if (importGroup) importGroup.style.display = 'none';
         showToast('Agora crie sua carteira', 'info');
     }
 }
@@ -7336,11 +7337,23 @@ document.getElementById('confirmSendBtn').addEventListener('click', async functi
     }
 });
     
-    document.getElementById('checkChainBalanceBtn').addEventListener('click', function() {
-        if (wallet.address) {
-            showToast(`💰 ${translations[currentLang]?.balance || 'Balance'}: ${wallet.balance.toFixed(8)} BRD`, "success");
-        } else {
-            showToast(translations[currentLang]?.noWalletLoaded || "No wallet loaded", "error");
+         document.getElementById('checkChainBalanceBtn').addEventListener('click', async function() {
+             if (!wallet.address) {
+                 showToast(translations[currentLang]?.noWalletLoaded || "No wallet loaded", "error");
+                 return;
+             }
+        const btn = this;
+        const originalHTML = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        try {
+            await syncBalance();
+            showToast(`💰 ${wallet.balance.toFixed(8)} BRD (sincronizado)`, "success");
+        } catch (e) {
+            showToast('❌ ' + e.message, "error");
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
         }
     });
     
