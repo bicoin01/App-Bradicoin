@@ -17,43 +17,13 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   
   <!-- ===== BIBLIOTECAS ===== -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/elliptic@6.5.4/dist/elliptic.min.js"></script>
 <script>
-// Carrega elliptic e força window.elliptic — funciona com qualquer build
-(async function loadElliptic() {
-  const urls = [
-    'https://cdn.jsdelivr.net/npm/elliptic@6.5.4/lib/elliptic.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/elliptic/6.5.4/elliptic.min.js',
-    'https://unpkg.com/elliptic@6.5.4/lib/elliptic.js'
-  ];
-
-  for (const url of urls) {
-    try {
-      const res = await fetch(url);
-      if (!res.ok) { console.warn('falhou:', url, res.status); continue; }
-      const code = await res.text();
-
-      // Executa num escopo com module.exports para capturar o export
-      const module = { exports: {} };
-      const fn = new Function('module', 'exports', 'window', 'global', 'self', code);
-      fn(module, module.exports, window, window, window);
-
-      const lib = module.exports && module.exports.ec ? module.exports
-                : (typeof elliptic !== 'undefined' && elliptic.ec ? elliptic
-                : (window.elliptic && window.elliptic.ec ? window.elliptic : null));
-
-      if (lib && typeof lib.ec === 'function') {
-        window.elliptic = lib;
-        console.log('✅ elliptic carregado de:', url, '| ec:', typeof window.elliptic.ec);
-        return;
-      }
-      console.warn('carregou mas não expôs .ec:', url);
-    } catch (e) {
-      console.warn('erro ao carregar', url, ':', e.message);
-    }
+  // Garante window.elliptic mesmo se o build usar module.exports
+  if (typeof window.elliptic === 'undefined' && typeof elliptic !== 'undefined') {
+    window.elliptic = elliptic;
   }
-  console.error('❌ elliptic NÃO carregou de nenhuma CDN');
-})();
+  console.log('✅ elliptic:', typeof window.elliptic, '| ec:', typeof window.elliptic?.ec);
 </script>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
