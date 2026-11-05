@@ -18,7 +18,43 @@
   
   <!-- ===== BIBLIOTECAS ===== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/elliptic@6.5.4/dist/elliptic.min.js"></script>
+<script>
+// Carrega elliptic e força window.elliptic — funciona com qualquer build
+(async function loadElliptic() {
+  const urls = [
+    'https://cdn.jsdelivr.net/npm/elliptic@6.5.4/lib/elliptic.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/elliptic/6.5.4/elliptic.min.js',
+    'https://unpkg.com/elliptic@6.5.4/lib/elliptic.js'
+  ];
+
+  for (const url of urls) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) { console.warn('falhou:', url, res.status); continue; }
+      const code = await res.text();
+
+      // Executa num escopo com module.exports para capturar o export
+      const module = { exports: {} };
+      const fn = new Function('module', 'exports', 'window', 'global', 'self', code);
+      fn(module, module.exports, window, window, window);
+
+      const lib = module.exports && module.exports.ec ? module.exports
+                : (typeof elliptic !== 'undefined' && elliptic.ec ? elliptic
+                : (window.elliptic && window.elliptic.ec ? window.elliptic : null));
+
+      if (lib && typeof lib.ec === 'function') {
+        window.elliptic = lib;
+        console.log('✅ elliptic carregado de:', url, '| ec:', typeof window.elliptic.ec);
+        return;
+      }
+      console.warn('carregou mas não expôs .ec:', url);
+    } catch (e) {
+      console.warn('erro ao carregar', url, ':', e.message);
+    }
+  }
+  console.error('❌ elliptic NÃO carregou de nenhuma CDN');
+})();
+</script>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
@@ -1133,6 +1169,1048 @@ window.WORD_LIST = WORD_LIST
 </head>
 <body>
 
+<!-- ===== LANGUAGE BAR ===== -->
+<div class="lang-bar">
+  <button class="lang-btn active" data-lang="en">EN</button>
+  <button class="lang-btn" data-lang="pt">PT</button>
+  <button class="lang-btn" data-lang="es">ES</button>
+  <button class="lang-btn" data-lang="ar">AR</button>
+  <button class="lang-btn" data-lang="de">DE</button>
+  <button class="lang-btn" data-lang="it">IT</button>
+  <button class="lang-btn" data-lang="fr">FR</button>
+  <button class="lang-btn" data-lang="ru">RU</button>
+  <button class="lang-btn" data-lang="ko">KO</button>
+</div>
+
+<!-- ===== CONFIRM DIALOG ===== -->
+<div id="confirmDialog" class="confirm-dialog">
+  <div class="confirm-dialog-content">
+    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ffaa00;"></i>
+    <h3 style="margin: 1rem 0;" id="confirmDialogTitle">Are you sure?</h3>
+    <p style="opacity: 0.7; font-size: 0.8rem;" id="confirmDialogMessage">Confirm your action</p>
+    <div class="confirm-dialog-buttons">
+      <button id="confirmYesBtn" class="cyber-btn danger">Yes</button>
+      <button id="confirmNoBtn" class="cyber-btn primary">No</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PRIVATE KEY MODAL ===== -->
+<div id="privateKeyModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:600px;">
+    <i class="fas fa-key" style="font-size: 3rem; color: #ff6b6b;"></i>
+    <h2 style="color: #ff6b6b;" id="privateKeyModalTitle">🔑 Private Key</h2>
+    <p style="font-size:0.55rem; opacity:0.7; margin:0.3rem 0;" id="privateKeySub">Your wallet's private key - Keep it safe!</p>
+    
+    <div class="private-key-warning">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span id="privateKeyWarning">⚠️ WARNING: Never share your private key with anyone! Anyone with this key can access your funds.</span>
+    </div>
+    
+    <input type="password" id="privateKeyPassword" class="cyber-input" placeholder="Enter your wallet password" style="margin:0.5rem 0; font-size:0.6rem; padding:0.4rem;">
+    
+    <button id="revealPrivateKeyBtn" class="cyber-btn danger" style="width:100%;"><i class="fas fa-unlock-alt"></i> <span id="revealPrivateKeyText">Reveal Private Key</span></button>
+    
+    <div id="privateKeyContainer" style="display:none; margin-top:1rem;">
+      <div class="private-key-box">
+        <span class="key-label">🔑 PRIVATE KEY:</span>
+        <div id="privateKeyDisplay" style="font-size:0.55rem; word-break:break-all; color:#ff6b6b;">---</div>
+      </div>
+      <div class="private-key-actions">
+        <button id="copyPrivateKeyBtn" class="cyber-btn small"><i class="fas fa-copy"></i> <span id="copyPrivateKeyText">Copy</span></button>
+        <button id="hidePrivateKeyBtn" class="cyber-btn small primary"><i class="fas fa-eye-slash"></i> <span id="hidePrivateKeyText">Hide</span></button>
+      </div>
+    </div>
+    
+    <button id="closePrivateKeyModalBtn" class="cyber-btn" style="width:100%; margin-top:1rem;"><i class="fas fa-times"></i> <span id="closePrivateKeyText">Close</span></button>
+  </div>
+</div>
+
+<!-- ===== CONGRATULATIONS MODAL ===== -->
+<div id="congratsModal" class="modal-overlay" style="z-index: 3500;">
+  <div class="congrats-modal-content">
+    <div class="congrats-icon">
+      <i class="fas fa-rocket"></i>
+    </div>
+    <div class="congrats-title" id="congratsTitle">🎉 CONGRATULATIONS!</div>
+    <div class="congrats-sub" id="congratsSub">Your wallet has been successfully created.</div>
+    <div class="congrats-address" id="congratsAddress">Br0000000000000000000000000000</div>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin: 0.5rem 0;">
+      <span class="congrats-checkmark">✓</span>
+      <span id="congratsSecureMsg" style="font-size: 0.65rem; color: #00f2ff; text-shadow: 0 0 20px rgba(0, 242, 255, 0.3);">🔐 Secure & Encrypted</span>
+    </div>
+    <p id="congratsTip" style="font-size: 0.55rem; opacity: 0.6; margin: 0.5rem 0; color: #a855f7;">💡 Your wallet is now ready to use. Start sending and receiving BRD!</p>
+    <button class="congrats-btn" id="congratsGoToDashboard">
+      <span class="congrats-sparkle">✨</span> <span id="congratsBtnText">Go to Dashboard</span> <span class="congrats-sparkle">✨</span>
+    </button>
+  </div>
+</div>
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-content">
+    <div class="login-logo"><i class="fas fa-microchip"></i></div>
+    <h1 id="mainTitle">BRADICOIN</h1>
+    <p id="subtitle">Secure Crypto Wallet Platform</p>
+    <p id="desc">Create · Import · Stake · Earn</p>
+    <div class="login-buttons">
+      <button id="createWalletBtn" class="cyber-btn primary"><i class="fas fa-plus-circle"></i> <span id="createWalletBtnText">Create Wallet</span></button>
+      <button id="importWalletBtn" class="cyber-btn"><i class="fas fa-key"></i> <span id="importWalletBtnText">Import Wallet</span></button>
+    </div>
+  
+    <div id="importGroup" style="display:none; margin-top:1.5rem;">
+      <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem;">
+        <button id="backToLoginFromImport" class="cyber-btn back small" style="flex:1;"><i class="fas fa-arrow-left"></i> <span id="backImportText">Back</span></button>
+      </div>
+      <textarea id="importSeedInput" class="cyber-input" rows="3" placeholder="Enter your 12-word seed phrase"></textarea>
+      <input type="password" id="importPasswordInput" class="cyber-input" placeholder="Create a password" style="margin-top:0.5rem;">
+      <button id="confirmImportBtn" class="cyber-btn primary" style="margin-top:0.8rem; width:100%;"><i class="fas fa-check"></i> <span id="confirmImportText">Import Wallet</span></button>
+    </div>
+    
+    <div id="unlockGroup" style="display:none; margin-top:1.5rem;">
+      <input type="password" id="unlockPasswordInput" class="cyber-input" placeholder="Enter your wallet password">
+      <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+        <input type="text" id="unlock2FAInput" class="cyber-input" placeholder="2FA Code (if enabled)" style="flex:1; font-size:0.6rem;">
+      </div>
+      
+      <div id="biometricContainer" style="display:none; margin:0.5rem 0;">
+        <button id="biometricLoginBtn" class="cyber-btn success" style="width:100%; font-size:0.65rem; padding:0.6rem;">
+          <i class="fas fa-fingerprint" style="font-size:1.2rem;"></i> 
+          <span id="biometricLoginText">🔐 Login with Fingerprint</span>
+        </button>
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.3rem; justify-content:center;">
+          <span style="font-size:0.45rem; opacity:0.5;">👆 Use your fingerprint or continue with password</span>
+          <span class="biometric-status" id="biometricStatus" style="font-size:0.4rem; color:#00ff88;">● Ready</span>
+        </div>
+      </div>
+      
+      <button id="unlockWalletBtn" class="cyber-btn primary" style="margin-top:0.8rem; width:100%;"><i class="fas fa-unlock-alt"></i> <span id="unlockBtnText">Unlock Wallet</span></button>
+      <p style="font-size:0.55rem; margin-top:0.5rem; opacity:0.6;">🔐 Your keys, your crypto. 2FA available</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SEED PHRASE MODAL ===== -->
+<div id="seedModal" class="modal-overlay">
+  <div class="modal-content">
+    <i class="fas fa-shield-alt" style="font-size: 3rem; color: #00f2ff;"></i>
+    <h2 id="seedModalTitle">⚠️ SAVE YOUR SEED PHRASE</h2>
+    <p id="seedModalWarning" style="color: #ff0055; font-size: 0.8rem;">This is the ONLY way to recover your wallet!</p>
+    <div class="seed-phrase-box" id="modalSeedPhrase"></div>
+    <p id="walletInfoText">Your wallet address will be generated automatically</p>
+    <input type="password" id="walletPasswordInput" class="cyber-input" placeholder="Create a password for your wallet" style="margin:0.5rem 0;">
+    
+    <div style="display:flex; align-items:center; gap:0.5rem; margin:0.5rem 0; justify-content:center; flex-wrap:wrap;">
+      <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.55rem; cursor:pointer;">
+        <input type="checkbox" id="enableBiometric" style="accent-color:#00ff88; width:18px; height:18px; cursor:pointer;">
+        <span id="biometricToggleText">🔐 Enable Fingerprint Login (optional)</span>
+      </label>
+      <span id="biometricSupportBadge" style="font-size:0.4rem; padding:0.1rem 0.5rem; border-radius:1rem; background:#00ff8822; border:1px solid #00ff88; color:#00ff88; display:none;">✅ Supported</span>
+    </div>
+    
+    <button id="copySeedBtn" class="cyber-btn" style="width:100%; margin-bottom: 0.5rem;"><i class="fas fa-copy"></i> <span id="copySeedText">Copy Seed Phrase</span></button>
+    <button id="confirmSeedBtn" class="cyber-btn primary" style="width:100%;"><i class="fas fa-check-circle"></i> <span id="savedSeedText">I Have Saved My Seed Phrase</span></button>
+    <button id="backToLoginFromSeed" class="cyber-btn back" style="width:100%; margin-top:0.5rem;"><i class="fas fa-arrow-left"></i> <span id="backSeedText">Back to Login</span></button>
+    <p class="warning-text">⚠️ Never share your seed phrase!</p>
+  </div>
+</div>
+
+<!-- ===== SEND MODAL ===== -->
+<div id="sendModal" class="modal-overlay">
+  <div class="modal-content">
+    <h2 id="sendModalTitle"><i class="fas fa-paper-plane"></i> Send BRD</h2>
+    
+    <div class="send-gas-info">
+      <div><span class="gas-label">⛽ <span id="gasFeeLabel">Gas Fee</span>:</span> <span class="gas-detail">0.15 BRD</span></div>
+      <div><span class="gas-label" id="minSendLabel">📤 Minimum to send:</span> <span class="gas-detail">0.17000000 BRD</span></div>
+      <div class="network-note">⛽ <span id="networkFeeNote">Network fee applied to every transaction</span></div>
+    </div>
+    
+    <input type="text" id="sendTo" class="cyber-input" placeholder="Recipient Address" style="margin:0.3rem 0;">
+    <input type="number" id="sendAmount" class="cyber-input" placeholder="Amount (BRD)" step="any">
+    <input type="password" id="sendPassword" class="cyber-input" placeholder="Wallet Password" style="margin:0.3rem 0;">
+    
+    <div style="margin:0.3rem 0; display:grid; grid-template-columns:1fr 1fr; gap:0.3rem; text-align:left; font-size:0.6rem;">
+      <label style="display:flex; align-items:center; gap:0.3rem; color:#9b59b6;">
+        <input type="checkbox" id="stealthSend" style="accent-color:#9b59b6;"> <span id="stealthLabel">Stealth Address</span>
+      </label>
+      <label style="display:flex; align-items:center; gap:0.3rem; color:#ff8800;">
+        <input type="checkbox" id="decoySend" style="accent-color:#ff8800;"> <span id="decoyLabel">Decoy TX</span>
+      </label>
+      <label style="display:flex; align-items:center; gap:0.3rem; color:#ffd700;">
+        <input type="checkbox" id="mixerSend" style="accent-color:#ffd700;"> <span id="mixerLabel">Mixer</span>
+      </label>
+    </div>
+    
+    <button id="confirmSendBtn" class="cyber-btn primary" style="width:100%; margin-top:0.3rem;"><i class="fas fa-check"></i> <span id="confirmSendText">Confirm Send</span></button>
+    <button id="cancelSendBtn" class="cyber-btn" style="width:100%; margin-top:0.3rem;"><i class="fas fa-times"></i> <span id="cancelSendText">Cancel</span></button>
+  </div>
+</div>
+
+<!-- ===== HISTORY MODAL ===== -->
+<div id="historyModal" class="modal-overlay">
+  <div class="modal-content">
+    <h2><i class="fas fa-history" style="color: #00f2ff;"></i> <span id="historyTitle">Transaction History</span></h2>
+    <p style="font-size:0.5rem; opacity:0.6; margin:0.3rem 0;" id="historySub">All your BRD transactions</p>
+    <div id="historyList" class="history-modal-content">
+      <div class="history-empty" id="historyEmpty">No transactions yet</div>
+    </div>
+    <button id="closeHistoryBtn" class="cyber-btn primary" style="width:100%; margin-top:1rem;"><i class="fas fa-times"></i> <span id="closeHistoryText">Close</span></button>
+  </div>
+</div>
+
+<!-- ===== 2FA SETUP MODAL ===== -->
+<div id="twoFAModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:500px;">
+    <i class="fas fa-shield-alt" style="font-size: 3rem; color: #ffd700;"></i>
+    <h2 style="color: #ffd700;">🔐 Two-Factor Authentication</h2>
+    <p style="font-size:0.65rem; opacity:0.7;" id="twoFADesc">Secure your wallet with 2FA</p>
+    
+    <div style="background:#010518; padding:0.8rem; border-radius:1rem; margin:0.5rem 0; border:1px solid #ffd70033;">
+      <p style="font-size:0.6rem; color:#ffd700;" id="twoFAQrText">📱 Scan this QR code with Google Authenticator</p>
+      <div id="qrCodeDisplay" style="background:#fff; padding:1rem; border-radius:1rem; margin:0.5rem 0; display:flex; justify-content:center;">
+        <div style="width:150px; height:150px; background:#fff; display:flex; align-items:center; justify-content:center; color:#000; font-size:0.6rem;">
+          QR Code (simulated)
+        </div>
+      </div>
+      <div style="background:#010518; padding:0.5rem; border-radius:0.5rem; font-family:monospace; font-size:0.55rem; word-break:break-all; border:1px solid #a855f733;" id="twoFASecret">---</div>
+    </div>
+    
+    <p style="font-size:0.55rem; text-align:left; color:#ffaa00;" id="backupCodesLabel">💡 Backup Codes: Save these in a safe place</p>
+    <div id="backupCodesDisplay" style="background:#010518; padding:0.5rem; border-radius:1rem; font-family:monospace; font-size:0.5rem; margin:0.3rem 0; display:flex; gap:0.3rem; flex-wrap:wrap; justify-content:center;"></div>
+    
+    <input type="text" id="verify2FACode" class="cyber-input" placeholder="Enter 6-digit code" style="font-size:0.6rem; margin:0.3rem 0;">
+    <button id="verify2FABtn" class="cyber-btn gold" style="width:100%;"><i class="fas fa-check"></i> <span id="verify2FAText">Verify & Enable 2FA</span></button>
+    <button id="close2FAModalBtn" class="cyber-btn" style="width:100%; margin-top:0.3rem;"><i class="fas fa-times"></i> <span id="cancel2FAText">Cancel</span></button>
+  </div>
+</div>
+
+<!-- ===== VIEW SEED PHRASE MODAL ===== -->
+<div id="viewSeedModal" class="modal-overlay">
+  <div class="modal-content">
+    <i class="fas fa-eye" style="font-size: 3rem; color: #ffaa00;"></i>
+    <h2 style="color: #ffaa00;" id="viewSeedTitle">🔐 View Seed Phrase</h2>
+    <p style="color: #ff0055; font-size: 0.8rem; margin: 0.5rem 0;" id="viewSeedWarning">⚠️ WARNING: Never share your seed phrase with anyone!</p>
+    <input type="password" id="viewSeedPassword" class="cyber-input" placeholder="Enter your wallet password" style="margin:0.5rem 0;">
+    
+    <button id="revealSeedBtn" class="cyber-btn warning" style="width:100%;"><i class="fas fa-unlock"></i> <span id="revealSeedText">Reveal Seed Phrase</span></button>
+    <div id="revealedSeedContainer" style="display:none; margin-top:1rem;">
+      <div class="seed-phrase-box" id="revealedSeedPhrase"></div>
+      <button id="copyRevealedSeedBtn" class="cyber-btn" style="width:100%; margin-top:0.5rem;"><i class="fas fa-copy"></i> <span id="copyRevealedSeedText">Copy Seed Phrase</span></button>
+    </div>
+    <button id="closeViewSeedModalBtn" class="cyber-btn primary" style="width:100%; margin-top:1rem;"><span id="closeViewSeedText">Close</span></button>
+  </div>
+</div>
+
+<!-- ===== CREATE TOKEN MODAL ===== -->
+<div id="createTokenModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:600px;">
+    <i class="fas fa-coins" style="font-size: 3rem; color: #00d4ff;"></i>
+    <h2 id="createTokenTitle" style="color: #00d4ff;">🚀 Create Token</h2>
+    <p id="createTokenSub" style="font-size:0.55rem; opacity:0.7;">Create your own token on BradiCoin</p>
+    
+    <div style="text-align:left; margin-top:0.5rem;">
+      <label style="font-size:0.55rem; opacity:0.7;" id="tokenNameLabel">Token Name</label>
+      <input type="text" id="tokenName" class="cyber-input" placeholder="My Token" style="font-size:0.6rem; padding:0.4rem; margin:0.2rem 0;">
+      
+      <label style="font-size:0.55rem; opacity:0.7;" id="tokenSymbolLabel">Token Symbol</label>
+      <input type="text" id="tokenSymbol" class="cyber-input" placeholder="MTK" style="font-size:0.6rem; padding:0.4rem; margin:0.2rem 0;">
+      
+      <label style="font-size:0.55rem; opacity:0.7;" id="tokenSupplyLabel">Total Supply</label>
+      <input type="number" id="tokenSupply" class="cyber-input" placeholder="1000000" style="font-size:0.6rem; padding:0.4rem; margin:0.2rem 0;">
+      
+      <label style="font-size:0.55rem; opacity:0.7;" id="tokenLogoLabel">Token Logo (200x200)</label>
+      <div class="token-preview" id="tokenPreview">
+        <span class="placeholder">🖼️ 200x200</span>
+      </div>
+      <input type="file" id="tokenLogo" class="cyber-input file-input" accept="image/*" style="font-size:0.55rem; padding:0.3rem;">
+      <p style="font-size:0.45rem; color:#666; margin:0.2rem 0;" id="tokenImageHint">📏 Image size: 200 x 200 pixels recommended</p>
+    </div>
+    
+    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
+      <button id="createTokenSubmitBtn" class="cyber-btn create-token" style="flex:1;"><i class="fas fa-plus-circle"></i> <span id="createTokenBtnText">Create Token</span></button>
+      <button id="cancelCreateTokenBtn" class="cyber-btn" style="flex:1;"><i class="fas fa-times"></i> <span id="cancelTokenText">Cancel</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CREATE LOAN / PAYMENT MODAL ===== -->
+<div id="createLoanModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:550px;">
+    <i class="fas fa-hand-holding-usd" style="font-size: 3rem; color: #ffd700;"></i>
+    <h2 id="loanTitle" style="color: #ffd700;">💰 Create Loan / Payment</h2>
+    <p id="loanSub" style="font-size:0.55rem; opacity:0.7;">Complete payment to finalize token creation</p>
+    
+    <div class="loan-summary">
+      <div class="row"><span id="loanTokenLabel">Token</span><span><strong id="loanTokenName">---</strong> (<span id="loanTokenSymbol">---</span>)</span></div>
+      <div class="row"><span id="loanSupplyLabel">Total Supply</span><span id="loanTokenSupply">0</span></div>
+      <div class="row"><span id="loanPriceLabel">Price per Token</span><span>$1.50 USD</span></div>
+      <div class="row"><span id="loanTotalPriceLabel">Total Price (USD)</span><span>$<span id="loanTotalUsd">0</span>.00</span></div>
+      <div class="row"><span id="loanBrdLabel">Amount in BRD</span><span id="loanTotalBrd">0.15000000</span> BRD</div>
+      <div class="row"><span id="loanFeeLabel">Network Fee</span><span id="loanFee">0.01600000</span> BRD</div>
+      <div class="row total"><span id="loanTotalPayLabel">Total to Pay</span><span id="loanTotalPay">0.16600000</span> BRD</div>
+    </div>
+    
+    <input type="password" id="loanPassword" class="cyber-input" placeholder="Enter your wallet password" style="margin:0.3rem 0; font-size:0.6rem; padding:0.4rem;">
+    
+    <div style="display:flex; gap:0.3rem;">
+      <button id="confirmLoanBtn" class="cyber-btn gold" style="flex:1;"><i class="fas fa-check-circle"></i> <span id="confirmLoanText">Confirm Payment</span></button>
+      <button id="cancelLoanBtn" class="cyber-btn" style="flex:1;"><i class="fas fa-times"></i> <span id="cancelLoanText">Cancel</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SETTINGS MODAL ===== -->
+<div id="settingsModal" class="modal-overlay">
+  <div class="modal-content">
+    <h2><i class="fas fa-cog" style="color: #6c63ff;"></i> <span id="settingsTitle">Settings</span></h2>
+    <p style="font-size:0.5rem; opacity:0.6; margin:0.3rem 0;" id="settingsSub">Security & Privacy Configuration</p>
+    <div class="settings-grid">
+      <button class="cyber-btn lock" onclick="lockWalletNow()"><i class="fas fa-lock"></i> <span id="settingsLock">Lock Wallet</span></button>
+      <button class="cyber-btn settings" onclick="showViewSeedModal()"><i class="fas fa-eye"></i> <span id="settingsViewSeed">View Seed Phrase</span></button>
+      <button class="cyber-btn private-key" onclick="showPrivateKeyModal()"><i class="fas fa-key"></i> <span id="settingsPrivateKey">Private Key</span></button>
+      <button class="cyber-btn settings" onclick="setup2FA()"><i class="fas fa-shield-alt"></i> <span id="settings2FA">Setup 2FA</span></button>
+      <button class="cyber-btn success" onclick="setupBiometricFromSettings()"><i class="fas fa-fingerprint"></i> <span id="settingsBiometric">Enable Biometrics</span></button>
+      <button class="cyber-btn anon" onclick="showStealthAddress()"><i class="fas fa-mask"></i> <span id="settingsStealth">Stealth Address</span></button>
+      <button class="cyber-btn warning" onclick="showMixerUI()"><i class="fas fa-random"></i> <span id="settingsMixer">Mixer</span></button>
+      <button class="cyber-btn settings" onclick="exportWalletData()"><i class="fas fa-download"></i> <span id="settingsExport">Export Wallet</span></button>
+      <button class="cyber-btn settings" onclick="showToast('🔄 Wallet synchronized!', 'success')"><i class="fas fa-sync-alt"></i> <span id="settingsSync">Sync Now</span></button>
+      <button class="cyber-btn settings" onclick="showToast('📊 Analytics exported!', 'success')"><i class="fas fa-chart-bar"></i> <span id="settingsExportAnalytics">Export Analytics</span></button>
+    </div>
+    <button id="closeSettingsModalBtn" class="cyber-btn primary" style="width:100%; margin-top:1rem;"><i class="fas fa-times"></i> <span id="closeSettingsText">Close Settings</span></button>
+  </div>
+</div>
+
+<!-- ===== STAKE DETAIL MODAL ===== -->
+<div id="stakeModal" class="modal-overlay">
+  <div class="modal-content">
+    <h2><i class="fas fa-layer-group"></i> <span id="stakeDetailTitle">Staking Details</span></h2>
+    <div id="stakeDetailContent" style="margin:0.5rem 0; text-align:left; font-size:0.7rem;">
+      <p><strong id="stakeLockLabel">Pool:</strong> ---</p>
+      <p><strong id="stakeAprLabel">APR:</strong> 20%</p>
+      <p><strong id="stakeMinLabel">Stake Mínimo:</strong> 1 BRD</p>
+      <p><strong id="stakeYourLabel">Seu Stake:</strong> <span id="stakeDetailAmount">0</span> BRD</p>
+      <p><strong id="stakeRewardLabel">Recompensa:</strong> <span id="stakeDetailReward">0</span> BRD</p>
+      <p><strong id="stakeStatusLabel">Status:</strong> <span id="stakeDetailStatus">Sem stake ativo</span></p>
+    </div>
+    <button id="closeStakeModalBtn" class="cyber-btn primary" style="width:100%;"><span id="closeStakeText">Close</span></button>
+  </div>
+</div>
+
+<!-- ===== REWARDS MODAL ===== -->
+<div id="rewardsModal" class="modal-overlay">
+  <div class="modal-content">
+    <h2><i class="fas fa-trophy"></i> <span id="rewardsTitle">Rewards & Achievements</span></h2>
+    <div id="rewardsContent" style="margin:0.5rem 0; text-align:left;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.3rem;">
+        <div class="stat-item"><div class="stat-value" id="totalStakedRewards">0</div><div class="stat-label" id="rewardsStakingLabel">Staking Rewards</div></div>
+        <div class="stat-item"><div class="stat-value" id="totalAirdrops">0</div><div class="stat-label" id="rewardsAirdropsLabel">Airdrops</div></div>
+        <div class="stat-item"><div class="stat-value" id="totalTxCount">0</div><div class="stat-label" id="rewardsTxLabel">Transactions</div></div>
+        <div class="stat-item"><div class="stat-value" id="totalFeesPaid">0</div><div class="stat-label" id="rewardsFeesLabel">Fees Paid</div></div>
+      </div>
+    </div>
+    <button id="closeRewardsModalBtn" class="cyber-btn primary" style="width:100%;"><span id="closeRewardsText">Close</span></button>
+  </div>
+</div>
+
+<!-- ===== ANALYTICS MODAL ===== -->
+<div id="analyticsModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:700px;">
+    <i class="fas fa-chart-line" style="font-size: 3rem; color: #ff6b6b;"></i>
+    <h2 style="color: #ff6b6b;" id="analyticsTitle">📊 Analytics Dashboard</h2>
+    <p style="font-size:0.55rem; opacity:0.7;" id="analyticsSub">Real-time wallet analytics</p>
+    <div class="analytics-grid">
+      <div class="analytics-metric">
+        <div class="analytics-value" id="analyticsTotalTx">0</div>
+        <div class="analytics-label" id="analyticsTotalTxLabel">Total TX</div>
+        <div class="analytics-change positive">↑ 0%</div>
+      </div>
+      <div class="analytics-metric">
+        <div class="analytics-value" id="analyticsVolume">0</div>
+        <div class="analytics-label" id="analyticsVolumeLabel">Volume (BRD)</div>
+        <div class="analytics-change positive">↑ 0%</div>
+      </div>
+      <div class="analytics-metric">
+        <div class="analytics-value" id="analyticsAvgTx">0</div>
+        <div class="analytics-label" id="analyticsAvgLabel">Avg TX</div>
+        <div class="analytics-trend">→ 0%</div>
+      </div>
+      <div class="analytics-metric">
+        <div class="analytics-value" id="analyticsFees">0</div>
+        <div class="analytics-label" id="analyticsFeesLabel">Fees Paid</div>
+        <div class="analytics-change negative">↑ 0%</div>
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.3rem; margin-top:0.3rem;">
+      <div style="background:#010518; padding:0.4rem; border-radius:1rem; font-size:0.55rem; border:1px solid #a855f733;">
+        <span style="color:#a855f7;">📊 <span id="analyticsDailyTxLabel">Daily TX</span></span>
+        <div style="font-size:0.9rem; color:#00f2ff;" id="analyticsDailyTx">0</div>
+      </div>
+      <div style="background:#010518; padding:0.4rem; border-radius:1rem; font-size:0.55rem; border:1px solid #a855f733;">
+        <span style="color:#a855f7;">📈 <span id="analyticsDailyVolLabel">Daily Volume</span></span>
+        <div style="font-size:0.9rem; color:#00f2ff;" id="analyticsDailyVolume">0 BRD</div>
+      </div>
+      <div style="background:#010518; padding:0.4rem; border-radius:1rem; font-size:0.55rem; border:1px solid #a855f733;">
+        <span style="color:#a855f7;">🔐 <span id="analyticsZkLabel">ZK TX</span></span>
+        <div style="font-size:0.9rem; color:#00ff88;" id="analyticsZkTxs">0</div>
+      </div>
+      <div style="background:#010518; padding:0.4rem; border-radius:1rem; font-size:0.55rem; border:1px solid #a855f733;">
+        <span style="color:#a855f7;">👤 <span id="analyticsUsersLabel">Users</span></span>
+        <div style="font-size:0.9rem; color:#ffd700;" id="analyticsUsers">0</div>
+      </div>
+    </div>
+    <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin-top:0.3rem; border:1px solid #ff6b6b33;">
+      <p style="font-size:0.5rem; color:#ff6b6b; text-align:left;" id="analyticsRecentLabel">⏱️ Recent Activity</p>
+      <div id="analyticsTimeline" style="max-height:100px; overflow-y:auto; font-size:0.5rem; text-align:left;"></div>
+    </div>
+    <div style="display:flex; gap:0.3rem; margin-top:0.3rem;">
+      <button onclick="exportAnalyticsCSV()" class="cyber-btn primary small" style="flex:1;"><i class="fas fa-file-csv"></i> <span id="analyticsCsvBtn">CSV</span></button>
+      <button onclick="exportAnalyticsData()" class="cyber-btn small" style="flex:1;"><i class="fas fa-download"></i> <span id="analyticsJsonBtn">JSON</span></button>
+      <button onclick="refreshAnalytics()" class="cyber-btn success small" style="flex:1;"><i class="fas fa-sync-alt"></i> <span id="analyticsRefreshBtn">Refresh</span></button>
+    </div>
+    <button id="closeAnalyticsModalBtn" class="cyber-btn" style="width:100%; margin-top:0.3rem;"><i class="fas fa-times"></i> <span id="closeAnalyticsText">Close</span></button>
+  </div>
+</div>
+
+<!-- ===== STEALTH ADDRESS MODAL ===== -->
+<div id="stealthModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:500px;">
+    <i class="fas fa-mask" style="font-size: 3rem; color: #9b59b6;"></i>
+    <h2 style="color: #9b59b6;" id="stealthTitle">🕵️ Stealth Address</h2>
+    <p style="font-size:0.6rem; opacity:0.7;" id="stealthDesc">Generate a one-time use stealth address</p>
+    <div style="background:#010518; padding:0.8rem; border-radius:1rem; margin:0.5rem 0; border:1px solid #9b59b6;">
+      <p style="font-size:0.55rem; color:#9b59b6;" id="stealthKeyLabel">🔑 Your Stealth Address</p>
+      <div style="font-family:monospace; font-size:0.6rem; word-break:break-all;" id="stealthAddressDisplay">---</div>
+      <div style="margin-top:0.3rem; display:flex; gap:0.3rem;">
+        <button onclick="generateStealthAddress()" class="cyber-btn anon small" style="flex:1;"><i class="fas fa-sync-alt"></i> <span id="stealthGenerateBtn">Generate New</span></button>
+        <button onclick="copyStealthAddress()" class="cyber-btn small" style="flex:1;"><i class="fas fa-copy"></i> <span id="stealthCopyBtn">Copy</span></button>
+      </div>
+    </div>
+    <p style="font-size:0.5rem; opacity:0.6;" id="stealthNote">🔄 Each transaction uses a different stealth address</p>
+    <button id="closeStealthModalBtn" class="cyber-btn primary" style="width:100%; margin-top:0.3rem;"><i class="fas fa-times"></i> <span id="closeStealthText">Close</span></button>
+  </div>
+</div>
+
+<!-- ===== MIXER MODAL ===== -->
+<div id="mixerModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:500px;">
+    <i class="fas fa-random" style="font-size: 3rem; color: #ffd700;"></i>
+    <h2 style="color: #ffd700;" id="mixerTitle">🔄 Transaction Mixer</h2>
+    <p style="font-size:0.6rem; opacity:0.7;" id="mixerDesc">Mix your transactions for complete anonymity</p>
+    <div style="background:#010518; padding:0.8rem; border-radius:1rem; margin:0.5rem 0; border:1px solid #ffd70033;">
+      <p style="font-size:0.55rem; color:#ffd700;" id="mixerStatusTitle">📊 Mixing Pool Status</p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.3rem; margin-top:0.3rem; font-size:0.55rem;">
+        <div><span id="mixerParticipantsLabel">Participants</span>: <span id="mixerParticipants">0</span></div>
+        <div><span id="mixerPoolLabel">Pool Size</span>: <span id="mixerPoolSize">0</span> BRD</div>
+        <div><span id="mixerMinLabel">Min</span>: 100 BRD</div>
+        <div><span id="mixerStatusLabel">Status</span>: <span id="mixerStatus">Ready</span></div>
+      </div>
+    </div>
+    <div style="display:flex; gap:0.3rem; margin-top:0.3rem;">
+      <button onclick="joinMixer()" class="cyber-btn gold small" style="flex:1;"><i class="fas fa-plus"></i> <span id="mixerJoinBtn">Join Mixer</span></button>
+      <button onclick="mixTransactions()" class="cyber-btn success small" style="flex:1;"><i class="fas fa-random"></i> <span id="mixerMixBtn">Mix Now</span></button>
+    </div>
+    <button id="closeMixerModalBtn" class="cyber-btn primary" style="width:100%; margin-top:0.3rem;"><i class="fas fa-times"></i> <span id="closeMixerText">Close</span></button>
+  </div>
+</div>
+
+<!-- ===== ZK INFO MODAL ===== -->
+<div id="zkInfoModal" class="modal-overlay">
+</div>
+
+<!-- ===== RECEIVE MODAL COM QR CODE ===== -->
+<div id="receiveModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:500px;">
+    <i class="fas fa-arrow-down" style="font-size: 3rem; color: #00ff88;"></i>
+    <h2 style="color: #00ff88;" id="receiveTitle">📥 Receive BRD</h2>
+    <p style="font-size:0.55rem; opacity:0.7; margin:0.3rem 0;" id="receiveDesc">Scan the QR code below to receive payments</p>
+    
+    <div id="qrCodeContainer">
+      <div id="qrcode"></div>
+    </div>
+    
+    <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.3rem 0; border:1px solid #00ff8833;">
+      <p style="font-size:0.5rem; color:#00ff88;" id="receiveAddressLabel">📤 Your Address</p>
+      <div style="font-family:monospace; font-size:0.55rem; word-break:break-all;" id="receiveAddressDisplay">---</div>
+    </div>
+    
+    <div style="display:flex; gap:0.3rem; margin-top:0.3rem;">
+      <button id="copyReceiveAddressBtn" class="cyber-btn small" style="flex:1;"><i class="fas fa-copy"></i> <span id="receiveCopyBtn">Copy</span></button>
+      <button id="downloadQRBtn" class="cyber-btn success small" style="flex:1;"><i class="fas fa-download"></i> <span id="receiveDownloadBtn">Download QR</span></button>
+    </div>
+    
+    <button id="closeReceiveModalBtn" class="cyber-btn primary" style="width:100%; margin-top:0.5rem;"><i class="fas fa-times"></i> <span id="closeReceiveText">Close</span></button>
+  </div>
+</div>
+
+<!-- ===== MARKETPLACE MODAL ===== -->
+<div id="marketplaceModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:700px;">
+    <i class="fas fa-store" style="font-size: 3rem; color: #ff6b6b;"></i>
+    <h2 style="color: #ff6b6b;" id="marketplaceTitle">🛒 Token Marketplace</h2>
+    <p style="font-size:0.55rem; opacity:0.7; margin:0.3rem 0;" id="marketplaceDesc">Discover tokens created by the BradiCoin community</p>
+    
+    <div style="display:flex; gap:0.3rem; margin-bottom:0.5rem;">
+      <input type="text" id="marketplaceSearch" class="cyber-input" placeholder="Search tokens..." style="font-size:0.55rem; padding:0.3rem; flex:1;">
+      <button id="marketplaceSearchBtn" class="cyber-btn small"><i class="fas fa-search"></i></button>
+    </div>
+    
+    <div id="marketplaceList" class="marketplace-grid">
+      <div class="marketplace-empty" id="marketplaceEmpty">🌐 No tokens in the marketplace yet. Create your first token!</div>
+    </div>
+    
+    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
+      <button id="refreshMarketplaceBtn" class="cyber-btn small" style="flex:1;"><i class="fas fa-sync-alt"></i> <span id="marketplaceRefreshBtn">Refresh</span></button>
+      <button id="closeMarketplaceBtn" class="cyber-btn primary small" style="flex:1;"><i class="fas fa-times"></i> <span id="marketplaceCloseBtn">Close</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TIP MODAL ===== -->
+<div id="tipModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:500px;">
+    <i class="fas fa-heart" style="font-size: 3rem; color: #ff6b9d;"></i>
+    <h2 style="color: #ff6b9d;" id="tipTitle">💝 Send a Tip</h2>
+    <p style="font-size:0.55rem; opacity:0.7; margin:0.3rem 0;" id="tipDesc">Support creators with a tip in BRD</p>
+    
+    <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.3rem 0; border:1px solid #ff6b9d33;">
+      <p style="font-size:0.5rem; color:#ff6b9d;" id="tipCreatorLabel">👤 Creator</p>
+      <div style="font-family:monospace; font-size:0.55rem; word-break:break-all;" id="tipRecipientDisplay">---</div>
+    </div>
+    
+    <div style="margin:0.5rem 0;">
+      <p style="font-size:0.45rem; color:#666; text-align:left;" id="tipChooseAmount">Choose amount</p>
+      <div style="display:flex; gap:0.3rem; flex-wrap:wrap; justify-content:center; margin:0.3rem 0;">
+        <button class="tip-amount-btn" data-amount="0.1">0.1 BRD</button>
+        <button class="tip-amount-btn" data-amount="0.5">0.5 BRD</button>
+        <button class="tip-amount-btn" data-amount="1">1 BRD</button>
+        <button class="tip-amount-btn" data-amount="5">5 BRD</button>
+        <button class="tip-amount-btn" data-amount="10">10 BRD</button>
+      </div>
+      <input type="number" id="tipAmount" class="cyber-input" placeholder="Custom amount" step="any" style="font-size:0.55rem; padding:0.3rem;">
+    </div>
+    
+    <input type="text" id="tipMessage" class="cyber-input" placeholder="Message (optional)" style="font-size:0.55rem; padding:0.3rem; margin:0.3rem 0;">
+    <input type="password" id="tipPassword" class="cyber-input" placeholder="Your wallet password" style="font-size:0.55rem; padding:0.3rem; margin:0.3rem 0;">
+    
+    <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ffaa0033; font-size:0.45rem;">
+      <span style="color:#ffaa00;">⛽ <span id="tipGasLabel">Gas Fee</span>:</span> <span style="color:#a855f7;">0.05 BRD</span>
+    </div>
+    
+    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
+      <button id="confirmTipBtn" class="cyber-btn tip" style="flex:1;"><i class="fas fa-heart"></i> <span id="tipSendBtn">Send Tip</span></button>
+      <button id="cancelTipBtn" class="cyber-btn" style="flex:1;"><i class="fas fa-times"></i> <span id="tipCancelBtn">Cancel</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TIPS DASHBOARD MODAL ===== -->
+<div id="tipsDashboardModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:700px;">
+    <i class="fas fa-gift" style="font-size: 3rem; color: #ff6b9d;"></i>
+    <h2 style="color: #ff6b9d;" id="tipsDashTitle">💝 Tips Dashboard</h2>
+    <p style="font-size:0.55rem; opacity:0.7; margin:0.3rem 0;" id="tipsDashDesc">Your tip statistics and history</p>
+    
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.3rem; margin:0.5rem 0;">
+      <div class="stat-item" style="border-color:#ff6b9d33;">
+        <div class="stat-value" id="tipsReceived" style="color:#ff6b9d;">0</div>
+        <div class="stat-label" id="tipsReceivedLabel">Tips Received</div>
+      </div>
+      <div class="stat-item" style="border-color:#ff6b9d33;">
+        <div class="stat-value" id="tipsSent" style="color:#ff6b9d;">0</div>
+        <div class="stat-label" id="tipsSentLabel">Tips Sent</div>
+      </div>
+      <div class="stat-item" style="border-color:#ff6b9d33;">
+        <div class="stat-value" id="tipsTotalEarned" style="color:#ff6b9d;">0</div>
+        <div class="stat-label" id="tipsEarnedLabel">Total Earned (BRD)</div>
+      </div>
+    </div>
+    
+    <div style="margin:0.5rem 0;">
+      <p style="font-size:0.5rem; color:#ff6b9d; text-align:left;" id="tipsRankingLabel">🏆 Top Creators</p>
+      <div id="tipsRanking" style="max-height:150px; overflow-y:auto;"></div>
+    </div>
+    
+    <div style="margin:0.5rem 0;">
+      <p style="font-size:0.5rem; color:#ff6b9d; text-align:left;" id="tipsHistoryLabel">📝 Your Tip History</p>
+      <div id="tipsHistory" style="max-height:150px; overflow-y:auto; font-size:0.5rem;"></div>
+    </div>
+    
+    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
+      <button id="refreshTipsBtn" class="cyber-btn small" style="flex:1;"><i class="fas fa-sync-alt"></i> <span id="tipsRefreshBtn">Refresh</span></button>
+      <button id="closeTipsDashboardBtn" class="cyber-btn primary small" style="flex:1;"><i class="fas fa-times"></i> <span id="tipsCloseBtn">Close</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CREATE NFT MODAL ===== -->
+<div id="createNFTModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:600px;">
+    <i class="fas fa-image" style="font-size: 3rem; color: #ff6b6b;"></i>
+    <h2 id="createNFTTitle" style="color: #ff6b6b;">🎨 Create NFT</h2>
+    <p id="createNFTSub" style="font-size:0.55rem; opacity:0.7;">Mint your own NFT on BradiCoin</p>
+    
+    <div style="text-align:left; margin-top:0.5rem;">
+      <label style="font-size:0.55rem; opacity:0.7;" id="nftTitleLabel">NFT Title *</label>
+      <input type="text" id="nftTitle" class="cyber-input" placeholder="My Awesome NFT" style="font-size:0.6rem; padding:0.4rem; margin:0.2rem 0;">
+      
+      <label style="font-size:0.55rem; opacity:0.7;" id="nftDescLabel">Description (optional)</label>
+      <textarea id="nftDescription" class="cyber-input" placeholder="Describe your NFT..." style="font-size:0.6rem; padding:0.4rem; margin:0.2rem 0; min-height:60px; resize:vertical;"></textarea>
+      
+      <label style="font-size:0.55rem; opacity:0.7;" id="nftPriceLabel">Price (BRD) *</label>
+      <input type="number" id="nftPrice" class="cyber-input" placeholder="0.50" step="any" style="font-size:0.6rem; padding:0.4rem; margin:0.2rem 0;">
+      
+      <label style="font-size:0.55rem; opacity:0.7;" id="nftImageLabel">NFT Image * (min 200x200)</label>
+      <div class="token-preview" id="nftPreview">
+        <span class="placeholder">🖼️ 200x200 min</span>
+      </div>
+      <input type="file" id="nftImage" class="cyber-input file-input" accept="image/*" style="font-size:0.55rem; padding:0.3rem;">
+      <p style="font-size:0.45rem; color:#666; margin:0.2rem 0;" id="nftImageHint">📏 Minimum size: 200 x 200 pixels</p>
+    </div>
+    
+    <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.5rem 0; border:1px solid #ff6b6b33;">
+      <div style="display:flex; justify-content:space-between; font-size:0.55rem;">
+        <span style="color:#ff6b6b;" id="nftMintFeeLabel">💰 Minting Fee</span>
+        <span style="color:#00ff88;">0.120000 BRD</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.45rem; color:#666;">
+        <span>≈ $1.20 USD</span>
+        <span id="nftNetworkFee">⛽ <span id="nftNetworkFeeLabel">Network fee</span>: 0.005 BRD</span>
+      </div>
+    </div>
+    
+    <input type="password" id="nftPassword" class="cyber-input" placeholder="Your wallet password" style="font-size:0.6rem; padding:0.4rem; margin:0.3rem 0;">
+    
+    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
+      <button id="createNFTSubmitBtn" class="cyber-btn" style="flex:1; border-color:#ff6b6b; color:#ff6b6b;"><i class="fas fa-image"></i> <span id="createNFTBtnText">Create NFT</span></button>
+      <button id="cancelCreateNFTBtn" class="cyber-btn" style="flex:1;"><i class="fas fa-times"></i> <span id="cancelNFTText">Cancel</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NFT PAYMENT MODAL ===== -->
+<div id="nftPaymentModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:500px;">
+    <i class="fas fa-image" style="font-size: 3rem; color: #ffd700;"></i>
+    <h2 style="color: #ffd700;" id="nftPaymentTitle">💰 NFT Minting Payment</h2>
+    <p style="font-size:0.55rem; opacity:0.7;" id="nftPaymentDesc">Complete payment to mint your NFT</p>
+    
+    <div style="background:#010518; padding:0.8rem; border-radius:1rem; margin:0.5rem 0; border:1px solid #ffd70033; text-align:left;">
+      <div style="display:flex; justify-content:space-between; font-size:0.55rem; padding:0.2rem 0;">
+        <span style="color:#ff6b6b;">🎨 <span id="nftPaymentNftLabel">NFT</span></span>
+        <span style="color:#00f2ff;" id="nftPaymentTitleDisplay">---</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.55rem; padding:0.2rem 0;">
+        <span style="color:#ff6b6b;">💰 <span id="nftPaymentPriceLabel">Price</span></span>
+        <span style="color:#00ff88;" id="nftPaymentPrice">0</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.55rem; padding:0.2rem 0;">
+        <span style="color:#ff6b6b;">⛽ <span id="nftPaymentFeeLabel">Network Fee</span></span>
+        <span style="color:#ffaa00;" id="nftPaymentFee">0.005 BRD</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.55rem; padding:0.2rem 0; border-top:1px solid #ffd70033; margin-top:0.2rem; padding-top:0.3rem;">
+        <span style="color:#ffd700; font-weight:700;" id="nftPaymentTotalLabel">Total</span>
+        <span style="color:#ffd700; font-weight:700;" id="nftPaymentTotal">0.125000 BRD</span>
+      </div>
+    </div>
+    
+    <input type="password" id="nftPaymentPassword" class="cyber-input" placeholder="Your wallet password" style="font-size:0.6rem; padding:0.4rem; margin:0.3rem 0;">
+    
+    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
+      <button id="confirmNFTPaymentBtn" class="cyber-btn gold" style="flex:1;"><i class="fas fa-check-circle"></i> <span id="confirmNFTText">Confirm Payment</span></button>
+      <button id="cancelNFTPaymentBtn" class="cyber-btn" style="flex:1;"><i class="fas fa-times"></i> <span id="cancelNFTPaymentText">Cancel</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NFT DETAIL MODAL ===== -->
+<div id="nftDetailModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:550px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+      <h2 style="color:#ff6b6b;" id="nftDetailTitle">🎨 NFT</h2>
+      <button id="closeNFTDetailBtn" class="cyber-btn small" style="font-size:0.5rem; padding:0.2rem 0.8rem;"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div id="nftDetailContent" style="text-align:center;">
+      <div style="width:200px; height:200px; border-radius:1rem; margin:0 auto; border:2px solid #ff6b6b; overflow:hidden; background:#010518; display:flex; align-items:center; justify-content:center;">
+        <img id="nftDetailImage" src="" alt="NFT" style="width:100%; height:100%; object-fit:cover; display:none;">
+        <span id="nftDetailPlaceholder" style="color:#666; font-size:1rem;">🖼️</span>
+      </div>
+      <h3 id="nftDetailName" style="color:#00f2ff; margin:0.5rem 0 0.2rem;">---</h3>
+      <p id="nftDetailDesc" style="font-size:0.55rem; opacity:0.7; margin:0.2rem 0;">---</p>
+      <div style="display:flex; justify-content:center; gap:0.5rem; margin:0.3rem 0;">
+        <span style="font-size:0.55rem; color:#ffd700;">💰 <span id="nftDetailPriceLabel">Price</span>: <span id="nftDetailPrice">0</span> BRD</span>
+        <span style="font-size:0.45rem; color:#666;">🆔 <span id="nftDetailId">---</span></span>
+      </div>
+      <div style="font-size:0.45rem; color:#666;">👤 <span id="nftDetailOwnerLabel">Owner</span>: <span id="nftDetailOwner">---</span></div>
+      
+      <div style="margin-top:0.5rem; display:flex; gap:0.3rem;">
+        <button id="nftSendBtn" class="cyber-btn small" style="flex:1; border-color:#ff6b6b; color:#ff6b6b;"><i class="fas fa-paper-plane"></i> <span id="nftSendBtnText">Send NFT</span></button>
+        <button id="nftCloseDetailBtn" class="cyber-btn primary small" style="flex:1;"><i class="fas fa-times"></i> <span id="nftCloseDetailText">Close</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SEND NFT MODAL ===== -->
+<div id="sendNFTModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:500px;">
+    <i class="fas fa-paper-plane" style="font-size: 3rem; color: #ff6b6b;"></i>
+    <h2 style="color: #ff6b6b;" id="sendNFTTitle">📤 Send NFT</h2>
+    <p style="font-size:0.55rem; opacity:0.7;" id="sendNFTDesc">Transfer NFT to another BradiCoin wallet</p>
+    
+    <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.3rem 0; border:1px solid #ff6b6b33;">
+      <p style="font-size:0.5rem; color:#ff6b6b;">🎨 <span id="sendNFTNftLabel">NFT</span></p>
+      <div style="font-family:monospace; font-size:0.6rem; color:#00f2ff;" id="sendNFTTitleDisplay">---</div>
+    </div>
+    
+    <input type="text" id="sendNFTRecipient" class="cyber-input" placeholder="Recipient BradiCoin address" style="font-size:0.55rem; padding:0.3rem; margin:0.3rem 0;">
+    <input type="password" id="sendNFTPassword" class="cyber-input" placeholder="Your wallet password" style="font-size:0.55rem; padding:0.3rem; margin:0.3rem 0;">
+    
+    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
+      <button id="confirmSendNFTBtn" class="cyber-btn" style="flex:1; border-color:#ff6b6b; color:#ff6b6b;"><i class="fas fa-check"></i> <span id="sendNFTConfirmBtn">Send NFT</span></button>
+      <button id="cancelSendNFTBtn" class="cyber-btn" style="flex:1;"><i class="fas fa-times"></i> <span id="sendNFTCancelBtn">Cancel</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BUY BRADICOIN MODAL ===== -->
+<div id="buyBradicoinModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:560px;">
+    <i class="fas fa-shopping-cart" style="font-size:3rem; color:#ffd700;"></i>
+    <h2 style="color:#ffd700;" id="buyModalTitle">🛒 Buy Bradicoin</h2>
+    <p style="font-size:0.55rem; opacity:0.7; margin:0.3rem 0;" id="buyModalSub">Select a payment method and amount</p>
+
+    <!-- SELECT MOEDA -->
+    <div style="text-align:left; margin-top:0.8rem;">
+      <label style="font-size:0.55rem; opacity:0.7; color:#a855f7;" id="buyCurrencyLabel">💰 Payment Currency</label>
+      <select id="buyCurrencySelect" class="cyber-input" style="font-size:0.65rem; padding:0.5rem; margin:0.2rem 0;">
+        <option value="BTC">₿ Bitcoin (BTC)</option>
+        <option value="ETH">Ξ Ethereum (ETH)</option>
+        <option value="SOL">◎ Solana (SOL)</option>
+        <option value="BNB">◈ Binance Coin (BNB)</option>
+        <option value="USDT">₮ Tether (USDT)</option>
+      </select>
+    </div>
+
+    <!-- WALLET DE ORIGEM (do usuário) -->
+    <div style="text-align:left; margin-top:0.5rem;">
+      <label style="font-size:0.55rem; opacity:0.7; color:#a855f7;" id="buyFromWalletLabel">📤 Your Sender Wallet</label>
+      <input type="text" id="buyFromWallet" class="cyber-input" placeholder="Your BTC/ETH/SOL/BNB/USDT wallet address" style="font-size:0.6rem; padding:0.5rem; margin:0.2rem 0;">
+    </div>
+
+    <!-- WALLET BRADICOIN (recebe) -->
+    <div style="text-align:left; margin-top:0.5rem;">
+      <label style="font-size:0.55rem; opacity:0.7; color:#00ff88;" id="buyToWalletLabel">📥 Your BradiCoin Wallet (receive)</label>
+      <input type="text" id="buyToWallet" class="cyber-input" placeholder="Your BradiCoin wallet" readonly style="font-size:0.6rem; padding:0.5rem; margin:0.2rem 0; border-color:#00ff88; background:#010518; color:#00ff88; cursor:not-allowed;">
+      <p style="font-size:0.45rem; color:#666; margin:0.1rem 0;" id="buyToWalletHint">🔒 Auto-filled from your wallet</p>
+    </div>
+
+    <!-- VALOR EM BRD -->
+    <div style="text-align:left; margin-top:0.5rem;">
+      <label style="font-size:0.55rem; opacity:0.7; color:#ffd700;" id="buyAmountLabel">💎 Amount in BRD</label>
+      <input type="number" id="buyAmountBrd" class="cyber-input" placeholder="0.00" step="any" style="font-size:0.65rem; padding:0.5rem; margin:0.2rem 0; border-color:#ffd700;">
+    </div>
+
+    <!-- RESUMO -->
+    <div id="buySummary" style="background:#010518; padding:0.8rem; border-radius:1rem; margin:0.7rem 0; border:1px solid #ffd70033; text-align:left; display:none;">
+      <div style="display:flex; justify-content:space-between; font-size:0.55rem; padding:0.15rem 0;">
+        <span style="color:#a855f7;" id="sumCurrencyLabel">Currency</span>
+        <span style="color:#00f2ff;" id="sumCurrency">—</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.55rem; padding:0.15rem 0;">
+        <span style="color:#a855f7;" id="sumAmountLabel">You buy</span>
+        <span style="color:#ffd700; font-weight:700;" id="sumAmountBrd">0 BRD</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.5rem; padding:0.15rem 0; border-top:1px solid #a855f733; margin-top:0.3rem; padding-top:0.3rem;">
+        <span style="color:#666;" id="sumToLabel">Receiving on</span>
+        <span style="color:#00ff88; font-family:monospace; font-size:0.45rem; word-break:break-all; max-width:60%; text-align:right;" id="sumToWallet">—</span>
+      </div>
+    </div>
+
+    <!-- BOTÕES -->
+    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
+      <button id="buyModalOkBtn" class="cyber-btn gold" style="flex:1; background: linear-gradient(135deg, #ffd700, #ffaa00); color:#0a0f1e; border:none; font-weight:700;">
+        <i class="fas fa-check-circle"></i> <span id="buyModalOkText">OK — Confirm</span>
+      </button>
+      <button id="buyModalCancelBtn" class="cyber-btn" style="flex:1;">
+        <i class="fas fa-times"></i> <span id="buyModalCancelText">Cancel</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN DASHBOARD ===== -->
+<div id="mainDashboard" class="main-dashboard">
+  <div class="container">
+    <div class="top-bar">
+      <div class="logo-area">
+        <div class="logo-placeholder"><i class="fas fa-microchip"></i></div>
+        <h1 id="dashboardTitle" style="font-size:1.2rem;">BRADICOIN</h1>
+        <span class="network-badge"><i class="fas fa-link"></i> <span id="networkLabel">Mainnet</span></span>
+        <span class="notification-dot online" id="networkStatus"></span>
+        <span class="security-badge secure" id="securityBadge"><i class="fas fa-lock"></i> <span id="securityLabel">Secure</span></span>
+        <span class="notification-bell" id="notificationBell" onclick="toggleNotifications()">
+          <i class="fas fa-bell" style="font-size:1rem; color:#ffd700;"></i>
+          <span class="badge" id="notifBadge">0</span>
+        </span>
+        <span class="tip-badge"><i class="fas fa-heart"></i> <span id="tipsBadgeLabel">Tips</span></span>
+      </div>
+      <div class="price-ticker">
+        <span>BRD/USD <span id="priceDisplay">$10.00</span></span>
+        <span>24h <span id="priceChange" style="color:#00ff88;">+2.5%</span></span>
+      </div>
+      <div class="wallet-actions">
+        <button id="buyBradicoinBtn" class="cyber-btn gold small" style="background: linear-gradient(135deg, #ffd700, #ffaa00); color: #0a0f1e; border: none; font-weight: 700;"><i class="fas fa-shopping-cart"></i> <span id="buyBradicoinBtnLabel">Buy Bradicoin</span></button>
+        <button id="tipsDashboardBtn" class="cyber-btn tip small"><i class="fas fa-gift"></i> <span id="tipsDashBtnLabel">Tips</span></button>
+        <button id="createTokenBtn" class="cyber-btn create-token small"><i class="fas fa-coins"></i> <span id="tokenBtnLabel">Token</span></button>
+        <button id="marketplaceBtn" class="cyber-btn marketplace small"><i class="fas fa-store"></i></button>
+        <button id="lockWalletBtn" class="cyber-btn lock small"><i class="fas fa-lock"></i> <span id="lockBtnLabel">Lock</span></button>
+        <button id="analyticsBtn" class="cyber-btn analytics small"><i class="fas fa-chart-line"></i></button>
+        <button id="settingsBtn" class="cyber-btn settings small"><i class="fas fa-cog"></i></button>
+        <button id="rewardsBtn" class="cyber-btn gold small"><i class="fas fa-trophy"></i></button>
+        <button id="logoutBtn" class="cyber-btn danger small"><i class="fas fa-sign-out-alt"></i></button>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- Balance Card -->
+      <div class="neon-card">
+        <h3 style="font-size:0.9rem;"><i class="fas fa-chart-line"></i> <span id="balanceTitle">BRD Balance</span></h3>
+        <div class="balance-amount" id="balance" style="font-size:2rem;">0.00000000</div>
+        <div class="balance-usd" id="usdBalance" style="font-size:0.8rem;">$0.00 USD</div>
+        <div style="display:flex; gap:0.5rem; margin:0.3rem 0; flex-wrap:wrap;">
+          <div class="stat-item" style="flex:1; padding:0.4rem;">
+            <div class="stat-value" id="totalTransactions" style="font-size:0.8rem;">0</div>
+            <div class="stat-label" id="txLabel">TX</div>
+          </div>
+          <div class="stat-item" style="flex:1; padding:0.4rem;">
+            <div class="stat-value" id="stakedAmount" style="font-size:0.8rem;">0</div>
+            <div class="stat-label" id="stakedLabel">Staked</div>
+          </div>
+          <div class="stat-item" style="flex:1; padding:0.4rem;">
+          </div>
+        </div>
+        <label style="font-size:0.6rem;" id="walletAddressLabel">Your Wallet Address</label>
+        <div class="cyber-input" id="addressDisplay" style="font-size:0.55rem; padding:0.4rem;">—</div>
+        <div style="display:flex; gap:0.3rem; margin-top:0.3rem;">
+          <button id="copyAddressBtn" class="cyber-btn small" style="flex:1;"><i class="far fa-copy"></i> <span id="copyAddrBtnText">Copy</span></button>
+          <button id="checkChainBalanceBtn" class="cyber-btn small" style="flex:1;"><i class="fas fa-link"></i> <span id="verifyBtnText">Verify</span></button>
+          <button id="zkStatusBtn" class="cyber-btn small zk" style="flex:1;"><i class="fas fa-shield-alt"></i> ZK</button>
+        </div>
+        <div style="background:#010518; padding:0.4rem; border-radius:1rem; margin-top:0.5rem; font-size:0.5rem; display:flex; justify-content:space-between;">
+          <span>🔐 <span id="encryptedLabel">Encrypted</span></span>
+          <span id="walletStatus">● <span id="onlineLabel">Online</span></span>
+        </div>
+      </div>
+
+      <!-- Staking Card -->
+      <div class="neon-card">
+        <h3 style="font-size:0.9rem;"><i class="fas fa-layer-group"></i> <span id="stakingTitle">Staking Pool</span></h3>
+        <div class="staking-pool" style="padding:0.8rem;">
+          <div style="display:flex; justify-content:space-between; font-size:0.7rem;">
+            <strong id="lockPeriodLabel">Escolha o pool</strong>
+            <span style="color:#00ff88;">20% APR</span>
+          </div>
+          <div style="font-size:0.6rem; margin:0.3rem 0;" id="stakeMinInfo">⚡ <span id="stakeMinText">Mín</span>: 1 BRD | 📈 20% <span id="annualLabel">anual</span></div>
+          <select id="stakePoolSelect" class="cyber-input" style="font-size:0.6rem; padding:0.4rem; margin-bottom:0.3rem;">
+            <option value="24h">📅 24 Hours (min 1 BRD)</option>
+            <option value="7d">📆 7 Days (min 10 BRD)</option>
+            <option value="30d">🗓️ 30 Days (min 100 BRD)</option>
+          </select>
+          <input type="number" id="stakeAmount" class="cyber-input" placeholder="Quantidade para stake" step="any" style="font-size:0.6rem; padding:0.4rem;">
+          <button id="stakeBtn" class="cyber-btn primary" style="width:100%; margin-top:0.3rem; font-size:0.6rem; padding:0.4rem;"><i class="fas fa-lock"></i> <span id="stakeBtnLabel">Fazer Stake</span></button>
+        </div>
+        <div id="stakeInfo" class="staking-timer" style="font-size:0.55rem;">💎 <span id="noActiveStake">Sem stake ativo</span></div>
+        <div style="display:flex; gap:0.3rem;">
+          <button id="unstakeBtn" class="cyber-btn success small" style="flex:1;"><i class="fas fa-unlock-alt"></i> <span id="unstakeBtnLabel">Resgatar</span></button>
+          <button id="viewStakeDetailsBtn" class="cyber-btn small" style="flex:1;"><i class="fas fa-info-circle"></i> <span id="detailsBtnLabel">Detalhes</span></button>
+        </div>
+        <div style="margin-top:0.3rem; font-size:0.5rem; opacity:0.6; text-align:center;">
+          <span id="totalStakedLabel">Total em Stake</span>: <span id="totalStaked">0</span> BRD
+        </div>
+      </div>
+
+      <!-- Actions Card -->
+      <div class="neon-card">
+        <h3 style="font-size:0.9rem;"><i class="fas fa-exchange-alt"></i> <span id="actionsTitle">Actions</span></h3>
+        <div class="quick-actions">
+          <button id="sendBtn" class="cyber-btn primary small"><i class="fas fa-paper-plane"></i> <span id="sendBtnLabel">Send</span></button>
+          <button id="receiveBtn" class="cyber-btn success small"><i class="fas fa-arrow-down"></i> <span id="receiveBtnLabel">Receive</span></button>
+          <button id="claimAirdropBtn" class="cyber-btn warning small"><i class="fas fa-gift"></i> <span id="airdropBtnLabel">Airdrop</span></button>
+          <button id="historyBtn" class="cyber-btn small"><i class="fas fa-history"></i> <span id="historyBtnLabel">History</span></button>
+          <button id="zkPrivateSendBtn" class="cyber-btn zk small"><i class="fas fa-shield-alt"></i> <span id="privateBtnLabel">Private</span></button>
+          <button id="stealthBtn" class="cyber-btn anon small"><i class="fas fa-mask"></i> <span id="stealthBtnLabel">Stealth</span></button>
+          <button id="createNFTBtn" class="cyber-btn small" style="border-color:#ff6b6b; color:#ff6b6b;"><i class="fas fa-image"></i> <span id="nftBtnLabel">NFT</span></button>
+        </div>
+        <div class="referral-box" style="padding:0.4rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.5rem;"><i class="fas fa-user-plus"></i> <span id="referralLabel">Referral</span></span>
+            <span class="referral-code" id="referralCode" style="font-size:0.6rem;">BRD-XXXX</span>
+            <button id="copyReferralBtn" class="cyber-btn small" style="padding:0.1rem 0.5rem;"><i class="fas fa-copy"></i></button>
+          </div>
+        </div>
+        <div id="txStatus" class="status-msg" style="font-size:0.55rem;"></div>
+        <h4 style="font-size:0.7rem; margin-top:0.3rem;"><i class="fas fa-history"></i> <span id="recentActivityLabel">Recent Activity</span></h4>
+        <div id="transactionsList" class="transaction-list"><span id="noTransactionsLabel">No transactions yet</span></div>
+      </div>
+    </div>
+
+    <!-- MY TOKENS CARD -->
+    <div class="neon-card" style="margin-top:1.5rem;">
+      <h3 style="font-size:0.9rem;"><i class="fas fa-coins"></i> <span id="myTokensTitle">My Tokens</span></h3>
+      <div id="tokensContainer" style="margin-top:0.5rem;">
+        <p style="font-size:0.6rem; opacity:0.5; text-align:center;" id="noTokensMsg">No tokens created yet. Click "Create Token" to get started!</p>
+        <div id="tokensList" class="tokens-grid"></div>
+      </div>
+    </div>
+
+    <!-- MY NFTS CARD -->
+    <div class="neon-card" style="margin-top:1.5rem; border-color:#ff6b6b33;">
+      <h3 style="font-size:0.9rem;"><i class="fas fa-image" style="color:#ff6b6b;"></i> <span style="color:#ff6b6b;" id="myNFTsTitle">My NFTs</span></h3>
+      <div style="display:flex; gap:0.5rem; margin:0.5rem 0;">
+        <button id="createNFTBtnDashboard" class="cyber-btn" style="border-color:#ff6b6b; color:#ff6b6b; flex:1;"><i class="fas fa-plus-circle"></i> <span id="createNFTBtnTextDashboard">Create NFT</span></button>
+      </div>
+      <div id="nftsContainer" style="margin-top:0.5rem;">
+        <p style="font-size:0.6rem; opacity:0.5; text-align:center;" id="noNFTsMsg">No NFTs created yet. Click "Create NFT" to get started!</p>
+        <div id="nftsList" class="nfts-grid"></div>
+      </div>
+    </div>
+
+    <!-- TIPS CARD -->
+    <div class="neon-card" style="margin-top:1.5rem; border-color:#ff6b9d33;">
+      <h3 style="font-size:0.9rem;"><i class="fas fa-heart" style="color:#ff6b9d;"></i> <span style="color:#ff6b9d;" id="tipsCardTitle">Creator Tips</span></h3>
+      <div style="display:flex; gap:0.5rem; margin:0.3rem 0; flex-wrap:wrap;">
+        <div class="stat-item" style="flex:1; border-color:#ff6b9d33;">
+          <div class="stat-value" id="tipsReceivedCount" style="color:#ff6b9d; font-size:0.8rem;">0</div>
+          <div class="stat-label" id="tipsCardReceivedLabel">Tips Received</div>
+        </div>
+        <div class="stat-item" style="flex:1; border-color:#ff6b9d33;">
+          <div class="stat-value" id="tipsEarnedDisplay" style="color:#ff6b9d; font-size:0.8rem;">0</div>
+          <div class="stat-label" id="tipsCardEarnedLabel">BRD Earned</div>
+        </div>
+        <div class="stat-item" style="flex:1; border-color:#ff6b9d33;">
+          <div class="stat-value" id="tipsSentCount" style="color:#ff6b9d; font-size:0.8rem;">0</div>
+          <div class="stat-label" id="tipsCardSentLabel">Tips Sent</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:0.3rem; margin-top:0.3rem;">
+        <input type="text" id="tipCreatorAddress" class="cyber-input" placeholder="Creator address to tip..." style="font-size:0.5rem; padding:0.3rem; flex:1;">
+        <button id="quickTipBtn" class="cyber-btn tip small"><i class="fas fa-heart"></i> <span id="quickTipBtnLabel">Tip</span></button>
+        <button id="viewTipsDashboardBtn" class="cyber-btn small"><i class="fas fa-chart-bar"></i> <span id="tipsStatsBtnLabel">Stats</span></button>
+      </div>
+      <div style="font-size:0.45rem; opacity:0.5; margin-top:0.3rem; text-align:center;" id="tipsCardFooter">
+        💝 Support creators in the BradiCoin ecosystem with tips
+      </div>
+    </div>
+
+    <!-- Innovative Features -->
+    <div class="neon-card" style="margin-top:1.5rem; grid-column: span 1;">
+      <h3 style="font-size:0.8rem;"><i class="fas fa-rocket"></i> <span id="innovativeTitle">Innovative Features</span></h3>
+      
+      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ff880033;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span id="burnerLabel">🔥 Burner Wallet</span>
+          <div>
+            <span id="burnerStatus" style="font-size:0.45rem;">💤 <span id="burnerStatusText">No burner active</span></span>
+            <button id="createBurnerBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#ff8800;"><span id="burnerCreateBtn">Create</span></button>
+            <button id="destroyBurnerBtn" class="cyber-btn danger small" style="font-size:0.4rem; padding:0.1rem 0.4rem;"><span id="burnerDestroyBtn">Destroy</span></button>
+          </div>
+        </div>
+      </div>
+            <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #9b59b633;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span id="decoyLabel">🕵️ Decoy Mode</span>
+          <div>
+            <span id="decoyBadge" style="font-size:0.4rem;">👁️ <span id="decoyBadgeText">Real Balance</span></span>
+            <button id="decoyToggleBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#9b59b6;"><span id="decoyToggleBtnText">Toggle</span></button>
+          </div>
+        </div>
+      </div>
+      
+       <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ff005533;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span id="boobyLabel">💣 Booby Traps</span>
+          <div>
+            <span id="whitelistCount" style="font-size:0.4rem;">0</span>
+            <button id="addWhitelistBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#ff0055;"><span id="addWhitelistBtnText">+ Add</span></button>
+          </div>
+        </div>
+        <div id="whitelistDisplay" style="font-size:0.4rem; max-height:60px; overflow-y:auto; margin-top:0.2rem;"></div>
+      </div>
+      
+      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ffd70033;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span id="deadManLabel">💀 Dead Man's Switch</span>
+          <div>
+            <span id="deadManStatus" style="font-size:0.4rem;">❌ <span id="deadManStatusText">Not configured</span></span>
+            <button id="deadManBtn" class="cyber-btn gold small" style="font-size:0.4rem; padding:0.1rem 0.4rem;"><span id="deadManSetupBtn">Setup</span></button>
+          </div>
+        </div>
+      </div>
+      
+      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #00f2ff33;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span id="shadowLabel">🌐 Shadow Mirror</span>
+          <div>
+            <button id="addShadowBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#00f2ff;"><span id="shadowAddBtn">+ Add</span></button>
+            <button id="syncShadowBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#00f2ff;"><span id="shadowSyncBtn">Sync</span></button>
+          </div>
+        </div>
+        <div id="shadowList" style="font-size:0.4rem; max-height:60px; overflow-y:auto; margin-top:0.2rem;"></div>
+      </div>
+      
+      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #9b59b633;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span id="ephemeralLabel">🔑 Ephemeral Keys</span>
+          <div>
+            <span id="ephemeralStatus" style="font-size:0.4rem;">🔑 <span id="ephemeralStatusText">No key</span></span>
+            <button id="genEphemeralBtn" class="cyber-btn zk small" style="font-size:0.4rem; padding:0.1rem 0.4rem;"><span id="ephemeralGenBtn">Generate</span></button>
+          </div>
+        </div>
+      </div>
+      
+      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ffaa0033;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span id="gaslessLabel">⛽ Gasless Mode</span>
+          <div>
+            <span id="gaslessStatus" style="font-size:0.4rem;">⛽ <span id="gaslessGasLabel">Gas</span>: 0.15 BRD</span>
+            <button id="gaslessToggleBtn" class="cyber-btn warning small" style="font-size:0.4rem; padding:0.1rem 0.4rem;"><span id="gaslessToggleBtnText">Toggle</span></button>
+          </div>
+        </div>
+      </div>
+      
+      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #00ff8833;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span id="zkVerifyLabel">🔐 ZK-Proof Verifier</span>
+      </div>
+      
+      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ff005533;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span id="sweepLabel">🧹 Sweep & Destroy</span>
+          <button id="sweepDestroyBtn" class="cyber-btn danger small" style="font-size:0.4rem; padding:0.1rem 0.4rem;"><span id="sweepExecuteBtn">⚠️ Execute</span></button>
+        </div>
+      </div>
+      
+      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #a855f733;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
+          <span id="securityAlertsLabel">🔔 Security Alerts</span>
+          <div>
+            <span id="alertBadge" style="background:#ff0055; color:#fff; border-radius:50%; padding:0.1rem 0.4rem; font-size:0.4rem; display:none;">0</span>
+            <button id="clearAlertsBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem;"><span id="clearAlertsBtnText">Clear</span></button>
+          </div>
+        </div>
+        <div id="securityAlerts" style="font-size:0.4rem; max-height:80px; overflow-y:auto; margin-top:0.2rem;"></div>
+      </div>
+    </div>
+
+    <footer>
+      <span id="footerText">Non-Custodial · 18% APR · BradiCoin Ecosystem</span>
+      <br><span style="font-size:0.45rem;">© 2026 BradiCoin. 🔐 ZK-SNARK Privacy | 🕵️ Stealth | 🔄 Mixer | 🛒 Marketplace | 💝 Tips</span>
+    </footer>
+  </div>
+</div>
+
 <script>
 // ================================================================
 // ============ CONFIGURAÇÃO DA API — BACKEND =====================
@@ -1701,6 +2779,51 @@ function generateAddressFromSeed(seed) {
     const seedStr = seed.join(' ');
     const hash = CryptoJS.SHA256(seedStr).toString();
     return `Br${hash.substring(0, 38)}`;
+}
+
+// ================================================================
+// ==================== UNLOCK GUARD (rate limit) =================
+// ================================================================
+const unlockGuard = (() => {
+    const MAX_ATTEMPTS = 5;
+    const LOCK_MS = 5 * 60 * 1000; // 5 min
+    let fails = 0, lockedUntil = 0;
+    return {
+        canTry() {
+            if (Date.now() < lockedUntil) {
+                const mins = Math.ceil((lockedUntil - Date.now()) / 60000);
+                return { ok: false, reason: `Bloqueado por ${mins} min` };
+            }
+            return { ok: true };
+        },
+        registerFail() {
+            fails++;
+            if (fails >= MAX_ATTEMPTS) {
+                lockedUntil = Date.now() + LOCK_MS;
+                fails = 0;
+                return { reason: 'Muitas tentativas. Bloqueado 5 min.' };
+            }
+            return { reason: `Senha incorreta (${MAX_ATTEMPTS - fails} restantes)` };
+        },
+        reset() { fails = 0; lockedUntil = 0; }
+    };
+})();
+
+// ================================================================
+// ==================== VALIDAÇÕES ================================
+// ================================================================
+function validatePasswordStrength(pw) {
+    if (!pw || pw.length < 8) return { ok: false, reason: 'Mínimo 8 caracteres' };
+    if (!/[A-Z]/.test(pw)) return { ok: false, reason: 'Adicione uma letra maiúscula' };
+    if (!/[0-9]/.test(pw)) return { ok: false, reason: 'Adicione um número' };
+    return { ok: true };
+}
+
+function generateReferralCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = 'BRD-';
+    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    return code;
 }
 
 // ================================================================
@@ -7058,1049 +8181,5 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
 }
 
 </script>
-
-<!-- ===== LANGUAGE BAR ===== -->
-<div class="lang-bar">
-  <button class="lang-btn active" data-lang="en">EN</button>
-  <button class="lang-btn" data-lang="pt">PT</button>
-  <button class="lang-btn" data-lang="es">ES</button>
-  <button class="lang-btn" data-lang="ar">AR</button>
-  <button class="lang-btn" data-lang="de">DE</button>
-  <button class="lang-btn" data-lang="it">IT</button>
-  <button class="lang-btn" data-lang="fr">FR</button>
-  <button class="lang-btn" data-lang="ru">RU</button>
-  <button class="lang-btn" data-lang="ko">KO</button>
-</div>
-
-<!-- ===== CONFIRM DIALOG ===== -->
-<div id="confirmDialog" class="confirm-dialog">
-  <div class="confirm-dialog-content">
-    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ffaa00;"></i>
-    <h3 style="margin: 1rem 0;" id="confirmDialogTitle">Are you sure?</h3>
-    <p style="opacity: 0.7; font-size: 0.8rem;" id="confirmDialogMessage">Confirm your action</p>
-    <div class="confirm-dialog-buttons">
-      <button id="confirmYesBtn" class="cyber-btn danger">Yes</button>
-      <button id="confirmNoBtn" class="cyber-btn primary">No</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== PRIVATE KEY MODAL ===== -->
-<div id="privateKeyModal" class="modal-overlay">
-  <div class="modal-content" style="max-width:600px;">
-    <i class="fas fa-key" style="font-size: 3rem; color: #ff6b6b;"></i>
-    <h2 style="color: #ff6b6b;" id="privateKeyModalTitle">🔑 Private Key</h2>
-    <p style="font-size:0.55rem; opacity:0.7; margin:0.3rem 0;" id="privateKeySub">Your wallet's private key - Keep it safe!</p>
-    
-    <div class="private-key-warning">
-      <i class="fas fa-exclamation-triangle"></i>
-      <span id="privateKeyWarning">⚠️ WARNING: Never share your private key with anyone! Anyone with this key can access your funds.</span>
-    </div>
-    
-    <input type="password" id="privateKeyPassword" class="cyber-input" placeholder="Enter your wallet password" style="margin:0.5rem 0; font-size:0.6rem; padding:0.4rem;">
-    
-    <button id="revealPrivateKeyBtn" class="cyber-btn danger" style="width:100%;"><i class="fas fa-unlock-alt"></i> <span id="revealPrivateKeyText">Reveal Private Key</span></button>
-    
-    <div id="privateKeyContainer" style="display:none; margin-top:1rem;">
-      <div class="private-key-box">
-        <span class="key-label">🔑 PRIVATE KEY:</span>
-        <div id="privateKeyDisplay" style="font-size:0.55rem; word-break:break-all; color:#ff6b6b;">---</div>
-      </div>
-      <div class="private-key-actions">
-        <button id="copyPrivateKeyBtn" class="cyber-btn small"><i class="fas fa-copy"></i> <span id="copyPrivateKeyText">Copy</span></button>
-        <button id="hidePrivateKeyBtn" class="cyber-btn small primary"><i class="fas fa-eye-slash"></i> <span id="hidePrivateKeyText">Hide</span></button>
-      </div>
-    </div>
-    
-    <button id="closePrivateKeyModalBtn" class="cyber-btn" style="width:100%; margin-top:1rem;"><i class="fas fa-times"></i> <span id="closePrivateKeyText">Close</span></button>
-  </div>
-</div>
-
-<!-- ===== CONGRATULATIONS MODAL ===== -->
-<div id="congratsModal" class="modal-overlay" style="z-index: 3500;">
-  <div class="congrats-modal-content">
-    <div class="congrats-icon">
-      <i class="fas fa-rocket"></i>
-    </div>
-    <div class="congrats-title" id="congratsTitle">🎉 CONGRATULATIONS!</div>
-    <div class="congrats-sub" id="congratsSub">Your wallet has been successfully created.</div>
-    <div class="congrats-address" id="congratsAddress">Br0000000000000000000000000000</div>
-    <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin: 0.5rem 0;">
-      <span class="congrats-checkmark">✓</span>
-      <span id="congratsSecureMsg" style="font-size: 0.65rem; color: #00f2ff; text-shadow: 0 0 20px rgba(0, 242, 255, 0.3);">🔐 Secure & Encrypted</span>
-    </div>
-    <p id="congratsTip" style="font-size: 0.55rem; opacity: 0.6; margin: 0.5rem 0; color: #a855f7;">💡 Your wallet is now ready to use. Start sending and receiving BRD!</p>
-    <button class="congrats-btn" id="congratsGoToDashboard">
-      <span class="congrats-sparkle">✨</span> <span id="congratsBtnText">Go to Dashboard</span> <span class="congrats-sparkle">✨</span>
-    </button>
-  </div>
-</div>
-
-<!-- ===== LOGIN SCREEN ===== -->
-<div id="loginScreen" class="login-screen">
-  <div class="login-content">
-    <div class="login-logo"><i class="fas fa-microchip"></i></div>
-    <h1 id="mainTitle">BRADICOIN</h1>
-    <p id="subtitle">Secure Crypto Wallet Platform</p>
-    <p id="desc">Create · Import · Stake · Earn</p>
-    <div class="login-buttons">
-      <button id="createWalletBtn" class="cyber-btn primary"><i class="fas fa-plus-circle"></i> <span id="createWalletBtnText">Create Wallet</span></button>
-      <button id="importWalletBtn" class="cyber-btn"><i class="fas fa-key"></i> <span id="importWalletBtnText">Import Wallet</span></button>
-    </div>
-  
-    <div id="importGroup" style="display:none; margin-top:1.5rem;">
-      <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem;">
-        <button id="backToLoginFromImport" class="cyber-btn back small" style="flex:1;"><i class="fas fa-arrow-left"></i> <span id="backImportText">Back</span></button>
-      </div>
-      <textarea id="importSeedInput" class="cyber-input" rows="3" placeholder="Enter your 12-word seed phrase"></textarea>
-      <input type="password" id="importPasswordInput" class="cyber-input" placeholder="Create a password" style="margin-top:0.5rem;">
-      <button id="confirmImportBtn" class="cyber-btn primary" style="margin-top:0.8rem; width:100%;"><i class="fas fa-check"></i> <span id="confirmImportText">Import Wallet</span></button>
-    </div>
-    
-    <div id="unlockGroup" style="display:none; margin-top:1.5rem;">
-      <input type="password" id="unlockPasswordInput" class="cyber-input" placeholder="Enter your wallet password">
-      <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
-        <input type="text" id="unlock2FAInput" class="cyber-input" placeholder="2FA Code (if enabled)" style="flex:1; font-size:0.6rem;">
-      </div>
-      
-      <div id="biometricContainer" style="display:none; margin:0.5rem 0;">
-        <button id="biometricLoginBtn" class="cyber-btn success" style="width:100%; font-size:0.65rem; padding:0.6rem;">
-          <i class="fas fa-fingerprint" style="font-size:1.2rem;"></i> 
-          <span id="biometricLoginText">🔐 Login with Fingerprint</span>
-        </button>
-        <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.3rem; justify-content:center;">
-          <span style="font-size:0.45rem; opacity:0.5;">👆 Use your fingerprint or continue with password</span>
-          <span class="biometric-status" id="biometricStatus" style="font-size:0.4rem; color:#00ff88;">● Ready</span>
-        </div>
-      </div>
-      
-      <button id="unlockWalletBtn" class="cyber-btn primary" style="margin-top:0.8rem; width:100%;"><i class="fas fa-unlock-alt"></i> <span id="unlockBtnText">Unlock Wallet</span></button>
-      <p style="font-size:0.55rem; margin-top:0.5rem; opacity:0.6;">🔐 Your keys, your crypto. 2FA available</p>
-    </div>
-  </div>
-</div>
-
-<!-- ===== SEED PHRASE MODAL ===== -->
-<div id="seedModal" class="modal-overlay">
-  <div class="modal-content">
-    <i class="fas fa-shield-alt" style="font-size: 3rem; color: #00f2ff;"></i>
-    <h2 id="seedModalTitle">⚠️ SAVE YOUR SEED PHRASE</h2>
-    <p id="seedModalWarning" style="color: #ff0055; font-size: 0.8rem;">This is the ONLY way to recover your wallet!</p>
-    <div class="seed-phrase-box" id="modalSeedPhrase"></div>
-    <p id="walletInfoText">Your wallet address will be generated automatically</p>
-    <input type="password" id="walletPasswordInput" class="cyber-input" placeholder="Create a password for your wallet" style="margin:0.5rem 0;">
-    
-    <div style="display:flex; align-items:center; gap:0.5rem; margin:0.5rem 0; justify-content:center; flex-wrap:wrap;">
-      <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.55rem; cursor:pointer;">
-        <input type="checkbox" id="enableBiometric" style="accent-color:#00ff88; width:18px; height:18px; cursor:pointer;">
-        <span id="biometricToggleText">🔐 Enable Fingerprint Login (optional)</span>
-      </label>
-      <span id="biometricSupportBadge" style="font-size:0.4rem; padding:0.1rem 0.5rem; border-radius:1rem; background:#00ff8822; border:1px solid #00ff88; color:#00ff88; display:none;">✅ Supported</span>
-    </div>
-    
-    <button id="copySeedBtn" class="cyber-btn" style="width:100%; margin-bottom: 0.5rem;"><i class="fas fa-copy"></i> <span id="copySeedText">Copy Seed Phrase</span></button>
-    <button id="confirmSeedBtn" class="cyber-btn primary" style="width:100%;"><i class="fas fa-check-circle"></i> <span id="savedSeedText">I Have Saved My Seed Phrase</span></button>
-    <button id="backToLoginFromSeed" class="cyber-btn back" style="width:100%; margin-top:0.5rem;"><i class="fas fa-arrow-left"></i> <span id="backSeedText">Back to Login</span></button>
-    <p class="warning-text">⚠️ Never share your seed phrase!</p>
-  </div>
-</div>
-
-<!-- ===== SEND MODAL ===== -->
-<div id="sendModal" class="modal-overlay">
-  <div class="modal-content">
-    <h2 id="sendModalTitle"><i class="fas fa-paper-plane"></i> Send BRD</h2>
-    
-    <div class="send-gas-info">
-      <div><span class="gas-label">⛽ <span id="gasFeeLabel">Gas Fee</span>:</span> <span class="gas-detail">0.15 BRD</span></div>
-      <div><span class="gas-label" id="minSendLabel">📤 Minimum to send:</span> <span class="gas-detail">0.17000000 BRD</span></div>
-      <div class="network-note">⛽ <span id="networkFeeNote">Network fee applied to every transaction</span></div>
-    </div>
-    
-    <input type="text" id="sendTo" class="cyber-input" placeholder="Recipient Address" style="margin:0.3rem 0;">
-    <input type="number" id="sendAmount" class="cyber-input" placeholder="Amount (BRD)" step="any">
-    <input type="password" id="sendPassword" class="cyber-input" placeholder="Wallet Password" style="margin:0.3rem 0;">
-    
-    <div style="margin:0.3rem 0; display:grid; grid-template-columns:1fr 1fr; gap:0.3rem; text-align:left; font-size:0.6rem;">
-      <label style="display:flex; align-items:center; gap:0.3rem; color:#9b59b6;">
-        <input type="checkbox" id="stealthSend" style="accent-color:#9b59b6;"> <span id="stealthLabel">Stealth Address</span>
-      </label>
-      <label style="display:flex; align-items:center; gap:0.3rem; color:#ff8800;">
-        <input type="checkbox" id="decoySend" style="accent-color:#ff8800;"> <span id="decoyLabel">Decoy TX</span>
-      </label>
-      <label style="display:flex; align-items:center; gap:0.3rem; color:#ffd700;">
-        <input type="checkbox" id="mixerSend" style="accent-color:#ffd700;"> <span id="mixerLabel">Mixer</span>
-      </label>
-    </div>
-    
-    <button id="confirmSendBtn" class="cyber-btn primary" style="width:100%; margin-top:0.3rem;"><i class="fas fa-check"></i> <span id="confirmSendText">Confirm Send</span></button>
-    <button id="cancelSendBtn" class="cyber-btn" style="width:100%; margin-top:0.3rem;"><i class="fas fa-times"></i> <span id="cancelSendText">Cancel</span></button>
-  </div>
-</div>
-
-<!-- ===== HISTORY MODAL ===== -->
-<div id="historyModal" class="modal-overlay">
-  <div class="modal-content">
-    <h2><i class="fas fa-history" style="color: #00f2ff;"></i> <span id="historyTitle">Transaction History</span></h2>
-    <p style="font-size:0.5rem; opacity:0.6; margin:0.3rem 0;" id="historySub">All your BRD transactions</p>
-    <div id="historyList" class="history-modal-content">
-      <div class="history-empty" id="historyEmpty">No transactions yet</div>
-    </div>
-    <button id="closeHistoryBtn" class="cyber-btn primary" style="width:100%; margin-top:1rem;"><i class="fas fa-times"></i> <span id="closeHistoryText">Close</span></button>
-  </div>
-</div>
-
-<!-- ===== 2FA SETUP MODAL ===== -->
-<div id="twoFAModal" class="modal-overlay">
-  <div class="modal-content" style="max-width:500px;">
-    <i class="fas fa-shield-alt" style="font-size: 3rem; color: #ffd700;"></i>
-    <h2 style="color: #ffd700;">🔐 Two-Factor Authentication</h2>
-    <p style="font-size:0.65rem; opacity:0.7;" id="twoFADesc">Secure your wallet with 2FA</p>
-    
-    <div style="background:#010518; padding:0.8rem; border-radius:1rem; margin:0.5rem 0; border:1px solid #ffd70033;">
-      <p style="font-size:0.6rem; color:#ffd700;" id="twoFAQrText">📱 Scan this QR code with Google Authenticator</p>
-      <div id="qrCodeDisplay" style="background:#fff; padding:1rem; border-radius:1rem; margin:0.5rem 0; display:flex; justify-content:center;">
-        <div style="width:150px; height:150px; background:#fff; display:flex; align-items:center; justify-content:center; color:#000; font-size:0.6rem;">
-          QR Code (simulated)
-        </div>
-      </div>
-      <div style="background:#010518; padding:0.5rem; border-radius:0.5rem; font-family:monospace; font-size:0.55rem; word-break:break-all; border:1px solid #a855f733;" id="twoFASecret">---</div>
-    </div>
-    
-    <p style="font-size:0.55rem; text-align:left; color:#ffaa00;" id="backupCodesLabel">💡 Backup Codes: Save these in a safe place</p>
-    <div id="backupCodesDisplay" style="background:#010518; padding:0.5rem; border-radius:1rem; font-family:monospace; font-size:0.5rem; margin:0.3rem 0; display:flex; gap:0.3rem; flex-wrap:wrap; justify-content:center;"></div>
-    
-    <input type="text" id="verify2FACode" class="cyber-input" placeholder="Enter 6-digit code" style="font-size:0.6rem; margin:0.3rem 0;">
-    <button id="verify2FABtn" class="cyber-btn gold" style="width:100%;"><i class="fas fa-check"></i> <span id="verify2FAText">Verify & Enable 2FA</span></button>
-    <button id="close2FAModalBtn" class="cyber-btn" style="width:100%; margin-top:0.3rem;"><i class="fas fa-times"></i> <span id="cancel2FAText">Cancel</span></button>
-  </div>
-</div>
-
-<!-- ===== VIEW SEED PHRASE MODAL ===== -->
-<div id="viewSeedModal" class="modal-overlay">
-  <div class="modal-content">
-    <i class="fas fa-eye" style="font-size: 3rem; color: #ffaa00;"></i>
-    <h2 style="color: #ffaa00;" id="viewSeedTitle">🔐 View Seed Phrase</h2>
-    <p style="color: #ff0055; font-size: 0.8rem; margin: 0.5rem 0;" id="viewSeedWarning">⚠️ WARNING: Never share your seed phrase with anyone!</p>
-    <input type="password" id="viewSeedPassword" class="cyber-input" placeholder="Enter your wallet password" style="margin:0.5rem 0;">
-    
-    <button id="revealSeedBtn" class="cyber-btn warning" style="width:100%;"><i class="fas fa-unlock"></i> <span id="revealSeedText">Reveal Seed Phrase</span></button>
-    <div id="revealedSeedContainer" style="display:none; margin-top:1rem;">
-      <div class="seed-phrase-box" id="revealedSeedPhrase"></div>
-      <button id="copyRevealedSeedBtn" class="cyber-btn" style="width:100%; margin-top:0.5rem;"><i class="fas fa-copy"></i> <span id="copyRevealedSeedText">Copy Seed Phrase</span></button>
-    </div>
-    <button id="closeViewSeedModalBtn" class="cyber-btn primary" style="width:100%; margin-top:1rem;"><span id="closeViewSeedText">Close</span></button>
-  </div>
-</div>
-
-<!-- ===== CREATE TOKEN MODAL ===== -->
-<div id="createTokenModal" class="modal-overlay">
-  <div class="modal-content" style="max-width:600px;">
-    <i class="fas fa-coins" style="font-size: 3rem; color: #00d4ff;"></i>
-    <h2 id="createTokenTitle" style="color: #00d4ff;">🚀 Create Token</h2>
-    <p id="createTokenSub" style="font-size:0.55rem; opacity:0.7;">Create your own token on BradiCoin</p>
-    
-    <div style="text-align:left; margin-top:0.5rem;">
-      <label style="font-size:0.55rem; opacity:0.7;" id="tokenNameLabel">Token Name</label>
-      <input type="text" id="tokenName" class="cyber-input" placeholder="My Token" style="font-size:0.6rem; padding:0.4rem; margin:0.2rem 0;">
-      
-      <label style="font-size:0.55rem; opacity:0.7;" id="tokenSymbolLabel">Token Symbol</label>
-      <input type="text" id="tokenSymbol" class="cyber-input" placeholder="MTK" style="font-size:0.6rem; padding:0.4rem; margin:0.2rem 0;">
-      
-      <label style="font-size:0.55rem; opacity:0.7;" id="tokenSupplyLabel">Total Supply</label>
-      <input type="number" id="tokenSupply" class="cyber-input" placeholder="1000000" style="font-size:0.6rem; padding:0.4rem; margin:0.2rem 0;">
-      
-      <label style="font-size:0.55rem; opacity:0.7;" id="tokenLogoLabel">Token Logo (200x200)</label>
-      <div class="token-preview" id="tokenPreview">
-        <span class="placeholder">🖼️ 200x200</span>
-      </div>
-      <input type="file" id="tokenLogo" class="cyber-input file-input" accept="image/*" style="font-size:0.55rem; padding:0.3rem;">
-      <p style="font-size:0.45rem; color:#666; margin:0.2rem 0;" id="tokenImageHint">📏 Image size: 200 x 200 pixels recommended</p>
-    </div>
-    
-    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
-      <button id="createTokenSubmitBtn" class="cyber-btn create-token" style="flex:1;"><i class="fas fa-plus-circle"></i> <span id="createTokenBtnText">Create Token</span></button>
-      <button id="cancelCreateTokenBtn" class="cyber-btn" style="flex:1;"><i class="fas fa-times"></i> <span id="cancelTokenText">Cancel</span></button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== CREATE LOAN / PAYMENT MODAL ===== -->
-<div id="createLoanModal" class="modal-overlay">
-  <div class="modal-content" style="max-width:550px;">
-    <i class="fas fa-hand-holding-usd" style="font-size: 3rem; color: #ffd700;"></i>
-    <h2 id="loanTitle" style="color: #ffd700;">💰 Create Loan / Payment</h2>
-    <p id="loanSub" style="font-size:0.55rem; opacity:0.7;">Complete payment to finalize token creation</p>
-    
-    <div class="loan-summary">
-      <div class="row"><span id="loanTokenLabel">Token</span><span><strong id="loanTokenName">---</strong> (<span id="loanTokenSymbol">---</span>)</span></div>
-      <div class="row"><span id="loanSupplyLabel">Total Supply</span><span id="loanTokenSupply">0</span></div>
-      <div class="row"><span id="loanPriceLabel">Price per Token</span><span>$1.50 USD</span></div>
-      <div class="row"><span id="loanTotalPriceLabel">Total Price (USD)</span><span>$<span id="loanTotalUsd">0</span>.00</span></div>
-      <div class="row"><span id="loanBrdLabel">Amount in BRD</span><span id="loanTotalBrd">0.15000000</span> BRD</div>
-      <div class="row"><span id="loanFeeLabel">Network Fee</span><span id="loanFee">0.01600000</span> BRD</div>
-      <div class="row total"><span id="loanTotalPayLabel">Total to Pay</span><span id="loanTotalPay">0.16600000</span> BRD</div>
-    </div>
-    
-    <input type="password" id="loanPassword" class="cyber-input" placeholder="Enter your wallet password" style="margin:0.3rem 0; font-size:0.6rem; padding:0.4rem;">
-    
-    <div style="display:flex; gap:0.3rem;">
-      <button id="confirmLoanBtn" class="cyber-btn gold" style="flex:1;"><i class="fas fa-check-circle"></i> <span id="confirmLoanText">Confirm Payment</span></button>
-      <button id="cancelLoanBtn" class="cyber-btn" style="flex:1;"><i class="fas fa-times"></i> <span id="cancelLoanText">Cancel</span></button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== SETTINGS MODAL ===== -->
-<div id="settingsModal" class="modal-overlay">
-  <div class="modal-content">
-    <h2><i class="fas fa-cog" style="color: #6c63ff;"></i> <span id="settingsTitle">Settings</span></h2>
-    <p style="font-size:0.5rem; opacity:0.6; margin:0.3rem 0;" id="settingsSub">Security & Privacy Configuration</p>
-    <div class="settings-grid">
-      <button class="cyber-btn lock" onclick="lockWalletNow()"><i class="fas fa-lock"></i> <span id="settingsLock">Lock Wallet</span></button>
-      <button class="cyber-btn settings" onclick="showViewSeedModal()"><i class="fas fa-eye"></i> <span id="settingsViewSeed">View Seed Phrase</span></button>
-      <button class="cyber-btn private-key" onclick="showPrivateKeyModal()"><i class="fas fa-key"></i> <span id="settingsPrivateKey">Private Key</span></button>
-      <button class="cyber-btn settings" onclick="setup2FA()"><i class="fas fa-shield-alt"></i> <span id="settings2FA">Setup 2FA</span></button>
-      <button class="cyber-btn success" onclick="setupBiometricFromSettings()"><i class="fas fa-fingerprint"></i> <span id="settingsBiometric">Enable Biometrics</span></button>
-      <button class="cyber-btn anon" onclick="showStealthAddress()"><i class="fas fa-mask"></i> <span id="settingsStealth">Stealth Address</span></button>
-      <button class="cyber-btn warning" onclick="showMixerUI()"><i class="fas fa-random"></i> <span id="settingsMixer">Mixer</span></button>
-      <button class="cyber-btn settings" onclick="exportWalletData()"><i class="fas fa-download"></i> <span id="settingsExport">Export Wallet</span></button>
-      <button class="cyber-btn settings" onclick="showToast('🔄 Wallet synchronized!', 'success')"><i class="fas fa-sync-alt"></i> <span id="settingsSync">Sync Now</span></button>
-      <button class="cyber-btn settings" onclick="showToast('📊 Analytics exported!', 'success')"><i class="fas fa-chart-bar"></i> <span id="settingsExportAnalytics">Export Analytics</span></button>
-    </div>
-    <button id="closeSettingsModalBtn" class="cyber-btn primary" style="width:100%; margin-top:1rem;"><i class="fas fa-times"></i> <span id="closeSettingsText">Close Settings</span></button>
-  </div>
-</div>
-
-<!-- ===== STAKE DETAIL MODAL ===== -->
-<div id="stakeModal" class="modal-overlay">
-  <div class="modal-content">
-    <h2><i class="fas fa-layer-group"></i> <span id="stakeDetailTitle">Staking Details</span></h2>
-    <div id="stakeDetailContent" style="margin:0.5rem 0; text-align:left; font-size:0.7rem;">
-      <p><strong id="stakeLockLabel">Pool:</strong> ---</p>
-      <p><strong id="stakeAprLabel">APR:</strong> 20%</p>
-      <p><strong id="stakeMinLabel">Stake Mínimo:</strong> 1 BRD</p>
-      <p><strong id="stakeYourLabel">Seu Stake:</strong> <span id="stakeDetailAmount">0</span> BRD</p>
-      <p><strong id="stakeRewardLabel">Recompensa:</strong> <span id="stakeDetailReward">0</span> BRD</p>
-      <p><strong id="stakeStatusLabel">Status:</strong> <span id="stakeDetailStatus">Sem stake ativo</span></p>
-    </div>
-    <button id="closeStakeModalBtn" class="cyber-btn primary" style="width:100%;"><span id="closeStakeText">Close</span></button>
-  </div>
-</div>
-
-<!-- ===== REWARDS MODAL ===== -->
-<div id="rewardsModal" class="modal-overlay">
-  <div class="modal-content">
-    <h2><i class="fas fa-trophy"></i> <span id="rewardsTitle">Rewards & Achievements</span></h2>
-    <div id="rewardsContent" style="margin:0.5rem 0; text-align:left;">
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.3rem;">
-        <div class="stat-item"><div class="stat-value" id="totalStakedRewards">0</div><div class="stat-label" id="rewardsStakingLabel">Staking Rewards</div></div>
-        <div class="stat-item"><div class="stat-value" id="totalAirdrops">0</div><div class="stat-label" id="rewardsAirdropsLabel">Airdrops</div></div>
-        <div class="stat-item"><div class="stat-value" id="totalTxCount">0</div><div class="stat-label" id="rewardsTxLabel">Transactions</div></div>
-        <div class="stat-item"><div class="stat-value" id="totalFeesPaid">0</div><div class="stat-label" id="rewardsFeesLabel">Fees Paid</div></div>
-      </div>
-    </div>
-    <button id="closeRewardsModalBtn" class="cyber-btn primary" style="width:100%;"><span id="closeRewardsText">Close</span></button>
-  </div>
-</div>
-
-<!-- ===== ANALYTICS MODAL ===== -->
-<div id="analyticsModal" class="modal-overlay">
-  <div class="modal-content" style="max-width:700px;">
-    <i class="fas fa-chart-line" style="font-size: 3rem; color: #ff6b6b;"></i>
-    <h2 style="color: #ff6b6b;" id="analyticsTitle">📊 Analytics Dashboard</h2>
-    <p style="font-size:0.55rem; opacity:0.7;" id="analyticsSub">Real-time wallet analytics</p>
-    <div class="analytics-grid">
-      <div class="analytics-metric">
-        <div class="analytics-value" id="analyticsTotalTx">0</div>
-        <div class="analytics-label" id="analyticsTotalTxLabel">Total TX</div>
-        <div class="analytics-change positive">↑ 0%</div>
-      </div>
-      <div class="analytics-metric">
-        <div class="analytics-value" id="analyticsVolume">0</div>
-        <div class="analytics-label" id="analyticsVolumeLabel">Volume (BRD)</div>
-        <div class="analytics-change positive">↑ 0%</div>
-      </div>
-      <div class="analytics-metric">
-        <div class="analytics-value" id="analyticsAvgTx">0</div>
-        <div class="analytics-label" id="analyticsAvgLabel">Avg TX</div>
-        <div class="analytics-trend">→ 0%</div>
-      </div>
-      <div class="analytics-metric">
-        <div class="analytics-value" id="analyticsFees">0</div>
-        <div class="analytics-label" id="analyticsFeesLabel">Fees Paid</div>
-        <div class="analytics-change negative">↑ 0%</div>
-      </div>
-    </div>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.3rem; margin-top:0.3rem;">
-      <div style="background:#010518; padding:0.4rem; border-radius:1rem; font-size:0.55rem; border:1px solid #a855f733;">
-        <span style="color:#a855f7;">📊 <span id="analyticsDailyTxLabel">Daily TX</span></span>
-        <div style="font-size:0.9rem; color:#00f2ff;" id="analyticsDailyTx">0</div>
-      </div>
-      <div style="background:#010518; padding:0.4rem; border-radius:1rem; font-size:0.55rem; border:1px solid #a855f733;">
-        <span style="color:#a855f7;">📈 <span id="analyticsDailyVolLabel">Daily Volume</span></span>
-        <div style="font-size:0.9rem; color:#00f2ff;" id="analyticsDailyVolume">0 BRD</div>
-      </div>
-      <div style="background:#010518; padding:0.4rem; border-radius:1rem; font-size:0.55rem; border:1px solid #a855f733;">
-        <span style="color:#a855f7;">🔐 <span id="analyticsZkLabel">ZK TX</span></span>
-        <div style="font-size:0.9rem; color:#00ff88;" id="analyticsZkTxs">0</div>
-      </div>
-      <div style="background:#010518; padding:0.4rem; border-radius:1rem; font-size:0.55rem; border:1px solid #a855f733;">
-        <span style="color:#a855f7;">👤 <span id="analyticsUsersLabel">Users</span></span>
-        <div style="font-size:0.9rem; color:#ffd700;" id="analyticsUsers">0</div>
-      </div>
-    </div>
-    <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin-top:0.3rem; border:1px solid #ff6b6b33;">
-      <p style="font-size:0.5rem; color:#ff6b6b; text-align:left;" id="analyticsRecentLabel">⏱️ Recent Activity</p>
-      <div id="analyticsTimeline" style="max-height:100px; overflow-y:auto; font-size:0.5rem; text-align:left;"></div>
-    </div>
-    <div style="display:flex; gap:0.3rem; margin-top:0.3rem;">
-      <button onclick="exportAnalyticsCSV()" class="cyber-btn primary small" style="flex:1;"><i class="fas fa-file-csv"></i> <span id="analyticsCsvBtn">CSV</span></button>
-      <button onclick="exportAnalyticsData()" class="cyber-btn small" style="flex:1;"><i class="fas fa-download"></i> <span id="analyticsJsonBtn">JSON</span></button>
-      <button onclick="refreshAnalytics()" class="cyber-btn success small" style="flex:1;"><i class="fas fa-sync-alt"></i> <span id="analyticsRefreshBtn">Refresh</span></button>
-    </div>
-    <button id="closeAnalyticsModalBtn" class="cyber-btn" style="width:100%; margin-top:0.3rem;"><i class="fas fa-times"></i> <span id="closeAnalyticsText">Close</span></button>
-  </div>
-</div>
-
-<!-- ===== STEALTH ADDRESS MODAL ===== -->
-<div id="stealthModal" class="modal-overlay">
-  <div class="modal-content" style="max-width:500px;">
-    <i class="fas fa-mask" style="font-size: 3rem; color: #9b59b6;"></i>
-    <h2 style="color: #9b59b6;" id="stealthTitle">🕵️ Stealth Address</h2>
-    <p style="font-size:0.6rem; opacity:0.7;" id="stealthDesc">Generate a one-time use stealth address</p>
-    <div style="background:#010518; padding:0.8rem; border-radius:1rem; margin:0.5rem 0; border:1px solid #9b59b6;">
-      <p style="font-size:0.55rem; color:#9b59b6;" id="stealthKeyLabel">🔑 Your Stealth Address</p>
-      <div style="font-family:monospace; font-size:0.6rem; word-break:break-all;" id="stealthAddressDisplay">---</div>
-      <div style="margin-top:0.3rem; display:flex; gap:0.3rem;">
-        <button onclick="generateStealthAddress()" class="cyber-btn anon small" style="flex:1;"><i class="fas fa-sync-alt"></i> <span id="stealthGenerateBtn">Generate New</span></button>
-        <button onclick="copyStealthAddress()" class="cyber-btn small" style="flex:1;"><i class="fas fa-copy"></i> <span id="stealthCopyBtn">Copy</span></button>
-      </div>
-    </div>
-    <p style="font-size:0.5rem; opacity:0.6;" id="stealthNote">🔄 Each transaction uses a different stealth address</p>
-    <button id="closeStealthModalBtn" class="cyber-btn primary" style="width:100%; margin-top:0.3rem;"><i class="fas fa-times"></i> <span id="closeStealthText">Close</span></button>
-  </div>
-</div>
-
-<!-- ===== MIXER MODAL ===== -->
-<div id="mixerModal" class="modal-overlay">
-  <div class="modal-content" style="max-width:500px;">
-    <i class="fas fa-random" style="font-size: 3rem; color: #ffd700;"></i>
-    <h2 style="color: #ffd700;" id="mixerTitle">🔄 Transaction Mixer</h2>
-    <p style="font-size:0.6rem; opacity:0.7;" id="mixerDesc">Mix your transactions for complete anonymity</p>
-    <div style="background:#010518; padding:0.8rem; border-radius:1rem; margin:0.5rem 0; border:1px solid #ffd70033;">
-      <p style="font-size:0.55rem; color:#ffd700;" id="mixerStatusTitle">📊 Mixing Pool Status</p>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.3rem; margin-top:0.3rem; font-size:0.55rem;">
-        <div><span id="mixerParticipantsLabel">Participants</span>: <span id="mixerParticipants">0</span></div>
-        <div><span id="mixerPoolLabel">Pool Size</span>: <span id="mixerPoolSize">0</span> BRD</div>
-        <div><span id="mixerMinLabel">Min</span>: 100 BRD</div>
-        <div><span id="mixerStatusLabel">Status</span>: <span id="mixerStatus">Ready</span></div>
-      </div>
-    </div>
-    <div style="display:flex; gap:0.3rem; margin-top:0.3rem;">
-      <button onclick="joinMixer()" class="cyber-btn gold small" style="flex:1;"><i class="fas fa-plus"></i> <span id="mixerJoinBtn">Join Mixer</span></button>
-      <button onclick="mixTransactions()" class="cyber-btn success small" style="flex:1;"><i class="fas fa-random"></i> <span id="mixerMixBtn">Mix Now</span></button>
-    </div>
-    <button id="closeMixerModalBtn" class="cyber-btn primary" style="width:100%; margin-top:0.3rem;"><i class="fas fa-times"></i> <span id="closeMixerText">Close</span></button>
-  </div>
-</div>
-
-<!-- ===== ZK INFO MODAL ===== -->
-<div id="zkInfoModal" class="modal-overlay">
-</div>
-
-<!-- ===== RECEIVE MODAL COM QR CODE ===== -->
-<div id="receiveModal" class="modal-overlay">
-  <div class="modal-content" style="max-width:500px;">
-    <i class="fas fa-arrow-down" style="font-size: 3rem; color: #00ff88;"></i>
-    <h2 style="color: #00ff88;" id="receiveTitle">📥 Receive BRD</h2>
-    <p style="font-size:0.55rem; opacity:0.7; margin:0.3rem 0;" id="receiveDesc">Scan the QR code below to receive payments</p>
-    
-    <div id="qrCodeContainer">
-      <div id="qrcode"></div>
-    </div>
-    
-    <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.3rem 0; border:1px solid #00ff8833;">
-      <p style="font-size:0.5rem; color:#00ff88;" id="receiveAddressLabel">📤 Your Address</p>
-      <div style="font-family:monospace; font-size:0.55rem; word-break:break-all;" id="receiveAddressDisplay">---</div>
-    </div>
-    
-    <div style="display:flex; gap:0.3rem; margin-top:0.3rem;">
-      <button id="copyReceiveAddressBtn" class="cyber-btn small" style="flex:1;"><i class="fas fa-copy"></i> <span id="receiveCopyBtn">Copy</span></button>
-      <button id="downloadQRBtn" class="cyber-btn success small" style="flex:1;"><i class="fas fa-download"></i> <span id="receiveDownloadBtn">Download QR</span></button>
-    </div>
-    
-    <button id="closeReceiveModalBtn" class="cyber-btn primary" style="width:100%; margin-top:0.5rem;"><i class="fas fa-times"></i> <span id="closeReceiveText">Close</span></button>
-  </div>
-</div>
-
-<!-- ===== MARKETPLACE MODAL ===== -->
-<div id="marketplaceModal" class="modal-overlay">
-  <div class="modal-content" style="max-width:700px;">
-    <i class="fas fa-store" style="font-size: 3rem; color: #ff6b6b;"></i>
-    <h2 style="color: #ff6b6b;" id="marketplaceTitle">🛒 Token Marketplace</h2>
-    <p style="font-size:0.55rem; opacity:0.7; margin:0.3rem 0;" id="marketplaceDesc">Discover tokens created by the BradiCoin community</p>
-    
-    <div style="display:flex; gap:0.3rem; margin-bottom:0.5rem;">
-      <input type="text" id="marketplaceSearch" class="cyber-input" placeholder="Search tokens..." style="font-size:0.55rem; padding:0.3rem; flex:1;">
-      <button id="marketplaceSearchBtn" class="cyber-btn small"><i class="fas fa-search"></i></button>
-    </div>
-    
-    <div id="marketplaceList" class="marketplace-grid">
-      <div class="marketplace-empty" id="marketplaceEmpty">🌐 No tokens in the marketplace yet. Create your first token!</div>
-    </div>
-    
-    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
-      <button id="refreshMarketplaceBtn" class="cyber-btn small" style="flex:1;"><i class="fas fa-sync-alt"></i> <span id="marketplaceRefreshBtn">Refresh</span></button>
-      <button id="closeMarketplaceBtn" class="cyber-btn primary small" style="flex:1;"><i class="fas fa-times"></i> <span id="marketplaceCloseBtn">Close</span></button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== TIP MODAL ===== -->
-<div id="tipModal" class="modal-overlay">
-  <div class="modal-content" style="max-width:500px;">
-    <i class="fas fa-heart" style="font-size: 3rem; color: #ff6b9d;"></i>
-    <h2 style="color: #ff6b9d;" id="tipTitle">💝 Send a Tip</h2>
-    <p style="font-size:0.55rem; opacity:0.7; margin:0.3rem 0;" id="tipDesc">Support creators with a tip in BRD</p>
-    
-    <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.3rem 0; border:1px solid #ff6b9d33;">
-      <p style="font-size:0.5rem; color:#ff6b9d;" id="tipCreatorLabel">👤 Creator</p>
-      <div style="font-family:monospace; font-size:0.55rem; word-break:break-all;" id="tipRecipientDisplay">---</div>
-    </div>
-    
-    <div style="margin:0.5rem 0;">
-      <p style="font-size:0.45rem; color:#666; text-align:left;" id="tipChooseAmount">Choose amount</p>
-      <div style="display:flex; gap:0.3rem; flex-wrap:wrap; justify-content:center; margin:0.3rem 0;">
-        <button class="tip-amount-btn" data-amount="0.1">0.1 BRD</button>
-        <button class="tip-amount-btn" data-amount="0.5">0.5 BRD</button>
-        <button class="tip-amount-btn" data-amount="1">1 BRD</button>
-        <button class="tip-amount-btn" data-amount="5">5 BRD</button>
-        <button class="tip-amount-btn" data-amount="10">10 BRD</button>
-      </div>
-      <input type="number" id="tipAmount" class="cyber-input" placeholder="Custom amount" step="any" style="font-size:0.55rem; padding:0.3rem;">
-    </div>
-    
-    <input type="text" id="tipMessage" class="cyber-input" placeholder="Message (optional)" style="font-size:0.55rem; padding:0.3rem; margin:0.3rem 0;">
-    <input type="password" id="tipPassword" class="cyber-input" placeholder="Your wallet password" style="font-size:0.55rem; padding:0.3rem; margin:0.3rem 0;">
-    
-    <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ffaa0033; font-size:0.45rem;">
-      <span style="color:#ffaa00;">⛽ <span id="tipGasLabel">Gas Fee</span>:</span> <span style="color:#a855f7;">0.05 BRD</span>
-    </div>
-    
-    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
-      <button id="confirmTipBtn" class="cyber-btn tip" style="flex:1;"><i class="fas fa-heart"></i> <span id="tipSendBtn">Send Tip</span></button>
-      <button id="cancelTipBtn" class="cyber-btn" style="flex:1;"><i class="fas fa-times"></i> <span id="tipCancelBtn">Cancel</span></button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== TIPS DASHBOARD MODAL ===== -->
-<div id="tipsDashboardModal" class="modal-overlay">
-  <div class="modal-content" style="max-width:700px;">
-    <i class="fas fa-gift" style="font-size: 3rem; color: #ff6b9d;"></i>
-    <h2 style="color: #ff6b9d;" id="tipsDashTitle">💝 Tips Dashboard</h2>
-    <p style="font-size:0.55rem; opacity:0.7; margin:0.3rem 0;" id="tipsDashDesc">Your tip statistics and history</p>
-    
-    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.3rem; margin:0.5rem 0;">
-      <div class="stat-item" style="border-color:#ff6b9d33;">
-        <div class="stat-value" id="tipsReceived" style="color:#ff6b9d;">0</div>
-        <div class="stat-label" id="tipsReceivedLabel">Tips Received</div>
-      </div>
-      <div class="stat-item" style="border-color:#ff6b9d33;">
-        <div class="stat-value" id="tipsSent" style="color:#ff6b9d;">0</div>
-        <div class="stat-label" id="tipsSentLabel">Tips Sent</div>
-      </div>
-      <div class="stat-item" style="border-color:#ff6b9d33;">
-        <div class="stat-value" id="tipsTotalEarned" style="color:#ff6b9d;">0</div>
-        <div class="stat-label" id="tipsEarnedLabel">Total Earned (BRD)</div>
-      </div>
-    </div>
-    
-    <div style="margin:0.5rem 0;">
-      <p style="font-size:0.5rem; color:#ff6b9d; text-align:left;" id="tipsRankingLabel">🏆 Top Creators</p>
-      <div id="tipsRanking" style="max-height:150px; overflow-y:auto;"></div>
-    </div>
-    
-    <div style="margin:0.5rem 0;">
-      <p style="font-size:0.5rem; color:#ff6b9d; text-align:left;" id="tipsHistoryLabel">📝 Your Tip History</p>
-      <div id="tipsHistory" style="max-height:150px; overflow-y:auto; font-size:0.5rem;"></div>
-    </div>
-    
-    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
-      <button id="refreshTipsBtn" class="cyber-btn small" style="flex:1;"><i class="fas fa-sync-alt"></i> <span id="tipsRefreshBtn">Refresh</span></button>
-      <button id="closeTipsDashboardBtn" class="cyber-btn primary small" style="flex:1;"><i class="fas fa-times"></i> <span id="tipsCloseBtn">Close</span></button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== CREATE NFT MODAL ===== -->
-<div id="createNFTModal" class="modal-overlay">
-  <div class="modal-content" style="max-width:600px;">
-    <i class="fas fa-image" style="font-size: 3rem; color: #ff6b6b;"></i>
-    <h2 id="createNFTTitle" style="color: #ff6b6b;">🎨 Create NFT</h2>
-    <p id="createNFTSub" style="font-size:0.55rem; opacity:0.7;">Mint your own NFT on BradiCoin</p>
-    
-    <div style="text-align:left; margin-top:0.5rem;">
-      <label style="font-size:0.55rem; opacity:0.7;" id="nftTitleLabel">NFT Title *</label>
-      <input type="text" id="nftTitle" class="cyber-input" placeholder="My Awesome NFT" style="font-size:0.6rem; padding:0.4rem; margin:0.2rem 0;">
-      
-      <label style="font-size:0.55rem; opacity:0.7;" id="nftDescLabel">Description (optional)</label>
-      <textarea id="nftDescription" class="cyber-input" placeholder="Describe your NFT..." style="font-size:0.6rem; padding:0.4rem; margin:0.2rem 0; min-height:60px; resize:vertical;"></textarea>
-      
-      <label style="font-size:0.55rem; opacity:0.7;" id="nftPriceLabel">Price (BRD) *</label>
-      <input type="number" id="nftPrice" class="cyber-input" placeholder="0.50" step="any" style="font-size:0.6rem; padding:0.4rem; margin:0.2rem 0;">
-      
-      <label style="font-size:0.55rem; opacity:0.7;" id="nftImageLabel">NFT Image * (min 200x200)</label>
-      <div class="token-preview" id="nftPreview">
-        <span class="placeholder">🖼️ 200x200 min</span>
-      </div>
-      <input type="file" id="nftImage" class="cyber-input file-input" accept="image/*" style="font-size:0.55rem; padding:0.3rem;">
-      <p style="font-size:0.45rem; color:#666; margin:0.2rem 0;" id="nftImageHint">📏 Minimum size: 200 x 200 pixels</p>
-    </div>
-    
-    <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.5rem 0; border:1px solid #ff6b6b33;">
-      <div style="display:flex; justify-content:space-between; font-size:0.55rem;">
-        <span style="color:#ff6b6b;" id="nftMintFeeLabel">💰 Minting Fee</span>
-        <span style="color:#00ff88;">0.120000 BRD</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; font-size:0.45rem; color:#666;">
-        <span>≈ $1.20 USD</span>
-        <span id="nftNetworkFee">⛽ <span id="nftNetworkFeeLabel">Network fee</span>: 0.005 BRD</span>
-      </div>
-    </div>
-    
-    <input type="password" id="nftPassword" class="cyber-input" placeholder="Your wallet password" style="font-size:0.6rem; padding:0.4rem; margin:0.3rem 0;">
-    
-    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
-      <button id="createNFTSubmitBtn" class="cyber-btn" style="flex:1; border-color:#ff6b6b; color:#ff6b6b;"><i class="fas fa-image"></i> <span id="createNFTBtnText">Create NFT</span></button>
-      <button id="cancelCreateNFTBtn" class="cyber-btn" style="flex:1;"><i class="fas fa-times"></i> <span id="cancelNFTText">Cancel</span></button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== NFT PAYMENT MODAL ===== -->
-<div id="nftPaymentModal" class="modal-overlay">
-  <div class="modal-content" style="max-width:500px;">
-    <i class="fas fa-image" style="font-size: 3rem; color: #ffd700;"></i>
-    <h2 style="color: #ffd700;" id="nftPaymentTitle">💰 NFT Minting Payment</h2>
-    <p style="font-size:0.55rem; opacity:0.7;" id="nftPaymentDesc">Complete payment to mint your NFT</p>
-    
-    <div style="background:#010518; padding:0.8rem; border-radius:1rem; margin:0.5rem 0; border:1px solid #ffd70033; text-align:left;">
-      <div style="display:flex; justify-content:space-between; font-size:0.55rem; padding:0.2rem 0;">
-        <span style="color:#ff6b6b;">🎨 <span id="nftPaymentNftLabel">NFT</span></span>
-        <span style="color:#00f2ff;" id="nftPaymentTitleDisplay">---</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; font-size:0.55rem; padding:0.2rem 0;">
-        <span style="color:#ff6b6b;">💰 <span id="nftPaymentPriceLabel">Price</span></span>
-        <span style="color:#00ff88;" id="nftPaymentPrice">0</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; font-size:0.55rem; padding:0.2rem 0;">
-        <span style="color:#ff6b6b;">⛽ <span id="nftPaymentFeeLabel">Network Fee</span></span>
-        <span style="color:#ffaa00;" id="nftPaymentFee">0.005 BRD</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; font-size:0.55rem; padding:0.2rem 0; border-top:1px solid #ffd70033; margin-top:0.2rem; padding-top:0.3rem;">
-        <span style="color:#ffd700; font-weight:700;" id="nftPaymentTotalLabel">Total</span>
-        <span style="color:#ffd700; font-weight:700;" id="nftPaymentTotal">0.125000 BRD</span>
-      </div>
-    </div>
-    
-    <input type="password" id="nftPaymentPassword" class="cyber-input" placeholder="Your wallet password" style="font-size:0.6rem; padding:0.4rem; margin:0.3rem 0;">
-    
-    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
-      <button id="confirmNFTPaymentBtn" class="cyber-btn gold" style="flex:1;"><i class="fas fa-check-circle"></i> <span id="confirmNFTText">Confirm Payment</span></button>
-      <button id="cancelNFTPaymentBtn" class="cyber-btn" style="flex:1;"><i class="fas fa-times"></i> <span id="cancelNFTPaymentText">Cancel</span></button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== NFT DETAIL MODAL ===== -->
-<div id="nftDetailModal" class="modal-overlay">
-  <div class="modal-content" style="max-width:550px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-      <h2 style="color:#ff6b6b;" id="nftDetailTitle">🎨 NFT</h2>
-      <button id="closeNFTDetailBtn" class="cyber-btn small" style="font-size:0.5rem; padding:0.2rem 0.8rem;"><i class="fas fa-times"></i></button>
-    </div>
-    
-    <div id="nftDetailContent" style="text-align:center;">
-      <div style="width:200px; height:200px; border-radius:1rem; margin:0 auto; border:2px solid #ff6b6b; overflow:hidden; background:#010518; display:flex; align-items:center; justify-content:center;">
-        <img id="nftDetailImage" src="" alt="NFT" style="width:100%; height:100%; object-fit:cover; display:none;">
-        <span id="nftDetailPlaceholder" style="color:#666; font-size:1rem;">🖼️</span>
-      </div>
-      <h3 id="nftDetailName" style="color:#00f2ff; margin:0.5rem 0 0.2rem;">---</h3>
-      <p id="nftDetailDesc" style="font-size:0.55rem; opacity:0.7; margin:0.2rem 0;">---</p>
-      <div style="display:flex; justify-content:center; gap:0.5rem; margin:0.3rem 0;">
-        <span style="font-size:0.55rem; color:#ffd700;">💰 <span id="nftDetailPriceLabel">Price</span>: <span id="nftDetailPrice">0</span> BRD</span>
-        <span style="font-size:0.45rem; color:#666;">🆔 <span id="nftDetailId">---</span></span>
-      </div>
-      <div style="font-size:0.45rem; color:#666;">👤 <span id="nftDetailOwnerLabel">Owner</span>: <span id="nftDetailOwner">---</span></div>
-      
-      <div style="margin-top:0.5rem; display:flex; gap:0.3rem;">
-        <button id="nftSendBtn" class="cyber-btn small" style="flex:1; border-color:#ff6b6b; color:#ff6b6b;"><i class="fas fa-paper-plane"></i> <span id="nftSendBtnText">Send NFT</span></button>
-        <button id="nftCloseDetailBtn" class="cyber-btn primary small" style="flex:1;"><i class="fas fa-times"></i> <span id="nftCloseDetailText">Close</span></button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== SEND NFT MODAL ===== -->
-<div id="sendNFTModal" class="modal-overlay">
-  <div class="modal-content" style="max-width:500px;">
-    <i class="fas fa-paper-plane" style="font-size: 3rem; color: #ff6b6b;"></i>
-    <h2 style="color: #ff6b6b;" id="sendNFTTitle">📤 Send NFT</h2>
-    <p style="font-size:0.55rem; opacity:0.7;" id="sendNFTDesc">Transfer NFT to another BradiCoin wallet</p>
-    
-    <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.3rem 0; border:1px solid #ff6b6b33;">
-      <p style="font-size:0.5rem; color:#ff6b6b;">🎨 <span id="sendNFTNftLabel">NFT</span></p>
-      <div style="font-family:monospace; font-size:0.6rem; color:#00f2ff;" id="sendNFTTitleDisplay">---</div>
-    </div>
-    
-    <input type="text" id="sendNFTRecipient" class="cyber-input" placeholder="Recipient BradiCoin address" style="font-size:0.55rem; padding:0.3rem; margin:0.3rem 0;">
-    <input type="password" id="sendNFTPassword" class="cyber-input" placeholder="Your wallet password" style="font-size:0.55rem; padding:0.3rem; margin:0.3rem 0;">
-    
-    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
-      <button id="confirmSendNFTBtn" class="cyber-btn" style="flex:1; border-color:#ff6b6b; color:#ff6b6b;"><i class="fas fa-check"></i> <span id="sendNFTConfirmBtn">Send NFT</span></button>
-      <button id="cancelSendNFTBtn" class="cyber-btn" style="flex:1;"><i class="fas fa-times"></i> <span id="sendNFTCancelBtn">Cancel</span></button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== BUY BRADICOIN MODAL ===== -->
-<div id="buyBradicoinModal" class="modal-overlay">
-  <div class="modal-content" style="max-width:560px;">
-    <i class="fas fa-shopping-cart" style="font-size:3rem; color:#ffd700;"></i>
-    <h2 style="color:#ffd700;" id="buyModalTitle">🛒 Buy Bradicoin</h2>
-    <p style="font-size:0.55rem; opacity:0.7; margin:0.3rem 0;" id="buyModalSub">Select a payment method and amount</p>
-
-    <!-- SELECT MOEDA -->
-    <div style="text-align:left; margin-top:0.8rem;">
-      <label style="font-size:0.55rem; opacity:0.7; color:#a855f7;" id="buyCurrencyLabel">💰 Payment Currency</label>
-      <select id="buyCurrencySelect" class="cyber-input" style="font-size:0.65rem; padding:0.5rem; margin:0.2rem 0;">
-        <option value="BTC">₿ Bitcoin (BTC)</option>
-        <option value="ETH">Ξ Ethereum (ETH)</option>
-        <option value="SOL">◎ Solana (SOL)</option>
-        <option value="BNB">◈ Binance Coin (BNB)</option>
-        <option value="USDT">₮ Tether (USDT)</option>
-      </select>
-    </div>
-
-    <!-- WALLET DE ORIGEM (do usuário) -->
-    <div style="text-align:left; margin-top:0.5rem;">
-      <label style="font-size:0.55rem; opacity:0.7; color:#a855f7;" id="buyFromWalletLabel">📤 Your Sender Wallet</label>
-      <input type="text" id="buyFromWallet" class="cyber-input" placeholder="Your BTC/ETH/SOL/BNB/USDT wallet address" style="font-size:0.6rem; padding:0.5rem; margin:0.2rem 0;">
-    </div>
-
-    <!-- WALLET BRADICOIN (recebe) -->
-    <div style="text-align:left; margin-top:0.5rem;">
-      <label style="font-size:0.55rem; opacity:0.7; color:#00ff88;" id="buyToWalletLabel">📥 Your BradiCoin Wallet (receive)</label>
-      <input type="text" id="buyToWallet" class="cyber-input" placeholder="Your BradiCoin wallet" readonly style="font-size:0.6rem; padding:0.5rem; margin:0.2rem 0; border-color:#00ff88; background:#010518; color:#00ff88; cursor:not-allowed;">
-      <p style="font-size:0.45rem; color:#666; margin:0.1rem 0;" id="buyToWalletHint">🔒 Auto-filled from your wallet</p>
-    </div>
-
-    <!-- VALOR EM BRD -->
-    <div style="text-align:left; margin-top:0.5rem;">
-      <label style="font-size:0.55rem; opacity:0.7; color:#ffd700;" id="buyAmountLabel">💎 Amount in BRD</label>
-      <input type="number" id="buyAmountBrd" class="cyber-input" placeholder="0.00" step="any" style="font-size:0.65rem; padding:0.5rem; margin:0.2rem 0; border-color:#ffd700;">
-    </div>
-
-    <!-- RESUMO -->
-    <div id="buySummary" style="background:#010518; padding:0.8rem; border-radius:1rem; margin:0.7rem 0; border:1px solid #ffd70033; text-align:left; display:none;">
-      <div style="display:flex; justify-content:space-between; font-size:0.55rem; padding:0.15rem 0;">
-        <span style="color:#a855f7;" id="sumCurrencyLabel">Currency</span>
-        <span style="color:#00f2ff;" id="sumCurrency">—</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; font-size:0.55rem; padding:0.15rem 0;">
-        <span style="color:#a855f7;" id="sumAmountLabel">You buy</span>
-        <span style="color:#ffd700; font-weight:700;" id="sumAmountBrd">0 BRD</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; font-size:0.5rem; padding:0.15rem 0; border-top:1px solid #a855f733; margin-top:0.3rem; padding-top:0.3rem;">
-        <span style="color:#666;" id="sumToLabel">Receiving on</span>
-        <span style="color:#00ff88; font-family:monospace; font-size:0.45rem; word-break:break-all; max-width:60%; text-align:right;" id="sumToWallet">—</span>
-      </div>
-    </div>
-
-    <!-- BOTÕES -->
-    <div style="display:flex; gap:0.3rem; margin-top:0.5rem;">
-      <button id="buyModalOkBtn" class="cyber-btn gold" style="flex:1; background: linear-gradient(135deg, #ffd700, #ffaa00); color:#0a0f1e; border:none; font-weight:700;">
-        <i class="fas fa-check-circle"></i> <span id="buyModalOkText">OK — Confirm</span>
-      </button>
-      <button id="buyModalCancelBtn" class="cyber-btn" style="flex:1;">
-        <i class="fas fa-times"></i> <span id="buyModalCancelText">Cancel</span>
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== MAIN DASHBOARD ===== -->
-<div id="mainDashboard" class="main-dashboard">
-  <div class="container">
-    <div class="top-bar">
-      <div class="logo-area">
-        <div class="logo-placeholder"><i class="fas fa-microchip"></i></div>
-        <h1 id="dashboardTitle" style="font-size:1.2rem;">BRADICOIN</h1>
-        <span class="network-badge"><i class="fas fa-link"></i> <span id="networkLabel">Mainnet</span></span>
-        <span class="notification-dot online" id="networkStatus"></span>
-        <span class="security-badge secure" id="securityBadge"><i class="fas fa-lock"></i> <span id="securityLabel">Secure</span></span>
-        <span class="notification-bell" id="notificationBell" onclick="toggleNotifications()">
-          <i class="fas fa-bell" style="font-size:1rem; color:#ffd700;"></i>
-          <span class="badge" id="notifBadge">0</span>
-        </span>
-        <span class="tip-badge"><i class="fas fa-heart"></i> <span id="tipsBadgeLabel">Tips</span></span>
-      </div>
-      <div class="price-ticker">
-        <span>BRD/USD <span id="priceDisplay">$10.00</span></span>
-        <span>24h <span id="priceChange" style="color:#00ff88;">+2.5%</span></span>
-      </div>
-      <div class="wallet-actions">
-        <button id="buyBradicoinBtn" class="cyber-btn gold small" style="background: linear-gradient(135deg, #ffd700, #ffaa00); color: #0a0f1e; border: none; font-weight: 700;"><i class="fas fa-shopping-cart"></i> <span id="buyBradicoinBtnLabel">Buy Bradicoin</span></button>
-        <button id="tipsDashboardBtn" class="cyber-btn tip small"><i class="fas fa-gift"></i> <span id="tipsDashBtnLabel">Tips</span></button>
-        <button id="createTokenBtn" class="cyber-btn create-token small"><i class="fas fa-coins"></i> <span id="tokenBtnLabel">Token</span></button>
-        <button id="marketplaceBtn" class="cyber-btn marketplace small"><i class="fas fa-store"></i></button>
-        <button id="lockWalletBtn" class="cyber-btn lock small"><i class="fas fa-lock"></i> <span id="lockBtnLabel">Lock</span></button>
-        <button id="analyticsBtn" class="cyber-btn analytics small"><i class="fas fa-chart-line"></i></button>
-        <button id="settingsBtn" class="cyber-btn settings small"><i class="fas fa-cog"></i></button>
-        <button id="rewardsBtn" class="cyber-btn gold small"><i class="fas fa-trophy"></i></button>
-        <button id="logoutBtn" class="cyber-btn danger small"><i class="fas fa-sign-out-alt"></i></button>
-      </div>
-    </div>
-
-    <div class="dashboard-grid">
-      <!-- Balance Card -->
-      <div class="neon-card">
-        <h3 style="font-size:0.9rem;"><i class="fas fa-chart-line"></i> <span id="balanceTitle">BRD Balance</span></h3>
-        <div class="balance-amount" id="balance" style="font-size:2rem;">0.00000000</div>
-        <div class="balance-usd" id="usdBalance" style="font-size:0.8rem;">$0.00 USD</div>
-        <div style="display:flex; gap:0.5rem; margin:0.3rem 0; flex-wrap:wrap;">
-          <div class="stat-item" style="flex:1; padding:0.4rem;">
-            <div class="stat-value" id="totalTransactions" style="font-size:0.8rem;">0</div>
-            <div class="stat-label" id="txLabel">TX</div>
-          </div>
-          <div class="stat-item" style="flex:1; padding:0.4rem;">
-            <div class="stat-value" id="stakedAmount" style="font-size:0.8rem;">0</div>
-            <div class="stat-label" id="stakedLabel">Staked</div>
-          </div>
-          <div class="stat-item" style="flex:1; padding:0.4rem;">
-          </div>
-        </div>
-        <label style="font-size:0.6rem;" id="walletAddressLabel">Your Wallet Address</label>
-        <div class="cyber-input" id="addressDisplay" style="font-size:0.55rem; padding:0.4rem;">—</div>
-        <div style="display:flex; gap:0.3rem; margin-top:0.3rem;">
-          <button id="copyAddressBtn" class="cyber-btn small" style="flex:1;"><i class="far fa-copy"></i> <span id="copyAddrBtnText">Copy</span></button>
-          <button id="checkChainBalanceBtn" class="cyber-btn small" style="flex:1;"><i class="fas fa-link"></i> <span id="verifyBtnText">Verify</span></button>
-          <button id="zkStatusBtn" class="cyber-btn small zk" style="flex:1;"><i class="fas fa-shield-alt"></i> ZK</button>
-        </div>
-        <div style="background:#010518; padding:0.4rem; border-radius:1rem; margin-top:0.5rem; font-size:0.5rem; display:flex; justify-content:space-between;">
-          <span>🔐 <span id="encryptedLabel">Encrypted</span></span>
-          <span id="walletStatus">● <span id="onlineLabel">Online</span></span>
-        </div>
-      </div>
-
-      <!-- Staking Card -->
-      <div class="neon-card">
-        <h3 style="font-size:0.9rem;"><i class="fas fa-layer-group"></i> <span id="stakingTitle">Staking Pool</span></h3>
-        <div class="staking-pool" style="padding:0.8rem;">
-          <div style="display:flex; justify-content:space-between; font-size:0.7rem;">
-            <strong id="lockPeriodLabel">Escolha o pool</strong>
-            <span style="color:#00ff88;">20% APR</span>
-          </div>
-          <div style="font-size:0.6rem; margin:0.3rem 0;" id="stakeMinInfo">⚡ <span id="stakeMinText">Mín</span>: 1 BRD | 📈 20% <span id="annualLabel">anual</span></div>
-          <select id="stakePoolSelect" class="cyber-input" style="font-size:0.6rem; padding:0.4rem; margin-bottom:0.3rem;">
-            <option value="24h">📅 24 Hours (min 1 BRD)</option>
-            <option value="7d">📆 7 Days (min 10 BRD)</option>
-            <option value="30d">🗓️ 30 Days (min 100 BRD)</option>
-          </select>
-          <input type="number" id="stakeAmount" class="cyber-input" placeholder="Quantidade para stake" step="any" style="font-size:0.6rem; padding:0.4rem;">
-          <button id="stakeBtn" class="cyber-btn primary" style="width:100%; margin-top:0.3rem; font-size:0.6rem; padding:0.4rem;"><i class="fas fa-lock"></i> <span id="stakeBtnLabel">Fazer Stake</span></button>
-        </div>
-        <div id="stakeInfo" class="staking-timer" style="font-size:0.55rem;">💎 <span id="noActiveStake">Sem stake ativo</span></div>
-        <div style="display:flex; gap:0.3rem;">
-          <button id="unstakeBtn" class="cyber-btn success small" style="flex:1;"><i class="fas fa-unlock-alt"></i> <span id="unstakeBtnLabel">Resgatar</span></button>
-          <button id="viewStakeDetailsBtn" class="cyber-btn small" style="flex:1;"><i class="fas fa-info-circle"></i> <span id="detailsBtnLabel">Detalhes</span></button>
-        </div>
-        <div style="margin-top:0.3rem; font-size:0.5rem; opacity:0.6; text-align:center;">
-          <span id="totalStakedLabel">Total em Stake</span>: <span id="totalStaked">0</span> BRD
-        </div>
-      </div>
-
-      <!-- Actions Card -->
-      <div class="neon-card">
-        <h3 style="font-size:0.9rem;"><i class="fas fa-exchange-alt"></i> <span id="actionsTitle">Actions</span></h3>
-        <div class="quick-actions">
-          <button id="sendBtn" class="cyber-btn primary small"><i class="fas fa-paper-plane"></i> <span id="sendBtnLabel">Send</span></button>
-          <button id="receiveBtn" class="cyber-btn success small"><i class="fas fa-arrow-down"></i> <span id="receiveBtnLabel">Receive</span></button>
-          <button id="claimAirdropBtn" class="cyber-btn warning small"><i class="fas fa-gift"></i> <span id="airdropBtnLabel">Airdrop</span></button>
-          <button id="historyBtn" class="cyber-btn small"><i class="fas fa-history"></i> <span id="historyBtnLabel">History</span></button>
-          <button id="zkPrivateSendBtn" class="cyber-btn zk small"><i class="fas fa-shield-alt"></i> <span id="privateBtnLabel">Private</span></button>
-          <button id="stealthBtn" class="cyber-btn anon small"><i class="fas fa-mask"></i> <span id="stealthBtnLabel">Stealth</span></button>
-          <button id="createNFTBtn" class="cyber-btn small" style="border-color:#ff6b6b; color:#ff6b6b;"><i class="fas fa-image"></i> <span id="nftBtnLabel">NFT</span></button>
-        </div>
-        <div class="referral-box" style="padding:0.4rem;">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:0.5rem;"><i class="fas fa-user-plus"></i> <span id="referralLabel">Referral</span></span>
-            <span class="referral-code" id="referralCode" style="font-size:0.6rem;">BRD-XXXX</span>
-            <button id="copyReferralBtn" class="cyber-btn small" style="padding:0.1rem 0.5rem;"><i class="fas fa-copy"></i></button>
-          </div>
-        </div>
-        <div id="txStatus" class="status-msg" style="font-size:0.55rem;"></div>
-        <h4 style="font-size:0.7rem; margin-top:0.3rem;"><i class="fas fa-history"></i> <span id="recentActivityLabel">Recent Activity</span></h4>
-        <div id="transactionsList" class="transaction-list"><span id="noTransactionsLabel">No transactions yet</span></div>
-      </div>
-    </div>
-
-    <!-- MY TOKENS CARD -->
-    <div class="neon-card" style="margin-top:1.5rem;">
-      <h3 style="font-size:0.9rem;"><i class="fas fa-coins"></i> <span id="myTokensTitle">My Tokens</span></h3>
-      <div id="tokensContainer" style="margin-top:0.5rem;">
-        <p style="font-size:0.6rem; opacity:0.5; text-align:center;" id="noTokensMsg">No tokens created yet. Click "Create Token" to get started!</p>
-        <div id="tokensList" class="tokens-grid"></div>
-      </div>
-    </div>
-
-    <!-- MY NFTS CARD -->
-    <div class="neon-card" style="margin-top:1.5rem; border-color:#ff6b6b33;">
-      <h3 style="font-size:0.9rem;"><i class="fas fa-image" style="color:#ff6b6b;"></i> <span style="color:#ff6b6b;" id="myNFTsTitle">My NFTs</span></h3>
-      <div style="display:flex; gap:0.5rem; margin:0.5rem 0;">
-        <button id="createNFTBtnDashboard" class="cyber-btn" style="border-color:#ff6b6b; color:#ff6b6b; flex:1;"><i class="fas fa-plus-circle"></i> <span id="createNFTBtnTextDashboard">Create NFT</span></button>
-      </div>
-      <div id="nftsContainer" style="margin-top:0.5rem;">
-        <p style="font-size:0.6rem; opacity:0.5; text-align:center;" id="noNFTsMsg">No NFTs created yet. Click "Create NFT" to get started!</p>
-        <div id="nftsList" class="nfts-grid"></div>
-      </div>
-    </div>
-
-    <!-- TIPS CARD -->
-    <div class="neon-card" style="margin-top:1.5rem; border-color:#ff6b9d33;">
-      <h3 style="font-size:0.9rem;"><i class="fas fa-heart" style="color:#ff6b9d;"></i> <span style="color:#ff6b9d;" id="tipsCardTitle">Creator Tips</span></h3>
-      <div style="display:flex; gap:0.5rem; margin:0.3rem 0; flex-wrap:wrap;">
-        <div class="stat-item" style="flex:1; border-color:#ff6b9d33;">
-          <div class="stat-value" id="tipsReceivedCount" style="color:#ff6b9d; font-size:0.8rem;">0</div>
-          <div class="stat-label" id="tipsCardReceivedLabel">Tips Received</div>
-        </div>
-        <div class="stat-item" style="flex:1; border-color:#ff6b9d33;">
-          <div class="stat-value" id="tipsEarnedDisplay" style="color:#ff6b9d; font-size:0.8rem;">0</div>
-          <div class="stat-label" id="tipsCardEarnedLabel">BRD Earned</div>
-        </div>
-        <div class="stat-item" style="flex:1; border-color:#ff6b9d33;">
-          <div class="stat-value" id="tipsSentCount" style="color:#ff6b9d; font-size:0.8rem;">0</div>
-          <div class="stat-label" id="tipsCardSentLabel">Tips Sent</div>
-        </div>
-      </div>
-      <div style="display:flex; gap:0.3rem; margin-top:0.3rem;">
-        <input type="text" id="tipCreatorAddress" class="cyber-input" placeholder="Creator address to tip..." style="font-size:0.5rem; padding:0.3rem; flex:1;">
-        <button id="quickTipBtn" class="cyber-btn tip small"><i class="fas fa-heart"></i> <span id="quickTipBtnLabel">Tip</span></button>
-        <button id="viewTipsDashboardBtn" class="cyber-btn small"><i class="fas fa-chart-bar"></i> <span id="tipsStatsBtnLabel">Stats</span></button>
-      </div>
-      <div style="font-size:0.45rem; opacity:0.5; margin-top:0.3rem; text-align:center;" id="tipsCardFooter">
-        💝 Support creators in the BradiCoin ecosystem with tips
-      </div>
-    </div>
-
-    <!-- Innovative Features -->
-    <div class="neon-card" style="margin-top:1.5rem; grid-column: span 1;">
-      <h3 style="font-size:0.8rem;"><i class="fas fa-rocket"></i> <span id="innovativeTitle">Innovative Features</span></h3>
-      
-      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ff880033;">
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-          <span id="burnerLabel">🔥 Burner Wallet</span>
-          <div>
-            <span id="burnerStatus" style="font-size:0.45rem;">💤 <span id="burnerStatusText">No burner active</span></span>
-            <button id="createBurnerBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#ff8800;"><span id="burnerCreateBtn">Create</span></button>
-            <button id="destroyBurnerBtn" class="cyber-btn danger small" style="font-size:0.4rem; padding:0.1rem 0.4rem;"><span id="burnerDestroyBtn">Destroy</span></button>
-          </div>
-        </div>
-      </div>
-            <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #9b59b633;">
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-          <span id="decoyLabel">🕵️ Decoy Mode</span>
-          <div>
-            <span id="decoyBadge" style="font-size:0.4rem;">👁️ <span id="decoyBadgeText">Real Balance</span></span>
-            <button id="decoyToggleBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#9b59b6;"><span id="decoyToggleBtnText">Toggle</span></button>
-          </div>
-        </div>
-      </div>
-      
-       <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ff005533;">
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-          <span id="boobyLabel">💣 Booby Traps</span>
-          <div>
-            <span id="whitelistCount" style="font-size:0.4rem;">0</span>
-            <button id="addWhitelistBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#ff0055;"><span id="addWhitelistBtnText">+ Add</span></button>
-          </div>
-        </div>
-        <div id="whitelistDisplay" style="font-size:0.4rem; max-height:60px; overflow-y:auto; margin-top:0.2rem;"></div>
-      </div>
-      
-      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ffd70033;">
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-          <span id="deadManLabel">💀 Dead Man's Switch</span>
-          <div>
-            <span id="deadManStatus" style="font-size:0.4rem;">❌ <span id="deadManStatusText">Not configured</span></span>
-            <button id="deadManBtn" class="cyber-btn gold small" style="font-size:0.4rem; padding:0.1rem 0.4rem;"><span id="deadManSetupBtn">Setup</span></button>
-          </div>
-        </div>
-      </div>
-      
-      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #00f2ff33;">
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-          <span id="shadowLabel">🌐 Shadow Mirror</span>
-          <div>
-            <button id="addShadowBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#00f2ff;"><span id="shadowAddBtn">+ Add</span></button>
-            <button id="syncShadowBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem; border-color:#00f2ff;"><span id="shadowSyncBtn">Sync</span></button>
-          </div>
-        </div>
-        <div id="shadowList" style="font-size:0.4rem; max-height:60px; overflow-y:auto; margin-top:0.2rem;"></div>
-      </div>
-      
-      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #9b59b633;">
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-          <span id="ephemeralLabel">🔑 Ephemeral Keys</span>
-          <div>
-            <span id="ephemeralStatus" style="font-size:0.4rem;">🔑 <span id="ephemeralStatusText">No key</span></span>
-            <button id="genEphemeralBtn" class="cyber-btn zk small" style="font-size:0.4rem; padding:0.1rem 0.4rem;"><span id="ephemeralGenBtn">Generate</span></button>
-          </div>
-        </div>
-      </div>
-      
-      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ffaa0033;">
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-          <span id="gaslessLabel">⛽ Gasless Mode</span>
-          <div>
-            <span id="gaslessStatus" style="font-size:0.4rem;">⛽ <span id="gaslessGasLabel">Gas</span>: 0.15 BRD</span>
-            <button id="gaslessToggleBtn" class="cyber-btn warning small" style="font-size:0.4rem; padding:0.1rem 0.4rem;"><span id="gaslessToggleBtnText">Toggle</span></button>
-          </div>
-        </div>
-      </div>
-      
-      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #00ff8833;">
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-          <span id="zkVerifyLabel">🔐 ZK-Proof Verifier</span>
-      </div>
-      
-      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #ff005533;">
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-          <span id="sweepLabel">🧹 Sweep & Destroy</span>
-          <button id="sweepDestroyBtn" class="cyber-btn danger small" style="font-size:0.4rem; padding:0.1rem 0.4rem;"><span id="sweepExecuteBtn">⚠️ Execute</span></button>
-        </div>
-      </div>
-      
-      <div style="background:#010518; padding:0.4rem; border-radius:0.8rem; margin:0.3rem 0; border:1px solid #a855f733;">
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.55rem;">
-          <span id="securityAlertsLabel">🔔 Security Alerts</span>
-          <div>
-            <span id="alertBadge" style="background:#ff0055; color:#fff; border-radius:50%; padding:0.1rem 0.4rem; font-size:0.4rem; display:none;">0</span>
-            <button id="clearAlertsBtn" class="cyber-btn small" style="font-size:0.4rem; padding:0.1rem 0.4rem;"><span id="clearAlertsBtnText">Clear</span></button>
-          </div>
-        </div>
-        <div id="securityAlerts" style="font-size:0.4rem; max-height:80px; overflow-y:auto; margin-top:0.2rem;"></div>
-      </div>
-    </div>
-
-    <footer>
-      <span id="footerText">Non-Custodial · 18% APR · BradiCoin Ecosystem</span>
-      <br><span style="font-size:0.45rem;">© 2026 BradiCoin. 🔐 ZK-SNARK Privacy | 🕵️ Stealth | 🔄 Mixer | 🛒 Marketplace | 💝 Tips</span>
-    </footer>
-  </div>
-</div>
-
-
 </body>
 </html>
