@@ -1853,15 +1853,15 @@ window.WORD_LIST = WORD_LIST
 
     <!-- SELECT MOEDA -->
     <div style="text-align:left; margin-top:0.8rem;">
-      <label style="font-size:0.55rem; opacity:0.7; color:#a855f7;" id="buyCurrencyLabel">💰 Payment Currency</label>
-      <select id="buyCurrencySelect" class="cyber-input" style="font-size:0.65rem; padding:0.5rem; margin:0.2rem 0;">
-        <option value="BTC">₿ Bitcoin (BTC)</option>
-        <option value="ETH">Ξ Ethereum (ETH)</option>
-        <option value="SOL">◎ Solana (SOL)</option>
-        <option value="BNB">◈ Binance Coin (BNB)</option>
-        <option value="USDT">₮ Tether (USDT)</option>
-      </select>
-    </div>
+     <select id="buyCurrencySelect" class="cyber-input" style="font-size:0.65rem; padding:0.5rem; margin:0.2rem 0;">
+       <option value="BNB|bsc" selected>◈ Binance Coin (BNB) — BSC</option>
+       <option value="USDT|bsc">₮ Tether (USDT) — BEP-20 (BSC)</option>
+       <option value="BTC|bitcoin" disabled>₿ Bitcoin (BTC) — coming soon</option>
+       <option value="ETH|ethereum" disabled>Ξ Ethereum (ETH) — coming soon</option>
+       <option value="USDT|ethereum" disabled>₮ Tether (USDT) — ERC-20 — coming soon</option>
+       <option value="SOL|solana" disabled>◎ Solana (SOL) — coming soon</option>
+    </select>
+ </div>
 
     <!-- WALLET DE ORIGEM (do usuário) -->
     <div style="text-align:left; margin-top:0.5rem;">
@@ -1907,6 +1907,54 @@ window.WORD_LIST = WORD_LIST
         <i class="fas fa-times"></i> <span id="buyModalCancelText">Cancel</span>
       </button>
     </div>
+  </div>
+</div>
+
+<!-- ===== PAYMENT MODAL (send payment) ===== -->
+<div id="paymentModal" class="modal-overlay" style="z-index: 3600;">
+  <div class="modal-content" style="max-width:600px;">
+    <i class="fas fa-clock" style="font-size:3rem; color:#ffd700;" id="paymentIcon"></i>
+    <h2 style="color:#ffd700;" id="paymentTitle">💸 Send Payment</h2>
+    <p style="font-size:0.55rem; opacity:0.7;" id="paymentSub">Copy the address or scan the QR code</p>
+
+    <!-- Exact amount -->
+    <div style="background:#010518; padding:0.8rem; border-radius:1rem; margin:0.6rem 0; border:1px solid #ffd70033; text-align:center;">
+      <p style="font-size:0.5rem; color:#ffd700; margin-bottom:0.3rem;" id="paymentAmountLabel">💰 Exact amount to send</p>
+      <div style="font-size:1.4rem; font-weight:800; color:#00f2ff; font-family:monospace;" id="paymentAmountDisplay">---</div>
+      <p style="font-size:0.45rem; color:#666; margin-top:0.2rem;" id="paymentAmountNote">⚠️ Send the EXACT amount. Difference &gt;2% will be rejected.</p>
+    </div>
+
+    <!-- QR Code -->
+    <div id="paymentQrContainer" style="background:#fff; padding:0.6rem; border-radius:1rem; margin:0.5rem auto; max-width:200px; display:flex; justify-content:center;"></div>
+
+    <!-- Address -->
+    <div style="background:#010518; padding:0.6rem; border-radius:1rem; margin:0.3rem 0; border:1px solid #00ff8833;">
+      <p style="font-size:0.5rem; color:#00ff88;" id="paymentAddressLabel">📤 Send to this address</p>
+      <div style="font-family:monospace; font-size:0.55rem; word-break:break-all; color:#00f2ff;" id="paymentAddressDisplay">---</div>
+      <button id="paymentCopyAddressBtn" class="cyber-btn success small" style="width:100%; margin-top:0.3rem;">
+        <i class="fas fa-copy"></i> <span id="paymentCopyAddressText">Copy address</span>
+      </button>
+    </div>
+
+    <!-- Network (security warning) -->
+    <div style="background:#ff005522; padding:0.5rem; border-radius:1rem; margin:0.3rem 0; border:1px solid #ff0055;">
+      <p style="font-size:0.5rem; color:#ff0055; text-align:center; font-weight:700;" id="paymentNetworkWarning">
+        ⚠️ Send ONLY on the correct network. Wrong network = total loss.
+      </p>
+    </div>
+
+    <!-- Timer / Status -->
+    <div style="background:#010518; padding:0.5rem; border-radius:1rem; margin:0.3rem 0; border:1px solid #a855f733;">
+      <p style="font-size:0.5rem; text-align:center;" id="paymentStatusText">
+        ⏱️ Waiting for payment...
+      </p>
+      <p style="font-size:0.55rem; text-align:center; color:#ffd700; font-family:monospace;" id="paymentTimer">--:--</p>
+    </div>
+
+    <!-- Buttons -->
+    <button id="paymentCloseBtn" class="cyber-btn" style="width:100%; margin-top:0.5rem;">
+      <i class="fas fa-times"></i> <span id="paymentCloseText">Cancel / Close</span>
+    </button>
   </div>
 </div>
 
@@ -4603,7 +4651,7 @@ function showBuyBradicoinModal() {
     const amountInput = document.getElementById('buyAmountBrd');
     if (fromInput) fromInput.value = '';
     if (amountInput) amountInput.value = '';
-    document.getElementById('buyCurrencySelect').value = 'BTC';
+    document.getElementById('buyCurrencySelect').value = 'BNB|bsc';
 
     // 4. Esconde resumo
     document.getElementById('buySummary').style.display = 'none';
@@ -7045,14 +7093,24 @@ document.getElementById('buyCurrencySelect').addEventListener('change', function
     }
 });
 
-document.getElementById('buyModalOkBtn').addEventListener('click', function() {
-    // 1. Lê os valores
-    const currency = document.getElementById('buyCurrencySelect').value;
+// ================================================================
+// ============ BUY — CRIAR PEDIDO NO BACKEND =====================
+// ================================================================
+
+let paymentPollInterval = null;   // timer do polling do status
+let paymentExpiryTimer = null;    // timer da contagem regressiva
+let currentPaymentOrder = null;   // { orderId, expiresAt, ... }
+
+document.getElementById('buyModalOkBtn').addEventListener('click', async function() {
+    const selectValue = document.getElementById('buyCurrencySelect').value;
     const fromWallet = document.getElementById('buyFromWallet').value.trim();
     const toWallet = document.getElementById('buyToWallet').value.trim();
     const amountBrd = parseFloat(document.getElementById('buyAmountBrd').value);
 
-    // 2. Validações
+    // Parseia "BNB|bsc" → { currency: 'BNB', network: 'bsc' }
+    const [currency, paymentNetwork] = selectValue.split('|');
+
+    // ===== 2. VALIDAÇÕES =====
     if (!fromWallet || fromWallet.length < 20) {
         showToast('📤 Enter a valid sender wallet address', 'error');
         document.getElementById('buyFromWallet').focus();
@@ -7067,26 +7125,224 @@ document.getElementById('buyModalOkBtn').addEventListener('click', function() {
         document.getElementById('buyAmountBrd').focus();
         return;
     }
+    if (!authToken) {
+        showToast('🔒 Please login first', 'warning');
+        return;
+    }
 
-    // 3. Preenche o resumo
-    document.getElementById('sumCurrency').innerText = currency;
-    document.getElementById('sumAmountBrd').innerText = amountBrd.toLocaleString() + ' BRD';
-    document.getElementById('sumToWallet').innerText = toWallet;
-    document.getElementById('buySummary').style.display = 'block';
+    // ===== 3. BLOQUEIA BOTÃO =====
+    const btn = this;
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating order...';
 
-    // 4. Feedback
-    showToast(`✅ Order prepared: ${amountBrd} BRD paying with ${currency}`, 'success');
+    try {
+        // ===== 4. CHAMA O BACKEND =====
+        const res = await apiCall('/buy/create', {
+            method: 'POST',
+            body: {
+                currency,
+                paymentNetwork,
+                amountBr: amountBrd.toString(),
+                toWallet,
+                fromWallet
+            }
+        });
 
-    // 5. Próximo passo (quando integrar backend):
-    //    Aqui você chama a API de compra, ex:
-    //    await apiCall('/buy', { method: 'POST', body: { currency, fromWallet, toWallet, amountBrd } });
-    //
-    //    Por enquanto, apenas fecha o modal após 1.5s:
-    setTimeout(() => {
+        if (!res?.success || !res?.data) {
+            throw new Error(res?.error || 'Failed to create order');
+        }
+
+        // ===== 5. GUARDA PEDIDO ATUAL =====
+        currentPaymentOrder = res.data;
+
+        // ===== 6. FECHA MODAL DE COMPRA, ABRE MODAL DE PAGAMENTO =====
         document.getElementById('buyBradicoinModal').style.display = 'none';
-        showToast(`🎉 Buy request submitted! You'll receive ${amountBrd} BRD soon.`, 'success');
-    }, 1500);
+        openPaymentModal(res.data);
+
+        showToast(`✅ Order created! Send ${res.data.instructions.sendExactly}`, 'success');
+
+    } catch (err) {
+        console.error('[buy/create] erro:', err);
+        showToast('❌ ' + (err.message || 'Failed to create order'), 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+    }
 });
+
+// ================================================================
+// ============ MODAL DE PAGAMENTO — ABRIR, POLLING, TIMER ========
+// ================================================================
+
+function openPaymentModal(order) {
+    // ===== 1. POPULA DADOS =====
+    document.getElementById('paymentAmountDisplay').innerText =
+        order.instructions.sendExactly;
+
+    document.getElementById('paymentAddressDisplay').innerText =
+        order.depositAddress;
+
+    // Aviso de rede
+    const networkLabel = order.paymentNetwork === 'bsc' ? 'BSC (BEP-20)' : 
+                         order.paymentNetwork === 'ethereum' ? 'Ethereum (ERC-20)' :
+                         order.paymentNetwork;
+    document.getElementById('paymentNetworkWarning').innerHTML =
+        `⚠️ Send <strong>ONLY ${order.currency} on ${networkLabel}</strong>. Wrong network = total loss.`;
+
+    // Status inicial
+    document.getElementById('paymentStatusText').innerText =
+        '⏱️ Waiting for payment...';
+
+    // ===== 2. QR CODE =====
+    const qrContainer = document.getElementById('paymentQrContainer');
+    qrContainer.innerHTML = '';
+    if (typeof QRCode !== 'undefined') {
+        try {
+            new QRCode(qrContainer, {
+                text: order.depositAddress,
+                width: 180,
+                height: 180,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        } catch (e) {
+            console.warn('QR code error:', e);
+            qrContainer.innerHTML =
+                '<span style="color:#666;font-size:0.5rem;">QR unavailable</span>';
+        }
+    }
+
+    // ===== 3. TIMER DE EXPIRAÇÃO =====
+    clearInterval(paymentExpiryTimer);
+    const expiresAt = new Date(order.expiresAt).getTime();
+
+    function updateTimer() {
+        const now = Date.now();
+        const remaining = Math.max(0, expiresAt - now);
+        const mins = Math.floor(remaining / 60000);
+        const secs = Math.floor((remaining % 60000) / 1000);
+        document.getElementById('paymentTimer').innerText =
+            `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+        if (remaining <= 0) {
+            clearInterval(paymentExpiryTimer);
+            document.getElementById('paymentStatusText').innerText =
+                '❌ Order expired';
+            stopPaymentPolling();
+        }
+    }
+    updateTimer();
+    paymentExpiryTimer = setInterval(updateTimer, 1000);
+
+    // ===== 4. POLLING DE STATUS =====
+    clearInterval(paymentPollInterval);
+    paymentPollInterval = setInterval(async () => {
+        try {
+            const res = await apiCall(`/buy/${order.orderId}`);
+            if (!res?.success || !res?.data) return;
+
+            const status = res.data.status;
+            const statusEl = document.getElementById('paymentStatusText');
+
+            switch (status) {
+                case 'pending':
+                    statusEl.innerText = '⏱️ Waiting for payment...';
+                    break;
+                case 'detected':
+                    statusEl.innerHTML =
+                        `🟡 <span style="color:#ffd700;">Payment detected!</span><br>` +
+                        `<span style="font-size:0.45rem;">Waiting for confirmations ` +
+                        `(${res.data.paymentConfirmations || 0} conf)</span>`;
+                    break;
+                case 'paid':
+                    statusEl.innerHTML =
+                        '🟢 <span style="color:#00ff88;">Payment confirmed!</span><br>' +
+                        '<span style="font-size:0.45rem;">Crediting BRD...</span>';
+                    break;
+                case 'credited':
+                    statusEl.innerHTML =
+                        '✅ <span style="color:#00ff88;font-weight:700;">' +
+                        'BRD credited to your wallet!</span>';
+                    clearInterval(paymentPollInterval);
+                    clearInterval(paymentExpiryTimer);
+                    // Atualiza saldo local
+                    if (authToken) syncBalance().catch(() => {});
+                    showToast(`🎉 Payment complete! ${order.amountBr} BRD credited`, 'success');
+                    // Fecha modal após 3s
+                    setTimeout(() => {
+                        document.getElementById('paymentModal').style.display = 'none';
+                        currentPaymentOrder = null;
+                    }, 3000);
+                    break;
+                case 'expired':
+                    statusEl.innerText = '❌ Order expired';
+                    clearInterval(paymentPollInterval);
+                    clearInterval(paymentExpiryTimer);
+                    break;
+                case 'failed':
+                    statusEl.innerText = '❌ Payment failed';
+                    clearInterval(paymentPollInterval);
+                    clearInterval(paymentExpiryTimer);
+                    break;
+            }
+        } catch (err) {
+            console.warn('[payment polling] erro:', err.message);
+        }
+    }, 5000); // a cada 5s
+
+    // ===== 5. ABRE MODAL =====
+    document.getElementById('paymentModal').style.display = 'flex';
+}
+
+function stopPaymentPolling() {
+    if (paymentPollInterval) {
+        clearInterval(paymentPollInterval);
+        paymentPollInterval = null;
+    }
+    if (paymentExpiryTimer) {
+        clearInterval(paymentExpiryTimer);
+        paymentExpiryTimer = null;
+    }
+}
+
+// ===== BOTÕES DO MODAL DE PAGAMENTO =====
+
+// Copiar endereço
+document.getElementById('paymentCopyAddressBtn').addEventListener('click', function() {
+    const addr = document.getElementById('paymentAddressDisplay').innerText;
+    if (addr && addr !== '---') {
+        navigator.clipboard.writeText(addr);
+        showToast('📋 Address copied!', 'success');
+    }
+});
+
+// Fechar / cancelar
+document.getElementById('paymentCloseBtn').addEventListener('click', function() {
+    // ⚠️ Avisa: se fechar, o pedido continua válido até expirar
+    const confirmed = window.confirm(
+        'Pedido continuará válido até expirar. Deseja fechar o modal?'
+    );
+    if (!confirmed) return;
+    stopPaymentPolling();
+    document.getElementById('paymentModal').style.display = 'none';
+    currentPaymentOrder = null;
+});
+
+// Garante que ao fechar o modal-overlay (clicando fora), o polling para
+document.getElementById('paymentModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        const confirmed = window.confirm(
+            'Pedido continuará válido até expirar. Deseja fechar?'
+        );
+        if (!confirmed) return;
+        stopPaymentPolling();
+        this.style.display = 'none';
+        currentPaymentOrder = null;
+    }
+});
+
     document.getElementById('lockWalletBtn').addEventListener('click', lockWalletNow);
     
     document.getElementById('settingsBtn').addEventListener('click', function() {
