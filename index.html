@@ -15,6 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"></noscript>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
   
   <!-- ===== BIBLIOTECAS ===== -->
 <script src="https://cdn.jsdelivr.net/npm/elliptic@6.5.4/dist/elliptic.min.js"></script>
@@ -2879,6 +2880,7 @@ let wallet = {
 };
 
 let activeStake = null;
+let stakeLoading = false;
 let tempSeedForCreation = null;
 let isLocked = false;
 let currentLang = 'en';
@@ -3227,6 +3229,11 @@ function loadWallet() {
             if (!wallet.notifications) wallet.notifications = [];
             if (!wallet.tips) wallet.tips = { received: [], sent: [], totalReceived: 0, totalSent: 0, tipsEarned: 0 };
             if (!wallet.nfts) wallet.nfts = [];
+            // ✅ restaura saldo real se decoy estava ativo
+            const savedReal = storage.getItem('bradicoin_real_balance');
+            if (savedReal !== null && decoyModeActive) {
+                realBalanceBackup = parseFloat(savedReal);
+            }
             return true;
         }
     } catch(e) {
@@ -3832,6 +3839,9 @@ async function loadActiveStake() {
 // ---------- HIDRATAR UI DE STAKING ----------
 async function hydrateStakeUI() {
     if (!authToken) return;
+    if (stakeLoading) return; // evita dupla chamada
+    stakeLoading = true;
+    try {
 
     // 1. Carrega os pools
     await loadStakingPools();
@@ -7093,6 +7103,23 @@ document.getElementById('buyCurrencySelect').addEventListener('change', function
     }
 });
 
+document.getElementById('buyFromWallet').addEventListener('blur', function() {
+    const [currency, network] = document.getElementById('buyCurrencySelect').value.split('|');
+    const addr = this.value.trim();
+    if (!addr) return; // vazio: sem aviso
+    let valid = false;
+    if (network === 'bsc' || network === 'ethereum') {
+        valid = /^0x[a-fA-F0-9]{40}$/.test(addr);
+    } else if (network === 'bitcoin') {
+        valid = /^(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,62}$/.test(addr);
+    } else if (network === 'solana') {
+        valid = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr);
+    }
+    if (!valid) {
+        showToast('⚠️ Endereço não parece válido para ' + currency, 'warning');
+    }
+});
+
 // ================================================================
 // ============ BUY — CRIAR PEDIDO NO BACKEND =====================
 // ================================================================
@@ -7162,9 +7189,19 @@ document.getElementById('buyModalOkBtn').addEventListener('click', async functio
 
         showToast(`✅ Order created! Send ${res.data.instructions.sendExactly}`, 'success');
 
-    } catch (err) {
+        } catch (err) {
         console.error('[buy/create] erro:', err);
-        showToast('❌ ' + (err.message || 'Failed to create order'), 'error');
+        if (err.status === 429) {
+            showToast('⏱️ Muitas tentativas. Aguarde 1 minuto.', 'warning');
+        } else if (err.status === 401) {
+            showToast('🔒 Sessão expirada. Faça login novamente.', 'error');
+        } else if (err.status === 400) {
+            showToast('❌ ' + (err.data?.error || 'Dados inválidos'), 'error');
+        } else if (err.code === 'TIMEOUT') {
+            showToast('⏱️ Servidor demorou. Tente novamente.', 'warning');
+        } else {
+            showToast('❌ ' + (err.message || 'Failed to create order'), 'error');
+        }
     } finally {
         btn.disabled = false;
         btn.innerHTML = originalHTML;
@@ -7178,7 +7215,9 @@ document.getElementById('buyModalOkBtn').addEventListener('click', async functio
 function openPaymentModal(order) {
     // ===== 1. POPULA DADOS =====
     document.getElementById('paymentAmountDisplay').innerText =
-        order.instructions.sendExactly;
+        order.instructions?.sendExactly
+        ?? order.expectedPaymentAmount
+        ?? '—';
 
     document.getElementById('paymentAddressDisplay').innerText =
         order.depositAddress;
@@ -7216,7 +7255,9 @@ function openPaymentModal(order) {
 
     // ===== 3. TIMER DE EXPIRAÇÃO =====
     clearInterval(paymentExpiryTimer);
-    const expiresAt = new Date(order.expiresAt).getTime();
+    const expiresAt = order.expiresAt
+        ? new Date(order.expiresAt).getTime()
+        : Date.now() + 15 * 60 * 1000; // 15 min default
 
     function updateTimer() {
         const now = Date.now();
@@ -7243,7 +7284,11 @@ function openPaymentModal(order) {
             const res = await apiCall(`/buy/${order.orderId}`);
             if (!res?.success || !res?.data) return;
 
-            const status = res.data.status;
+            const status = res.data?.status;
+            if (!status) {
+                console.warn('[payment polling] status ausente na resposta');
+                return;
+            }
             const statusEl = document.getElementById('paymentStatusText');
 
             switch (status) {
@@ -7312,15 +7357,35 @@ function stopPaymentPolling() {
 // Copiar endereço
 document.getElementById('paymentCopyAddressBtn').addEventListener('click', function() {
     const addr = document.getElementById('paymentAddressDisplay').innerText;
-    if (addr && addr !== '---') {
-        navigator.clipboard.writeText(addr);
-        showToast('📋 Address copied!', 'success');
+    if (!addr || addr === '---') return;
+    const fallback = () => {
+        const ta = document.createElement('textarea');
+        ta.value = addr;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); showToast('📋 Address copied!', 'success'); }
+        catch (_) { showToast('❌ Copy failed — copie manualmente', 'error'); }
+        ta.remove();
+    };
+    if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(addr)
+            .then(() => showToast('📋 Address copied!', 'success'))
+            .catch(fallback);
+    } else {
+        fallback();
     }
 });
 
 // Fechar / cancelar
 document.getElementById('paymentCloseBtn').addEventListener('click', function() {
-    // ⚠️ Avisa: se fechar, o pedido continua válido até expirar
+    const statusText = document.getElementById('paymentStatusText').innerText;
+    // Não deixa fechar quando pagamento já foi detectado
+    if (/detected|confirmed|credited/i.test(statusText)) {
+        showToast('⏳ Aguarde a confirmação final — não feche agora!', 'warning');
+        return;
+    }
     const confirmed = window.confirm(
         'Pedido continuará válido até expirar. Deseja fechar o modal?'
     );
@@ -7547,8 +7612,12 @@ document.getElementById('confirmSendBtn').addEventListener('click', async functi
     const amount = parseFloat(document.getElementById('sendAmount').value);
     const password = document.getElementById('sendPassword').value;
     
-    // Validações
+        // Validações
     if (!to) { showToast("Digite o endereço de destino", "error"); return; }
+    if (!/^Br[0-9a-fA-F]{38}$/.test(to)) {
+        showToast('❌ Endereço inválido (formato: Br + 38 hex)', 'error');
+        return;
+    }
     if (!amount || amount <= 0) { showToast("Digite um valor válido", "error"); return; }
     if (!password) { showToast("Digite sua senha", "error"); return; }
     
@@ -7569,7 +7638,8 @@ document.getElementById('confirmSendBtn').addEventListener('click', async functi
     try {
         showToast('⏳ Assinando e enviando transação...', 'info');
         
-        const result = await submitTransaction(to, amount, '0.15', password);
+        const fee = window.__bradicoinSendFee || '0.15';
+        const result = await submitTransaction(to, amount, fee, password);
         
         showToast(`✅ Transação enviada com sucesso!`, 'success');
         
@@ -8097,6 +8167,7 @@ document.getElementById('claimAirdropBtn').addEventListener('click', async funct
             if (decoyModeActive) {
                 // ✅ BLOCO 6: guarda saldo real antes de esconder
                 realBalanceBackup = wallet.balance;
+                storage.setItem('bradicoin_real_balance', String(realBalanceBackup));
                 if (badge) badge.innerText = "Decoy Balance";
                 if (balanceEl) balanceEl.innerText = "0.00000000";
                 if (usdEl) usdEl.innerText = "$0.00 USD";
