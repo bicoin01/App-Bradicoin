@@ -1189,6 +1189,11 @@ body.rtl .lang-menu { right: auto; left: 0; transform-origin: top left; }
     .nfts-grid { grid-template-columns: 1fr; }
 }
 
+.bio-check-ok { color: #00ff88 !important; font-weight: 700; }
+.bio-check-fail { color: #ff0055 !important; font-weight: 700; }
+.bio-check-warn { color: #ffaa00 !important; font-weight: 700; }
+#bioTestBtn:disabled, #bioEnableBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
   </style>
 </head>
 <body>
@@ -2052,6 +2057,61 @@ body.rtl .lang-menu { right: auto; left: 0; transform-origin: top left; }
     <!-- Buttons -->
     <button id="paymentCloseBtn" class="cyber-btn" style="width:100%; margin-top:0.5rem;">
       <i class="fas fa-times"></i> <span id="paymentCloseText">Cancel / Close</span>
+    </button>
+  </div>
+</div>
+
+<!-- ===== BIOMETRIC SETUP MODAL ===== -->
+<div id="biometricSetupModal" class="modal-overlay" style="z-index: 3700;">
+  <div class="modal-content" style="max-width: 520px;">
+    <i class="fas fa-fingerprint" style="font-size: 3rem; color: #00ff88;"></i>
+    <h2 style="color: #00ff88;" id="bioSetupTitle">🔐 Enable Biometrics</h2>
+    <p style="font-size: 0.6rem; opacity: 0.7; margin: 0.3rem 0;" id="bioSetupSub">
+      Secure your wallet with fingerprint or face recognition
+    </p>
+
+    <div id="bioStatusBox" style="background: #010518; padding: 0.8rem; border-radius: 1rem; margin: 0.8rem 0; border: 1px solid #a855f733; text-align: left; font-size: 0.55rem;">
+      <div style="display: flex; justify-content: space-between; padding: 0.2rem 0;">
+        <span>🔒 HTTPS / Secure Context</span>
+        <span id="bioCheckSecure">—</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 0.2rem 0;">
+        <span>🌐 WebAuthn Support</span>
+        <span id="bioCheckWebAuthn">—</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 0.2rem 0;">
+        <span>👆 Platform Authenticator</span>
+        <span id="bioCheckPlatform">—</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 0.2rem 0; border-top: 1px solid #a855f722; margin-top: 0.3rem; padding-top: 0.4rem;">
+        <span>📱 Device Detected</span>
+        <span id="bioCheckDevice">—</span>
+      </div>
+    </div>
+
+    <div id="bioInstructions" style="background: #ffaa0022; border: 1px solid #ffaa00; border-radius: 1rem; padding: 0.6rem; margin: 0.5rem 0; font-size: 0.55rem; text-align: left; color: #ffaa00;">
+      <strong>📋 How to enable biometrics on your device:</strong>
+      <div id="bioInstructionsText" style="margin-top: 0.3rem; color: #e0e5ff;">Detecting...</div>
+    </div>
+
+    <div id="bioPasswordGroup" style="text-align: left; margin: 0.5rem 0;">
+      <label style="font-size: 0.55rem; opacity: 0.7;">🔑 Wallet password</label>
+      <input type="password" id="bioSetupPassword" class="cyber-input" 
+             placeholder="Enter your wallet password" 
+             style="font-size: 0.6rem; padding: 0.4rem; margin-top: 0.2rem;">
+    </div>
+
+    <div style="display: flex; gap: 0.3rem; margin-top: 0.5rem;">
+      <button id="bioTestBtn" class="cyber-btn warning" style="flex: 1;">
+        <i class="fas fa-vial"></i> Test Biometrics
+      </button>
+      <button id="bioEnableBtn" class="cyber-btn success" style="flex: 1;">
+        <i class="fas fa-fingerprint"></i> Enable
+      </button>
+    </div>
+
+    <button id="bioCancelBtn" class="cyber-btn" style="width: 100%; margin-top: 0.4rem;">
+      <i class="fas fa-times"></i> Cancel
     </button>
   </div>
 </div>
@@ -6807,17 +6867,19 @@ async function registerBiometric(userId, userName) {
             showToast("Biometria não suportada", "error");
             return false;
         }
-        if (location.protocol === 'file:') {
-            showToast("Biometria só funciona em https ou localhost", "error");
+        if (!window.isSecureContext && location.hostname !== 'localhost') {
+            showToast("Biometria só funciona em HTTPS ou localhost", "error");
             return false;
         }
 
-        let walletPassword = document.getElementById('unlockPasswordInput')?.value
+        // ✅ Usa o input do modal (não bloqueia PWA)
+        let walletPassword = document.getElementById('bioSetupPassword')?.value
+                          || document.getElementById('unlockPasswordInput')?.value
                           || document.getElementById('walletPasswordInput')?.value
                           || '';
         if (!walletPassword) {
-            walletPassword = prompt("Digite a senha da carteira (1 vez):");
-            if (!walletPassword) return false;
+            showToast("🔑 Digite a senha da carteira primeiro", "error");
+            return false;
         }
 
         const testSeed = await decryptSeed(wallet.encryptedSeed, walletPassword);
@@ -7030,40 +7092,191 @@ function updateBiometricUI() {
 /* ================================================================
  * Biometric setup — called from Settings button
  * ================================================================ */
-async function setupBiometricFromSettings() {
+/* ================================================================
+ * BIOMETRIC SETUP — Nova versão com modal interativo
+ * ================================================================ */
+
+function detectDeviceType() {
+    const ua = navigator.userAgent.toLowerCase();
+    const platform = navigator.platform?.toLowerCase() || '';
+    if (/iphone|ipad|ipod/.test(ua)) return { type: 'ios', label: 'iOS (iPhone/iPad)' };
+    if (/android/.test(ua)) return { type: 'android', label: 'Android' };
+    if (/macintosh|mac os x/.test(ua) || platform.includes('mac')) return { type: 'mac', label: 'macOS' };
+    if (/windows/.test(ua) || platform.includes('win')) return { type: 'windows', label: 'Windows' };
+    if (/linux/.test(ua) && !/android/.test(ua)) return { type: 'linux', label: 'Linux' };
+    return { type: 'unknown', label: 'Unknown Device' };
+}
+
+function getBiometricInstructions(deviceType) {
+    const instructions = {
+        windows: `<strong>Windows Hello</strong> deve estar configurado:<br>
+            1. Abra <strong>Configurações → Contas → Opções de entrada</strong><br>
+            2. Ative <strong>Windows Hello Face / Fingerprint / PIN</strong><br>
+            3. Volte aqui e clique em <strong>Test Biometrics</strong>`,
+        mac: `<strong>Touch ID</strong> deve estar configurado:<br>
+            1. Abra <strong>Ajustes do Sistema → Touch ID e Senha</strong><br>
+            2. Adicione uma impressão digital<br>
+            3. Volte aqui e clique em <strong>Test Biometrics</strong>`,
+        android: `<strong>Digital / Face</strong> deve estar configurado:<br>
+            1. Abra <strong>Configurações → Segurança → Biometria</strong><br>
+            2. Cadastre sua digital ou rosto<br>
+            3. Volte aqui e clique em <strong>Test Biometrics</strong>`,
+        ios: `<strong>Face ID / Touch ID</strong> deve estar configurado:<br>
+            1. Abra <strong>Ajustes → Face ID e Senha</strong><br>
+            2. Configure o Face ID ou Touch ID<br>
+            3. Volte aqui e clique em <strong>Test Biometrics</strong>`,
+        linux: `<strong>Fingerprint</strong> deve estar configurado:<br>
+            1. Instale <strong>fprintd</strong> e <strong>libpam-fprintd</strong><br>
+            2. Registre sua digital: <code>fprintd-enroll</code><br>
+            3. Volte aqui e clique em <strong>Test Biometrics</strong>`,
+        unknown: `Configure a biometria do seu dispositivo nas configurações do sistema, depois volte aqui e clique em <strong>Test Biometrics</strong>.`
+    };
+    return instructions[deviceType] || instructions.unknown;
+}
+
+async function openBiometricSetupModal() {
     if (!wallet || !wallet.encryptedSeed) {
         showToast('👛 Create or import a wallet first', 'error');
         return;
     }
 
-    if (!isBiometricSupported()) {
-        showToast('❌ Biometrics not supported on this device', 'error');
-        return;
-    }
-
-    const hasPlatform = await hasBiometricCredential();
-    if (!hasPlatform) {
-        showToast('❌ No biometrics enrolled on device (enable in system settings)', 'error');
-        return;
-    }
-
+    const modal = document.getElementById('biometricSetupModal');
+    const checkSecure = document.getElementById('bioCheckSecure');
+    const checkWebAuthn = document.getElementById('bioCheckWebAuthn');
+    const checkPlatform = document.getElementById('bioCheckPlatform');
+    const checkDevice = document.getElementById('bioCheckDevice');
+    const instrText = document.getElementById('bioInstructionsText');
+    const testBtn = document.getElementById('bioTestBtn');
+    const enableBtn = document.getElementById('bioEnableBtn');
+    const pwdInput = document.getElementById('bioSetupPassword');
     const isEnabled = storage.getItem('bradicoin_biometric_enabled') === 'true';
 
-    if (isEnabled) {
-        if (window.confirm('🔐 Biometrics already ENABLED.\n\nDisable?')) {
-            storage.removeItem('bradicoin_biometric_id');
-            storage.removeItem('bradicoin_biometric_key');
-            storage.removeItem('bradicoin_biometric_master');
-            storage.removeItem('bradicoin_biometric_enabled');
-            updateBiometricUI();
-            refreshSettingsBiometricLabel();
-            showToast('🔓 Biometrics disabled', 'info');
+    pwdInput.value = '';
+    modal.style.display = 'flex';
+
+    const device = detectDeviceType();
+    checkDevice.textContent = device.label;
+    checkDevice.className = 'bio-check-ok';
+
+    const isSecure = window.isSecureContext || location.hostname === 'localhost';
+    checkSecure.textContent = isSecure ? '✅ OK' : '❌ Not HTTPS';
+    checkSecure.className = isSecure ? 'bio-check-ok' : 'bio-check-fail';
+
+    const hasWebAuthn = typeof window.PublicKeyCredential !== 'undefined';
+    checkWebAuthn.textContent = hasWebAuthn ? '✅ Supported' : '❌ Not supported';
+    checkWebAuthn.className = hasWebAuthn ? 'bio-check-ok' : 'bio-check-fail';
+
+    let hasPlatform = false;
+    if (hasWebAuthn && PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
+        try {
+            hasPlatform = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+        } catch (e) {
+            console.warn('Platform authenticator check failed:', e);
         }
+    }
+    checkPlatform.textContent = hasPlatform ? '✅ Available' : '⚠️ Not detected';
+    checkPlatform.className = hasPlatform ? 'bio-check-ok' : 'bio-check-warn';
+
+    instrText.innerHTML = getBiometricInstructions(device.type);
+
+    if (isEnabled) {
+        document.getElementById('bioSetupTitle').innerHTML = '✅ Biometrics Enabled';
+        document.getElementById('bioSetupSub').textContent = 'Click Disable to remove biometric login';
+        enableBtn.innerHTML = '<i class="fas fa-trash"></i> Disable';
+        enableBtn.className = 'cyber-btn danger';
+        enableBtn.dataset.mode = 'disable';
+        testBtn.style.display = 'none';
+        document.getElementById('bioPasswordGroup').style.display = 'none';
+    } else {
+        document.getElementById('bioSetupTitle').innerHTML = '🔐 Enable Biometrics';
+        document.getElementById('bioSetupSub').textContent = 'Secure your wallet with fingerprint or face recognition';
+        enableBtn.innerHTML = '<i class="fas fa-fingerprint"></i> Enable';
+        enableBtn.className = 'cyber-btn success';
+        enableBtn.dataset.mode = 'enable';
+        testBtn.style.display = '';
+        document.getElementById('bioPasswordGroup').style.display = '';
+    }
+
+    const canProceed = isSecure && hasWebAuthn;
+    enableBtn.disabled = !canProceed && !isEnabled;
+    testBtn.disabled = !canProceed;
+}
+
+async function testBiometric() {
+    showToast('🧪 Testing biometrics...', 'info');
+
+    try {
+        if (!window.PublicKeyCredential) {
+            throw new Error('WebAuthn not supported');
+        }
+
+        const challenge = crypto.getRandomValues(new Uint8Array(32));
+        const credential = await navigator.credentials.create({
+            publicKey: {
+                challenge,
+                rp: { name: "BradiCoin Test", id: location.hostname || "localhost" },
+                user: {
+                    id: new TextEncoder().encode('test_' + Date.now()),
+                    name: 'biometric_test@bradicoin',
+                    displayName: 'BradiCoin Test'
+                },
+                pubKeyCredParams: [
+                    { type: "public-key", alg: -7 },
+                    { type: "public-key", alg: -257 }
+                ],
+                authenticatorSelection: {
+                    authenticatorAttachment: "platform",
+                    userVerification: "required",
+                    residentKey: "discouraged"
+                },
+                timeout: 60000,
+                attestation: "none"
+            }
+        });
+
+        if (credential) {
+            showToast('✅ Biometrics WORK! Now click Enable', 'success');
+            document.getElementById('bioCheckPlatform').textContent = '✅ Available';
+            document.getElementById('bioCheckPlatform').className = 'bio-check-ok';
+        }
+    } catch (err) {
+        console.error('Test biometric failed:', err);
+        let msg = '❌ Test failed: ';
+        if (err.name === 'NotAllowedError') {
+            msg += 'You cancelled or timeout. Try again.';
+        } else if (err.name === 'NotSupportedError') {
+            msg += 'Device has no biometric sensor configured.';
+        } else if (err.name === 'InvalidStateError') {
+            msg += 'Test credential already exists. Rebuild with Enable.';
+        } else {
+            msg += err.message;
+        }
+        showToast(msg, 'error');
+    }
+}
+
+async function enableBiometric() {
+    const btn = document.getElementById('bioEnableBtn');
+    const mode = btn.dataset.mode;
+
+    if (mode === 'disable') {
+        storage.removeItem('bradicoin_biometric_id');
+        storage.removeItem('bradicoin_biometric_key');
+        storage.removeItem('bradicoin_biometric_master');
+        storage.removeItem('bradicoin_biometric_enabled');
+        updateBiometricUI();
+        refreshSettingsBiometricLabel();
+        showToast('🔓 Biometrics disabled', 'info');
+        document.getElementById('biometricSetupModal').style.display = 'none';
         return;
     }
 
-    const pwd = prompt('Enter wallet password to enable biometrics:');
-    if (!pwd) return;
+    const pwd = document.getElementById('bioSetupPassword').value;
+    if (!pwd) {
+        showToast('🔑 Enter your wallet password', 'error');
+        document.getElementById('bioSetupPassword').focus();
+        return;
+    }
 
     const seedStr = await decryptSeed(wallet.encryptedSeed, pwd);
     if (!seedStr) {
@@ -7071,24 +7284,33 @@ async function setupBiometricFromSettings() {
         return;
     }
 
-    const success = await registerBiometric(
-        wallet.address || 'bradicoin_user',
-        currentUser?.username || 'BradiCoin User'
-    );
+    btn.disabled = true;
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
 
-    if (success) {
-        updateBiometricUI();
-        refreshSettingsBiometricLabel();
-        showToast('✅ Biometrics enabled!', 'success');
+    try {
+        const success = await registerBiometric(
+            wallet.address || 'bradicoin_user',
+            currentUser?.username || 'BradiCoin User'
+        );
+
+        if (success) {
+            updateBiometricUI();
+            refreshSettingsBiometricLabel();
+            document.getElementById('biometricSetupModal').style.display = 'none';
+            showToast('✅ Biometrics enabled! Try logging in next time.', 'success');
+        }
+    } catch (err) {
+        console.error('Enable biometric error:', err);
+        showToast('❌ ' + (err.message || 'Failed to enable biometrics'), 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
     }
 }
 
-/* Update the Settings biometric button label */
-function refreshSettingsBiometricLabel() {
-    const span = document.getElementById('settingsBiometric');
-    if (!span) return;
-    const isEnabled = storage.getItem('bradicoin_biometric_enabled') === 'true';
-    span.textContent = isEnabled ? '✅ Biometrics Enabled' : 'Enable Biometrics';
+async function setupBiometricFromSettings() {
+    await openBiometricSetupModal();
 }
 
 // ================================================================
@@ -7642,6 +7864,13 @@ document.getElementById('paymentModal').addEventListener('click', function(e) {
         this.style.display = 'none';
         currentPaymentOrder = null;
     }
+});
+
+// ===== BIOMETRIC SETUP MODAL =====
+document.getElementById('bioTestBtn')?.addEventListener('click', testBiometric);
+document.getElementById('bioEnableBtn')?.addEventListener('click', enableBiometric);
+document.getElementById('bioCancelBtn')?.addEventListener('click', function() {
+    document.getElementById('biometricSetupModal').style.display = 'none';
 });
 
     document.getElementById('lockWalletBtn').addEventListener('click', lockWalletNow);
