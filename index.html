@@ -18,9 +18,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
   
   <!-- ===== BIBLIOTECAS ===== -->
-<script src="https://cdn.jsdelivr.net/npm/elliptic@6.5.4/lib/elliptic.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/elliptic/6.5.4/elliptic.min.js"></script>
 <script>
-  // Garante window.elliptic mesmo se o build usar module.exports
   if (typeof window.elliptic === 'undefined' && typeof elliptic !== 'undefined') {
     window.elliptic = elliptic;
   }
@@ -3960,41 +3959,47 @@ async function loadActiveStake() {
 // ---------- HIDRATAR UI DE STAKING ----------
 async function hydrateStakeUI() {
     if (!authToken) return;
-    if (stakeLoading) return; // evita dupla chamada
+    if (stakeLoading) return;
     stakeLoading = true;
+
     try {
+        // 1. Carrega os pools
+        await loadStakingPools();
 
-    // 1. Carrega os pools
-    await loadStakingPools();
+        // 2. Popula o <select> dinamicamente
+        const select = document.getElementById('stakePoolSelect');
+        if (select && Array.isArray(stakingPools) && stakingPools.length > 0) {
+            select.innerHTML = '';
+            stakingPools.forEach(pool => {
+                const opt = document.createElement('option');
+                opt.value = pool.key;
+                const icon = pool.key === '24h' ? '📅'
+                           : pool.key === '7d'  ? '📆'
+                           : pool.key === '30d' ? '🗓️' : '💎';
+                opt.textContent = `${icon} ${pool.name || pool.key} (min ${pool.minStake || '?'} BRD)`;
+                select.appendChild(opt);
+            });
+            console.log('✅ <select> de pools populado:', stakingPools.map(p => p.key));
 
-    // 2. Popula o <select> dinamicamente
-    const select = document.getElementById('stakePoolSelect');
-    if (select && Array.isArray(stakingPools) && stakingPools.length > 0) {
-        select.innerHTML = '';
-        stakingPools.forEach(pool => {
-            const opt = document.createElement('option');
-            opt.value = pool.key;
-            const icon = pool.key === '24h' ? '📅'
-                       : pool.key === '7d'  ? '📆'
-                       : pool.key === '30d' ? '🗓️' : '💎';
-            opt.textContent = `${icon} ${pool.name || pool.key} (min ${pool.minStake || '?'} BRD)`;
-            select.appendChild(opt);
-        });
-        console.log('✅ <select> de pools populado:', stakingPools.map(p => p.key));
+            // Atualiza labels de APR/mínimo da UI (primeiro pool por padrão)
+            const first = stakingPools[0];
+            const aprLabel = document.getElementById('stakeAprLabel');
+            if (aprLabel && first.apr) aprLabel.innerText = 'APR: ' + first.apr + '%';
+            const minInfo = document.getElementById('stakeMinText');
+            if (minInfo && first.minStake) minInfo.innerText = 'Mín: ' + first.minStake + ' BRD';
+        }
 
-        // Atualiza labels de APR/mínimo da UI (primeiro pool por padrão)
-        const first = stakingPools[0];
-        const aprLabel = document.getElementById('stakeAprLabel');
-        if (aprLabel && first.apr) aprLabel.innerText = 'APR: ' + first.apr + '%';
-        const minInfo = document.getElementById('stakeMinText');
-        if (minInfo && first.minStake) minInfo.innerText = 'Mín: ' + first.minStake + ' BRD';
+        // 3. Carrega o stake ativo
+        await loadActiveStake();
+
+        // 4. Atualiza a UI com o stake carregado
+        updateUI();
+
+    } catch (err) {
+        console.error('❌ Erro em hydrateStakeUI:', err);
+    } finally {
+        stakeLoading = false;
     }
-
-    // 3. Carrega o stake ativo
-    await loadActiveStake();
-
-    // 4. Atualiza a UI com o stake carregado
-    updateUI();
 }
 
 // ---------- CRIAR STAKE ----------
