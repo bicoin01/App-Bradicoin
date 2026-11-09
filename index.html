@@ -2595,6 +2595,20 @@ async function syncHistory() {
     }
 }
 
+async function syncTokens() {
+    if (!authToken || !wallet.address) return;
+    try {
+        const res = await apiCall(`/token/list/${wallet.address}`);
+        if (res?.data?.tokens) {
+            wallet.tokens = res.data.tokens;
+            saveWallet();
+            updateTokensUI();
+        }
+    } catch (err) {
+        console.warn('Erro ao sincronizar tokens:', err.message);
+    }
+}
+
 // ================================================================
 // ============ AIRDROP INFO — CONSULTA PERIÓDICA =================
 // ================================================================
@@ -3690,72 +3704,179 @@ function openLoanModal(tokenData) {
 
 async function confirmLoanPayment() {
     const password = document.getElementById('loanPassword').value;
-    
+
     if (!password) {
         showToast(translations[currentLang]?.enterPassword || "Enter your password", "error");
         return;
     }
-    
     if (!pendingTokenData) {
         showToast(translations[currentLang]?.noTokenData || "No token data found", "error");
         return;
     }
-    
+    if (!authToken) {
+        showToast('🔒 Faça login para criar tokens on-chain', 'warning');
+        return;
+    }
+
+    // 1. Valida senha localmente (evita enviar senha errada pro backend)
     const decrypted = await decryptSeed(wallet.encryptedSeed, password);
     if (!decrypted) {
         showToast(translations[currentLang]?.wrongPassword || "Wrong password!", "error");
         return;
     }
-    
+
+    // 2. Calcula taxas (igual já faz)
     const totalUsd = pendingTokenData.supply * 1.50;
     const totalBrd = totalUsd / 10;
     const fee = 0.016;
     const totalPay = totalBrd + fee;
-    
+
     if (totalPay > wallet.balance) {
         showToast(translations[currentLang]?.insufficientBalance || "Insufficient balance!", "error");
         return;
     }
-    
-    wallet.balance -= totalPay;
-    wallet.stats.feesPaid += fee;
-    wallet.stats.totalTx += 1;
-    
-    if (!wallet.tokens) wallet.tokens = [];
-    pendingTokenData.createdAt = Date.now();
-    pendingTokenData.id = 'token_' + Date.now();
-    wallet.tokens.push(pendingTokenData);
-    
-    if (!wallet.marketplace) wallet.marketplace = { listedTokens: [] };
-    wallet.marketplace.listedTokens.push({
-        ...pendingTokenData,
-        creator: wallet.address,
-        listedAt: Date.now()
-    });
-    
-    wallet.transactions.unshift({
-        id: Date.now(),
-        type: 'token_created',
-        amount: totalPay,
-        fee: fee,
+
+    // 3. Assina a criação (mesma lógica de signTransaction)
+    const seedWords = decrypted.split(' ');
+    const keyPair = generateKeyPairFromSeed(seedWords);
+    const timestamp = Date.now();
+
+    const nonceData = await apiCall(`/wallet/nonce/${wallet.address}`);
+    const nonce = nonceData.data.nonce;
+
+    const txData = {
+        fromAddress: wallet.address,
+        toAddress: 'Br00000000000000000000000000000000000000', // endereço "mint"
+        amount: '0',
+        fee: fee.toString(),
+        nonce,
+        timestamp,
+        type: 'token_create',
+        // payload específico do token (o backend DEVE incluir isso na mensagem assinada)
         tokenName: pendingTokenData.name,
         tokenSymbol: pendingTokenData.symbol,
-        time: new Date().toISOString(),
-        message: `Created token ${pendingTokenData.name} (${pendingTokenData.symbol})`
-    });
-    
-    addNotification(`🚀 ${translations[currentLang]?.tokenCreatedNotification || 'Token'} "${pendingTokenData.name}" (${pendingTokenData.symbol}) ${translations[currentLang]?.createdAndListed || 'created and listed on marketplace!'}`);
-    sendPushNotification(translations[currentLang]?.tokenCreated || 'Token Created!', `${translations[currentLang]?.yourToken || 'Your token'} ${pendingTokenData.name} (${pendingTokenData.symbol}) ${translations[currentLang]?.isNowLive || 'is now live!'}`);
-    
-    saveWallet();
-    updateUI();
-    updateTokensUI();
-    
-    document.getElementById('createLoanModal').style.display = 'none';
-    const tokenName = pendingTokenData.name;
-    pendingTokenData = null;
-    
-    showToast(`✅ ${translations[currentLang]?.token || 'Token'} "${tokenName}" ${translations[currentLang]?.createdAndListed || 'created and listed on marketplace!'}`, "success");
+        tokenSupply: pendingTokenData.supply.toString(),
+        tokenLogo: pendingTokenData.logo || ''
+    };
+
+    // ⚠️ O backend precisa assinar EXATAMENTE estes campos.
+    // Ajuste signTransaction() em crypto.js para incluir token* no payload,
+    // ou use a versão abaixo:
+    const msg = [
+        txData.fromAddress,
+        txData.toAddress,
+        txData.amount,
+        txData.fee,
+        txData.nonce,
+        txData.timestamp,
+        txData.type,
+        txData.tokenName,
+        txData.tokenSymbol,
+        txData.tokenSupply,
+        txData.tokenLogo || ''
+    ].join('|');
+
+    const EC = elliptic.ec;
+    const ec = new EC('secp256k1');
+    const kp = ec.keyFromPrivate(keyPair.privateKey);
+    const msgHashHex = CryptoJS.SHA256(msg).toString();
+    txData.signature = kp.sign(msgHashHex, { canonical: true }).toDER('hex');
+    txData.publicKey = keyPair.publicKey;
+
+    // 4. Bloqueia botão
+    const btn = document.getElementById('confirmLoanBtn');
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating token...';
+
+    try {
+        // 5. Chama o backend REAL
+        const res = await apiCall('/token/create', {
+            method: 'POST',
+            body: txData
+        });
+
+        if (!res?.success || !res?.data) {
+            throw new Error(res?.error || 'Token creation failed');
+        }
+
+        const created = res.data;
+
+        // 6. Atualiza estado local SÓ com o que o backend confirmou
+        wallet.balance = parseFloat(created.newBalance ?? wallet.balance - totalPay);
+        wallet.stats.feesPaid += fee;
+        wallet.stats.totalTx += 1;
+
+        if (!wallet.tokens) wallet.tokens = [];
+        wallet.tokens.push({
+            id: created.tokenId,
+            name: created.name,
+            symbol: created.symbol,
+            supply: created.supply,
+            logo: pendingTokenData.logo || null,
+            price: 1.50,
+            creator: wallet.address,
+            txHash: created.txHash,
+            createdAt: new Date(created.createdAt).getTime()
+        });
+
+        wallet.transactions.unshift({
+            id: Date.now(),
+            type: 'token_created',
+            amount: totalPay,
+            fee: fee,
+            tokenName: created.name,
+            tokenSymbol: created.symbol,
+            txHash: created.txHash,
+            time: new Date().toISOString(),
+            message: `Created token ${created.name} (${created.symbol}) on-chain`
+        });
+
+        addNotification(
+            `🚀 Token "${created.name}" (${created.symbol}) criado on-chain!`,
+            'success'
+        );
+        sendPushNotification(
+            'Token Created!',
+            `${created.name} (${created.symbol}) está na blockchain!`
+        );
+
+        saveWallet();
+        updateUI();
+        updateTokensUI();
+
+        // 7. Fecha modal e mostra txHash
+        document.getElementById('createLoanModal').style.display = 'none';
+        const name = created.name;
+        pendingTokenData = null;
+
+        showToast(
+            `✅ Token "${name}" criado! TX: ${created.txHash.substring(0, 12)}...`,
+            'success'
+        );
+
+        // 8. Sincroniza com a blockchain
+        syncBalance().catch(() => {});
+        syncHistory().catch(() => {});
+
+    } catch (err) {
+        console.error('[token/create] erro:', err);
+
+        if (err.status === 400) {
+            showToast('❌ ' + (err.data?.error || 'Dados inválidos'), 'error');
+        } else if (err.status === 409) {
+            showToast('❌ Já existe um token com esse símbolo', 'error');
+        } else if (err.status === 402) {
+            showToast('❌ Saldo insuficiente para a taxa', 'error');
+        } else if (err.code === 'TIMEOUT') {
+            showToast('⏱️ Servidor demorou. Verifique se o token foi criado antes de tentar de novo.', 'warning');
+        } else {
+            showToast('❌ ' + (err.message || 'Falha ao criar token'), 'error');
+        }
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+    }
 }
 
 // ================================================================
@@ -6955,6 +7076,7 @@ if (authToken) {
             await hydrateStakeUI();
             syncBalance().catch(() => {});
             syncHistory().catch(() => {});
+            syncTokens().catch(() => {});
             loadAirdropInfo().catch(() => {});
         } catch (err) {
             console.log('Token inválido, limpando...');
