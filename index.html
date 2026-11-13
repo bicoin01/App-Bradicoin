@@ -2397,6 +2397,34 @@ const API_URL = `${API_BASE}/api/v1`;
 // ⏱️ FASE 2A: Timeout padrão para chamadas HTTP
 const API_TIMEOUT_MS = 15000;
 
+// ================================================================
+// 🛡️ PREVENIR ENTER DE RECARREGAR A PÁGINA (bug do dashboard → login)
+// ================================================================
+// Sempre que o usuário apertar Enter em QUALQUER input fora de um form
+// explícito, NÃO deixa o navegador fazer submit implícito / recarregar.
+
+document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    
+    const el = e.target;
+    if (!el) return;
+    
+    // Só intercepta input/textarea/select
+    const tag = (el.tagName || '').toUpperCase();
+    if (!['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) return;
+    
+    // Ignora se estiver num <form> com action (aí é submit legítimo)
+    if (el.form && el.form.getAttribute('action')) return;
+    
+    // Bloqueia o "submit implícito"
+    e.preventDefault();
+    
+    // Se for um input num modal ativo, chama a ação principal do modal
+    // (sendAmount + Enter → confirmar envio, etc.)
+    // Deixa o comportamento específico pra cada modal tratar.
+    
+}, true); // capture=true, roda antes de qualquer outro handler
+
 let authToken = localStorage.getItem('bradicoin_token') || null;
 let currentUser = null;
 let socket = null;
@@ -2661,6 +2689,8 @@ function logoutLocal() {
     authToken = null;
     currentUser = null;
     localStorage.removeItem('bradicoin_token');
+    storage.removeItem('bradicoin_session_active');
+    storage.removeItem('bradicoin_session_address');
     if (socket) {
         socket.disconnect();
         socket = null;
@@ -3230,6 +3260,9 @@ async function finalizeWalletCreation(password) {
     }
     
     saveWallet();
+
+    storage.setItem('bradicoin_session_active', 'true');
+    storage.setItem('bradicoin_session_address', wallet.address || '');
     
     // 3. Se estiver logado, registra no backend
     if (authToken) {
@@ -3349,6 +3382,8 @@ async function unlockWallet(password, twoFACode) {
 
     unlockGuard.reset();
     isLocked = false;
+    storage.setItem('bradicoin_session_active', 'true');
+    storage.setItem('bradicoin_session_address', wallet.address || '');
     hideLoginAndShowDashboard();
     updateUI();
     updateSecurityBadge();
@@ -3361,6 +3396,7 @@ async function unlockWallet(password, twoFACode) {
 
 function lockWalletNow() {
     isLocked = true;
+    storage.removeItem('bradicoin_session_active');
     showToast("🔒 " + (translations[currentLang]?.walletLocked || "Wallet locked"), "info");
     showLoginScreen();
 }
@@ -6988,6 +7024,8 @@ async function authenticateWithBiometric() {
 
         isLocked = false;
         unlockGuard.reset();
+        storage.setItem('bradicoin_session_active', 'true');
+        storage.setItem('bradicoin_session_address', wallet.address || '');
         hideLoginAndShowDashboard();
         updateUI();
         updateSecurityBadge();
@@ -7316,9 +7354,7 @@ async function setupBiometricFromSettings() {
 // ================================================================
 // ==================== EVENT LISTENERS ===========================
 // ================================================================
-
 document.addEventListener('DOMContentLoaded', async function() {
-    // ⏳ Espera o IndexedDB hidratar o cache em RAM ANTES de qualquer leitura
     await storage.ready();
 
     const hasWallet = loadWallet();
@@ -7329,19 +7365,49 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     updateLanguage();
     
-    if (hasWallet && wallet.encryptedSeed) {
-    showLoginScreen();
-    // ✅ Se biometria está configurada, mostra o botão
-    setupBiometric().catch(() => {});
-    } else {
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('mainDashboard').style.display = 'none';
-    document.getElementById('unlockGroup').style.display = 'none';
-    document.getElementById('importGroup').style.display = 'none';
-    const bc = document.getElementById('biometricContainer');
-    if (bc) bc.style.display = 'none';
-    }
+    // ============================================================
+    // ✅ CORREÇÃO CRÍTICA: se tem wallet E sessão ativa, entra DIRETO
+    // no dashboard (não pede senha de novo a cada F5/refresh)
+    // ============================================================
+    const sessionActive = storage.getItem('bradicoin_session_active') === 'true';
+    const sessionAddr = storage.getItem('bradicoin_session_address');
     
+    if (hasWallet && wallet.encryptedSeed && sessionActive && sessionAddr === wallet.address) {
+        // Sessão válida → vai direto pro dashboard
+        console.log('✅ Sessão ativa restaurada → dashboard');
+        isLocked = false;
+        hideLoginAndShowDashboard();
+        updateUI();
+        updateSecurityBadge();
+        updateTokensUI();
+        updateTipsUI();
+        updateNFTsUI();
+        
+        if (authToken) {
+            connectWebSocket();
+            hydrateStakeUI().catch(() => {});
+            syncBalance().catch(() => {});
+            syncHistory().catch(() => {});
+            syncTokens().catch(() => {});
+            loadAirdropInfo().catch(() => {});
+        }
+        
+        setupBiometric().catch(() => {});
+        
+    } else if (hasWallet && wallet.encryptedSeed) {
+        // Tem wallet mas não tem sessão (primeira vez ou fez logout) → login
+        showLoginScreen();
+        setupBiometric().catch(() => {});
+    } else {
+        // Sem wallet → tela de criação/import
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('mainDashboard').style.display = 'none';
+        document.getElementById('unlockGroup').style.display = 'none';
+        document.getElementById('importGroup').style.display = 'none';
+        const bc = document.getElementById('biometricContainer');
+        if (bc) bc.style.display = 'none';
+    }
+
     // ===== BIOMETRIC LOGIN =====
     document.getElementById('biometricLoginBtn').addEventListener('click', async function() {
   const isEnabled = storage.getItem('bradicoin_biometric_enabled') === 'true';
@@ -7472,18 +7538,15 @@ if (authToken) {
         const twoFACode = document.getElementById('unlock2FAInput').value;
         await unlockWallet(password, twoFACode);
     });
-    
-    document.getElementById('unlockPasswordInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            document.getElementById('unlockWalletBtn').click();
-        }
-    });
-    
-    document.getElementById('walletPasswordInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            document.getElementById('confirmSeedBtn').click();
-        }
-    });
+
+// ================================================================
+// 🛡️ PREVENIR ENTER DE RECARREGAR A PÁGINA (bug do dashboard → login)
+// ================================================================
+document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    const el = e.target;
+    // ...bloqueia submit implícito...
+}, true);
     
 // === LANGUAGE DROPDOWN ===
 document.getElementById('langTrigger')?.addEventListener('click', function(e) {
