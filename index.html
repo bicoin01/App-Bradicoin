@@ -3331,7 +3331,10 @@ async function importWalletFromSeed(seedStr, password) {
     }
     
     saveWallet();
-    
+
+    storage.setItem('bradicoin_session_active', 'true');
+    storage.setItem('bradicoin_session_address', wallet.address || '');
+  
     if (authToken) {
         try {
             await registerWalletOnBackend();
@@ -7539,13 +7542,47 @@ if (authToken) {
         await unlockWallet(password, twoFACode);
     });
 
-// ================================================================
-// 🛡️ PREVENIR ENTER DE RECARREGAR A PÁGINA (bug do dashboard → login)
-// ================================================================
 document.addEventListener('keydown', function(e) {
     if (e.key !== 'Enter') return;
     const el = e.target;
-    // ...bloqueia submit implícito...
+    if (!el || el.tagName !== 'INPUT') return;
+
+    const enterAction = {
+        'sendAmount':         'confirmSendBtn',
+        'sendTo':             'confirmSendBtn',
+        'sendPassword':       'confirmSendBtn',
+        'stakeAmount':        'stakeBtn',
+        'buyAmountBrd':       'buyModalOkBtn',
+        'buyFromWallet':      'buyModalOkBtn',
+        'tipAmount':          'confirmTipBtn',
+        'tipMessage':         'confirmTipBtn',
+        'tipPassword':        'confirmTipBtn',
+        'tokenName':          'createTokenSubmitBtn',
+        'tokenSymbol':        'createTokenSubmitBtn',
+        'tokenSupply':        'createTokenSubmitBtn',
+        'nftTitle':           'createNFTSubmitBtn',
+        'nftPrice':           'createNFTSubmitBtn',
+        'nftPassword':        'createNFTSubmitBtn',
+        'nftPaymentPassword': 'confirmNFTPaymentBtn',
+        'loanPassword':       'confirmLoanBtn',
+        'sendNFTRecipient':   'confirmSendNFTBtn',
+        'sendNFTPassword':    'confirmSendNFTBtn',
+        'verify2FACode':      'verify2FABtn',
+        'importSeedInput':    'confirmImportBtn',
+        'importPasswordInput':'confirmImportBtn',
+        'viewSeedPassword':   'revealSeedBtn',
+        'privateKeyPassword': 'revealPrivateKeyBtn',
+        'bioSetupPassword':   'bioEnableBtn',
+        'unlockPasswordInput':'unlockWalletBtn',
+        'walletPasswordInput':'confirmSeedBtn',
+    };
+
+    const btnId = enterAction[el.id];
+    if (btnId) {
+        e.preventDefault();
+        const btn = document.getElementById(btnId);
+        if (btn && !btn.disabled) btn.click();
+    }
 }, true);
     
 // === LANGUAGE DROPDOWN ===
